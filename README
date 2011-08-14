@@ -1,0 +1,15 @@
+Idmr.Platform.dll
+
+Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
+
+Copyright (C) Michael Gaisser 2008-2011
+
+Instructions:
+-add everything to your project
+-add references as necessary to fix error messages
+-I'll make this nicer later
+
+Mission_*_.txt files contain file structure information
+
+Code licensed under the GNU General Pulic License (GPL) v3.0 or later
+Documentation licensed under the GNU Free Documentation License (FDL) v1.3 or later

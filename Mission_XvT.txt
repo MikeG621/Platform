@@ -1,0 +1,1051 @@
+XvT Mission File
+Author: Michael Gaisser (mjgaisser@gmail.com)
+Site: http://idmr.empirereborn.net
+Updated: 2011.08.11
+=====
+
+This is going to be a very lengthy definition of the XvT mission file. Due
+to the size of the files we'll be dealing with, I'll be using the extended
+structure write-up first seen in the TIE95 Mission File definition. If you see
+portions of this write-up that look similar to the TIE95 write-up, that's
+because they're probably word-for-word.
+
+The file itself is made of up multiple sections, equatable to a single resource
+in a LFD with multiple subheaders. For the purpose of these file descriptions,
+each section will will begin at '0', such that to find an offset in a later
+section, you simply add the total length of the sections before it to get
+there. This is what I use in my personal notes, so this is what I am forcing
+upon you. I win. I'll try to keep the mission design comments to a minimum,
+but I promise nothing.
+
+=====
+XvT Mission Overview
+
+The mission files are found in the \TRAIN directory, have the .TIE file
+extension and no required naming convention, just that the appropriate .LST
+has the filename spelled correctly to be able to play it. The LEC naming
+convention for the files is a little more involved than in TIE95 and varies
+depending on the type of mission you're creating. Since the naming convention
+doesn't have any effect on playing the mission, I'm going to skip over this.
+
+There are already a couple editors out there for XvT missions, most notably
+XvTEd. Anyone with a lot of spare time and a hex editor can map out these
+values, and whadya know, I was bored :P
+
+=====
+XvT Mission Structure
+
+The following values are used through this and all of my file definitions
+unless otherwise specified:
+NAME	LENGTH	DESC
+----	------	----
+BOOL	1	0=false, 1=true
+BYTE	1	unsigned 8-bit
+SBYTE	1	signed 8-bit, [-128, +127]
+CHAR	1	ASCII character
+SHORT	2	signed Int16
+INT	4	signed Int32
+STR(*)	*	null-terminated string, * is an integer
+
+NOTE: Any byte locations that are between defined values and are not explicitly
+defined are deemed as Reserved(0), and have only been found to have zero
+values. Unknown bytes that have non-zero values have been called out in the
+structure. Rest assured you have everything here to piece together a mission
+file from scratch, but please note offsets if creating read/write procedures.
+
+NOTE2: Since XvT is a step up from TIE95, the mission file is larger and more
+complex.  There are many sections that are repeated, and several additional
+sections that are introduced, some of which being dynamic in size.  You'll see
+the appropriate notes as needed.
+
+--
+FileHeader
+FlightGroup[NumFGs]
+Message[NumMessages]
+GlobalGoal[10]
+Team[10]
+Briefing[8]
+STR(64)[NumFGs,8,3]	FGGoalStrings
+STR(64)[10,3,4,3]	GlobalGoalStrings
+#if (PlatformID==12) (XvT)
+STR(1024)		MissionDescription
+#elseif (PlatformID==14) (BoP)
+STR(4096)[3]
+#endif
+--
+
+struct FileHeader (size 0xA4)
+{
+	0x00	SHORT	PlatformID
+	0x02	SHORT	NumFGs
+	0x04	SHORT	NumMessages
+	0x06	BYTE	Unknown1
+	0x08	BYTE	Unknown2
+	0x0B	BOOL	Unknown3
+	0x28	CHAR[16] Unknown4			[seen only in BoP]
+	0x50	CHAR[16] Unknown5			[seen only in BoP]
+	0x64	BYTE	MissionType
+	0x65	BOOL	Unknown6
+	0x66	BYTE	TimeLimitMinutes
+	0x67	BYTE	TimeLimitSeconds
+}
+
+struct FlightGroup (size 0x562)
+{
+	0x000	STR(20)	Name
+	0x014	Role[4]
+	0x028	STR(20)	Cargo
+	0x03C	STR(20)	SpecialCargo
+	0x050	BYTE	SpecialCargoCraft
+	0x051	BOOL	RandomSpecialCargo
+	0x052	BYTE	CraftType (enum)
+	0x053	BYTE	NumberOfCraft
+	0x054	BYTE	Status1 (enum)
+	0x055	BYTE	Warhead (enum)
+	0x056	BYTE	Beam (enum)
+	0x057	BYTE	IFF
+	0x058	BYTE	Team
+	0x059	BYTE	GroupAI (enum)
+	0x05A	BYTE	Markings (enum)
+	0x05B	BYTE	Radio (enum)
+	0x05D	BYTE	Formation (enum)
+	0x05E	BYTE	FormationSpacing
+	0x05F	BYTE	GlobalGroup
+	0x060	BYTE	LeaderSpacing
+	0x061	BYTE	NumberOfWaves
+	0x062	BYTE	Unknown1
+	0x063	BOOL	Unknown2
+	0x064	BYTE	PlayerNumber
+	0x065	BYTE	ArriveOnlyIfHuman
+	0x066	BYTE	PlayerCraft
+	0x067	BYTE	Yaw
+	0x068	BYTE	Pitch
+	0x069	BYTE	Roll
+	0x06D	BYTE	ArrivalDifficulty (enum)
+	0x06E	Trigger	Arrival1
+	0x072	Trigger	Arrival2
+	0x078	BOOL	Arrival1OrArrival2
+	0x079	Trigger	Arrival3
+	0x07D	Trigger	Arrival4
+	0x083	BOOL	Arrival3OrArrival4
+	0x084	BOOL	Arrival12OrArrival34
+	0x085	BYTE	Unknown3				[ARR_DELAY_30SECONDS?]
+	0x086	BYTE	ArrivalDelayMinutes
+	0x087	BYTE	ArrivalDelaySeconds
+	0x088	Trigger	Departure1
+	0x08C	Trigger	Departure2
+	0x092	BOOL	Departure1OrDeparture2
+	0x093	BYTE	DepartureDelayMinutes
+	0x094	BYTE	DepartureDelaySeconds
+	0x095	BYTE	AbortTrigger (enum)
+	0x096	BYTE	Unknown4
+	0x098	BYTE	Unknown5
+	0x09A	BYTE	ArrivalMothership
+	0x09B	BYTE	ArriveViaMothership
+	0x09C	BYTE	AlternateArrivalMothership
+	0x09D	BYTE	AlternateArriveViaMothership
+	0x09E	BYTE	DepartureMothership
+	0x09F	BYTE	DepartViaMothership
+	0x0A0	BYTE	AlternateDepartureMothership
+	0x0A1	BYTE	AlternatDepartViaMothership
+	0x0A2	Order[4]
+	0x1EA	Trigger[2] SkipToOrder4
+	0x1F4	BOOL	Skip1OrSkip2
+	0x1F5	GoalFG[8]
+	0x466	Waypt[4]
+	0x516	BOOL	Unknown17
+	0x518	BOOL	Unknown18
+	0x520	BOOL	Unknown19
+	0x521	BYTE	Unknown20
+	0x522	BYTE	Unknown21
+	0x523	BYTE	Countermeasures
+	0x524	BYTE	CraftExplosionTime
+	0x525	BYTE	Status2 (enum)
+	0x526	BYTE	GlobalUnit
+	0x527	BOOL	Unknown22
+	0x528	BOOL	Unknown23
+	0x529	BOOL	Unknown24
+	0x52A	BOOL	Unknown25
+	0x52B	BOOL	Unknown26
+	0x52C	BOOL	Unknown27
+	0x52D	BOOL	Unknown28
+	0x52E	BOOL	Unknown29
+	0x530	BYTE[8]	OptionalWarheads
+	0x538	BYTE[4]	OptionalBeams
+	0x53E	BYTE[3]	OptionalCountermeasures
+	0x542	BYTE	OptionalCraftCategory
+	0x543	BYTE[10] OptionalCraft
+	0x54D	BYTE[10] NumberOfOptionalCraft
+	0x557	BYTE[10] NumberOfOptionalCraftWaves
+}
+
+struct Role (size 0x4)
+{
+	0x0	CHAR[1]	Team
+	0x1	CHAR[3]	Designation (enum)
+}
+
+struct Trigger (size 0x4)
+{
+	0x0	BYTE	Condition (enum)
+	0x1	BYTE	VariableType (enum)
+	0x2	BYTE	Variable
+	0x3	BYTE	Amount (enum)
+}
+
+struct Order (size 0x52)
+{
+	0x00	BYTE	Order (enum)
+	0x01	BYTE	Throttle
+	0x02	BYTE	Variable1
+	0x03	BYTE	Variable2
+	0x04	BYTE	Unknown6
+	0x05	BYTE	Unknown7
+	0x06	BYTE	Target3Type (enum VariableType)
+	0x07	BYTE	Target4Type (enum VariableType)
+	0x08	BYTE	Target3
+	0x09	BYTE	Target4
+	0x0A	BOOL	Target3OrTarget4
+	0x0B	BYTE	Unknown8
+	0x0C	BYTE	Target1Type (enum VariableType)
+	0x0D	BYTE	Target1
+	0x0E	BYTE	Target2Type (enum VariableType)
+	0x0F	BYTE	Target2
+	0x10	BOOL	Target1OrTarget2
+	0x11	BYTE	Unknown9
+	0x12	BYTE	Speed
+	0x13	STR(16)	Designation
+}
+
+struct GoalFG (size 0x4E)
+{
+	0x00	BYTE	Argument
+	0x01	BYTE	Condition (enum)
+	0x02	BYTE	Amount (enum)
+	0x03	SBYTE	Points
+	0x04	BOOL	Enabled
+	0x05	BYTE	Team
+	0x06	BOOL	Unknown10
+	0x07	BOOL	Unknown11
+	0x08	BOOL	Unknown12
+	0x0B	BYTE	Unknown13
+	0x0C	BOOL	Unknown14
+	0x0D	BYTE	Reserved (0)			Unknown15
+	0x0E	BYTE	Unknown16
+}
+
+struct Waypt (size 0x2C)
+{
+	0x00	SHORT[4] StartPoints
+	0x08	SHORT[8] Waypoints
+	0x18	SHORT	Rendezvous
+	0x1A	SHORT	Hyperspace
+	0x1C	SHORT[8] Briefings
+}
+
+struct Message (size  0x74)
+{
+	0x00	SHORT	MessageIndex
+	0x02	CHAR[64] Message
+	0x42	BYTE[10] SentToTeams
+	0x4C	Trigger[2]
+	0x56	BOOL	Trigger1OrTrigger2
+	0x57	Trigger[2]
+	0x61	BOOL	Trigger3OrTrigger4
+	0x62	STR(16)	EditorNote
+	0x72	BYTE	DelaySeconds
+	0x73	BOOL	Trigger12OrTrigger34
+}
+
+struct GlobalGoal (size 0x80)
+{
+	0x00	SHORT	Reserved (3)
+	0x02	GoalGlobal[3]
+}
+
+struct GoalGlobal (size 0x2A)
+{
+	0x00	Trigger[2]
+	0x0A	BOOL	Trigger1OrTrigger2
+	0x0B	Trigger[2]
+	0x15	BOOL	Trigger2OrTrigger3
+	0x27	BOOL	Trigger12OrTrigger34
+	0x29	SBYTE	Points
+}
+
+struct Team (size 0x1E7)
+{
+	0x000	SHORT	Reserved (1)
+	0x002	STR(16)	Name
+	0x01A	BOOL[10] Allegiances
+	0x024	CHAR[64][6] EndOfMissionMessages
+}
+
+struct Briefing
+{
+	0x000	SHORT	RunningTime
+	0x002	SHORT	Unknown1
+	0x004	SHORT	StartEvents
+	0x006	INT	EventsLength
+	0x00A	Event[]
+	0x334	Tag[32]
+		String[32]
+}
+
+struct Event
+{
+	0x0	SHORT	Time
+	0x2	SHORT	Type (enum EventType)
+	0x4	SHORT[]	Variables
+}
+
+struct Tag
+{
+	0x0	SHORT	Length
+	0x2	CHAR[Length]
+}
+
+struct String
+{
+	0x0	SHORT	Length
+	0x2	CHAR[Length]
+}
+
+=====
+XvT Mission Detail
+
+Hopefully I named the variables descriptive enough for you that you can figure
+out what they mean, but I'm going to delve into each section anyway.
+Supplementary definitions and lists follow after the detail.
+
+-- FileHeader --
+
+Much like TIE95, the first 6 bytes are well-defined. The PlatformID byte can be
+one of two values.
+12	XvT
+14	BoP
+The only known difference between platforms is seen at the very end, and a few
+more Unknown values
+
+The MissionType value defines the mission as either a Training (normal) mission
+or a combat mission.
+00	Training
+01	Unknown
+02	Melee
+03	Multiplayer Training
+04	Multiplayer Combat
+
+Following that are the TimeLimit values, and a seemingly bunch of blank space.
+
+-- FlightGroup --
+
+The first string is obvious. The Pilot string from TIE95 has been removed, and
+instead there's a new section for craft roles. This is where the specialized
+messages are controlled. The full listing will be below. Roles can only be
+set for Imperials, Rebels, Team 3 and Team 4. It is also possible to set a
+role for all teams. The Designation stored is only the first three letters of
+the full item. The Team is a CHAR and can have these values:
+31	'1'		Imperial
+32	'2'		Rebel
+33	'3'		Team 3
+34	'4'		Team 4
+61	'a'		All
+68	'h'		Unknown
+It is unknown if the remaining teams can have roles, but they have been seen
+in LEC-produced missions. An alternate usage seen in LEC missions is defining
+an AI level across both the Team and Designation fields, instead using this
+area as a different string value. The effect of this is unknown, as the strings
+seen don't match the craft's, but it's possible that it may instead give the
+Designation to a team, it may give it to a certain AI level.
+
+Now we're back to traditional values, with both Cargo strings, and a bunch of
+familiar values you've seen in TIE95. The only item inserted here is Team,
+which should be easy enough to figure out. Radio operates differently
+in XvT. Instead of a binary switch, the value can be set to any team or
+player, 1-8. The full listing is defined later.
+
+Formation is obvious, but I'll explain the next couple. FormationSpacing is
+the spacing between the craft. GlobalGroup is a great way grouping (gasp)
+craft primarily for order and trigger use. Instead of listing out each FG
+or craft type in a order you can lump everything to a GG and use a single
+target. LeaderSpacing is how far ahead of the rest of the flight group the
+flight leader is. Having a flight leader way out front can absorb fire and let
+the rest of the group fire salvos before being attacked themselves.  
+
+NumberOfWaves is zero-indexed, but the number you'll likely see in editors is
+the number of total waves. A few values have been inserted here, the first
+being PlayerNumber. One-indexed, with zero meaning AI-controlled. Next is
+ArriveOnlyIfHuman, which is a boolean value that as its name suggests, when
+active will prevent a Flight Group from appearing in the mission if there isn't
+a human pilot behind the controls. PlayerCraft works the same as TIE, with
+00 being the default and 01 starting at position 2.
+
+Yaw, Pitch and Roll values only work for Space Objects (mines, buoys, etc), and
+like TIE the flight engine automaticlly adds a -90° (nose down) pitch angle.
+
+Another obvious value, then the Arrival Triggers. In sentence form, Triggers
+are "if Amount of VariableType Variable are Condition, then true". The Arrival
+and Departure triggers are just that. The Alternate triggers are there for if
+the originals can't be satisfied (mothership isn't in play). *Or* booleans are
+evaluated as And=false, Or=true. For the case of Triggers, determines if one or
+both Triggers must be completed to evaluate to true. The 12Or34 value likewise
+detmines if both trigger pairs must evaluate to true or not. The ARR_DELAY
+works as expected, with the countdown starting after the Trigger has been
+fired. The DEP_DELAY changed from TIE, in that it now too starts the countdown
+from the firing of the Trigger. The AbortTrigger value applies only to
+individual craft, not the entire flight group. The Arrive/DepartViaMothership
+values when false will cause craft to use hyperspace.
+
+Orders, they're what make the world go 'round. Pick the Order from the list
+and go from there. Throttle is expressed as (10 - %Throttle / 10). So 100%
+Throttle would be 00, 90% would be 01, 80% would be 02, etc. The Variables are
+controlled by the order itself, as different orders take different amounts for
+different reasons. Target# and Target#Type are the same as a Trigger's Variable
+and VariableType. The Speed value can override the simple Throttle method
+and set Flight Group's speed in MGLT. Helpful for convoys of differing craft.
+The value stored is not actually the MGLT value, but a fairly close
+approximation of MGLT / 2.2235 (I say fairly close because that's what I
+tweaked the multipler to get no difference up to index 100). The Designation
+string is a note that will show in the CMD as the craft's orders when you
+target it.
+
+XvT also gives us the first attempt at a dynamic mission with the
+SkipToOrder4 triggers. As you can guess, if this trigger fires the FG will
+immediately jump to their Order[3]. There is a number of uses for this, but
+that's best saved for a mission creation guide.
+
+Goals are for that specific flight group. In XvT you have 8 for a given FG,
+and all can be given point values, stored as (Points / 250), yielding a range
+of [-32000, +31750]. A new value in XvT is the Argument, which is defined as
+00	must
+01	must NOT
+02	BONUS must
+03	BONUS must NOT
+
+The Team values lets you assign to which team the goals apply, and the Enabled
+is just another boolean on/off switch.  One of the Unkonwns in the goal may be
+time related, as XvTEd has a "Time?" box, but this isn't something I've played
+with yet. For the love of God use these goals instead of Global Goals if
+possible.
+
+Waypoints are pretty simple, the array is X, Y, Z and Enabled in that order.
+The values are expressed as (Coordinate * 160), such that a value of 50 is
+0.50km, A0 is 1.00km, etc. The Enable value just tells the application if it
+needs to pay attention to it or not and is boolean, although it does occupy a
+SHORT. If more than one StartPoint is enabled, the application will pick one to
+use. Note that there are 8 different briefing WPs you can use, one for each.
+
+Now here is where the bulk of the new material has been placed. Starting off
+with the Countermeasures, this is a very short list of
+00	None
+01	Chaff
+02	Flare
+
+CraftExplosionTime acts strangely, and I haven't pinned it down exactly yet.
+It does affect how long it takes for a dying craft to dissappear, but seems to
+act differently with different ship classes and there is an unknown multipler
+from the stored value to seconds.
+
+Another Status value for you to use, followed by GlobalUnit. Similar to GG,
+GU can take multiple Flight Groups and assign them a single number for easy
+triggers and targets. Another use is to share craft numbering.
+
+The Optional values are the alternate loadouts that the player can select when
+going over his craft. As you can see you can list the majority of items and
+several craft at any given time. The Category value allows you to easily
+select a given ship list.
+00	None
+01	All Flyable
+02	All Rebel Flyable
+03	All Imperial Flyable
+04	User Defined
+
+-- Section 2a - Backdrops --
+Backdrops (stars, planets, etc) are special types of flight groups. Value
+definitions change for these purposes, which will be laid out here.
+
+The primary value here is Status1, which becomes the Backdrop value. This
+determines the graphic used. The majority of other values are ignored.
+
+-- Message --
+
+A simple section, there is the message string, the SendTo* array, the triggers,
+a delay, and the *Or* value.  The EditorNote serves no purpose within the game
+itself, and is merely there for bookkeeping use in the editor. The only special
+item of note is that the Delay value is evaluated to (seconds / 5), such that
+01 is 5s, 03 is 15s, etc.
+
+The message string actually holds a second purpose, that is defining the color
+of the message itself. The default message color is red, if the message starts
+with '1' it is green, '2' is blue and '3' is yellow. The number will not appear
+when displayed in-game.
+
+-- GlobalGoal --
+
+When FG goals just won't cut it, that's what there are for. Nothing really new
+here, Points is the same as GoalFG.Points. The array is Primary, Prevent and
+Secondary in that order. This Section is repeated 10 times, once for each team.
+
+-- Team --
+
+This section also repeats 10 times, once for each team. In here we have
+obviously the Name, its alliances (boolean values), and the mission goal
+messages. There's enough blank space at the end of the section for another
+string, but as far as I know it's never used.  The goal messages also follow
+the same color behaviour as in-flight messages.
+
+EndOfMissionMessages are 64 character strings, not terminated. It's really a
+[64][3,2] array, as the strings are PrimaryComplete1, PrimaryComplete2,
+PrimaryFailed1, PrimaryFailed2, SecondaryComplete1, SecondaryComplete2.
+
+-- Briefing --
+
+Okay, we finally get to the briefing. The command listing itself I'll leave
+for the list definition, that'll also have the variable listing as well. The
+first value is the duration of the briefing itself in ticks. XvT uses 0x14
+ticks per second.
+
+Each Event is marked by the briefing time (in ticks) and the EventType,
+followed by 0-4 additional variables. These variables are to be omitted if
+they are not used for a given command. The last four active bytes in the Event
+array is always 0F 27 22 00, which is the EndBriefing command at time 9999, and
+usually isn't the last four bytes in the section (that would be a rather busy
+briefing).
+
+The StartsLength value is the number of SHORTs, Variables included, that occur
+at Time=0. EventsLength is the total number of SHORTs occupied in the Events
+array up to and including the EndBriefing command.
+
+The Tag and String arrays are not fixed sizes. They have a minimum length of
+64 bytes, which is the case of every length being zero. If a Length is zero,
+then the CHAR[] is omitted. That's the real highlight right there.
+
+-- FGGoalStrings --
+
+Simple, fast, and the majority of the time empty. Instead of using the default
+strings on the goal listing you can define your own here. This section is a
+fixed size, and occurs once for each Flight Group.
+
+The array structure is 3 strings per goal, 8 goals per FG. Incomplete, Complete
+and Failed in that order.
+
+-- GlobalGoalStrings --
+
+For the most part, the same as FGGoalStrings. Define your own strings, this
+section is always here with a fixed size and repeats 10 times, once for each
+team. 
+
+The array structure here is 3 strings per Trigger, 4 Triggers per goal, 3 goals
+per Team. Strings are Incomplete, Complete and Failed in that order. Goals are
+Primary, Prevent and Secondary in that order.
+
+Prevent Failed is always empty. Secondary Incomplete and Failed are always
+empty.
+
+-- MissionDescription --
+
+As noted in the structure listing, this section differs depending on platform.
+It's a really long string(s), it's so hard. For BoP, the array is
+SuccessfulDebrief, FailedDebrief, MissionDescription in that order.
+
+There you have it, the XvT Mission file format. Enjoy :P
+
+=====
+List Definitions
+
+Designation
+00	None
+01	Base
+02	Command Ship
+03	Convoy Craft
+04	Manufacturing Facility
+05	Mission Critical Craft
+06	Primary Target
+07	Reload Craft
+08	Resource Center
+09	Secondary Target
+0A	Station
+0B	Strike Craft
+0C	Tertiary Target
+
+CraftType
+00	None
+01	X-wing
+02	Y-wing
+03	A-wing
+04	B-wing
+05	TIE Fighter
+06	TIE Interceptor
+07	TIE Bomber
+08	TIE Advanced
+09	*TIE Defender
+0A	Unused
+0B	Unused
+0C	*Missile Boat
+0D	T-wing
+0E	Z-95 Headhunter
+0F	R-41 Starchaser
+10	Assault Gunboat
+11	Shuttle
+12	Escort Shuttle
+13	System Patrol Craft
+14	*Scout Craft
+15	Stormtrooper Transport
+16	Assault Transport
+17	Escort Transport
+18	Tug
+19	Combat Utility Vehicle
+1A	Container A
+1B	Container B
+1C	Container C
+1D	Container D
+1E	Heavy Lifter
+1F	Unused
+20	Bulk Freighter
+21	Cargo Ferry
+22	Modular Conveyor
+23	*Container Transport
+24	Medium Transport
+25	Murrian Transport
+26	Corellian Transport
+27	Unused
+28	Corellian Corvette
+29	Modified Corvette
+2A	Nebulon-B Frigate
+2B	Modified Frigate
+2C	*C-3 Passenger Liner
+2D	*Carrack Cruiser
+2E	Strike Cruiser
+2F	Escort Carrier
+30	Dreadnaught
+31	Mon Calamari Cruiser
+32	Light Mon Calamari Cruiser
+33	Interdictor Cruiser
+34	Victory-class Star Destroyer
+35	Imperator-class Star Destroyer
+36	Executor-class Star Destroyer
+37	Container E
+38	Container F
+39	Container G
+3A	Container H
+3B	Container I
+3C	Platform A
+3D	Platform B
+3E	Platform C
+3F	Platform D
+40	Platform E
+41	Platform F
+42	Asteroid R&D Station
+43	Asteroid Laser Battery
+44	Asteroid Warhead Battery
+45	X/7 Factory
+46	Satellite 1
+47	Satellite 2
+48	Unused
+49	Unused
+4A	Unused
+4B	Mine A
+4C	Mine B
+4D	Mine C
+4E	Gun Emplacement
+4F	Unused
+50	Probe A
+51	Probe B
+52	Unused
+53	Nav Buoy A
+54	Nav Buoy B
+55	Unused
+56	Asteroid Field
+57	Planet
+58	Unused
+59	Unused
+5A	Shipyard
+5B	Repair Yard
+5C	Modified Strike Cruiser
+
+Status
+00	None
+01	2X Warheads
+02	1/2 Warheads
+03	Disabled
+04	1/2 Shields
+05	No Lasers
+06	No Hyperdrive
+07	Shields 0%, charging
+08	Shields added or 200%
+09	Hyperdrive added
+0A	Unknown
+0B	Unknown
+0C	(200% Shields)
+0D	Shields 50%, Charging
+0E	(No Lasers)
+0F	Unknown
+10	Shields + Hyperdrive added
+11	Unknown
+12	200% Shields
+13	(50% Shields)
+14	Invincible
+15	Infinite Warheads
+
+Warhead
+00	None
+01	Heavy Rocket
+02	Space Bomb
+03	Concussion Missile
+04	Torpedo
+05	Advanced Concussion Missile
+06	Advanced Torpedo
+07	Mag Pulse Torpedo
+
+Beam
+00	None
+01	Tractor Beam
+02	Jamming Beam
+03	Decoy Beam
+
+GroupAI
+00	Rookie (None)
+01	Officer
+02	Veteran
+03	Ace
+04	Top Ace
+05	Jedi (Invincible)
+
+Markings
+00	Red (TIE - None)
+01	Gold (TIE - Red)
+02	Blue (TIE - Gold)
+03	Green (TIE - Blue)
+
+Radio
+00	None
+01	Team 1 (Imperial)
+02	Team 2 (Rebel)
+03	Team 3
+04	Team 4
+05	Team 5
+06	Team 6
+07	Team 7
+08	Team 8
+09	Player 1
+0A	Player 2
+0B	Player 3
+0C	Player 4
+0D	Player 5
+0E	Player 6
+0F	Player 7
+10	Player 8
+
+Formation
+00	Vic
+01	Finger Four
+02	Line Astern
+03	Line Abreast
+04	Echelon Right
+05	Echelon Left
+06	Double Astern
+07	Diamond
+08	Stack
+09	High X
+0A	Vic Abreast
+0B	High Vic
+0C	Reverse High Vic
+0D	Reverse Line Astern
+0E	Stacked Low
+0F	Abreast Right
+10	Abreast Left
+11	Wing Forward
+12	Wing Back
+13	Line Astern Up
+14	Line Astern Down
+15	Abreast V
+16	Abreast Inverted V
+17	Double Astern Mirror
+18	Double Stacked Astern
+19	Double Stacked High
+1A	Diamond 1
+1B	Diamond 2
+1C	Flat Pentagon
+1D	Side Pentagon
+1E	Front Pentagon
+1F	Flat Hexagon
+20	Side Hexagon
+21	Front Hexagon
+22	Single Point
+
+ArrivalDifficulty
+00	All
+01	Easy
+02	Medium
+03	Hard
+04	Medium, Hard
+05	Easy, Medium
+
+Condition
+00	Always (true)
+01	Created
+02	Destroyed
+03	Attacked
+04	Captured
+05	Inspected
+06	Boarded
+07	Docked
+08	Disabled
+09	Survived (exist)
+0A	None (false)
+0B	Unknown (---)
+0C	Completed mission
+0D	Completed Primary Goals
+0E	Failed Primary Goals
+0F	Completed Secondary Goals
+10	Failed Secondary Goals
+11	Completed Bonus Goals
+12	Failed Bonus Goals
+13	Dropped off
+14	Reinforced
+15	0% Shields
+16	50% Hull
+17	Out of Warheads
+18	Unknown (arrive?)
+19	be dropped off
+1A	destroyed in 1 hit
+1B	NOT be disabled
+1C	NOT be picked up
+1D	destroyed w/o Inspection
+1E	be docked with
+1F	NOT be docked with
+20	begin boarding
+21	NOT begin boarding
+22	50% Shields
+23	25% Shields
+24	75% Hull
+25	25% Hull
+26	Unknown
+27	Unknown
+28	Unknown
+29	be all Player Craft
+2A	reinforced by AI?
+2B	come and go
+2C	be picked up
+2D	withdraw
+2E	be carried away
+
+VariableType
+00	None
+01	Flight Group
+02	CraftType (enum)
+03	CraftCategory (enum)
+04	ObjectCategory (enum)
+05	IFF
+06	Order (enum)
+07	CraftWhen (enum)
+08	Global Group
+0C	Team
+15	All Teams except
+17	Global Unit
+
+CraftCategory
+00	Starfighters
+01	Transports
+02	Freighters/Containers
+03	Starships
+04	Utility Craft
+05	Platforms/Facilities
+06	Mines
+
+ObjectCategory
+00	Craft
+01	Weapons
+02	Space Objects
+
+Amount
+00	100%
+01	75%
+02	50%
+03	25%
+04	At least one
+05	All but one
+06	Special craft
+07	All non-special craft
+08	All non-player craft
+09	Player's craft
+0A	100% of first wave
+0B	75% of first wave
+0C	50% of first wave
+0D	25% of first wave
+0E	At least one of first wave
+0F	All but one of first wave
+10	66%
+11	33%
+12	Each craft
+
+AbortTrigger
+00	None
+01	0% Shields
+02	Unknown
+03	Out of warheads
+04	50% Hull
+05	Attacked
+06	50% Shields
+07	25% Shields
+08	75% Hull
+09	25% Hull
+
+Order
+00	Hold Station
+01	Go Home
+02	Circle
+	Var1	Number of Loops
+03	Circle and Evade
+	Var1	Number of Loops
+04	Rendezvous
+	Var1	Number of Dockings
+05	Disabled
+	Var1	Number of Dockings
+06	Await Boarding
+	Var1	Number of Dockings
+07	Attack
+08	Attack Escorts
+09	Protect
+0A	Escort
+	Var2	Attack Player (0/1)
+0B	Disable
+0C	Board and Give Cargo
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+0D	Board and Take Cargo
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+0E	Board and Exchange Cargo
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+0F	Board and Capture Cargo
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+10	Board and Destroy Cargo
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+11	Pick up
+	Var1	Docking Time (seconds / 5)
+12	Drop off
+	Var1	Deploy Time?
+	Var2	Flight Group
+13	Wait
+	Var1	Wait time (seconds / 5)
+14	SS Wait
+	Var1	Wait time (seconds / 5)
+15	SS Patrol Loop
+	Var1	Number of Loops
+16	SS Await Return
+17	SS Launch
+18	SS Protect
+19	SS Wait and Protect
+1A	SS Patrol and Attack
+1B	SS Patrol and Disable
+1C	SS Hold Steady
+	Var1	Wait time (seconds / 5)
+1D	SS Go Home
+1E	SS Wait
+	Var1	Wait time (seconds / 5)
+1F	SS Board
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+20	Board to Repair
+	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
+21	Hold Station
+22	Hold Steady
+23	SS Hold Station
+24	Self-destruct
+	Var1	Delay Time (seconds / 5)
+25	Kamikaze
+26	SS Disabled
+27	SS Hold Steady
+
+CraftWhen
+01	Inspected
+02	Boarded
+04	Disabled
+05	Attacked
+06	0% Shields?
+07	Special craft
+08	Non-special craft
+09	Player's craft
+0A	Non-player's craft
+0C	not disabled
+
+EventType
+03	Stop
+04	Title Text
+	Var1	String#
+05	Caption Text
+	Var1	String#
+06	Move Map
+	Var1	X
+	Var2	Y
+07	Zoom Map
+	Var1	X
+	Var2	Y
+08	Clear FG Tags
+09	FG Tag 1
+	Var1	Flight Group
+0A	FG Tag 2
+	Var1	Flight Group
+0B	FG Tag 3
+	Var1	Flight Group
+0C	FG Tag 4
+	Var1	Flight Group
+0D	FG Tag 5
+	Var1	Flight Group
+0E	FG Tag 6
+	Var1	Flight Group
+0F	FG Tag 7
+	Var1	Flight Group
+10	FG Tag 8
+	Var1	Flight Group
+11	Clear Text Tags
+12	Text Tag 1
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+13	Text Tag 2
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+14	Text Tag 3
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+15	Text Tag 4
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+16	Text Tag 5
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+17	Text Tag 6
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+18	Text Tag 7
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+19	Text Tag 8
+	Var1	Tag#
+	Var2	Color
+	Var3	X
+	Var4	Y
+22	End Briefing
+
+=====
+This documentation is distributed under the GNU Free Documentation License
+version 1.3 or later

@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+  <TITLE>Mission Class (Idmr.Platform.Xwa)</TITLE>
+  <link rel="stylesheet" type="text/css" href="../stylesheet.css" />
+</HEAD>
+<BODY>
+<Object type="application/x-oleobject" classid="clsid:$CLSID$">
+	<param name="Keyword" value="Mission"/>
+	<param name="Keyword" value="Classes"/>
+</OBJECT>
+  <h1>Mission Class</h1>
+  Framework for XWA<BR><BR>
+  <B>Namespace:</B> <a href="Idmr.Platform.Xwa.html">Idmr.Platform.Xwa</a><BR>
+  <B>Assembly:</B> Idmr.Platform.dll<BR>
+  <B>Version:</B> 1.0<BR>
+  <B>Syntax:</B> <span>public class</span> Mission<BR><BR>
+  <hr><h2>Members</h2><hr>
+  <h3>Constructors</h3>
+  <TABLE>
+	<TR><TH class=iconcol></TH><TH class=namecol>Name</TH><TH>Description</TH></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/cons.html">Mission( )</a></TD><TD>Create a blank mission</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/cons.html">Mission(string)</a></TD><TD>Create a new mission from a file</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/cons.html">Mission(System.IO.FileStream)</a></TD><TD>Create a new mission from an open FileStream</TD></TR>
+  </TABLE>
+  <h3>Methods</h3>
+  <TABLE>
+	<TR><TH class=iconcol></TH><TH class=namecol>Name</TH><TH>Description</TH></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/gggn.html">GetGlobalGroupName(int)</a></TD><TD>Returns the name of the selected Global Group</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/giff.html">GetIff(int)</a></TD><TD>Returns the name of the selected IFF</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/greg.html">GetRegion(int)</a></TD><TD>Returns the name of the selected Region</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/lff.html">LoadFromFile(string)</a></TD><TD>Load a mission from a file</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/lfs.html">LoadFromStream(System.IO.FileStream)</a></TD><TD>Load a mission from an open FileStream</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/save.html">Save( )</a></TD><TD>Overloaded. Save the mission</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/sggn.html">SetGlobalGroupName(int, string)</a></TD><TD>Sets the name of the selected Global Group</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/siff.html">SetIff(int, string)</a></TD><TD>Sets the name of the selected IFF</TD></TR>
+	<TR><TD><img src="../../images/meth.gif"></TD><TD><a href="Mission/sreg.html">SetRegion(int, string)</a></TD><TD>Sets the name of the selected Region</TD></TR>
+  </TABLE>
+  <h3>Properties</h3>
+  <TABLE>
+	<TR><TH class=iconcol></TH><TH class=namecol>Name</TH><TH>Description</TH></TR>
+    <TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/brf.html">Briefings</a></TD><TD>The Briefings for the mission</TD></TR>
+	<TR><TD><img src="../../images/const.gif"><img src="../../images/prop.gif"></TD><TD><a href="Mission/clim.html">CraftLimit</a></TD><TD>Maximum number of craft that can exist at one time in a single Region</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/end.html">EndWhenComplete</a></TD><TD>Determines if the mission will automatically end when Primary goals are complete</TD></TR>
+	<TR><TD><img src="../../images/const.gif"><img src="../../images/prop.gif"></TD><TD><a href="Mission/fglim.html">FlightGroupLimit</a></TD><TD>Maximum number of FlightGroups that can exist in the mission file</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/fg.html">FlightGroups</a></TD><TD>The FlightGroups for the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/gcargs.html">GlobalCargo</a></TD><TD>The Global Cargos for the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/glob.html">GlobalGoals</a></TD><TD>The Global Goals for the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/hgr.html">Hangar</a></TD><TD>The start mode of the player (aka MissionType)</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/logo.html">Logo</a></TD><TD>Briefing image</TD></TR>
+	<TR><TD><img src="../../images/const.gif"><img src="../../images/prop.gif"></TD><TD><a href="Mission/mlim.html">MessageLimit</a></TD><TD>Maximum number of In-Flight Messages that can exist in the mission file</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/mess.html">Messages</a></TD><TD>The In-Flight Messages for the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/mdesc.html">MissionDescription</a></TD><TD>Summary of the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/mfail.html">MissionFailed</a></TD><TD>Debriefing text</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/fil.html">MissionFileName</a></TD><TD>The file name of the mission file</TD></TR>
+    <TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/path.html">MissionPath</a></TD><TD>The full path to the mission file</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/msucc.html">MissionSuccessful</a></TD><TD>Debriefing text</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/nfg.html">NumFlightGroups</a></TD><TD>Gets the number of FlightGroups in the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/nmess.html">NumMessages</a></TD><TD>Gets the number of In-Flight Messages in the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/off.html">Officer</a></TD><TD>Voice of in-game mission update messages</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/teams.html">Teams</a></TD><TD>The Teams for the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/tlmin.html">TimeLimitMin</a></TD><TD>Minutes value of the time limit</TD></TR>
+    <TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/unk.html">Unknown1</a></TD><TD>Unknown FileHeader value</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/unk.html">Unknown2</a></TD><TD>Unknown FileHeader value</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/unk.html">Unknown3</a></TD><TD>Unknown FileHeader value</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/unk.html">Unknown4</a></TD><TD>Unknown FileHeader value</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="Mission/unk.html">Unknown5</a></TD><TD>Unknown FileHeader value</TD></TR>
+  </TABLE>
+  <h3>Structures</h3>
+  <TABLE>
+	<TR><TH class=iconcol></TH><TH class=namecol>Name</TH><TH>Description</TH></TR>
+    <TR><TD><img src="../../images/struct.gif"></TD><TD><a href="Mission/gcar.html">GlobCarg</a></TD><TD>Container for Global Cargo data</TD></TR>
+  </TABLE>
+  <h3>Enumerations</h3>
+  <TABLE>
+	<TR><TH class=iconcol></TH><TH class=namecol>Name</TH><TH>Description</TH></TR>
+	<TR><TD><img src="../../images/enum.gif"></TD><TD><a href="Mission/tind.html">TriggerIndexes</a></TD><TD>Parts of a Trigger array</TD></TR>
+  </TABLE>
+  <hr>
+  <h2>Remarks</h2>
+  This is the primary container object for XWA mission files
+  <hr>
+  Copyright (C) 2011 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
+  This library is free software, distributed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a>.
+  <HR>
+</BODY>
+</HTML>

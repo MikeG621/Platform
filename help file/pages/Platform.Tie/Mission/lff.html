@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+  <TITLE>Mission.LoadFromFile(string) (Idmr.Platform.Tie)</TITLE>
+  <link rel="stylesheet" type="text/css" href="../../stylesheet.css" />
+</HEAD>
+<BODY>
+<Object type="application/x-oleobject" classid="clsid:$CLSID$">
+	<param name="Keyword" value="LoadFromFile">
+	<param name="Keyword" value="Methods">
+</OBJECT>
+  <h1>Mission.LoadFromFile(string)</h1>
+  <B>Namespace:</B> <a href="../Idmr.Platform.Tie.html">Idmr.Platform.Tie</a><BR>
+  <B>Assembly:</B> Idmr.Platform.dll<BR>
+  <B>Syntax:</B> <span>public void</span> LoadFromFile(<span>string</span> filePath)<BR>
+  <hr>
+  <h3>Parameters</h3>
+  <TABLE>
+	<TR><TH class=namecol>Name</TH><TH>Description</TH></TR>
+	<TR><TD>filePath</TD><TD>Full path to the file</TD></TR>
+  </TABLE>
+  <h3>Exceptions</h3>
+  <TABLE>
+    <TR><TH class=namecol>Name</TH><TH>Condition</TH></TR>
+	<TR><TD>System.IO.FileNotFoundException</TD><TD><i>filePath</i> does not exist</TD></TR>
+	<TR><TD>System.IO.InvalidDataException</TD><TD><i>filePath</i> is not a TIE mission file</TD></TR>
+  </TABLE>
+  <hr>
+  <h2>Remarks</h2>
+  Calls <a href="lfs.html">LoadFromStream()</a>
+  <hr>
+  Copyright (C) 2011 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
+  This library is free software, distributed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a>.
+  <HR>
+</BODY>
+</HTML>

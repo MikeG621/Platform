@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+  <TITLE>FlightGroup.Waypoints (Idmr.Platform.Xwa)</TITLE>
+  <link rel="stylesheet" type="text/css" href="../../stylesheet.css" />
+</HEAD>
+<BODY>
+<Object type="application/x-oleobject" classid="clsid:$CLSID$">
+	<param name="Keyword" value="Waypoints">
+	<param name="Keyword" value="Properties">
+</OBJECT>
+  <h1>FlightGroup.Waypoints</h1>
+  <B>Namespace:</B> <a href="../Idmr.Platform.Xwa.html">Idmr.Platform.Xwa</a><BR>
+  <B>Assembly:</B> Idmr.Platform.dll<BR>
+  <B>Syntax:</B> <span>public short</span>[,] Waypoints { <span>get</span>; }<BR><BR>
+  Controls FlightGroup movement and locations. (Inherited from <a href="../../Platform/Idmr.Platform.BaseFlightGroup.html">BaseFlightGroup</a>)
+  <hr>
+  <h2>Remarks</h2>
+  Array is defined as [{Start1, Start2, Start3, Hyperspace, R1O1WP1, R1O1WP2... R1O1WP8, R1O2WP1... R1O4WP8, R2O4WP1... R4O4WP8}, {X, Y, Z, Enabled, Region}]<br>
+  Value stored is Coordinate * 160<br>
+  Size of array is [132,5]. Eight WPs per order, four orders per region, four regions.<br>
+  <i>Enabled</i> is a boolean value, 0/1.
+  <hr>
+  Copyright (C) 2011 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
+  This library is free software, distributed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a>.
+  <HR>
+</BODY>
+</HTML>

@@ -1,0 +1,893 @@
+TIE Mission File
+Author: Michael Gaisser (mjgaisser@gmail.com)
+Site: http://idmr.empirereborn.net
+Updated: 2011.08.04
+=====
+
+This is going to be a very lengthy definition of the TIE95 mission file.  Due
+to the size of the files we'll be dealing with, my structure display will vary
+slightly, by adding offsets before values.  It's not a big deal with resource
+files, but I doubt you'll want to count a few kilobytes to find a value :P
+
+The file itself is made of up multiple sections, equatable to a single resource
+in a LFD with multiple subheaders.  For the purpose of these file descriptions,
+each section will will begin at '0', such that to find an offset in a later
+section, you simply add the total length of the sections before it to get
+there.  This is what I use in my personal notes, so this is what I am forcing
+upon you.  I win.  I'll try to keep the mission design comments to a minimum,
+but I promise nothing.
+
+=====
+TIE95 Mission Overview
+
+The mission files found in the, *gasp*, \MISSION directory have the .TIE file
+extension and no required naming convention, just that the matching BATTLE LFD
+has the filename spelled correctly to be able to play it. The LEC naming
+convention for the files is simple; B #BATTLE_NUMBER# M #MISSION_NUMBER# 
+#PLAYER_CRAFT# (F is TIE, B is Bomber, etc) #CREATOR# (M or W, last initial of
+the mission designer). By no means do you have to follow this, I just put that
+out there if you need to find a specific mission, or are just curious.
+
+There are already a few editors out there for TIE missions, most notably TFW
+(TIE Fighter Workshop). Anyone with a lot of spare time and a hex editor can
+map out these values, and whadya know, I was bored :P
+
+I have no clue what the .INV files are there for, these seem to be generated
+almost at random. The mission files starting with H are the Historical
+Missions found in the Combat Chamber.
+
+=====
+TIE95 Mission Structure
+
+The following values are used through this and all of my file definitions
+unless otherwise specified:
+NAME	LENGTH	DESC
+----	------	----
+BOOL	1	0=false, 1=true
+BYTE	1	unsigned 8-bit
+SBYTE	1	signed 8-bit, [-128, +127]
+CHAR	1	ASCII character
+SHORT	2	signed Int16
+INT	4	signed Int32
+STR(*)	*	null-terminated string, * is a decimal number
+
+NOTE: Any byte locations that are between defined values and are not explicitly
+defined are deemed as Reserved(0), and have only been found to have zero
+values. Unknown bytes that have non-zero values have been called out in the
+structure. Rest assured you have everything here to piece together a mission
+file from scratch, but please note offsets if creating read/write procedures.
+
+--
+FileHeader
+FlightGroup[NumFGs]
+Message[NumMessages]
+GlobalGoal[3]
+Briefing
+PreMissionQuestions[10]
+PostMissionQuestions[10]
+BYTE	Reserved(0xFF)
+--
+
+struct FileHeader (size 0x1CA)
+{
+	0x000	SHORT	PlatformID (-1)
+	0x002	SHORT	NumFGs
+	0x004	SHORT	NumMessages
+	0x006	SHORT	Reserved (3)		might be # of GlobalGoals
+	0x008	BYTE	Unknown1
+	0x009	BOOL	Unknown2
+	0x00A	BYTE	BriefingOfficers
+	0x00D	BOOL	CapturedOnEject
+	0x018	CHAR[64][6]	EndOfMissionMessages
+	0x19A	CHAR[12][4]	IffNames3-6
+}
+
+struct FlightGroup (size 0x124)
+{
+	0x000	CHAR[12] Name
+	0x00C	CHAR[12] Pilot
+	0x018	CHAR[12] Cargo
+	0x024	CHAR[12] SpecialCargo
+	0x030	BYTE	SpecialCargoCraft
+	0x031	BOOL	RandomSpecialCargoCraft
+	0x032	BYTE	CraftType (enum)
+	0x033	BYTE	NumberOfCraft
+	0x034	BYTE	Status (enum)
+	0x035	BYTE	Warhead (enum)
+	0x036	BYTE	Beam (enum)
+	0x037	BYTE	Iff
+	0x038	BYTE	GroupAI (enum)
+	0x039	BYTE	Markings (enum)
+	0x03A	BOOL	ObeyPlayerOrders
+	0x03B	BYTE	Reserved (0)			Unknown1 in TFW
+	0x03C	BYTE	Formation (enum)
+	0x03D	BYTE	FormationSpacing		Unknown2
+	0x03E	BYTE	GlobalGroup			Unknown3
+	0x03F	BYTE	LeaderSpacing			Unknown4
+	0x040	BYTE	NumberOfWaves
+	0x041	BYTE	Unknown5
+	0x042	BYTE	PlayerCraft
+	0x043	BYTE	Yaw				Unknown6
+	0x044	BYTE	Pitch				Unknown7
+	0x045	BYTE	Roll				Unknown8
+	0x046	BOOL	Unknown9
+	0x047	BYTE	Unknown10
+	0x048	BYTE	Reserved (0)			Unknown11
+	0x049	BYTE	ArrivalDifficulty (enum)
+	0x04A	Trigger	Arrival1
+	0x04E	Trigger	Arrival2
+	0x052	BOOL	Arrival1OrArrival2
+	0x053	BYTE	Reserved (0)			Unknown12
+	0x054	BYTE	ArrivalDelayMinutes
+	0x055	BYTE	ArrivalDelaySeconds
+	0x056	Trigger	Departure
+	0x05A	BYTE	DepartureDelayMinutes		Unknown13
+	0x05B	BYTE	DepartureDelatSeconds		Unknown14
+	0x05C	BYTE	AbortTrigger (enum)
+	0x05D	BYTE	Reserved (0)			Unknown15
+	0x05E	BYTE	Unknown16
+	0x05F	BYTE	Reserved (0)			Unknown17
+	0x060	BYTE	ArrivalMothership
+	0x061	BOOL	ArriveViaMothership
+	0x062	BYTE	DepartureMothership
+	0x063	BOOL	DepartViaMothership
+	0x064	BYTE	AlternateArrivalMothership
+	0x065	BOOL	AlternateArriveViaMothership
+	0x066	BYTE	AlternateDepartureMothership
+	0x067	BOOL	AlternateDepartViaMothership
+	0x068	Order[3]
+	0x09E	GoalFG[4]
+	0x0A6	SBYTE	BonusGoalPoints
+	0x0A8	Waypt[4]
+	0x120	BOOL	Unknown19
+	0x122	BYTE	Unknown20
+	0x123	BOOL	Unknown21
+}
+
+struct Trigger (size 0x4)
+{
+	0x0	BYTE	Condition (enum)
+	0x1	BYTE	VariableType (enum)
+	0x2	BYTE	Variable
+	0x3	BYTE	TriggerAmount (enum)
+}
+
+struct Order (size 0x12)
+{
+	0x00	BYTE	Order (enum)
+	0x01	BYTE	Throttle
+	0x02	BYTE	Variable1
+	0x03	BYTE	Variable2
+	0x04	BYTE	Unknown18
+	0x06	BYTE	Target3Type (enum VariableType)
+	0x07	BYTE	Target4Type (enum VariableType)
+	0x08	BYTE	Target3
+	0x09	BYTE	Target4
+	0x0A	BOOL	Target3OrTarget4
+	0x0C	BYTE	Target1Type (enum VariableType)
+	0x0D	BYTE	Target1
+	0x0E	BYTE	Target2Type (enum VariableType)
+	0x0F	BYTE	Target2
+	0x10	BOOL	Target1OrTarget2
+}
+
+struct Waypt (size 0x1E)
+{
+	0x00	SHORT[4] StartPoints
+	0x08	SHORT[8] Waypoints
+	0x18	SHORT	Rendezvous
+	0x1A	SHORT	Hyperspace
+	0x1C	SHORT	Briefing
+}
+
+struct GoalFG (size 0x2)
+{
+	0x0	BYTE	Condition (enum)
+	0x1	BYTE	GoalAmount (enum)
+}
+
+struct Message (size 0x5A)
+{
+	0x00	STR(64)	Message
+	0x40	Trigger[2]
+	0x48	STR(12)	EditorNote
+	0x58	BYTE	DelaySeconds
+	0x59	BOOL	Trigger1OrTrigger2
+}
+
+struct GlobalGoal (size 0x1C)
+{
+	0x00	Trigger[2]
+	0x19	BOOL	Trigger1OrTrigger2
+}
+
+struct Briefing
+{
+	0x000	SHORT	RunningTime
+	0x002	SHORT	Unknown
+	0x004	SHORT	StartLength
+	0x006	INT	EventsLength
+	0x00A	Event[]
+	0x32A	Tag[32]
+		String[32]
+}
+
+struct Event
+{
+	0x0	SHORT	Time
+	0x2	SHORT	EventType (enum)
+	0x4	SHORT[]	Variables
+}
+
+struct Tag
+{
+	0x0	SHORT	Length
+	0x2	CHAR[Length]
+}
+
+struct String
+{
+	0x0	SHORT	Length
+	0x2	CHAR[Length]
+}
+
+struct PreMissionQuestions
+{
+	0x0	SHORT	Length
+	0x2	CHAR[]	Question
+		BYTE	Reserved (0xA)
+		CHAR[]	Answer
+}
+
+struct PostMissionQuestions
+{
+	0x0	SHORT	Length
+	0x2	BYTE	QuestionCondition
+	0x3	BYTE	QuestionType
+	0x4	CHAR[]	Question
+		BYTE	Reserved (0xA)
+		CHAR[]	Answer
+}
+
+=====
+TIE95 Mission Detail
+
+Hopefully I named the variables descriptive enough for you that you can figure
+out what they mean, but I'm going to delve into each section anyway. Section 5
+and on will require a bit of explaining anyway. Supplementary definitions and
+lists follow after the detail.
+
+-- FileHeader --
+
+The first SHORT is a marker used to identify the mission file as belonging to
+TIE95. Other platforms have different markers in this place, but it is
+unknown whether or not the application actually checks this value to determine
+if the file is valid or not.
+
+The two Num values are simply that, the number of FG and Message sections that
+are contained in the file, much like any other Length value in a resource file.
+
+BriefingOfficers is a value 01-03, and determines which officers will be
+present in the room before you launch into a mission.
+01	Both officers
+02	Flight Officer
+03	Secret Order
+(No other values used, but evaluate to Both Officers)
+
+CapturedOnEject will send you to a prison planet when true, rescued by Imperial
+forces when false. Of course, death is always an option, and is seemingly
+random. The next six strings are the messages you see after the given goals are
+completed or failed. The array is really [3,2], two messages each for
+PrimaryComplete, SecondaryComplete and PrimaryFailed in that order. Following
+that, we have the name of the extra IFFs. IFF1 and IFF2 are hard-coded as Rebel
+and Imperial, respectively. If the IFF is hostile, then the first character is
+1 (hex value 31, not 01). In one occassion, char of 4 has been seen (hex 34).
+
+-- FlightGroup --
+
+The first string is obvious. The second string, Pilot, isn't actually used. It
+appears to be just a bookkeeping note for the editor. Third is obvious again,
+as is the fourth. I'm going to continue to skim through this section here, down
+to ObeyPlayerOrders. For TIE95, this is a simple boolean value, but in later
+platforms this is renamed to simply "Radio" and takes on additional
+functionality.
+
+Formation is obvious, but I'll explain the next couple. FormationSpacing
+defaults to 02, which is a decent spacing for fighters and other small craft.
+You may want to increase that for larger ships. GlobalGroup is a great way of
+grouping (gasp) craft primarily for order and trigger use. Instead of listing
+out each flightgroup or craft type in an order you can lump everything to a GG
+and use a single target. LeaderSpacing is how far ahead of the rest of the
+flight group the flight leader is. Having a flight leader way out front can
+absorb fire and let the rest of the group fire salvos before being attacked
+themselves.  
+
+NumberOfWaves is zero-indexed, so the number stored is actually the number of
+additional waves after the inital starting group. PlayerCraft is one-indexed
+with no player being a value of zero. You can only have one PlayerCraft 
+active in a mission at any given time, otherwise both craft will be
+unresponsive. TFW will only let you set one, but there are ways around this and
+interesting tricks you can do with more than one.
+
+Yaw, Pitch and Roll values only work for Space Objects (mines, buoys, etc). The
+following description differs from previous editors, so bear with me.
+LucasArts, in their infinite wisdom, had the flight engine automatically add a
+-90° (nose down) Pitch angle to Objects. In XWA, this holds for all craft. We
+don't have to worry about this with normal craft since the waypoints control
+direction. TFW treats these values as Unknowns, I don't think TIE Edit can even
+edit them. The values stored are angle(°)/360*256, so 90° is 0x40 (d64). Yaw is
+evaluated first, then Pitch, then Roll.
+
+Another obvious value, then the Arrival Trigger. In sentence form, Triggers
+are "if Amount of VariableType Variable are Condition, then true". The Arrival
+and Departure triggers are just that. The Alternate triggers are there for if
+the originals can't be satisfied (mothership isn't in play). *Or* values
+determine if one or both of the Triggers must fire to be true. The ArrivalDelay
+works as expected, with the countdown starting after the Trigger has been
+fired. The DepartureDelay works differently, though. That timer works from the
+mission timer seen in your cockpit display. The flight group will leave when
+the timer reaches the Delay value, or when the Trigger is fired, whichever
+comes first. The AbortCondition applies only to individual craft, not the
+entire flight group. When *ViaMothership is false, craft use hyperspace.
+
+Orders, they're what make the world go 'round. Pick the Order from the list
+and go from there. The Throttle value is expressed as (10 - %Throttle / 10).
+So 100% Throttle would be 00, 90% would be 01, 80% would be 02, etc. The
+Variables are controlled by the Order itself, as different orders take
+different amounts for different reasons. Target and TargetType are the same
+as Trigger.Variable and VariableType.
+
+Goals are for that specific flight group. The array is comprised of Primary,
+Secondary, Secret and Bonus, in that order. The Secret goal as far I can tell
+is simply hidden and really doesn't affect anything.  For BonusGoalPoints, the
+stored value is expressed as (Points / 50), so 01 is 50pts, 02 is 100pts, etc.
+Because the value is an SBYTE, this yields a point range of [-6400, +6350].
+By the Force use these goals instead of Global Goals when possible.
+
+Waypoints are pretty simple, the array is X, Y, Z and Enabled in that order.
+The values are expressed as (Coordinate * 160), such that a value of 0x50 is
+0.50km, 0xA0 is 1.00km, etc. The Enable value just tells the application if it
+needs to pay attention to it or not and is boolean, although it does occupy a
+SHORT. If more than one StartPoint is enabled, the application will pick one to
+use. Thus ends this section.
+
+-- Backdrops --
+Backdrops (stars, planets, etc) are special types of flight groups. Value
+definitions change for these purposes, which will be laid out here.
+
+The primary value here is Status, which becomes the Backdrop value. This
+determines the graphic used. The majority of other values are ignored.
+
+-- Message --
+
+Another simple section; there is the message string, the triggers, a delay, and
+the *Or* value. The EditorNote serves no purpose within the game itself, and is
+merely there for bookkeeping use in the editor. The Delay value is evaluated to
+(seconds / 5), such that 01 is 5s, 03 is 15s, etc.
+
+The message string actually holds a second purpose, that is defining the color
+of the message itself. The default message color is red, if the message starts
+with '1' it is green, '2' is blue and '3' is purple. The number will not appear
+when displayed in-game.
+
+-- GlobalGoal --
+
+When FG goals just won't cut it, that's what these are for. The mysterious
+Secret goal is missing, and there's a lot of dead space, but what is there is
+self-explanatory by now. Array is Primary, Secondary and Bonus.
+
+-- Briefing --
+
+Okay, we finally get to the briefing. The command listing itself I'll leave
+for the list definition, that'll also have the variable listing as well. The
+first value is the duration of the briefing itself in ticks. TIE uses 0xC
+ticks per second.
+
+Each Event is marked by the briefing time (in ticks) and the EventType,
+followed by 0-4 additional variables. These variables are to be omitted if
+they are not used for a given command. The last four active bytes in the Event
+array is always 0F 27 22 00, which is the EndBriefing command at time 9999, and
+usually isn't the last four bytes in the section (that would be a rather busy
+briefing).
+
+The StartsLength value is the number of SHORTs, Variables included, that occur
+at Time=0. EventsLength is the total number of SHORTs occupied in the Events
+array up to and including the EndBriefing command.
+
+The Tag and String arrays are not fixed sizes. They have a minimum length of
+64 bytes, which is the case of every length being zero. If a Length is zero,
+then the CHAR[] is omitted. That's the real highlight right there.
+
+-- PreMissionQuestion --
+
+Similar to Tags and Strings, this has a dynamic size. Similarly, if Length is
+zero, the following values are omitted. In reality, the Question and Answer are
+part of the same string. If the Length is nonzero, then 0x0A is appended to the
+Question. This is the line break that the application is searching for to
+seperate the substrings, not the usual 00. The first five questions belong to
+the Flight Officer, and the second five belong to the Secret Order Officer.
+The array has a minimum byte length of 0x14.
+
+-- PostMissionQuestion --
+
+This is pretty much the same as PreMission, only with the added
+QuestionCondition and QuestionType values. QuestionType can be 00-02.
+00	None
+01	Primary Goals
+02	Secondary Goals
+QuestionCondition has three known values, and I would guess more that are
+undiscovered.
+00	None
+04	Successful
+05	Failed
+Again, the Length can be zero and thus ignoring the values following it, with a
+minimum length of 0x14. 0x0A is still appended to Question to be used as the
+seperator.
+
+The 0xFF after the questions might be required as a EOF flag, might not, but I
+use it for my write code. Can't hurt. That said, after the last Post question
+is done I really don't think TIE cares anymore, since I've put other values
+before the FF and I've never had troubles with running missions like that.
+
+There you have it, the TIE95 Mission file format. Enjoy :P
+
+=====
+List Definitions
+
+CraftType
+00	None
+01	X-wing
+02	Y-wing
+03	A-wing
+04	B-wing
+05	TIE Fighter
+06	TIE Interceptor
+07	TIE Bomber
+08	TIE Advanced
+09	TIE Defender
+0A	Unused
+0B	Unused
+0C	Missile Boat
+0D	T-wing
+0E	Z-95 Headhunter
+0F	R-41 Starchaser
+10	Assault Gunboat
+11	Shuttle
+12	Escort Shuttle
+13	System Patrol Craft
+14	Scout Craft
+15	Stormtrooper Transport
+16	Assault Transport
+17	Escort Transport
+18	Tug
+19	Combat Utility Vehicle
+1A	Container A
+1B	Container B
+1C	Container C
+1D	Container D
+1E	Heavy Lifter
+1F	Unused
+20	Bulk Freighter
+21	Cargo Ferry
+22	Modular Conveyor
+23	Container Transport
+24	Unused
+25	Murrian Transport
+26	Corellian Transport
+27	Unused
+28	Corellian Corvette
+29	Modified Corvette
+2A	Nebulon-B Frigate
+2B	Modified Frigate
+2C	C-3 Passenger Liner
+2D	Carrack Cruiser
+2E	Strike Cruiser
+2F	Escort Carrier
+30	Dreadnaught
+31	Mon Calamari Cruiser
+32	Light Mon Calamari Cruiser
+33	Interdictor Cruiser
+34	Victory-class Star Destroyer
+35	Imperator-class Star Destroyer
+36	Unused
+37	Container E
+38	Container F
+39	Container G
+3A	Container H
+3B	Container I
+3C	Platform A
+3D	Platform B
+3E	Platform C
+3F	Platform D
+40	Platform E
+41	Platform F
+42	Asteroid R&D Station
+43	Asteroid Laser Battery
+44	Asteroid Warhead Battery
+45	X/7 Factory
+46	Satellite 1
+47	Satellite 2
+48	Unused
+49	Unused
+4A	Unused
+4B	Mine A
+4C	Mine B
+4D	Mine C
+4E	Unused
+4F	Unused
+50	Probe A
+51	Probe B
+52	Unused
+53	Nav Buoy A
+54	Nav Buoy B
+55	Unused
+56	Asteroid Field
+57	Planet
+
+Status
+00	None
+01	2X Warheads
+02	1/2 Warheads
+03	Disabled
+04	1/2 Shields
+05	No Lasers
+06	No Hyperdrive
+07	Shields 0%, charging
+08	Shields added or 200%
+09	Hyperdrive added
+14	Invincible
+
+Warhead
+00	None
+01	Heavy Rocket
+02	Space Bomb
+03	Concussion Missile
+04	Torpedo
+05	Advanced Concussion Missile
+06	Advanced Torpedo
+07	Mag Pulse Torpedo
+
+Beam
+00	None
+01	Tractor Beam
+02	Jamming Beam
+
+GroupAI
+00	Rookie (None)
+01	Novice
+02	Veteran
+03	Officer
+04	Ace
+05	Top Ace (Invincible)
+
+Markings
+00	Red (TIE - None)
+01	Gold (TIE - Red)
+02	Blue (TIE - Gold)
+03	Green (TIE - Blue)
+
+Formation
+00	Vic
+01	Finger Four
+02	Line Astern
+03	Line Abreast
+04	Echelon Right
+05	Echelon Left
+06	Double Astern
+07	Diamond
+08	Stack
+09	High X
+0A	Vic Abreast
+0B	High Vic
+0C	Reverse High Vic
+
+ArrivalDifficulty
+00	All
+01	Easy
+02	Medium
+03	Hard
+04	Medium, Hard
+05	Easy, Medium
+
+Condition
+00	Always (true)
+01	Created
+02	Destroyed
+03	Attacked
+04	Captured
+05	Inspected
+06	Boarded
+07	Docked
+08	Disabled
+09	Survived (exist)
+0A	None (false)
+0B	Unknown (---)
+0C	Completed mission
+0D	Completed Primary Goals
+0E	Failed Primary Goals
+0F	Completed Secondary Goals
+10	Failed Secondary Goals
+11	Completed Bonus Goals
+12	Failed Bonus Goals
+13	Dropped off
+14	Reinforced
+15	0% Shields
+16	50% Hull
+17	Out of Warheads
+18	Unknown (arrive?)
+
+VariableType
+00	None
+01	Flight Group
+02	CraftType (enum)
+03	CraftCategory (enum)
+04	ObjectCategory (enum)
+05	IFF
+06	Order (enum)
+07	CraftWhen (enum)
+08	Global Group
+09	Misc (enum)
+
+CraftCategory
+00	Starfighters
+01	Transports
+02	Freighters/Containers
+03	Starships
+04	Utility Craft
+05	Platforms/Facilities
+06	Mines
+
+ObjectCategory
+00	Craft
+01	Weapons
+02	Space Objects
+
+Amount
+00	100%
+01	75%
+02	50%
+03	25%
+04	At least one
+05	All but one
+06	Special craft
+07	All non-special craft
+08	All non-player craft
+09	Player's craft
+0A	100% of first wave
+0B	75% of first wave
+0C	50% of first wave
+0D	25% of first wave
+0E	At least one of first wave
+0F	All but one of first wave
+
+GoalAmount
+00	100%
+01	50%
+02	At least one
+03	All but one
+04	Special craft
+
+AbortTrigger
+00	None
+01	0% Shields
+02	Systems 75% (fighters and transports only)
+03	Out of warheads
+04	50% Hull
+05	Attacked
+
+Order
+00	Hold Station
+01	Go Home
+02	Circle
+	Var1	Number of Loops
+03	Circle and Evade
+	Var1	Number of Loops
+04	Rendezvous
+	Var1	Number of Dockings
+05	Disabled
+	Var1	Number of Dockings
+06	Await Boarding
+	Var1	Number of Dockings
+07	Attack
+	Var1	Component?
+08	Attack Escorts
+09	Protect
+0A	Escort
+0B	Disable
+0C	Board and Give Cargo
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+0D	Board and Take Cargo
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+0E	Board and Exchange Cargo
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+0F	Board and Capture Cargo
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+10	Board and Destroy Cargo
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+11	Pick up
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+12	Drop off
+	Var1	Deploy time? (seconds x 5)
+	Var2	Flight Group
+13	Wait
+	Var1	Wait time (seconds x 5)
+14	SS Wait
+	Var1	Wait time (seconds x 5)
+15	SS Patrol Loop
+	Var1	Number of Loops
+16	SS Await Return
+17	SS Launch
+18	SS Protect
+19	SS Wait and Protect
+1A	SS Patrol and Attack
+1B	SS Patrol and Disable
+1C	SS Hold Steady
+	Var1	Wait time (seconds x 5)
+1D	SS Go Home
+1E	SS Wait
+	Var1	Wait time (seconds x 5)
+1F	SS Board
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+20	Board to Repair
+	Var1	Docking Time (seconds x 5)
+	Var2	Number of Dockings
+21	Hold Station
+22	Hold Steady
+23	SS Hold Station
+24	SS Kamikaze?
+25	SS Kamikaze?
+26	SS Disabled
+27	SS Disabled
+
+CraftWhen
+01	Boarding
+02	Boarded
+03	Defence
+04	Disabled
+07	Special craft
+08	Non-special craft
+09	Player's craft
+0A	Non-player's craft
+
+Misc
+00	Rookie craft
+01	Novice craft
+02	Officer craft
+03	Veteran craft
+04	Ace craft
+05	Top Ace craft
+06	Stationary craft
+07	Craft returning to base
+08	Non-evading craft
+09	Craft in formation
+0A	Rendezvousing craft
+0B	Disabled craft
+0C	Craft awaiting boarding
+0D	Attacking craft
+0E	Craft atatcking escorts
+0F	Protecting craft
+10	Escorting craft
+11	Disabling craft
+12	Delivering craft
+13	Siezing craft
+14	Exchanging craft
+15	Capturing craft
+16	Craft destroying cargo
+17	Picked up craft
+18	Dropped off craft
+19	Waiting fighters
+1A	Waiting starships
+1B	Patrolling starships
+1C	SS awaiting returns
+1D	SS waiting to launch
+1E	SS waiting to be boarded
+1F	SS witing for boarding craft to appear
+20	SS attacking
+21	SS disabling
+22	SS disabling?
+23	SS flying home
+24	Rebels
+25	Imperials
+27	Spacecraft
+28	Weapons
+29	Space objects
+2E	Fighters
+2F	Transports
+30	Freighters
+31	Utility craft
+32	Startships
+33	Platforms
+36	Mines
+
+EventType
+03	Page Break
+04	Title Text
+	Var1	String#
+05	Caption Text
+	Var1	String#
+06	Move Map
+	Var1	X
+	Var2	Y
+07	Zoom Map
+	Var1	X
+	Var2	Y
+08	Clear FG Tags
+09	FG Tag 1
+	Var1	Flight Group
+0A	FG Tag 2
+	Var1	Flight Group
+0B	FG Tag 3
+	Var1	Flight Group
+0C	FG Tag 4
+	Var1	Flight Group
+0D	FG Tag 5
+	Var1	Flight Group
+0E	FG Tag 6
+	Var1	Flight Group
+0F	FG Tag 7
+	Var1	Flight Group
+10	FG Tag 8
+	Var1	Flight Group
+11	Clear Text Tags
+12	Text Tag 1
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+13	Text Tag 2
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+14	Text Tag 3
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+15	Text Tag 4
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+16	Text Tag 5
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+17	Text Tag 6
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+18	Text Tag 7
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+19	Text Tag 8
+	Var1	Tag#
+	Var2	TextTagColor (enum)
+	Var3	X
+	Var4	Y
+22	End Briefing
+
+TextTagColor
+00	Green
+01	Red
+02	Purple
+03	Blue
+04	Red
+05	Light Red
+06	Gray
+07	White
+
+=====
+This documentation is distributed under the GNU Free Documentation License
+version 1.3 or later

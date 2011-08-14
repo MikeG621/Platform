@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+  <TITLE>BaseFlightGroup Class (Idmr.Platform)</TITLE>
+  <link rel="stylesheet" type="text/css" href="../stylesheet.css" />
+</HEAD>
+<BODY>
+<Object type="application/x-oleobject" classid="clsid:$CLSID$">
+	<param name="Keyword" value="BaseFlightGroup">
+	<param name="Keyword" value="Classes">
+</OBJECT>
+  <h1>BaseFlightGroup Class</h1>
+  Base class for flightgroups<BR><BR>
+  <B>Namespace:</B> <a href="Idmr.Platform.html">Idmr.Platform</a><BR>
+  <B>Assembly:</B> Idmr.Platform.dll<BR>
+  <B>Version:</B> 1.0<BR>
+  <B>Syntax:</B> [Serializable] <span>public abstract class</span> BaseFlightGroup<BR><BR>
+  <hr><h2>Members</h2><hr>
+  <h3>Properties</h3>
+  <TABLE>
+	<TR><TH class=iconcol></TH><TH class=namecol>Name</TH><TH>Description</TH></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/abort.html">AbortTrigger</a></TD><TD>Controls individual craft departure requirement</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/ai.html">AI</a></TD><TD>AI setting for NPC craft</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/adtrig.html">ArrDepTrigger</a></TD><TD>Arrival and Departure trigger array</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/acraft1.html">ArrivalCraft1</a></TD><TD>Primary arrival mothership FG index</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/acraft2.html">ArrivalCraft2</a></TD><TD>Secondary arrival mothership FG index</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/amin.html">ArrivalDelayMinutes</a></TD><TD>Delay in minutes after the Arrival Trigger conditions have been met</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/asec.html">ArrivalDelaySeconds</a></TD><TD>Delay in seconds after the Arrival Trigger conditions have been met</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/ameth1.html">ArrivalMethod1</a></TD><TD>Primary method of arrival</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/ameth2.html">ArrivalMethod2</a></TD><TD>Secondary method of arrival</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/beam.html">Beam</a></TD><TD>Determines Beam weapon used in the FlightGroup</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/car.html">Cargo</a></TD><TD>Default cargo assigned to entire FlightGroup</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/craft.html">CraftType</a></TD><TD>Determines ship or object type</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/dcraft1.html">DepartureCraft1</a></TD><TD>Primary departure mothership FlightGroup index</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/dcraft2.html">DepartureCraft2</a></TD><TD>Secondary departure mothership FlightGroup index</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/dmeth1.html">DepartureMethod1</a></TD><TD>Primary method of departure</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/dmeth2.html">DepartureMethod2</a></TD><TD>Secondary method of departure</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/dmin.html">DepartureTimerMinutes</a></TD><TD>Delay in minutes after the Departure Trigger conditions have been met in XvT and XWA, after mission start in TIE</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/dsec.html">DepartureTimerSeconds</a></TD><TD>Delay in seconds after the Departure Trigger conditions have been met in XvT and XWA, after mission start in TIE</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/diff.html">Difficulty</a></TD><TD>Determines which mission difficulty setting is required for FlightGroup to arrive</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/form.html">Formation</a></TD><TD>FlightGroup Formation index</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/fdist.html">FormDistance</a></TD><TD>FlightGroup spacing while in formation</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/fldist.html">FormLeaderDist</a></TD><TD>Controls how far in front of the FlightGroup the Leader is</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/gg.html">GlobalGroup</a></TD><TD>Grouping assignment</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/iff.html">IFF</a></TD><TD>Friend or Foe index</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/mark.html">Markings</a></TD><TD>Determines FlightGroup colors if applicable</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/mis.html">Missile</a></TD><TD>Warhead available to the FlightGroup</TD></TR>
+    <TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/name.html">Name</a></TD><TD>Name of FlightGroup</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/ncraft.html">NumberOfCraft</a></TD><TD>Number of craft per wave</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/nwave.html">NumberOfWaves</a></TD><TD>Number of times FlightGroup will arrive</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/ord.html">Orders</a></TD><TD>Controls FlightGroup actions during the mission</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/pitch.html">Pitch</a></TD><TD>Craft y-axis orientation at start in degrees, -180 to 179</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/pcraft.html">PlayerCraft</a></TD><TD>When used, indicates craft index the Player occupies</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/randsc.html">RandSpecCargo</a></TD><TD>When <i>true</i> a craft within the FlightGroup will be picked at random to use SpecialCargo</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/roll.html">Roll</a></TD><TD>Craft x-axis orientation at start in degrees, -180 to 179</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/sc.html">SpecialCargo</a></TD><TD>Cargo string for Special Craft</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/sccraft.html">SpecialCargoCraft</a></TD><TD>When non-zero, indicated craft will use SpecialCargo instead of Cargo</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/stat.html">Status1</a></TD><TD>Condition of FlightGroup upon creation</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/wp.html">Waypoints</a></TD><TD>Controls FlightGroup movement and locations</TD></TR>
+	<TR><TD><img src="../../images/prop.gif"></TD><TD><a href="BaseFlightGroup/yaw.html">Yaw</a></TD><TD>Craft z-axis orientation at start in degrees, -180 to 179</TD></TR>
+  </TABLE>
+  <hr>
+  <h2>Remarks</h2>
+  Contains members that are shared among all FlightGroup types. Class is Serializable to allow copy/paste functionality.
+  <h3>See Also</h3>
+  <a href="../Platform.Tie/Idmr.Platform.Tie.FlightGroup.html">Platform.Tie.FlightGroup Class</a><BR>
+  <a href="../Platform.Xvt/Idmr.Platform.Xvt.FlightGroup.html">Platform.Xvt.FlightGroup Class</a><BR>
+  <a href="../Platform.Xwa/Idmr.Platform.Xwa.FlightGroup.html">Platform.Xwa.FlightGroup Class</a><BR>
+  <hr>
+  Copyright (C) 2011 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
+  This library is free software, distributed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a>.
+  <HR>
+</BODY>
+</HTML>

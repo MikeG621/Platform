@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+  <TITLE>Globals.SetGoalPoints(int, short) (Idmr.Platform.Xvt)</TITLE>
+  <link rel="stylesheet" type="text/css" href="../../stylesheet.css" />
+</HEAD>
+<BODY>
+<Object type="application/x-oleobject" classid="clsid:$CLSID$">
+	<param name="Keyword" value="SetGoalPoints">
+	<param name="Keyword" value="Methods">
+	<param name="Keyword" value="Modifiers">
+</OBJECT>
+  <h1>Globals.SetGoalPoints(int, short)</h1>
+  <B>Namespace:</B> <a href="../Idmr.Platform.Xvt.html">Idmr.Platform.Xvt</a><BR>
+  <B>Assembly:</B> Idmr.Platform.dll<BR>
+  <B>Syntax:</B> <span>public void</span> SetGoalPoints(<span>int</span> goal, <span>short</span> points)
+  <hr>
+  <h3>Parameters</h3>
+  <TABLE>
+	<TR><TH class=namecol>Name</TH><TH>Description</TH></TR>
+	<TR><TD>goal</TD><TD>Goal category, 0-2; Primary, Prevent, Secondary</TD></TR>
+	<TR><TD>points</TD><TD>Point total, between -32000 and 31750 in multiples of 250 (will be rounded)</TD></TR>
+  </TABLE>
+  <h3>Exceptions</h3>
+  <TABLE>
+    <TR><TH class=namecol>Name</TH><TH>Condition</TH></TR>
+	<TR><TD>ArgumentException</TD><TD><i>points</i> is outside the acceptable range</TD></TR>
+	<TR><TD>IndexOutOfRangeException</TD><TD><i>goal</i> is outside the acceptable range</TD></TR>
+  </TABLE>
+  <hr>
+  <h2>Remarks</h2>
+  Sets the points awarded or subtracted for the selected goal
+  <hr>
+  Copyright (C) 2011 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
+  This library is free software, distributed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a>.
+  <HR>
+</BODY>
+</HTML>
