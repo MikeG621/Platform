@@ -331,11 +331,10 @@ comes first. The AbortCondition applies only to individual craft, not the
 entire flight group. When *ViaMothership is false, craft use hyperspace.
 
 Orders, they're what make the world go 'round. Pick the Order from the list
-and go from there. The Throttle value is expressed as (10 - %Throttle / 10).
-So 100% Throttle would be 00, 90% would be 01, 80% would be 02, etc. The
-Variables are controlled by the Order itself, as different orders take
-different amounts for different reasons. Target and TargetType are the same
-as Trigger.Variable and VariableType.
+and go from there. The Throttle value is simply expressed as
+%Throttle = (value * 10). The Variables are controlled by the Order itself, as
+different orders take different amounts for different reasons. Target and
+TargetType are the same as Trigger.Variable and VariableType.
 
 Goals are for that specific flight group. The array is comprised of Primary,
 Secondary, Secret and Bonus, in that order. The Secret goal as far I can tell

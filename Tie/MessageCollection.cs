@@ -1,48 +1,42 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform.Tie
 {
 	/// <summary>Object to maintain mission in-flight messages</summary>
 	/// <remarks>ItemLimit is set to Mission.MessageLimit (16)</remarks>
-	public class MessageCollection : ResizableCollection
+	public class MessageCollection : Idmr.Common.ResizableCollection<Message>
 	{
-		/// <summary>Create a new empty Collection</summary>
+		/// <summary>Creates a new empty Collection</summary>
 		public MessageCollection()
 		{
 			_itemLimit = Mission.MessageLimit;
 		}
 
-		/// <summary>Create a new Collection with multiple initial Messages</summary>
+		/// <summary>Creates a new Collection with multiple initial Messages</summary>
 		/// <param name="quantity">Number of Messages to start with</param>
 		public MessageCollection(int quantity)
 		{
 			_itemLimit = Mission.MessageLimit;
 			if (quantity <= _itemLimit && quantity > 0) _count = quantity;
-			else if (quantity <= 0) _count = 1;
+			else if (quantity < 0) _count = 1;
+			else if (quantity == 0) return;
 			else _count = _itemLimit;
 			_items = new Message[_count];
 			for (int i=0;i<_count;i++) _items[i] = new Message();
 		}
 
-		/// <value>A single Message within the Collection</value>
-		/// <example>MessageCollection Msgs = new MessageCollection(3);<br>
-		/// Msgs[2].MessageString = "This is a message";<br>
-		/// Msgs[1] = new Message();<br>
-		/// Msgs[0].MessageString = Msgs[2].MessageString // Msgs[0].MessageString = "This is a message"</example>
-		public Message this[int index]
-		{
-			get { return (Message)_getItem(index); }
-			set { _setItem(index, value); }
-		}
-
 		/// <summary>Add a new Message to the end of the Collection</summary>
 		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
 		public int Add() { return _add(new Message()); }
-
-		/// <summary>Adds the given Message to the end of the Collection</summary>
-		/// <param name="message">The Message to be added</param>
-		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
-		public int Add(Message message) { return _add(message); }
 
 		/// <summary>Add a new Message with the given string to the end of the Collection</summary>
 		/// <param name="message">The message string</param>
@@ -55,7 +49,7 @@ namespace Idmr.Platform.Tie
 		}
 
 		/// <summary>Empties the Collection of entries</summary>
-		/// <remarks>All existing messages are lost, Count is set to zero</remarks>
+		/// <remarks>All existing messages are lost, <i>Count</i> is set to zero</remarks>
 		public void Clear()
 		{
 			_count = 0;
@@ -66,12 +60,6 @@ namespace Idmr.Platform.Tie
 		/// <param name="index">Location of the Message</param>
 		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
 		public int Insert(int index) { return _insert(index, new Message()); }
-
-		/// <summary>Inserts the given Message at the specified index</summary>
-		/// <param name="index">Location of the Message</param>
-		/// <param name="message">The Message to be added</param>
-		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
-		public int Insert(int index, Message message) { return _insert(index, message); }
 
 		/// <summary>Inserts a new Message with the given string at the specified index</summary>
 		/// <param name="index">Location of the Message</param>

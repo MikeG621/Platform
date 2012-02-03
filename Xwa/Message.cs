@@ -1,4 +1,14 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
+using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
 {
@@ -7,105 +17,81 @@ namespace Idmr.Platform.Xwa
 	/// <remarks>Class is serializable to allow copy & paste functionality</remarks>
 	public class Message : BaseMessage
 	{
-		private bool[] _sentTo = new bool[10];
-		private bool[] _trigAndOr = new bool[4];
-		private byte _unknown1 = 0;	// 0x66
-		private string _voiceID = "";
-		private byte _originatingFG = 0;
-		private byte _delaySeconds = 0;
-		private byte _delayMinutes = 0;
-		private bool _unknown2 = false;	// 0xA0
-		private string _note = "";
+		Mission.Trigger[] _triggers = new Mission.Trigger[6];
+		bool[] _sentTo = new bool[10];
+		bool[] _trigAndOr = new bool[4];
+		string _voiceID = "";
+		string _note = "";
 
 		/// <summary>Creates a new Message object</summary>
-		/// <remarks>Triggers is set to 6 triggers of Length 6. Last two Triggers are Cancel Triggers.</remarks>
+		/// <remarks>Sent to Team 1 by default</remarks>
 		public Message()
 		{
-			_triggers = new byte[6, 6];
-			for (int i=0;i<6;i++) _triggers[i, 0] = 10;
+			for (int i = 0; i < 6; i++) _triggers[i] = new Mission.Trigger();
 			_sentTo[0] = true;
 		}
 
-		/// <summary>Controls which teams can receive the message</summary>
+		/// <summary>Gets or sets if the triggers are mutually exclusive</summary>
+		public bool T1AndOrT2
+		{
+			get { return _trigAndOr[0]; }
+			set { _trigAndOr[0] = value; }
+		}
+		/// <summary>Gets or sets if the triggers are mutually exclusive</summary>
+		public bool T3AndOrT4
+		{
+			get { return _trigAndOr[1]; }
+			set { _trigAndOr[1] = value; }
+		}
+		/// <summary>Gets or sets if the triggers pairs are mutually exclusive</summary>
+		public bool T12AndOrT34
+		{
+			get { return _trigAndOr[2]; }
+			set { _trigAndOr[2] = value; }
+		}
+		/// <summary>Gets or sets if the triggers are mutually exclusive</summary>
+		public bool CancelT1AndOrT2
+		{
+			get { return _trigAndOr[3]; }
+			set { _trigAndOr[3] = value; }
+		}
+		/// <summary>Gets the Triggers that control the Message behaviour</summary>
+		/// <remarks>Array length is 6. Four normal Triggers, followed by two Cancel Triggers</remarks>
+		public Mission.Trigger[] Triggers { get { return _triggers; } }
+		/// <summary>Gets which teams can receive the message</summary>
 		/// <remarks>Array length = 10</remarks>
-		/// <exception cref="ArgumentException">Attempting to set with an improperly sized array</exception>
-		public bool[] SentTo
-		{
-			get { return _sentTo; }
-			set
-			{
-				if (value.Length == _sentTo.Length) _sentTo = value;
-				else throw new ArgumentException("Array must have the correct size");
-			}
-		}
-		/// <summary>Determines if both triggers must be completed</summary>
-		/// <remarks>Array is {1AO2, 3AO4, 12AO34, Cancel1AO2}.<br><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
-		/// <exception cref="ArgumentException">Attempting to set with an improperly sized array</exception>
-		public bool[] TrigAndOr
-		{
-			get { return _trigAndOr; }
-			set
-			{
-				if (value.Length == _trigAndOr.Length) _trigAndOr = value;
-				else throw new ArgumentException("Array must have the correct size");
-			}
-		}
+		public bool[] SentTo { get { return _sentTo; } }
+		/// <summary>Gets the array for the trigger AndOr values</summary>
+		/// <remarks>Array is {1AO2, 3AO4, 12AO34, Cancel1AO2}. <i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
+		public bool[] TrigAndOr { get { return _trigAndOr; } }
 		/// <summary>Unknown value</summary>
-		/// <remarks>Default is zero, offset 0x66</remarks>
-		public byte Unknown1
-		{
-			get { return _unknown1; }
-			set { _unknown1 = value; }
-		}
-		/// <summary>Editor note typically used to signify the speaker</summary>
+		/// <remarks>Offset 0x66</remarks>
+		public byte Unknown1 = 0;
+		/// <summary>Gets or sets the editor note typically used to signify the speaker</summary>
 		/// <remarks>Value is restricted to 8 characters</remarks>
 		public string VoiceID
 		{
 			get { return _voiceID; }
-			set
-			{
-				if (value.Length > 8) _voiceID = value.Substring(0, 8);
-				else _voiceID = value;
-			}
+			set { _voiceID = StringFunctions.GetTrimmed(value, 8); }
 		}
-		/// <summary>Editor note typically used to signify the FlightGroup index of the speaker</summary>
+		/// <summary>Gets or sets the editor note typically used to signify the FlightGroup index of the speaker</summary>
 		/// <remarks>Defaults to zero, there appears to be no game mechanic or consequence for using this value</remark>
-		public byte OriginatingFG
-		{
-			get { return _originatingFG; }
-			set { _originatingFG = value; }
-		}
-		/// <value>Seconds after trigger is fired</value>
+		public byte OriginatingFG = 0;
+		/// <summary>Gets or sets the seconds after trigger is fired</summary>
 		/// <remarks>Default is zero. Can be combined with <i>DelayMinutes</i></remarks>
-		public byte DelaySeconds
-		{
-			get { return _delaySeconds; }
-			set { _delaySeconds = value; }
-		}
-		/// <value>Minutes after trigger is fired</value>
+		public byte DelaySeconds = 0;
+		/// <summary>Gets or sets the minutes after trigger is fired</summary>
 		/// <remarks>Default is zero. Can be combined with <i>DelaySeconds</i></remarks>
-		public byte DelayMinutes
-		{
-			get { return _delayMinutes; }
-			set { _delayMinutes = value; }
-		}
+		public byte DelayMinutes = 0;
 		/// <summary>Unknown value</summary>
-		/// <remarks>Default is <i>false</i>, offset 0xA0</remarks>
-		public bool Unknown2
-		{
-			get { return _unknown2; }
-			set { _unknown2 = value; }
-		}
-		/// <value>String used as editor notes</value>
+		/// <remarks>Offset 0xA0</remarks>
+		public bool Unknown2 = false;
+		/// <summary>Gets or sets the editor note</summary>
 		/// <remarks>Value is restricted to 63 characters</remarks>
 		public string Note
 		{
 			get { return _note; }
-			set
-			{
-				if (value.Length > 0x63) _note = value.Substring(0, 0x63);
-				else _note = value;
-			}
+			set { _note = StringFunctions.GetTrimmed(value, 0x53); }
 		}
 	}
 }

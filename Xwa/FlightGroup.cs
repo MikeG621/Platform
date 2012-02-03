@@ -1,433 +1,788 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
+using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
 {
 	[Serializable]
+	/// <summary>Object for individual FlightGroups</summary>
 	public class FlightGroup : BaseFlightGroup
 	{
 		// offsets are local within FG
-		#region basic
-		private bool _enableDesignation1 = false;
-		private bool _enableDesignation2 = false;
-		private byte _designation1 = 0;
-		private byte _designation2 = 0;
-		private byte _unknown1 = 2;	// 0x0018
-		private byte _globalCargo = 0;	// binary value is 255, 0 used for YOGEME
-		private byte _globalSpecialCargo = 0;
-		private string _role = "";
-		private byte _team = 0;
-		private byte _radio = 0;
-		private byte _unknown3 = 0;		// 0x007B
-		private byte _playerNumber = 0;
-		private bool _arriveOnlyIfHuman = false;
-		private byte _unknown4 = 0;		// 0x0084
-		#endregion
-		#region ArrDep
-		private byte _unknown5 = 0;		// 0x0087
-		private bool[] _arrDepAndOr = new bool[4];
-		private bool _unknown6 = false;	// 0x0097
-		private byte _unknown7 = 0;	// 0x00BF
-		private byte _unknown8 = 0;	// 0x00C0
-		#endregion
-		#region orders
-		// bOrder contains Unk9 @ [,5]
-		private string[] _orderStrings = new string[16];
-		private byte[] _unknown10 = new byte[16];	// 0x72 from order origin
-		private bool[] _unknown11 = new bool[16];	// 0x73 from order origin
-		private bool[] _unknown12 = new bool[16];	// 0x74 from order origin
-		private bool[] _unknown13 = new bool[16];	// 0x7B from order origin
-		private bool[] _unknown14 = new bool[16];	// 0x81 from order origin
-		private byte[,] _skipToOrder = new byte[32, 6];		// Skip to Order, [0,]=R1O1T1, [1,]=R1O1T2, [2,]=R1O2T1...
-		private bool[] _stOAndOr = new bool[16];
-		#endregion
-		// goals contain Unk15(bool)
-		private byte[,] _goals = new byte[8, 9];		//condensed FG Goals, non-consecutive
-		private string[,] _goalStrings = new string[8, 3];
-		#region Unks and Option
-		private byte _unknown16 = 0;	// 0xDAE
-		private byte _unknown17 = 0;	// 0xDAF
-		private byte _unknown18 = 0;	// 0xDB0
-		private byte _unknown19 = 0;	// 0xDB1
-		private byte _unknown20 = 0;	// 0xDB2
-		private byte _unknown21 = 0;	// 0xDB3
-		private bool _unknown22 = false;	// 0xDB4
-		private byte _unknown23 = 0;	// 0xDB6
-		private byte _unknown24 = 0;	// 0xDB7
-		private byte _unknown25 = 0;	// 0xDB8
-		private byte _unknown26 = 0;	// 0xDB9
-		private byte _unknown27 = 0;	// 0xDBA
-		private byte _unknown28 = 0;	// 0xDBB
-		private bool _unknown29 = false;	// 0xDBC
-		private bool _unknown30 = false;	// 0xDC0
-		private bool _unknown31 = false;	// 0xDC1
-		private bool _globalNumbering = false;
-		private byte _unknown32 = 0;	// 0xDC5
-		private byte _unknown33 = 0;	// 0xDC6
-		private byte _countermeasures = 0;
-		private byte _explosionTime = 0;
-		private byte _status2 = 0;
-		private byte _globalUnit = 0;
-		private bool[] _optLoadout = new bool[15];	// [0-7]=warheads, [8-11]=beams, [12-14]=CMs
-		private byte[,] _optCraft = new byte[10, 3];	// [,0]=craft, [,1]=num, [,2]=waves
-		private byte _optCraftCategory = 0;
-		private string _pilotID = "";
-		private byte _backdrop = 0;
-		private bool _unknown34 = false;	// 0xE29
-		private bool _unknown35 = false;	// 0xE2B
-		private bool _unknown36 = false;	// 0xE2D
-		private bool _unknown37 = false;	// 0xE2F
-		private bool _unknown38 = false;	// 0xE31
-		private bool _unknown39 = false;	// 0xE33
-		private bool _unknown40 = false;	// 0xE35
-		private bool _unknown41 = false;	// 0xE37
-		#endregion
+		Mission.Trigger[] _arrDepTriggers = new Mission.Trigger[6];
+		string _role = "";
+		bool[] _arrDepAndOr = new bool[4];
+		Order[,] _orders = new Order[4,4];
+		Goal[] _goals = new Goal[8];
+		string[,] _goalStrings = new string[8, 3];
+		bool[] _optLoadout = new bool[15];	// [0-7]=warheads, [8-11]=beams, [12-14]=CMs
+		OptionalCraft[] _optCraft = new OptionalCraft[10];
+		string _pilotID = "";
+		Waypoint[] _waypoints = new Waypoint[4];
+		LoadoutIndexer _loadoutIndexer;
 
+		/// <summary>Indexes for <i>ArrDepTrigger</i></summary>
+		public enum ArrDepTriggerIndex : byte { Arrival1, Arrival2, Arrival3, Arrival4, Departure1, Departure2 }
+		/// <summary>Values for <i>OptCraftCategory</i></summary>
+		public enum OptionalCraftCategory : byte { None, AllFlyable, AllRebelFlyable, AllImperialFlyable, Custom }
 
+		
+		// TODO: UnknownValues array
+		/// <summary>Initializes a new FlightGroup</summary>
+		/// <remarks>All Orders set to 100% Throttle (16 total, 4 per Region), Goals set to NONE, SP1 Enabled, most Unknowns 0/false, Unknown1 to 2</remarks>
 		public FlightGroup()
 		{
-			_arrDepTriggers = new byte[6, 6];
-			_orders = new byte[16, 19];
-			_waypoints = new short[132, 5];
-			for (int i=0;i<16;i++)
-			{
-				_orders[i, 1] = 10;	// 100% throttle
-				_orders[i, 10] = 1;	// T3 OR T4
-				_orders[i, 16] = 1;	// T1 OR T2
-				_orderStrings[i] = "";
-			}
-			for (int i=0;i<8;i++)
-				for (int j=0;j<3;j++)
-					_goalStrings[i,j] = "";
-			_goals[0, 1] = 10;		// Goal 1 must NONE
-			_goals[1, 1] = 10;
-			_goals[2, 1] = 10;
-			_goals[3, 1] = 10;
-			_goals[4, 1] = 10;
-			_goals[5, 1] = 10;
-			_goals[6, 1] = 10;
-			_goals[7, 1] = 10;
+			for (int i = 0; i < 6; i++) _arrDepTriggers[i] = new Mission.Trigger();
+			for (int i = 0; i < 4; i++) _waypoints[i] = new Waypoint();
+			for (int i = 0; i < 16; i++) _orders[i / 4, i % 4] = new Order();
+			for (int i = 0; i < 8; i++) _goals[i] = new Goal();
 			_optLoadout[0] = true;
 			_optLoadout[8] = true;
 			_optLoadout[12] = true;
-			_waypoints[0, 3] = 1;	// enable SP1
+			_waypoints[0].Enabled = true;
+			Unknowns.Unknown1 = 2;
 		}
 
 		#region craft
-		public bool EnableDesignation1
-		{
-			get { return _enableDesignation1; }
-			set { _enableDesignation1 = value; }
-		}
-		public bool EnableDesignation2
-		{
-			get { return _enableDesignation2; }
-			set { _enableDesignation2 = value; }
-		}
-		public byte Designation1
-		{
-			get { return _designation1; }
-			set { _designation1 = value; }
-		}
-		public byte Designation2
-		{
-			get { return _designation2; }
-			set { _designation2 = value; }
-		}
-		public byte Unknown1
-		{
-			get { return _unknown1; }
-			set { _unknown1 = value; }
-		}
-		public byte GlobalCargo
-		{
-			get { return _globalCargo; }
-			set { _globalCargo = value; }
-		}
-		public byte GlobalSpecialCargo
-		{
-			get { return _globalSpecialCargo; }
-			set { _globalSpecialCargo = value; }
-		}
+		/// <summary>Determines if <i>Designation1</i> is used</summary>
+		public bool EnableDesignation1;
+		/// <summary>Determines if <i>Designation2</i> is used</summary>
+		public bool EnableDesignation2;
+		/// <summary>Primary craft role, such as Command Ship or Strike Craft. Also used for Hyper Buoys</summary>
+		public byte Designation1;
+		/// <summary>Secondary craft role, such as Command Ship or Strike Craft. Also used for Hyper Buoys</summary>
+		public byte Designation2;
+		/// <summary>The <i>Mission.GlobalCargo</i> index to be used instead of <i>Cargo</i></summary>
+		/// <remarks>One-indexed, zero is "N/A". Corrected from/to zero-indexed during Load/Save</remarks>
+		public byte GlobalCargo;
+		/// <summary>The <i>Mission.GlobalCargo</i> index to be used instead of <i>SpecialCargo</i></summary>
+		/// <remarks>One-indexed, zero is "N/A". Corrected from/to zero-indexed during Load/Save</remarks>
+		public byte GlobalSpecialCargo;
+		/// <summary>Gets or sets a text form of the craft role</summary>
+		/// <remarks>19 character limit, appears to be an editor note</remarks>
 		public string Role
 		{
 			get { return _role; }
-			set
-			{
-				if (value.Length > _stringLength) _role = value.Substring(0, _stringLength);
-				else _role = value;
-			}
+			set { _role = StringFunctions.GetTrimmed(value, _stringLength); }
 		}
-		public byte Team
-		{
-			get { return _team; }
-			set { _team = value; }
-		}
-		public byte Radio
-		{
-			get { return _radio; }
-			set { _radio = value; }
-		}
-		public byte Unknown3
-		{
-			get { return _unknown3; }
-			set { _unknown3 = value; }
-		}
-		public byte PlayerNumber
-		{
-			get { return _playerNumber; }
-			set { _playerNumber = value; }
-		}
-		public bool ArriveOnlyIfHuman
-		{
-			get { return _arriveOnlyIfHuman; }
-			set { _arriveOnlyIfHuman = value; }
-		}
-		public byte Unknown4
-		{
-			get { return _unknown4; }
-			set { _unknown4 = value; }
-		}
+		/// <summary>Gets or sets the allegiance value that controls goals and IFF behaviour</summary>
+		public byte Team;
+		/// <summary>Gets or sets team or player number to which the craft communicates with</summary>
+		public byte Radio;
+		/// <summary>Gets or sets if the craft has a human or AI pilot</summary>
+		/// <remarks>Value of zero defined as AI-controlled craft. Human craft will launch as AI-controlled if no player is present</remarks>
+		public byte PlayerNumber;
+		/// <summary>Gets or sets if craft is required to be player-controlled</summary>
+		/// <remarks>When <i>true</i>, craft with PlayerNumber set will not appear without a human player</remarks>
+		public bool ArriveOnlyIfHuman;
 		#endregion
 		#region arrdep
+		/// <summary>Returns <i>true</i> if the FlightGroup is created within 30 seconds of mission start</summary>
+		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
 		public bool ArrivesIn30Seconds
 		{
 			get
 			{
-				if (_arrDepTriggers[0, 0] == 0 && _arrDepTriggers[1, 0] == 0 && _arrDepTriggers[2, 0] == 0 && _arrDepTriggers[3, 0] == 0 && _arrivalDelayMinutes == 0 && _arrivalDelaySeconds <= 30 && _waypoints[0,4] == 0) return true;
+				if (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && _arrDepTriggers[2].Condition == 0 && _arrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30) return true;
 				else return false;
 			}
 		}
-		public byte Unknown5
-		{
-			get { return _unknown5; }
-			set { _unknown5 = value; }
-		}
+		/// <summary>Gets the Arrival and Departure trigger array</summary>
+		/// <remarks>Use the <i>ArrDepTriggerIndex</i> enumeration for indexes</remarks>
+		public Mission.Trigger[] ArrDepTriggers { get { return _arrDepTriggers; } }
+		/// <summary>Gets which ArrDep triggers must be completed</summary>
+		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}</remarks>
 		public bool[] ArrDepAndOr { get { return _arrDepAndOr; } }
-		public bool Unknown6
-		{
-			get { return _unknown6; }
-			set { _unknown6 = value; }
-		}
-		public byte Unknown7
-		{
-			get { return _unknown7; }
-			set { _unknown7 = value; }
-		}
-		public byte Unknown8
-		{
-			get { return _unknown8; }
-			set { _unknown8 = value; }
-		}
 		#endregion
-		#region orders
-		// TODO: OrderStrings Get and Set functions
-		public string[] OrderStrings
-		{
-			get { return _orderStrings; }
-			set { _orderStrings = value; }
-		}
-		public byte[] Unknown10 { get { return _unknown10; } }
-		public bool[] Unknown11 { get { return _unknown11; } }
-		public bool[] Unknown12 { get { return _unknown12; } }
-		public bool[] Unknown13 { get { return _unknown13; } }
-		public bool[] Unknown14 { get { return _unknown14; } }
-		public byte[,] SkipToOrder { get { return _skipToOrder; } }
-		public bool[] SkipAndOr { get { return _stOAndOr; } }
-		#endregion
-		public byte[,] Goals { get { return _goals; } }
-		/// <summary>Gets the points awarded or subtracted for the selected goal</summary>
-		/// <param name="index">Flightgroup Goal index, 0-7</param>
-		/// <returns>Point total</returns>
-		/// <exception cref="IndexOutOfRangeException"></exception>
-		public short GetGoalPoints(int index) { return (short)((sbyte)Goals[index, 3] * 25); }
-		/// <summary>Sets the points awarded or subtracted for the selected goal</summary>
-		/// <param name="index">Flightgroup Goal, 0-7</param>
-		/// <param name="points">Point total, between -3200 and 3175 in multiples of 25 (will be rounded)</param>
-		/// <exception cref="IndexOutOfRangeException"></exception>
-		/// <exception cref="ArgumentException"></exception>
-		public void SetGoalPoints(int index, short points)
-		{
-			if (points > 3175 || points < -3200) throw new ArgumentException("value must be between -3200 and +3175");
-			Goals[index, 3] = Convert.ToByte((points / 25));
-		}
-		public string[,] GoalStrings { get { return _goalStrings; } }
+		/// <summary>Gets the FlightGroup objective commands</summary>
+		/// <remarks>Array is [Region, OrderIndex]</remarks>
+		public Order[,] Orders { get { return _orders; } }
+		/// <summary>Gets the FlightGroup-specific mission goals</summary>
+		/// <remarks>Array is Length = 8</remarks>
+		public Goal[] Goals { get { return _goals; } }
+		
+		/// <summary>Gets the FlightGroup start location markers</summary>
+		/// <remarks>Array is length 4</remarks>
+		public Waypoint[] Waypoints { get { return _waypoints; } }
 		#region Unks and Option
-		public byte Unknown16
-		{
-			get { return _unknown16; }
-			set { _unknown16 = value; }
-		}
-		public byte Unknown17
-		{
-			get { return _unknown17; }
-			set { _unknown17 = value; }
-		}
-		public byte Unknown18
-		{
-			get { return _unknown18; }
-			set { _unknown18 = value; }
-		}
-		public byte Unknown19
-		{
-			get { return _unknown19; }
-			set { _unknown19 = value; }
-		}
-		public byte Unknown20
-		{
-			get { return _unknown20; }
-			set { _unknown20 = value; }
-		}
-		public byte Unknown21
-		{
-			get { return _unknown21; }
-			set { _unknown21 = value; }
-		}
-		public bool Unknown22
-		{
-			get { return _unknown22; }
-			set { _unknown22 = value; }
-		}
-		public byte Unknown23
-		{
-			get { return _unknown23; }
-			set { _unknown23 = value; }
-		}
-		public byte Unknown24
-		{
-			get { return _unknown24; }
-			set { _unknown24 = value; }
-		}
-		public byte Unknown25
-		{
-			get { return _unknown25; }
-			set { _unknown25 = value; }
-		}
-		public byte Unknown26
-		{
-			get { return _unknown26; }
-			set { _unknown26 = value; }
-		}
-		public byte Unknown27
-		{
-			get { return _unknown27; }
-			set { _unknown27 = value; }
-		}
-		public byte Unknown28
-		{
-			get { return _unknown28; }
-			set { _unknown28 = value; }
-		}
-		public bool Unknown29
-		{
-			get { return _unknown29; }
-			set { _unknown29 = value; }
-		}
-		public bool Unknown30
-		{
-			get { return _unknown30; }
-			set { _unknown30 = value; }
-		}
-		public bool Unknown31
-		{
-			get { return _unknown31; }
-			set { _unknown31 = value; }
-		}
-		public bool GlobalNumbering
-		{
-			get { return _globalNumbering; }
-			set { _globalNumbering = value; }
-		}
-		public byte Unknown32
-		{
-			get { return _unknown32; }
-			set { _unknown32 = value; }
-		}
-		public byte Unknown33
-		{
-			get { return _unknown33; }
-			set { _unknown33 = value; }
-		}
-		public byte Countermeasures
-		{
-			get { return _countermeasures; }
-			set { _countermeasures = value; }
-		}
-		public byte ExplosionTime
-		{
-			get { return _explosionTime; }
-			set { _explosionTime = value; }
-		}
-		public byte Status2
-		{
-			get { return _status2; }
-			set { _status2 = value; }
-		}
-		public byte GlobalUnit
-		{
-			get { return _globalUnit; }
-			set { _globalUnit = value; }
-		}
-		public bool[] OptLoadout { get { return _optLoadout; } }
-		public byte[,] OptCraft { get { return _optCraft; } }
-		public byte OptCraftCategory
-		{
-			get { return _optCraftCategory; }
-			set { _optCraftCategory = value; }
-		}
+		/// <summary>Determines if the FlightGroup should share numbering across the GlobalUnit</summary>
+		public bool GlobalNumbering;
+		/// <summary>Gets or sets the defenses available to the FG</summary>
+		public byte Countermeasures;
+		/// <summary>Gets or sets the duration of death animation</summary>
+		/// <remarks>Unknown multiplier, appears to react differently depending on craft class</remarks>
+		public byte ExplosionTime;
+		/// <summary>Gets or sets the second condition of FlightGroup upon creation</summary>
+		public byte Status2;
+		/// <summary>Gets or sets the additional grouping assignment, can share craft numbering</summary>
+		public byte GlobalUnit;
+		/// <summary>Gets the array of alternate weapons the player can select</summary>
+		/// <remarks>Use the <i>LoadoutIndexer.Indexes</i> enumeration for indexes</remarks>
+		public LoadoutIndexer OptLoadout { get { return _loadoutIndexer; } }
+		/// <summary>Gets the array of alternate craft types the player can select</summary>
+		/// <remarks>Array is Length = 10</remarks>
+		public OptionalCraft[] OptCraft { get { return _optCraft; } }
+		/// <summary>The alternate craft types the player can select by list</summary>
+		public OptionalCraftCategory OptCraftCategory = OptionalCraftCategory.None;
+
+		/// <summary>Gets or sets the editor note primarily used to signifiy the pilot voice</summary>
+		/// <remarks>15 character limit</remarks>
 		public string PilotID
 		{
 			get { return _pilotID; }
-			set
+			set { _pilotID = StringFunctions.GetTrimmed(value, 15); }
+		}
+		/// <summary>For Backdrop <i>CraftTypes</i>, is the image image</summary>
+		/// <remarks>Zero denotes a light source</remarks>
+		public byte Backdrop = 0;
+		/// <summary>The unknown values container</summary>
+		/// <remarks>All values except Unknown1 initialize to 0 or <i>false</i>, Unknown1 initializes to 2. Orders contain Unknown9-14, Goals contain Unknown15</remarks>
+		public UnknownValues Unknowns;
+		#endregion
+		
+		/// <summary>Container for the optional craft settings</summary>
+		[Serializable] public struct OptionalCraft
+		{
+			/// <summary>The Craft Type</summary>
+			public byte CraftType;
+			/// <summary>The number of ships per Wave</summary>
+			public byte NumberOfCraft;
+			/// <summary>The number of waves available</summary>
+			public byte NumberOfWaves;
+		}
+		
+		/// <summary>Container for unknown values</summary>
+		[Serializable] public struct UnknownValues
+		{
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0018, in Craft section</remarks>
+			public byte Unknown1;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x007B, in Craft section</remarks>
+			public byte Unknown3;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0084, in Craft section</remarks>
+			public byte Unknown4;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0087, in Arr/Dep section</remarks>
+			public byte Unknown5;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0097, in Arr/Dep section</remarks>
+			public bool Unknown6;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x00BF, in Arr/Dep section</remarks>
+			public byte Unknown7;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x00C0, in Arr/Dep section</remarks>
+			public byte Unknown8;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DAE, in Unks/Options section</remarks>
+			public byte Unknown16;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DAF, in Unks/Options section</remarks>
+			public byte Unknown17;
+		
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB0, in Unks/Options section</remarks>
+			public byte Unknown18;
+		
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB1, in Unks/Options section</remarks>
+			public byte Unknown19;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB2, in Unks/Options section</remarks>
+			public byte Unknown20;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB3, in Unks/Options section</remarks>
+			public byte Unknown21;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB4, in Unks/Options section</remarks>
+			public bool Unknown22;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB6, in Unks/Options section</remarks>
+			public byte Unknown23;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB7, in Unks/Options section</remarks>
+			public byte Unknown24;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB8, in Unks/Options section</remarks>
+			public byte Unknown25;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DB9, in Unks/Options section</remarks>
+			public byte Unknown26;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DBA, in Unks/Options section</remarks>
+			public byte Unknown27;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DBB, in Unks/Options section</remarks>
+			public byte Unknown28;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DBC, in Unks/Options section</remarks>
+			public bool Unknown29;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DC0, in Unks/Options section</remarks>
+			public bool Unknown30;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DC1, in Unks/Options section</remarks>
+			public bool Unknown31;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DC5, in Unks/Options section</remarks>
+			public byte Unknown32;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0DC6, in Unks/Options section</remarks>
+			public byte Unknown33;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E29, in Unks/Options section</remarks>
+			public bool Unknown34;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E2B, in Unks/Options section</remarks>
+			public bool Unknown35;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E2D, in Unks/Options section</remarks>
+			public bool Unknown36;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E2F, in Unks/Options section</remarks>
+			public bool Unknown37;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E31, in Unks/Options section</remarks>
+			public bool Unknown38;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E33, in Unks/Options section</remarks>
+			public bool Unknown39;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E35, in Unks/Options section</remarks>
+			public bool Unknown40;
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Offset 0x0E37, in Unks/Options section</remarks>
+			public bool Unknown41;
+		}
+		
+		/// <summary>Object to provide array access to the Optional Craft Loadout values</summary>
+		[Serializable] public class LoadoutIndexer
+		{
+			FlightGroup _owner;
+			public enum Indexes : byte { NoWarheads, SpaceBomb, HeavyRocket, Missile, Torpedo, AdvMissile, AdvTorpedo, MagPulse, NoBeam, TractorBeam, JammingBeam, DecoyBeam, NoCountermeasures, Chaff, Flare }
+			
+			/// <summary>Initializes the indexer</summary>
+			/// <param name="parent">The parent FlightGroup</param>
+			public LoadoutIndexer(FlightGroup parent) { _owner = parent; }
+			
+			/// <summary>Gets the size of the array</summary>
+			public int Length { get { return _owner._optLoadout.Length; } }
+			
+			/// <summary>Gets or sets the Role values</summary>
+			/// <param name="index">Indexes enumerated value, 0-15</param>
+			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br>
+			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br>
+			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br>
+			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			public bool this[int index]
 			{
-				if (value.Length > 15) _pilotID = value.Substring(0, 15);
-				else _pilotID = value;
+				get { return _owner._optLoadout[index]; }
+				set
+				{
+					if ((index == 0 || index == 8 || index == 12) && !value) return;
+					_owner._optLoadout[index] = value;
+					if (index == 0 && value) for (int i = 1; i < 8; i++) _owner._optLoadout[i] = false;	// set NoWarheads, clear warheads
+					else if (index == 8 && value) for (int i = 9; i < 12; i++) _owner._optLoadout[i] = false;	// set NoBeam, clear beams
+					else if (index == 12 && value) for (int i = 13; i < 15; i++) _owner._optLoadout[i] = false;	// set NoCMs, clear CMs
+					else if (index < 8 && value) _owner._optLoadout[0] = false;	// set a warhead, clear NoWarheads
+					else if (index < 12 && value) _owner._optLoadout[8] = false;	// set a beam, clear NoBeam
+					else if (index < 15 && value) _owner._optLoadout[12] = false;	// set a CM, clear NoCMs
+					else if (index < 8)
+					{
+						bool used = false;
+						for (int i = 1; i < 8; i++) used |= _owner._optLoadout[i];
+						if (!used) _owner._optLoadout[0] = true;	// cleared last warhead, set NoWarheads
+					}
+					else if (index < 12)
+					{
+						bool used = false;
+						for (int i = 9; i < 12; i++) used |= _owner._optLoadout[i];
+						if (!used) _owner._optLoadout[8] = true;	// cleared last beam, set NoBeam
+					}
+					else
+					{
+						bool used = false;
+						for (int i = 13; i < 15; i++) used |= _owner._optLoadout[i];
+						if (!used) _owner._optLoadout[12] = true;	// cleared last CM, set NoCMs
+					}
+				}
+			}
+			
+			/// <summary>Gets or sets the Role values</summary>
+			/// <param name="index">Indexes enumerated value</param>
+			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br>
+			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br>
+			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br>
+			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			public bool this[Indexes index]
+			{
+				get { return _owner._optLoadout[(int)index]; }
+				set { this[(int)index] = value; }	// make the other indexer do the work
 			}
 		}
-		public byte Backdrop
+		
+		/// <summary>Object for a single Waypoint</summary>
+		[Serializable] public class Waypoint : IWaypoint
 		{
-			get { return _backdrop; }
-			set { _backdrop = value; }
+			short _rawX = 0;
+			short _rawY = 0;
+			short _rawZ = 0;
+			bool _enabled = false;
+			byte _region = 0;
+			
+			/// <summary>Gets or sets the Region that the Waypoint is located in</summary>
+			public byte Region
+			{
+				get { return _region; }
+				set { _region = value; }
+			}
+			
+			#region IWaypoint Members
+			/// <summary>Array form of the Waypoint.</summary>
+			/// <param name="index">X, Y, Z, Enabled</param>
+			/// <exception cref="ArgumentException">Invalid <i>index</i> value</exception>
+			public short this[int index]
+			{
+				get
+				{
+					if (index == 0) return _rawX;
+					else if (index == 1) return _rawY;
+					else if (index == 2) return _rawZ;
+					else if (index == 3) return Convert.ToInt16(_enabled);
+					else throw new ArgumentException("index must be 0-3", "index");
+				}
+				set
+				{
+					if (index == 0) _rawX = value;
+					else if (index == 1) _rawY = value;
+					else if (index == 2) _rawZ = value;
+					else if (index == 3) _enabled = Convert.ToBoolean(value);
+				}
+			}
+			
+			/// <summary>Gets the size of the array</summary>
+			public int Length { get { return 4; } }
+			
+			/// <summary>Gets or sets if the Waypoint is active for use</summary>
+			public bool Enabled
+			{
+				get { return _enabled; }
+				set { _enabled = value; }
+			}
+			/// <summary>Gets or sets the stored X value</summary>
+			public short RawX
+			{
+				get { return _rawX; }
+				set { _rawX = value; }
+			}
+			/// <summary>Gets or sets the stored Y value</summary>
+			public short RawY
+			{
+				get { return _rawY; }
+				set { _rawY = value; }
+			}
+			/// <summary>Gets or sets the stored Z value</summary>
+			public short RawZ
+			{
+				get { return _rawZ; }
+				set { _rawZ = value; }
+			}
+			/// <summary>Gets or sets the X value in kilometers</summary>
+			public double X
+			{
+				get { return (double)RawX / 160; }
+				set { RawX = (short)(value * 160); }
+			}
+			/// <summary>Gets or sets the Y value in kilometers</summary>
+			public double Y
+			{
+				get { return (double)RawY / 160; }
+				set { RawY = (short)(value * 160); }
+			}
+			/// <summary>Gets or sets the Z value in kilometers</summary>
+			public double Z
+			{
+				get { return (double)RawZ / 160; }
+				set { RawZ = (short)(value * 160); }
+			}
+			#endregion
 		}
-		public bool Unknown34
+		
+		/// <summary>Object for a single FlightGroup-specific Goal</summary>
+		[Serializable] public class Goal
 		{
-			get { return _unknown34; }
-			set { _unknown34 = value; }
+			byte[] _raw = new byte[0x10];
+			string _incompleteText = "";
+			string _completeText = "";
+			string _failedText = "";
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x4F</remarks>
+			public bool Unknown15;
+			
+			/// <summary>Initializes a blank Goal</summary>
+			/// <remarks>Condition is set to "never (FALSE)"</remarks>
+			public Goal() { _raw[1] = 10; }
+			
+			/// <summary>Initlialize a new Goal from raw data</summary>
+			/// <param name="raw">Raw byte data, must have Length of 16</param>
+			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
+			public Goal(byte[] raw)
+			{
+				if (raw.Length != 0x10) throw new ArgumentException("Incorrect raw data length", "raw");
+				_raw = raw;
+			}
+			
+			/// <summary>Initlialize a new Goal from raw data</summary>
+			/// <param name="raw">Raw byte data</param>
+			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
+			public Goal(byte[] raw, int startIndex) { ArrayFunctions.TrimArray(raw, startIndex, _raw); }
+			
+			/// <summary>Array form of the Goal</summary>
+			/// <param name="index">Valid indexes are 0-15. Indexes 6-13 are read-only</param>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			public byte this[int index]
+			{
+				get { return _raw[index]; }
+				set { if (index < 6 || index > 13) _raw[index] = value; }
+			}
+			
+			#region public properties
+			/// <summary>Gets the size of the array</summary>
+			public int Length { get { return _raw.Length; } }
+			
+			/// <summary>Gets or sets the goal behaviour</summary>
+			/// <remarks>Values are 0-3; must, must not (Prevent), BONUS must, BONUS must not (bonus prevent)</remarks>
+			public byte Argument
+			{
+				get { return _raw[0]; }
+				set { _raw[0] = value; }
+			}
+			/// <summary>Gets or sets the Goal trigger</summary>
+			public byte Condition
+			{
+				get { return _raw[1]; }
+				set { _raw[1] = value; }
+			}
+			/// <summary>Gets or sets the amount of the FlightGroup required to meet <i>Condition</i></summary>
+			public byte Amount
+			{
+				get { return _raw[2]; }
+				set { _raw[2] = value; }
+			}
+			/// <summary>Gets or sets the points value stored in the file</summary>
+			public sbyte RawPoints
+			{
+				get { return (sbyte)_raw[3]; }
+				set { _raw[3] = (byte)value; }
+			}
+			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
+			/// <remarks>Equals <i>RawPoints</i> * 25, limited from -3200 to +3175</remarks>
+			public short Points
+			{
+				get { return (short)(RawPoints * 25); }
+				set { RawPoints = (sbyte)((value > 3175 ? 3175 : (value < -3200 ? -3200 : value)) / 25); }
+			}
+			/// <summary>Gets or sets if the Goal is active</summary>
+			public bool Enabled
+			{
+				get { return Convert.ToBoolean(_raw[4]); }
+				set { _raw[4] = Convert.ToByte(value); }
+			}
+			/// <summary>Gets or sets which Team the Goal applies to</summary>
+			public byte Team
+			{
+				get { return _raw[5]; }
+				set { _raw[5] = value; }
+			}
+			/// <summary>Gets or sets the additional Goal setting</summary>
+			public byte Parameter
+			{
+				get { return _raw[14]; }
+				set { _raw[14] = value; }
+			}
+			/// <summary>Gets or sets the location within te Active Sequence</summary>
+			public byte ActiveSequence
+			{
+				get { return _raw[15]; }
+				set { _raw[15] = value; }
+			}
+			
+			/// <summary>Gets or sets the goal text shown before completion</summary>
+			/// <remarks>String is limited to 63 char. Not used for Secondary goals</remarks>
+			public string IncompleteText
+			{
+				get { return _incompleteText; }
+				set { _incompleteText = StringFunctions.GetTrimmed(value, 63); }
+			}
+			/// <summary>Gets or sets the goal text shown after completion</summary>
+			/// <remarks>String is limited to 63 char</remarks>
+			public string CompleteText
+			{
+				get { return _completeText; }
+				set { _completeText = StringFunctions.GetTrimmed(value, 63); }
+			}
+			/// <summary>Gets or sets the goal text shown after failure</summary>
+			/// <remarks>String is limited to 63 char. Not used for Secondary or Prevent goals</remarks>
+			public string FailedText
+			{
+				get { return _failedText; }
+				set { _failedText = StringFunctions.GetTrimmed(value, 63); }
+			}
+			#endregion public properties
 		}
-		public bool Unknown35
+		
+		/// <summary>Container for a single Order</summary>
+		[Serializable] public class Order : IOrder
 		{
-			get { return _unknown35; }
-			set { _unknown35 = value; }
+			string _customText = "";
+			byte[] _raw = new byte[19];
+			Waypoint[] _waypoints = new Waypoint[8];
+			Mission.Trigger[] _skipTriggers = new Mission.Trigger[2];
+			
+			/// <summary>Unknown value</summary>
+			/// <remarks>Order offset 0x72</remarks>
+			public byte Unknown10;
+			/// <summary>Unknown value</summary>
+			/// <remarks>Order offset 0x73</remarks>
+			public bool Unknown11;
+			/// <summary>Unknown value</summary>
+			/// <remarks>Order offset 0x74</remarks>
+			public bool Unknown12;
+			/// <summary>Unknown value</summary>
+			/// <remarks>Order offset 0x7B</remarks>
+			public bool Unknown13;
+			/// <summary>Unknown value</summary>
+			/// <remarks>Order offset 0x81</remarks>
+			public bool Unknown14;
+			/// <summary>Whether or not the Skip Triggers are exclusive</summary>
+			/// <remarks>Default is "Or" (true) due to default "never (FALSE)" Trigger</remarks>
+			public bool SkipT1AndOrT2 = true;
+			
+			#region constructors
+			/// <summary>Initializes a blank Order</summary>
+			/// <remarks>Throttle set to 100%, AndOr values set to "Or", <i>SkipTriggers</i> sets to "never (FALSE)"</remarks>
+			public Order()
+			{
+				_raw[1] = 10;	// Throttle
+				_raw[10] = _raw[16] = 1;	// AndOrs
+				initialize();
+			}
+			
+			/// <summary>Initlializes a new Order from raw data</summary>
+			/// <remarks><i>SkipTriggers</i> sets to "never (FALSE)"</remarks>
+			/// <param name="raw">Raw byte data, must have Length of 19</param>
+			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
+			public Order(byte[] raw)
+			{
+				if (raw.Length != 19) throw new ArgumentException("Incorrect raw data length", "raw");
+				_raw = raw;
+				initialize();
+			}
+			
+			/// <summary>Initlialize a new Order from raw data</summary>
+			/// <remarks><i>SkipTriggers</i> sets to "never (FALSE)"</remarks>
+			/// <param name="raw">Raw byte data</param>
+			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
+			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> causes reading outside the range of <i>raw</i></exception>
+			public Order(byte[] raw, int startIndex)
+			{
+				ArrayFunctions.TrimArray(raw, startIndex, _raw);
+				initialize();
+			}
+			
+			void initialize()
+			{
+				for (int i = 0; i < 8; i++) _waypoints[i] = new Waypoint();
+				_skipTriggers[0] = new Mission.Trigger();
+				_skipTriggers[1] = new Mission.Trigger();
+				_skipTriggers[0].Condition = 10;
+				_skipTriggers[1].Condition = 10;
+			}
+			#endregion constructors
+			
+			#region public properties
+			/// <summary>Gets or sets the third order-specific setting</summary>
+			public byte Variable3
+			{
+				get { return _raw[4]; }
+				set { _raw[4] = value; }
+			}
+			/// <summary>Gets or sets the unknown value</summary>
+			/// <remarks>Order offset 0x05</remarks>
+			public byte Unknown9
+			{
+				get { return _raw[5]; }
+				set { _raw[5] = value; }
+			}
+			/// <summary>Gets or sets the specific max velocity</summary>
+			public byte Speed
+			{
+				get { return _raw[18]; }
+				set { _raw[18] = value; }
+			}
+			/// <summary>Gets or sets the order description</summary>
+			/// <remarks>Limited to 63 characters</remarks>
+			public string CustomText
+			{
+				get { return _customText; }
+				set { _customText = StringFunctions.GetTrimmed(value, 63); }
+			}
+			
+			/// <summary>Gets the order-specific location markers</summary>
+			/// <remarks>Array is length 8</remarks>
+			public Waypoint[] Waypoints { get { return _waypoints; } }
+			
+			/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to the order</summary>
+			/// <remarks>Array is length 2</remarks>
+			public Mission.Trigger[] SkipTriggers { get { return _skipTriggers; } }
+			#endregion public properties
+			
+			#region IOrder Members
+			/// <summary>Array form of the Order</summary>
+			/// <remarks>Indexes 11 and 17 are read-only</remarks>
+			/// <param name="index">Index, 0-18</param>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			public byte this[int index]
+			{
+				get { return _raw[index]; }
+				set { if (index != 11 && index != 17) _raw[index] = value; }
+			}
+			
+			/// <summary>Gets the length of the array</summary>
+			/// <remarks>To be used for the indexer, Orders through Speed</remarks>
+			public int Length { get { return _raw.Length; } }
+			
+			/// <summary>Gets or sets the command for the FlightGroup</summary>
+			public byte Command
+			{
+				get { return _raw[0]; }
+				set { _raw[0] = value; }
+			}
+			/// <summary>Gets or sets the throttle setting</summary>
+			/// <remarks>Multiply value by 10 to get Throttle percent</remarks>
+			public byte Throttle
+			{
+				get { return _raw[1]; }
+				set { _raw[1] = value; }
+			}
+			/// <summary>Gets or sets the first order-specific setting</summary>
+			public byte Variable1
+			{
+				get { return _raw[2]; }
+				set { _raw[2] = value; }
+			}
+			/// <summary>Gets or sets the second order-specific setting</summary>
+			public byte Variable2
+			{
+				get { return _raw[3]; }
+				set { _raw[3] = value; }
+			}
+			/// <summary>Gets or sets the Type for Target 3</summary>
+			public byte Target3Type
+			{
+				get { return _raw[6]; }
+				set { _raw[6] = value; }
+			}
+			/// <summary>Gets or sets the Type for target 4</summary>
+			public byte Target4Type
+			{
+				get { return _raw[7]; }
+				set { _raw[7] = value; }
+			}
+			/// <summary>Gets or sets the third target</summary>
+			public byte Target3
+			{
+				get { return _raw[8]; }
+				set { _raw[8] = value; }
+			}
+			/// <summary>Gets or sets the fourth target</summary>
+			public byte Target4
+			{
+				get { return _raw[9]; }
+				set { _raw[9] = value; }
+			}
+			/// <summary>Gets or sets if the T3 and T4 settings are mutually exclusive</summary>
+			/// <remarks><i>false</i> is And/If and <i>true</i> is Or</remarks>
+			public bool T3AndOrT4
+			{
+				get { return Convert.ToBoolean(_raw[10]); }
+				set { _raw[10] = Convert.ToByte(value); }
+			}
+			/// <summary>Gets or sets the Type for Target 1</summary>
+			public byte Target1Type
+			{
+				get { return _raw[12]; }
+				set { _raw[12] = value; }
+			}
+			/// <summary>Gets or sets the first target</summary>
+			public byte Target1
+			{
+				get { return _raw[13]; }
+				set { _raw[13] = value; }
+			}
+			/// <summary>Gets or sets the Type for Target 2</summary>
+			public byte Target2Type
+			{
+				get { return _raw[14]; }
+				set { _raw[14] = value; }
+			}
+			/// <summary>Gets or sets the second target</summary>
+			public byte Target2
+			{
+				get { return _raw[15]; }
+				set { _raw[15] = value; }
+			}
+			/// <summary>Gets or sets if the T1 and T2 settings are mutually exclusive</summary>
+			/// <remarks><i>false</i> is And/If and <i>true</i> is Or</remarks>
+			public bool T1AndOrT2
+			{
+				get { return Convert.ToBoolean(_raw[16]); }
+				set { _raw[16] = Convert.ToByte(value); }
+			}
+			#endregion IOrder Members
 		}
-		public bool Unknown36
-		{
-			get { return _unknown36; }
-			set { _unknown36 = value; }
-		}
-		public bool Unknown37
-		{
-			get { return _unknown37; }
-			set { _unknown37 = value; }
-		}
-		public bool Unknown38
-		{
-			get { return _unknown38; }
-			set { _unknown38 = value; }
-		}
-		public bool Unknown39
-		{
-			get { return _unknown39; }
-			set { _unknown39 = value; }
-		}
-		public bool Unknown40
-		{
-			get { return _unknown40; }
-			set { _unknown40 = value; }
-		}
-		public bool Unknown41
-		{
-			get { return _unknown41; }
-			set { _unknown41 = value; }
-		}
-		#endregion
 	}
 }

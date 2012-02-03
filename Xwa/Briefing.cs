@@ -1,4 +1,17 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+/* CHANGELOG
+ * 111208 - removed Team.set
+ */
+
+using System;
 
 namespace Idmr.Platform.Xwa
 {
@@ -7,15 +20,17 @@ namespace Idmr.Platform.Xwa
 	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 32. Class is serializable for copy/paste functionality</remarks>
 	public class Briefing : BaseBriefing
 	{
-		private bool[] _team = new bool[10];
+		bool[] _team = new bool[10];
+		/// <summary>Frames per second for briefing animation</summary>
 		public const int TicksPerSecond = 0x19;
+		/// <summary>Maximum number of events that can be held</summary>
 		public const int EventQuantityLimit = 0x1100;
 
 		/// <summary>Initializes a blank briefing</summary>
 		public Briefing()
 		{	//initialize
             _platform = MissionFile.Platform.XWA;
-			_length = 0x465;		// default to 45 seconds
+			Length = 0x465;		// default to 45 seconds
 			_events = new byte[0x4400];
 			_briefingTags = new string[0x80];
 			_briefingStrings = new string[0x80];
@@ -35,12 +50,8 @@ namespace Idmr.Platform.Xwa
 			_team[0] = true;
 		}
 
-		/// <summary>For use in multiplayer missions, determines which teams view the briefing</summary>
-		/// <remarks>Array length = 10</remarks>
-		public bool[] Team
-		{
-			get { return _team; }
-			set { _team = value; }
-		}
+		/// <summary>Gets the briefing team visibility</summary>
+		/// <remarks>Determines which teams view the briefing. Array length = 10</remarks>
+		public bool[] Team { get { return _team; } }
 	}
 }

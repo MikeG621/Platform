@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in /help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform
 {
@@ -8,29 +17,16 @@ namespace Idmr.Platform
 	public abstract class BaseMessage
 	{
 		protected string _messageString = "New Message";
-		protected byte _color = 0;
-		protected byte[,] _triggers;
 
-		/// <value>Gets or sets the in-flight message string</value>
-		/// <remarks>MessageString is restricted to 63 characters, defaults to /"New Message/"</remarks>
+		/// <summary>Gets or sets the in-flight message string</summary>
+		/// <remarks>Restricted to 63 characters, defaults to "New Message"</remarks>
 		public string MessageString
 		{
 			get { return _messageString; }
-			set
-			{
-				if (value.Length > 0x3F) _messageString = value.Substring(0, 0x3F);
-				else _messageString = value;
-			}
+			set { _messageString = Idmr.Common.StringFunctions.GetTrimmed(value, 0x3F); }
 		}
-		/// <value>Gets or sets the message color index</value>
+		/// <summary>Gets or sets the message color index</summary>
 		/// <remarks>Default index of 0</remarks>
-		public byte Color
-		{
-			get { return _color; }
-			set { _color = value; }
-		}
-		/// <value>Array of triggers</value>
-		/// <remarks>Size is set depending on platform</remarks>
-		public byte[,] Triggers { get { return _triggers; } }
+		public byte Color = 0;
 	}
 }

@@ -1,13 +1,22 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform.Xwa
 {
-	/// <summary>Object for string lists used in XvT and BoP</summary>
+	/// <summary>Object for string lists used in XWA</summary>
 	/// <remarks>All arrays return Clones to prevent editing</remarks>
 	public abstract class Strings : BaseStrings
 	{
 		#region array declarations
-		private static string[] _shadow = { "None",
+		static string[] _shadow = { "None",
 											  "Right 3/4",
 											  "Right Half", 
 											  "Right Quarter",
@@ -15,7 +24,7 @@ namespace Idmr.Platform.Xwa
 											  "Left Half",
 											  "Left 3/4"
 										  };
-		private static string[] _hangar = { "Junkyard",
+		static string[] _hangar = { "Junkyard",
 									   "Quick Start 1",
 									   "Quick Start 2",
 									   "Quick Start 3",
@@ -24,7 +33,7 @@ namespace Idmr.Platform.Xwa
 									   "Calamari Cruiser",
 									   "Family Transport"
 								   };
-		private static string[] _roles = { "Command Ship",
+		static string[] _roles = { "Command Ship",
 									"Base",
 									"Station",
 									"Mission Critical Craft",
@@ -46,7 +55,7 @@ namespace Idmr.Platform.Xwa
 									"HYP to Region 4",
 									"Unknown"
 								};
-		private static string[] _radio = { "None",
+		static string[] _radio = { "None",
 										"Team 1",
 										"Team 2",
 										"Team 3",
@@ -64,7 +73,7 @@ namespace Idmr.Platform.Xwa
 										"Player 7",
 										"Player 8"
 									};
-		private static string[] _officer = { "Devers",
+		static string[] _officer = { "Devers",
 										"Kupalo",
 										"Zaletta",
 										"",
@@ -74,25 +83,25 @@ namespace Idmr.Platform.Xwa
 										"",
 										"Emkay"
 									};
-		private static string[] _logo = { "Defiance",
+		static string[] _logo = { "Defiance",
 									"Liberty",
 									"Independence",
 									"Family",
 									"Squadron (no logo)"
 								};
-		private static string[] _iff = { "Rebel",
+		static string[] _iff = { "Rebel",
 										"Imperial",
 										"Blue",
 										"Yellow",
 										"Red",
 										"Purple"
 								  };
-		private static string[] _beam = { "None",
+		static string[] _beam = { "None",
 									"Tractor beam",
 									"Jamming beam",
 									"Decoy Beam"
 							   };
-		private static string[] _craftType = { "None",
+		static string[] _craftType = { "None",
 										"X-Wing",
 										"Y-Wing",
 										"A-Wing",
@@ -325,7 +334,7 @@ namespace Idmr.Platform.Xwa
 										"ISD II",
 										"*Planet"
 									};
-		private static string[] _craftAbbrv = { "",
+		static string[] _craftAbbrv = { "",
 										"X-W",
 										"Y-W",
 										"A-W",
@@ -558,14 +567,14 @@ namespace Idmr.Platform.Xwa
 										"ISDII",
 										"*B/Drop",
 									 };
-		private static string[] _rating = { "Novice",
+		static string[] _rating = { "Novice",
 									"Officer",
 									"Veteran",
 									"Ace",
 									"Top Ace",
 									"Super Ace (invul)"
 								 };
-		private static string[] _status = { "Normal",
+		static string[] _status = { "Normal",
 									"2x Warheads",
 									"1/2 Warheads",
 									"Disabled",
@@ -595,7 +604,7 @@ namespace Idmr.Platform.Xwa
 									"Identified",
 									"Limited Targetability"
 								 };
-		private static string[] _trigger = { "always (TRUE)",
+		static string[] _trigger = { "always (TRUE)",
 										"be created",
 										"be destroyed",
 										"be attacked",
@@ -656,7 +665,7 @@ namespace Idmr.Platform.Xwa
 										"Unknown",
 										"exist?"
 								  };
-		private static string[] _triggerType = { "none",
+		static string[] _triggerType = { "none",
 											"Flight Group",
 											"Ship type",
 											"Ship class",
@@ -685,7 +694,7 @@ namespace Idmr.Platform.Xwa
 											"",
 											"Message #",
 									  };
-		private static string[] _amount = { "100%",
+		static string[] _amount = { "100%",
 									"75%",
 									"50%",
 									"25%",
@@ -706,7 +715,7 @@ namespace Idmr.Platform.Xwa
 									"each craft",
 									"???"
 								 };
-		private static string[] _orders = { "Hold Steady",
+		static string[] _orders = { "Hold Steady",
 									"Go Home",
 									"Circle",
 									"Circle and Evade",
@@ -772,7 +781,7 @@ namespace Idmr.Platform.Xwa
 									"Follow Targets",
 									"Home In"
 								 };
-		private static string[] _craftWhen = { "",
+		static string[] _craftWhen = { "",
 										"Inspected",
 										"Boarded",
 										"",
@@ -786,7 +795,7 @@ namespace Idmr.Platform.Xwa
 										"",
 										"NOT Disabled"
 									};
-		private static string[] _abort = { "never",
+		static string[] _abort = { "never",
 									"0% shields",
 									"",
 									"out of warheads",
@@ -797,7 +806,7 @@ namespace Idmr.Platform.Xwa
 									"75% hull",
 									"25% hull"
 								};
-		private static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless|Meaningless",
+		static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless|Meaningless",
 										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless|Meaningless",
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless|Meaningless",
@@ -864,61 +873,61 @@ namespace Idmr.Platform.Xwa
 										"Unknown|# of loops|Direction|Meaningless"
 									};
 		#endregion
-		/// <summary>Shadow to be applied to a backdrop</summary>
+		/// <summary>Gets a copy of the shadows to be applied to a backdrop</summary>
 		/// <remarks>Array is Length = 7</remarks>
 		public static string[] Shadow { get { return (string[])_shadow.Clone(); } }
-		/// <summary>Starting hangar for the player</summary>
+		/// <summary>Gets a copy of the starting hangars for the player</summary>
 		/// <remarks>Array is Length = 8</remarks>
 		public static string[] Hangar { get { return (string[])_hangar.Clone(); } }
-		/// <summary>Craft roles used for specialized in-flight messages</summary>
+		/// <summary>Gets a copy of the craft roles used for specialized in-flight messages</summary>
 		/// <remarks>Array is Length = 21</remarks>
 		public static string[] Roles { get { return (string[])_roles.Clone(); } }
-		/// <summary>Radio channel the craft uses</summary>
+		/// <summary>Gets a copy of the radio channels the craft uses</summary>
 		/// <remarks>Array is length = 17</remarks>
 		public static string[] Radio { get { return (string[])_radio.Clone(); } }
-		/// <summary>Voice of the mission control officer</summary>
+		/// <summary>Gets a copy of the voices of the mission control officer</summary>
 		/// <remarks>Array is Length = 9</remarks>
 		public static string[] Officer { get { return (string[])_officer.Clone(); } }
-		/// <summary>Logo to be displayed during briefings</summary>
+		/// <summary>Gets a copy of the logos to be displayed during briefings</summary>
 		/// <remarks>Array is Length = 5</remarks>
 		public static string[] Logo { get { return (string[])_logo.Clone(); } }
-		/// <summary>Default IFF Names</summary>
+		/// <summary>Gets a copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] IFF { get { return (string[])_iff.Clone(); } }
-		/// <summary>Beam weapons for craft use</summary>
+		/// <summary>Gets a copy of the beam weapons for craft use</summary>
 		/// <remarks>Array is Length = 4</remarks>
 		public static string[] Beam { get { return (string[])_beam.Clone(); } }
-		/// <summary>Long name for ship type</summary>
+		/// <summary>Gets a copy of the long names for ship type</summary>
 		/// <remarks>Array is Length = 232</remarks>
 		public static string[] CraftType { get { return (string[])_craftType.Clone(); } }
-		/// <summary>Short name for ship type</summary>
+		/// <summary>Gets a copy of the short names for ship type</summary>
 		/// <remarks>Array is Length = 232</remarks>
 		public static string[] CraftAbbrv { get { return (string[])_craftAbbrv.Clone(); } }
-		/// <summary>AI setting for craft</summary>
+		/// <summary>Gets a copy of the craft AI settings</summary>
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] Rating { get { return (string[])_rating.Clone(); } }
-		/// <summary>Flight Group initial state parameter</summary>
+		/// <summary>Gets a copy of the FlightGroup initial state parameters</summary>
 		/// <remarks>Array is Length = 29</remarks>
 		public static string[] Status { get { return (string[])_status.Clone(); } }
-		/// <summary>Condition required to complete trigger</summary>
+		/// <summary>Gets a copy of the conditions required to complete trigger</summary>
 		/// <remarks>Array is Length = 60</remarks>
 		public static string[] Trigger { get { return (string[])_trigger.Clone(); } }
-		/// <summary>Category that the Trigger Parameter belongs to</summary>
+		/// <summary>Gets a copy of the categories that the Trigger Parameter belongs to</summary>
 		/// <remarks>Array is Length = 28</remarks>
-		public static string[] TriggerType { get { return (string[])_triggerType.Clone(); } }
-		/// <summary>Quantity of applicable conditions that must be met</summary>
+		public static string[] VariableType { get { return (string[])_triggerType.Clone(); } }
+		/// <summary>Gets a copy of the quantities of applicable conditions that must be met</summary>
 		/// <remarks>Array is Length = 20</remarks>
 		public static string[] Amount { get { return (string[])_amount.Clone(); } }
-		/// <summary>FlightGroup orders</summary>
+		/// <summary>Gets a copy of the FlightGroup orders</summary>
 		/// <remarks>Array is Length = 65</remarks>
 		public static string[] Orders { get { return (string[])_orders.Clone(); } }
-		/// <summary>Craft behaviour to be used in triggers</summary>
+		/// <summary>Gets a copy of the craft behaviours to be used in triggers</summary>
 		/// <remarks>Array is Length = 13</remarks>
 		public static string[] CraftWhen { get { return (string[])_craftWhen.Clone(); } }
-		/// <summary>Individual craft abort conditions</summary>
+		/// <summary>Gets a copy of the individual craft abort conditions</summary>
 		/// <remarks>Array is Length = 10</remarks>
 		public static string[] Abort { get { return (string[])_abort.Clone(); } }
-		/// <summary>Description of orders and variables</summary>
+		/// <summary>Gets a copy of the descriptions of orders and variables</summary>
 		/// <remarks>Array is Length = 65</remarks>
 		public static string[] OrderDesc { get { return (string[])_orderDesc.Clone(); } }
 	}

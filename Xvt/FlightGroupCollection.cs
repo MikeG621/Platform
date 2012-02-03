@@ -1,10 +1,19 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform.Xvt
 {
 	/// <summary>Object to maintain mission FG list</summary>
 	/// <remarks>ItemLimit is set to Mission.FlightGroupLimit (46)</remarks>
-	public class FlightGroupCollection : ResizableCollection
+	public class FlightGroupCollection : Idmr.Common.ResizableCollection<FlightGroup>
 	{
 		/// <summary>Create a new Collection with one FlightGroup</summary>
 		public FlightGroupCollection()
@@ -15,7 +24,7 @@ namespace Idmr.Platform.Xvt
 			_items[0] = new FlightGroup();
 		}
 
-		/// <summary>Create a new Collection with multiple initial FlightGroups</summary>
+		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>
 		/// <param name="quantity">Number of FlightGroups to start with</param>
 		public FlightGroupCollection(int quantity)
 		{
@@ -27,36 +36,14 @@ namespace Idmr.Platform.Xvt
 			for (int i=0;i<_count;i++) _items[i] = new FlightGroup();
 		}
 
-		/// <value>A single FlightGroup within the Collection</value>
-		/// <example>FlightGroupCollection Flights = new FlightGroupCollection(3);<br>
-		/// Flights[2].Name = "Last FG";<br>
-		/// Flights[1] = new FlightGroup();<br>
-		/// Flights[0].Name = Flights[2].Name</example>
-		public FlightGroup this[int index]
-		{
-			get { return (FlightGroup)_getItem(index); }
-			set { _setItem(index, value); }
-		}
-
-		/// <summary>Add a new FlightGroup to the end of the Collection</summary>
+		/// <summary>Adds a new FlightGroup to the end of the Collection</summary>
 		/// <returns>The index of the added FlightGroup if successfull, otherwise -1</returns>
 		public int Add() { return _add(new FlightGroup()); }
-
-		/// <summary>Adds the given FlightGroup to the end of the Collection</summary>
-		/// <param name="flightGroup">The FlightGroup to be added</param>
-		/// <returns>The index of the added FlightGroup if successfull, otherwise -1</returns>
-		public int Add(FlightGroup flightGroup) { return _add(flightGroup); }
 
 		/// <summary>Inserts a new FlightGroup at the specified index</summary>
 		/// <param name="index">Location of the FlightGroup</param>
 		/// <returns>The index of the added FlightGroup if successfull, otherwise -1</returns>
 		public int Insert(int index) { return _insert(index, new FlightGroup()); }
-
-		/// <summary>Inserts the given FlightGroup at the specified index</summary>
-		/// <param name="index">Location of the FlightGroup</param>
-		/// <param name="flightGroup">The FlightGroup to add</param>
-		/// <returns>The index of the added FlightGroup if successfull, otherwise -1</returns>
-		public int Insert(int index, FlightGroup flightGroup) { return _insert(index, flightGroup); }
 
 		/// <summary>Removes all existing entries in the Collection, creates a single new FlightGroup</summary>
 		/// <remarks>All existing FlightGroups are lost, first FG is re-initialized</remarks>

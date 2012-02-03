@@ -1,23 +1,25 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform.Xwa
 {
 	/// <summary>Object to maintain all Team Global Goals</summary>
-	public class GlobalsCollection : FixedSizeCollection
+	public class GlobalsCollection : Idmr.Common.FixedSizeCollection<Globals>
 	{
-		/// <summary>Create a new Collection of Global Goals for each team (10)</summary>
+		/// <summary>Creates a new Collection of Global Goals for each team (10)</summary>
 		public GlobalsCollection()
 		{
 			_count = 10;
 			_items = new Globals[_count];
 			for (int i=0;i<_count;i++) _items[i] = new Globals();
-		}
-
-		/// <value>A single Globals object within the Collection</value>
-		public Globals this[int index]
-		{
-			get { return (Globals)_getItem(index); }
-			set { _setItem(index, value); }
 		}
 
 		/// <summary>Resets Globals Goals for selected Team to defaults</summary>

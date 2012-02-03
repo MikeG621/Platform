@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in /help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform
 {
@@ -76,23 +85,23 @@ namespace Idmr.Platform
 										 "Satelites/Mines"
 									 };
 		#endregion
-		/// <value>FlightGroup craft markings</value>
-		/// <remarks>Array is Length=4</remarks>
+		/// <summary>Gets a copy of FlightGroup craft markings</summary>
+		/// <remarks>Array has a Length of 4</remarks>
 		public static string[] Color { get { return (string[])_color.Clone(); } }
-		/// <value>Arrival difficulty settings</value>
-		/// <remarks>Array is Length=7</remarks>
+		/// <summary>Gets a copy of Arrival difficulty settings</summary>
+		/// <remarks>Array has a Length of 7</remarks>
 		public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
-		/// <value>FlightGroup formation</value>
-		/// <remarks>Array is Length=34</remarks>
+		/// <summary>Gets a copy of FlightGroup formations</summary>
+		/// <remarks>Array has a Length of 34</remarks>
 		public static string[] Formation { get { return (string[])_formation.Clone(); } }
-		/// <value>Trigger Type for solid objects</value>
-		/// <remarks>Array is Length=3</remarks>
+		/// <summary>Gets a copy of Trigger Types for solid objects</summary>
+		/// <remarks>Array has a Length of 3</remarks>
 		public static string[] ObjectType { get { return (string[])_objectType.Clone(); } }
-		/// <value>Trigger Type for ships</value>
-		/// <remarks>Array is Length=7</remarks>
+		/// <summary>Gets a copy of Trigger Types for ships</summary>
+		/// <remarks>Array has a Length of 7</remarks>
 		public static string[] ShipClass { get { return (string[])_shipClass.Clone(); } }
-		/// <value>Warhead types for FlightGroup usage</value>
-		/// <remarks>Array is Length=8</remarks>
+		/// <summary>Gets a copy of Warhead types for FlightGroup usage</summary>
+		/// <remarks>Array has a Length of 8</remarks>
 		public static string[] Warheads { get { return (string[])_warheads.Clone(); } }
 	}
 }

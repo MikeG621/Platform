@@ -1,15 +1,23 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in /help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 using System.IO;
 
 namespace Idmr.Platform
 {
 	/// <summary>Function class for mission files</summary>
-	/// <remarks>Contains functions to determine platform and to single out triggers.</remarks>
+	/// <remarks>Contains functions to determine platform</remarks>
 	public static class MissionFile
 	{
 		/// <summary>Types of mission files</summary>
-		/// <remarks>0 = TIE<br>1 = XvT<br>2 = BoP<br>3 = XWA<br>4 = Invalid
-		public enum Platform { TIE, XvT, BoP, XWA, Invalid }
+		public enum Platform : byte { TIE, XvT, BoP, XWA, Invalid }
 
 		/// <summary>Returns the Platform of the given file</summary>
 		/// <remarks>Returns Platform.Invalid on error</remarks>
@@ -37,19 +45,6 @@ namespace Idmr.Platform
 			else if (p == 0xE) return Platform.BoP;
 			else if (p == 0x12) return Platform.XWA;
 			else return Platform.Invalid;
-		}
-		/// <summary>Returns a single Trigger from the full array</summary>
-		/// <remarks>XWA will return an array with Length=6, the other platforms will return Length=4</remarks>
-		/// <param name="fullTriggerArray">Complete 2-D Trigger array</param>
-		/// <param name="triggerIndex">Selected Trigger</param>
-		/// <returns>1-D Byte array of selected trigger</returns>
-		public static byte[] Trigger(byte[,] fullTriggerArray, int triggerIndex)
-		{
-			byte[] b = new byte[6];
-			try { b[0] = fullTriggerArray[0, 4]; }	// doesn't throw on XWA 6-byte triggers
-			catch { b = new byte[4]; }
-			for (int i=0;i<b.Length;i++) b[i] = fullTriggerArray[triggerIndex, i];
-			return b;
 		}
 	}
 }

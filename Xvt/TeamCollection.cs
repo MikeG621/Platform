@@ -1,23 +1,25 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform.Xvt
 {
 	/// <summary>Object to maintain Teams</summary>
-	public class TeamCollection : FixedSizeCollection
+	public class TeamCollection : Idmr.Common.FixedSizeCollection<Team>
 	{
-		/// <summary>Create a new Collection of Teams (10)</summary>
+		/// <summary>Creates a new Collection of Teams (10)</summary>
 		public TeamCollection()
 		{
 			_count = 10;
 			_items = new Team[_count];
 			for (int i=0;i<_count;i++) _items[i] = new Team(i);
-		}
-
-		/// <value>A single Team object within the Collection</value>
-		public Team this[int index]
-		{
-			get { return (Team)_getItem(index); }
-			set { _setItem(index, value); }
 		}
 
 		/// <summary>Resets selected Team to defaults</summary>

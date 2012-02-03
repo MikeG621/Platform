@@ -1,0 +1,883 @@
+<HTML>
+<HEAD>
+<TITLE>Xvt Namespace (Idmr.Platform)</TITLE>
+<style type="text/css">a{color:#ccc} body{color:#666; background-color:#000} span{color:#088} h2,h3,h4{color:#aaa} .anchor{color:#666}</style>
+</HEAD>
+
+<BODY>
+<h1>XvT Namespace</h1>
+<u>Provides types to manipulate XvT and BoP mission files</u><br><br>
+<b>Namespace:</b> Idmr.Platform<br>
+<b>Assembly:</b> Idmr.Platform.dll<br>
+<b>Additional References:</b><br>
+&nbsp;&nbsp;&nbsp;Idmr.Common<br>
+<b>Version:</b> 2.0<br>
+
+<h3>Classes</h3>
+
+<p><a href="#Briefing">Briefing</a><br>
+<a href="#BriefingCollection">BriefingCollection</a><br>
+<a href="#FlightGroup">FlightGroup</a><br>
+<a href="#FlightGroupCollection">FlightGroupCollection</a><br>
+<a href="#Globals">Globals</a><br>
+<a href="#GlobalsCollection">GlobalsCollection</a><br>
+<a href="#Message">Message</a><br>
+<a href="#MessageCollection">MessageCollection</a><br>
+<a href="#Mission">Mission</a><br>
+<a href="#Strings">Strings</a><br>
+<a href="#Team">Team</a><br>
+<a href="#TeamCollection">TeamCollection</a></p>
+<hr>
+
+<div>
+<h2><a name="Briefing" class="anchor">Briefing Class</a></h2>
+<img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Briefing : <span><a href="Idmr.Platform.html#BaseBriefing">BaseBriefing</a></span><br>
+<u>Briefing object for XvT and BoP</u>. Default settings: 45 seconds, map to (0,0), zoom to 48.  Class is serializable for copy/paste functionality
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> Briefing( )<br>
+<u>Initializes a blank Briefing</u></p>
+
+<h3>Properties</h3>
+
+<p><img src="images/const.gif"> <span><b>public</b> const int</span> EventQuantityLimit<br>
+<u>Maximum number of events that can be held</u></p>
+
+<p><img src="images/const.gif"> <span><b>public</b> const int</span> TicksPerSecond<br>
+<u>Frames per second for briefing animation</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> short</span> Unknown3<br>
+<u>Gets or sets the unknown setting</u>. Briefing offset 0x08</p>
+</div>
+<hr>
+
+<div>
+<h2><a name="BriefingCollection" class="anchor">BriefingCollection Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> class</span> BriefingCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;Briefing&gt;<br>
+<u>Object to hold all Briefings</u>. Eight briefings in total, first being used for single-player
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> BriefingCollection( )<br>
+<u>Creates a new Collection with 8 Briefings</u></p>
+
+<h3>Methods</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> Clear(<span>int</span> index)<br>
+<u>Resets selected Briefing to defaults</u><br>
+<i>index</i> - Briefing index</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> ClearAll( )<br>
+<u>Resets all Briefings to defaults</u></p>
+</div>
+<hr>
+
+<div>
+<h2><a name="FlightGroup" class="anchor">FlightGroup Class</a></h2>
+<img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> FlightGroup : <span><a href="Idmr.Platform.html#BaseFlightGroup">BaseFlightGroup</a></span><br>
+<u>Object for individual FlightGroups</u>
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> FlightGroup( )<br>
+<u>Initializes a new FlightGroup</u>. All Orders set to 100% Throttle, Goals set to NONE, SP1 Enabled, Unknowns 0/false</p>
+
+<h3>Properties</h3>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span>[] ArrDepAO<br>
+<u>Gets which ArrDep triggers must be completed</u>. Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b></span> Mission.<span>Trigger</span>[] ArrDepTriggers<br>
+<u>Gets the Arrival and Departure triggers</u>. Use the <i>ArrDepTriggerIndex</i> enumeration for indexes</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> ArriveOnlyIfHuman<br>
+<u>Gets or sets if craft is required to be player-controlled</u>. When <i>true</i>, craft with PlayerNumber set will not appear without a human player.</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> ArrivesIn30Seconds<br>
+<u>Returns <i>true</i> if the FlightGroup is created within 30 seconds of mission start</u>. Looks for a blank trigger and a delay of 30 seconds or less</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Countermeasures<br>
+<u>Gets or sets the defenses available to the FG</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> ExplosionTime<br>
+<u>Gets or sets the duration of death animation</u>. Unknown multiplier, appears to react differently depending on craft class</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> GlobalUnit<br>
+<u>Gets or sets the additional grouping assignment, can share craft numbering</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> Goal</span>[] Goals<br>
+<u>Gets the FlightGroup-specific mission goals</u>. Array is Length = 7</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> OptionalCraft</span>[] OptCraft<br>
+<u>Gets the array of alternate craft types the player can select</u>. Array is Length = 10</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> OptionalCraftCategory</span> OptCraftCategory<br>
+<u>Gets or sets the alternate craft types the player can select by list</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> LoadoutIndexer</span> OptLoadout<br>
+<u>Gets the alternate weapons the player can select</u>. Use the <i>LoadoutIndexer.Indexes</i> enumeration for indexes</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> Order</span>[] Orders<br>
+<u>Gets the Orders used to control FlightGroup behaviour</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> PlayerNumber<br>
+<u>Gets or sets if the craft has a human or AI pilot</u>. Value of zero defined as AI-controlled craft. Human craft will launch as AI-controlled if no player is present.</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Radio<br>
+<u>Gets or sets team or player number to which the craft communicates with</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> RolesIndexer</span> Roles<br>
+<u>Gets the craft roles, such as Command Ship or Strike Craft</u>. This value has been seen as an AI string with unknown results</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> SkipToO4T1AndOrT2<br>
+<u>Determines if both Skip triggers must be completed</u>. <i>true</i> is AND, <i>false</i> is OR</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b></span> Mission.<span>Trigger</span>[] SkipToOrder4Trigger<br>
+<u>Gets the triggers that cause the FlightGroup to proceed directly to Order[3]</u>. Array length is 2</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Status2<br>
+<u>Gets or sets the second condition of FlightGroup upon creation</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Team<br>
+<u>Gets or sets the allegiance value that controls goals and IFF behaviour</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> UnknownValues</span> Unknowns<br>
+<u>Gets or sets the unknown values container</u>. All values initialize to 0 or <i>false</i></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> Waypoint</span>[] Waypoints<br>
+<u>Gets the FlightGroup location markers</u>. Use <i>WaypointIndex</i> enumeration for array indexes</p>
+
+<h3>Enumerations</h3>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> ArrDepTriggerIndex : <span>byte</span>  { Arrival1, Arrival2, Arrival3, Arrival4, Departure1, Departure2 }<br>
+<u>Indexes for <i>ArrDepTriggers</i></u></p>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> OptionalCraftCategory : <span>byte</span>  { None, AllFlyable, AllRebelFlyable, AllImperialFlyable, Custom }<br>
+<u>Values for <i>OptCraftCategory</i></u></p>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> WaypointIndex : <span>byte</span>  { Start1, Start2, Start3, Start4, WP1, WP2, WP3, WP4, WP5, WP6, WP7, WP8, Rendezvous, Hyperspace, Briefing1, Briefing2, Briefing3, Briefing4, Briefing5, Briefing6, Briefing7, Briefing8 }<br>
+<u>Indexes for <i>Waypoints</i></u></p>
+
+<h3>Structures</h3>
+
+<p><img src="images/struct.gif"> [Serializable] <span><b>public</b> struct</span> OptionalCraft<br>
+<u>Container for the optional craft settings</u><br>
+<div style="margin-left: 25px">
+	<h3>Properties</h3>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> CraftType<br>
+	<u>The Craft Type</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> NumberOfCraft<br>
+	<u>The number of ships per Wave</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> NumberOfWaves<br>
+	<u>The number of waves available</u></p>
+</div></p>
+
+<p><img src="images/struct.gif"> [Serializable] <span><b>public</b> struct</span> UnknownValues<br>
+<u>Container for unknown values</u><br>
+<div style="margin-left: 25px">
+	<h3>Properties</h3>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown1<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0062, in Craft section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown2<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0063, in Craft section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown3<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0085, in Arr/Dep section, may be ArrDelay30Sec</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown4<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0096, in Arr/Dep section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown5<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0098, in Arr/Dep section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown17<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0516, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown18<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0518, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown19<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0520, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown20<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0521, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown21<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0522, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown22<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0527, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown23<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0528, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown24<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x0529, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown25<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x052A, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown26<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x052B, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown27<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x052C, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown28<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x052D, in Unknowns/Options section</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown29<br>
+	<u>Gets or sets the unknown value</u>. Offset 0x052E, in Unknowns/Options section</p>
+</div></p>
+
+<h3>Sub-Classes</h3>
+
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Goal<br>
+<u>Object for a single FlightGroup-specific Goal</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Goal( )<br>
+	<u>Initializes a blank Goal</u>. <i>Condition</i> is set to  "never (FALSE)"</p>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Goal(<span>byte</span>[] raw)<br>
+	<img src="images/meth.gif"> <span><b>public</b></span> Goal(<span>byte</span>[] raw, <span>int</span> startIndex)<br>
+	<u>Initializes a new Goal from raw data</u>. If <i>startIndex</i> is omitted, <i>raw</i> must have length of 15<br>
+	<i>raw</i> - Raw byte data<br>
+	<i>startIndex</i> - Offset within <i>raw</i> to begin reading<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - <i>raw</i> is not the correct length</p>
+	
+	<h3>Properties</h3>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte <b>this</b></span>[<span>int</span> index]<br>
+	<u>Array form of the Goals</u><br>
+	<i>index</i> - Valid indexes are 0-14. Indexes 9, 10 and 13 are read-only</br>
+	<b>Exceptions</b><br>
+	<i>System.IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Amount<br>
+	<u>Gets or sets the amount of the FlightGroup required to meet <i>Condition</i></u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Argument<br>
+	<u>Gets or sets the goal behaviour</u>. Values are 0-3; must, must not (Prevent), BONUS must, BONUS must not (bonus prevent)</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> string</span> CompleteText<br>
+	<u>Gets or sets the goal text shown after completion</u>. String is limited to 63 char</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Condition<br>
+	<u>Gets or sets the Goal trigger</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Enabled<br>
+	<u>Gets or sets if the Goal is active</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> string</span> FailedText<br>
+	<u>Gets or sets the goal text shown after failure</u>. String is limited to 63 char. Not used for Secondary or Prevent goals</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> string</span> IncompleteText<br>
+	<u>Gets or sets the goal text shown before completion</u>. String is limited to 63 char. Not used for Secondary goals</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
+	<u>Gets the size of the array</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> short</span> Points<br>
+	<u>Gets or sets the points awarded or subtracted after Goal completion</u>. Equals <i>RawPoints</i> * 250, limited from -32000 to +31750</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> sbyte</span> RawPoints<br>
+	<u>Gets or sets the points value stored in the file</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Team<br>
+	<u>Gets or sets which Team the Goal applies to</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown10<br>
+	<u>Gets or sets the unknown value</u>. Goal offset 0x06</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown11<br>
+	<u>Gets or sets the unknown value</u>. Goal offset 0x07</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown12<br>
+	<u>Gets or sets the unknown value</u>. Goal offset 0x08</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown13<br>
+	<u>Gets or sets the unknown value</u>. Goal offset 0x0B</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown14<br>
+	<u>Gets or sets the unknown value</u>. Goal offset 0x0C</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown16<br>
+	<u>Gets or sets the unknown value</u>. Goal offset 0x0E</p>
+</div></p>
+
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> LoadoutIndexer<br>
+<u>Object to provide array access to the Optional Craft Loadout values</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> LoadoutIndexer(<span>FlightGroup</span> parent)<br>
+	<u>Initializes the indexer</u><br>
+	<i>parent</i> - The parent FlightGroup</p>
+	
+	<h3>Properties</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b> bool <b>this</b></span>[<span>int</span> index]<br>
+	<img src="images/meth.gif"> <span><b>public</b> bool <b>this</b></span>[<span>Indexes</span> index]<br>
+	<u>Gets or sets the Loadout values</u>. Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes. Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes. Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value. Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value<br>
+	<i>index</i> - Indexes enumerated value<br>
+	<b>Exceptions</b><br>
+	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
+	<u>Gets the size of the array</u></p>
+	
+	<h3>Enumerations</h3>
+	
+	<p><img src="images/enum.gif"> <span><b>public</b> enum</span> Indexes : <span>byte</span> { NoWarheads, SpaceBomb, HeavyRocket, Missile, Torpedo, AdvMissile, AdvTorpedo, MagPulse, NoBeam, TractorBeam, JammingBeam, DecoyBeam, NoCountermeasures, Chaff, Flare }<br>
+	<u>Indexes for <i>this</i>[]</u></p>
+</div></p>
+
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Order : <span><a href="Idmr.Platform.html#IOrder">IOrder</a></span><br>
+<u>Object for a single Order</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Order( )<br>
+	<u>Initializes a blank order</u></p>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Order(<span>byte</span>[] raw)<br>
+	<img src="images/meth.gif"> <span><b>public</b></span> Order(<span>byte</span>[] raw, <span>int</span> startIndex)<br>
+	<u>Initializes the order from raw data</u>. If <i>startIndex</i> is omitted, <i>raw</i> must have length of 19<br>
+	<i>raw</i> - Raw byte data<br>
+	<i>startIndex</i> - Offset within <i>raw</i> to begin reading<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - <i>raw</i> is not the correct length</p>
+	
+	<h3>Properties</h3>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Designation<br>
+	<u>Gets or sets the order description</u>. Limited to 16 characters</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Speed<br>
+	<u>Gets or sets the specific max velocity</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown6<br>
+	<u>Gets or sets the unknown value</u>. Order offset 0x04</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown7<br>
+	<u>Gets or sets the unknown value</u>. Order offset 0x05</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown8<br>
+	<u>Gets or sets the unknown value</u>. Order offset 0x0B</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown9<br>
+	<u>Gets or sets the unknown value</u>. Order offset 0x11</p>
+</div></p>
+
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> RolesIndexer<br>
+<u>Object to provide array access to the Role values</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> RolesIndexer(<span>FlightGroup</span> parent)<br>
+	<u>Initializes the indexer</u><br>
+	<i>parent</i> - The parent FlightGroup</p>
+	
+	<h3>Properties</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
+	<u>Gets or sets the Role values</u>. Limited to 4 characters<br>
+	<i>index</i> - Role Index, 0-3<br>
+	<b>Exceptions</b><br>
+	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
+	<u>Gets the size of the array</u></p>
+</div></p>
+
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Waypoint : <span><a href="Idmr.Platform.html#IWaypoint">IWaypoint</a></span><br>
+<u>Object for a single Waypoint</u></p>
+</div>
+<hr>
+
+<div>
+<h2><a name="FlightGroupCollection" class="anchor">FlightGroupCollection Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> class</span> FlightGroupCollection : Idmr.Common.<span>ResizableCollection</span>&lt;FlightGroup&gt;<br>
+<u>Object to maintain mission FG list</u>. ItemLimit is set to Mission.FlightGroupLimit (46)
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> FlightGroupCollection( )<br>
+<img src="images/meth.gif"> <span><b>public</b></span> FlightGroupCollection(<span>int</span> quantity)<br>
+<u>Creates a new Collection</u>. If <i>quantity</i> is omitted, defaults to one FlightGroup<br>
+<i>quantity</i> - Number of FlightGroups to start with</p>
+
+<h3>Methods</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b> int</span> Add( )<br>
+<u>Adds a new FlightGroup to the end of the Collection. Returns the index of the added FlightGroup if successfull, otherwise -1</u></p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> Clear( )<br>
+<u>Removes all existing entries in the Collection, creates a single new FlightGroup</u>. All existing FlightGroups are lost, first FG is re-initialized</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> int</span> Insert(<span>int</span> index)<br>
+<u>Inserts a new FlightGroup at the specified index. Returns the index of the added FlightGroup if successfull, otherwise -1</u><br>
+<i>index</i> - Location of the FlightGroup</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> int</span> RemoveAt(<span>int</span> index)<br>
+<u>Deletes the FlightGroup at the specified index. Returns the index of the next available FlightGroup if successfull, otherwise -1</u>. If the first and only FlightGroup is selected, initializes it to a new FlightGroup<br>
+<i>index</i> - The index of the FlightGroup to be deleted</p>
+</div>
+<hr>
+
+<div>
+<h2><a name="Globals" class="anchor">Globals Class</a></h2>
+<img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Globals<br>
+<u>Object for individual Team's mission-wide goals</u>
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> Globals( )<br>
+<u>Creates a new Globals object</u>. Three Goals, each with four Triggers all set to "never (FALSE)"</p>
+
+<h3>Properties</h3>
+
+<p><img src="images/prop.gif"> <span><b>public</b> Goal</span>[] Goals<br>
+<u>Gets the Global Goals</u>. Use the <i>GoalIndex</i> enumeration for indexes</p>
+
+<h3>Enumerations</h3>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> GoalIndex : <span>byte</span> { Primary, Prevent, Secondary }<br>
+<u>Goal indexes</u></p>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> GoalState : <span>byte</span> { Incomplete, Complete, Failed }<br>
+<u>Goal status</u></p>
+
+<h3>Sub-Classes</h3>
+
+<p><img src="images/class.gif"> <span><b>public</b> class</span> Goal<br>
+<u>Container for a single Global Goal</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Goal( )<br>
+	<u>Initializes a new Goal</u>. All Triggers set to 10, "never (FALSE)". AndOr values set to <i>true</i>, "OR"</p>
+	
+	<h3>Properties</h3>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span>[] AndOr<br>
+	<u>Gets the array for the AndOr values</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> GoalStringIndexer</span> GoalStrings<br>
+	<u>Gets the array accessor for the GoalString values</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> short</span> Points<br>
+	<u>Gets or sets the points awarded or subtracted after Goal completion</u>. Equal to RawPoints * 250, limited from -32000 to +31750</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> sbyte</span> RawPoints<br>
+	<u>Raw value stored in file</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T1AndOrT2<br>
+	<u>Gets or sets if both Triggers must be met</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T3AndOrT4<br>
+	<u>Gets or sets if both Triggers must be met</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T12AndOrT34<br>
+	<u>Gets or sets if both Trigger pairs must be met</u></p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b></span> Mission.<span>Trigger</span>[] Triggers<br>
+	<u>The Triggers that define the Goal</u>. Array length is 4</p>
+	
+	<h3>Sub-Classes</h3>
+	
+	<p><img src="images/class.gif"> <span><b>public</b> class</span> GoalStringIndexer<br>
+	<u>Object to provide array access to the GoalString values</u><br>
+	<div style="margin-left: 50px">
+		<h3>Constructors</h3>
+		
+		<p><img src="images/meth.gif"> <span><b>public</b></span> GoalStringIndexer(<span>Goal</span> parent)<br>
+		<u>Initializes the indexer</u><br>
+		<i>parent</i> - Parent Global Goal</p>
+		
+		<h3>Properties</h3>
+		
+		<p><img src="images/prop.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> trigger, <span>int</span> state]<br>
+		<img src="images/prop.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> trigger, <span>GoalState</span> state]<br>
+		<u>Gets or sets the Trigger Status strings</u>. Limited to 63 characters<br>
+		<i>trigger</i> - Trigger index, 0-3<br>
+		<i>state</i> - GoalState value<br>
+		<b>Exceptions</b><br>
+		<i>System.IndexOutOfBoundsException</i> - Invalid <i>trigger</i> or <i>state</i> value</p>
+		
+		<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
+		<u>Gets the size of the array</u></p>
+	</div></p>
+</div></p>
+</div>
+<hr>
+
+<div>
+<h2><a name="GlobalsCollection" class="anchor">GlobalsCollection Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> class</span> GlobalsCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;Globals&gt;<br>
+<u>Object to maintain all Team Global Goals</u>
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> GlobalsCollection( )<br>
+<u>Creates a new Collection of Global Goals for each team (10)</u></p>
+
+<h3>Methods</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> Clear(<span>int</span> index)<br>
+<u>Resets Globals Goals for selected Team to defaults</u><br>
+<i>index</i> - Team index</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> ClearAll( )<br>
+<u>Resets all Global Goals to defaults</u></p>
+</div>
+<hr>
+
+<div>
+<h2><a name="Message" class="anchor">Message Class</a></h2>
+<img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Message : <span><a href="Idmr.Platform.html#BaseMessage">BaseMessage</a></span><br>
+<u>Object for individual in-flight messages</u>. Class is serializable to allow copy & paste functionality
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> Message( )<br>
+<u>Creates a new Message object</u>. Triggers is set to 4 triggers of Length 4</p>
+
+<h3>Properties</h3>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Delay<br>
+<u>Gets or sets the seconds after trigger is fired divided by five</u>. Default is zero. Value of 1 is 5s, 2 is 10s, etc.</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> Note<br>
+<u>Gets or sets the string used as editor notes</u>. Value is restricted to 15 characters</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span>[] SentToTeam<br>
+<u>Gets which teams can receive the message</u>. Array length = 10</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T1AndOrT2<br>
+<u>Gets or sets if both triggers must be completed</u>. <i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T12AndOrT34<br>
+<u>Gets or sets if both trigger pairs must be completed</u>. <i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T3AndOrT4<br>
+<u>Gets or sets if both triggers must be completed</u>. <i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b></span> Mission.<span>Trigger</span>[] Triggers<br>
+<u>Gets the Triggers that control the Message behaviour</u>. Array length is 4</p>
+</div>
+<hr>
+
+<div>
+<h2><a name="MessageCollection" class="anchor">MessageCollection Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> class</span> MessageCollection : Idmr.Common.<span>ResizableCollection</span>&lt;Message&gt;<br>
+<u>Object to maintain mission in-flight messages</u>. ItemLimit is set to Mission.MessageLimit (64)
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> MessageCollection( )<br>
+<img src="images/meth.gif"> <span><b>public</b></span> MessageCollection(<span>int</span> quantity)<br>
+<u>Creates a new Collection</u>. If <i>quantity</i> is omitted, Collection remains empty<br>
+<i>quantity</i> - Number of Messages to start with</p>
+
+<h3>Methods</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b> int</span> Add( )<br>
+<img src="images/meth.gif"> <span><b>public</b> int</span> Add(<span>string</span> message)<br>
+<u>Adds a Message to the end of the Collection. Returns the index of the added Message if successfull, otherwise -1</u>. Blank Message is added if <i>message</i> is omitted<br>
+<i>message</i> - The string to be added</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> Clear( )<br>
+<u>Empties the Collection of entries</u>. All existing messages are lost, <i>Count</i> is set to zero</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> int</span> Insert(<span>int</span> index)<br>
+<img src="images/meth.gif"> <span><b>public</b> int</span> Insert(<span>int</span> index, <span>string</span> message)<br>
+<u>Inserts a Message at the specified index. Returns the index of the added Message if successfull, otherwise -1</u>. Blank Message is added if <i>message</i> is omitted<br>
+<i>index</i> - Location of the Message<br>
+<i>message</i> - The string to be added</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> int</span> RemoveAt(<span>int</span> index)<br>
+<u>Deletes the Message at the specified index. Returns the index of the next available Message if successfull, otherwise -1</u>. If first and only Message is specified, executes Clear( )<br>
+<i>index</i> - The index of the Message to be deleted</p>
+</div>
+<hr>
+
+<div>
+<h2><a name="Mission" class="anchor">Mission Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> class</span> Mission<br>
+<u>Framework for XvT and BoP</u>. This is the primary container object for XvT and BoP mission files
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> Mission( )<br>
+<u>Default constructor, creates a blank mission</u></p>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> Mission(<span>string</span> filePath)<br>
+<img src="images/meth.gif"> <span><b>public</b></span> Mission(System.IO.<span>FileStream</span> stream)<br>
+<u>Creates a new mission from a file</u>. Calls LoadFromFile( ) or LoadFromStream( )<br>
+<i>filePath</i> - Full path to the unopened file<br>
+<i>stream</i> - Opened FileStream to the mission file</p>
+
+<h3>Methods</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> LoadFromFile(<span>string</span> filePath)<br>
+<u>Loads a mission from a file</u>. Calls LoadFromStream( )<br>
+<i>filePath</i> - Full path to the unopened file<br>
+<b>Exceptions</b><br>
+<i>System.IO.FileNotFoundException</i> - <i>filePath</i> does not exist<br>
+<i>System.IO.InvalidDataException</i> - <i>filePath</i> is not a XvT or BoP mission file</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> LoadFromStream(System.IO.<span>FileStream</span> stream)<br>
+<u>Loads a mission from an open FileStream</u><br>
+<i>stream</i> - Opened FileStream to the mission file<br>
+<b>Exceptions</b><br>
+<i>System.IO.InvalidDataException</i> - <i>stream</i> is not a valid XvT or BoP mission file</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> Save( )<br>
+<img src="images/meth.gif"> <span><b>public</b> void</span> Save(<span>string</span> filePath)<br>
+<u>Saves the mission to <i>MissionPath</i></u><br>
+<i>filePath</i> - Full path to the new <i>MissionPath</i></p>
+
+<h3>Properties</h3>
+
+<p><img src="images/prop.gif"> <span><b>public</b> BriefingCollection</span> Briefings<br>
+<u>Gets or sets the Briefings for the mission</u></p>
+
+<p><img src="images/const.gif"> <span><b>public</b> const int</span> CraftLimit<br>
+<u>Maximum number of craft that can exist at one time in-game</u></p>
+
+<p><img src="images/const.gif"> <span><b>public</b> const int</span> FlightGroupLimit<br>
+<u>Maximum number of FlightGroups that can exist in the mission file</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> FlightGroupCollection</span> FlightGroups<br>
+<u>Gets or sets the FlightGroups for the mission</u>. Defaults to one FlightGroup</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> GlobalsCollection</span> Globals<br>
+<u>Gets the Global Goals for the mission</u></p>
+
+<p><img src="images/const.gif"> <span><b>public</b> const int</span> MessageLimit<br>
+<u>Maximum number of In-Flight Messages that can exist in the mission file</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> MessageCollection</span> Messages<br>
+<u>Gets or sets the In-Flight Messages for the mission</u>. Defaults to zero messages</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> MissionDescription<br>
+<u>Gets or sets the summary of the mission</u>. 1023 char limit for XvT, 4095 char limit for BoP</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> MissionFailed<br>
+<u>Gets or sets the BoP Debriefing text</u>. 4095 char limit</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> MissionFileName<br>
+<u>Gets the file name of the mission file</u>. Defaults to "NewMission.tie"</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> MissionPath<br>
+<u>Gets or sets the full path to the mission file</u>. Defaults to "\\NewMission.tie"</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> MissionSuccessful<br>
+<u>Gets or sets the BoP Debriefing text</u>. 4095 char limit</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> MissionType<br>
+<u>Gets or sets the category the mission belongs to</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> short</span> NumFlightGroups<br>
+<u>Gets the number of FlightGroups in the mission</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> short</span> NumMessages<br>
+<u>Gets the number of In-Flight Messages in the mission</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> TeamCollection</span> Teams<br>
+<u>Gets the Teams for the mission</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> TimeLimitMin<br>
+<u>Gets or sets the minutes value of the time limit</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> TimeLimitSec<br>
+<u>Gets or sets the seconds value of the time limit</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown1<br>
+<u>Gets or sets an unknown FileHeader value</u>. Offset = 0x06</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown2<br>
+<u>Gets or sets an unknown FileHeader value</u>. Offset = 0x08</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown3<br>
+<u>Gets or sets an unknown FileHeader value</u>. Offset = 0x0B</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> Unknown4<br>
+<u>Gets or sets an unknown FileHeader value</u>. Offset = 0x28, 16 char</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> Unknown5<br>
+<u>Gets or sets an unknown FileHeader value</u>. Offset = 0x50, 16 char</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span> Unknown6<br>
+<u>Gets or sets an unknown FileHeader value</u>. Offset = 0x65</p>
+
+<h3>Sub-Classes</h3>
+
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Trigger : <span><a href="Idmr.Platform.html#ITrigger">ITrigger</a></span><br>
+<u>Object for a single Trigger</u>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Trigger( )<br>
+	<u>Initializes a blank Trigger</u></p>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Trigger(<span>byte</span>[] raw)<br>
+	<img src="images/meth.gif"> <span><b>public</b></span> Trigger(<span>byte</span>[] raw, <span>int</span> startIndex)<br>
+	<u>Initializes a new Trigger from raw data</u>. If <i>startIndex</i> is omitted, <i>raw</i> must have length of 4<br>
+	<i>raw</i> - Raw byte data<br>
+	<i>startIndex</i> - Offset within <i>raw</i> to begin reading<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - <i>raw</i> is not the correct length</p>
+</div></p>
+</div>
+<hr>
+
+<div>
+<h2><a name="Strings" class="anchor">Strings Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> abstract class</span> Strings : <span><a href="Idmr.Platform.html#BaseStrings">BaseStrings</a></span><br>
+<u>Object for string lists used in XvT and BoP</u>. All arrays return Clones to prevent editing
+
+<h3>Properties</h3>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Abort<br>
+<u>Gets a copy of the individual craft abort conditions</u>. Array is Length = 10</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Amount<br>
+<u>Gets a copy of the quantities of applicable conditions that must be met</u>. Array is Length = 19</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Beam<br>
+<u>Gets a copy of the beam weapons for craft use</u>. Array is Length = 4</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] CraftAbbrv<br>
+<u>Gets a copy of the short names for ship types</u>. Array is Length = 93</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] CraftType<br>
+<u>Gets a copy of the long names for ship types</u>. Array is Length = 93</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] CraftWhen<br>
+<u>Gets a copy of the craft behaviour to be used in triggers</u>. Array is Length = 13</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] IFF<br>
+<u>Gets a copy of the default IFF Names</u>. Array is Length = 6</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] MissType<br>
+<u>Gets of copy of the categories for the mission file</u>. Array is Length = 5</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] OrderDesc<br>
+<u>Gets a copy of the descriptions of orders and variables</u>. Array is Length = 40</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Orders<br>
+<u>Gets a copy of the FlightGroup orders</u>. Array is Length = 40</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Radio<br>
+<u>Gets of copy of the radio channels the craft uses</u>. Array is Length = 17</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Rating<br>
+<u>Gets a copy of the craft AI settings</u>. Array is Length = 6</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Status<br>
+<u>Gets a copy of the Flight Group initial state parameters</u>. Array is Length = 22</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Trigger<br>
+<u>Gets a copy of the Conditions required to complete trigger</u>. Array is Length = 47</p>
+
+<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] TriggerType<br>
+<u>Gets a copy of the Categories that the Trigger Parameter belongs to</u>. Array is Length = 24</p>
+</div>
+<hr>
+
+<div>
+<h2><a name="Team" class="anchor">Team Class</a></h2>
+<img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Team<br>
+<u>Object for individual Team settings</u>
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> Team(<span>int</span> teamNumber)<br>
+<u>Initializes a new team</u>. <i>Name</i> initializes according to <i>teamNumber</i>; 0 = Imperial, 1 = Rebel, other = Team (#+1)<br>
+<i>teamNumber</i> - Team index being initialized. Corrects to 0-9 as required</p>
+
+<h3>Properties</h3>
+
+<p><img src="images/prop.gif"> <span><b>public</b> bool</span>[] AlliedWithTeam<br>
+<u>Gets the allegiance with other teams</u>. Array is Length = 10</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> byte</span>[] EndOfMissionMessageColor<br>
+<u>Gets or sets the color of the specified EOM Message</u>. Array is {PrimComp1, PrimComp2, PrimFail1, PrimFail2, SecComp1, SecComp2}</p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> EomMessageIndexer</span> EndOfMissionMessages<br>
+<u>Gets the array accessor for the EoM Messages</u></p>
+
+<p><img src="images/prop.gif"> <span><b>public</b> string</span> Name<br>
+<u>Gets or sets the Team name</u>. 15 character limit</p>
+
+<h3>Enumerations</h3>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> MessageIndex : <span>byte</span> { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PrimaryFailed2, SecondaryComplete1, SecondaryComplete2 }<br>
+<u>Indexes for <i>EndOfMissionMessageColor</i> and <i>EndOfMissionMessages</i></u></p>
+
+<h3>Sub-Classes</h3>
+
+<p><img src="images/class.gif"> <span><b>public</b> class</span> EomMessageIndexer<br>
+<u>Object to provide array access to the EoM Messages</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> EomMessageIndexer(<span>Team</span> parent)<br>
+	<u>Initializes the indexer</u><br>
+	<i>parent</i> - The parent Team</p>
+	
+	<h3>Properties</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
+	<img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>MessageIndex</span> index]<br>
+	<u>Gets or sets the EoM Message</u>. 63 character limit<br>
+	<i>index</i> - MessageIndex enumerated value<br>
+	<b>Exceptions</b><br>
+	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
+	
+	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
+	<u>Gets the size of the array</u></p>
+</div></p>
+</div>
+<hr>
+
+<div>
+<h2><a name="TeamCollection" class="anchor">TeamCollection Class</a></h2>
+<img src="images/class.gif"> <span><b>public</b> class</span> TeamCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;Team&gt;<br>
+<u>Object to maintain Teams</u>
+
+<h3>Constructors</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b></span> TeamCollection( )<br>
+<u>Creates a new Collection of Teams (10)</u></p>
+
+<h3>Methods</h3>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> Clear(<span>int</span> index)<br>
+<u>Resets selected Team to defaults</u><br>
+<i>index</i> - Team index</p>
+
+<p><img src="images/meth.gif"> <span><b>public</b> void</span> ClearAll( )<br>
+<u>Resets all Teams to defaults</u></p>
+</div>
+<hr>
+
+Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
+<small>This library is licensed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a> as published by the <a href="http://www.fsf.org">Free Software Foundation</a>; either v3.0 or later.<br><br>
+This documentation and items contained herein are distributed under the <a href="http://www.gnu.org/licenses/fdl.html" target=_blank>GNU Free Documentation License</a>.<br><br>
+Full notice displayed in <a href="Idmr.Platform.html">Idmr.Platform.html</a></small><br><br>
+Publish date: 01 Feb 2012
+<HR>
+</BODY>
+</HTML>

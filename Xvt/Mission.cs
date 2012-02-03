@@ -1,5 +1,15 @@
+/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
 using System;
 using System.IO;
+using Idmr.Common;
 
 namespace Idmr.Platform.Xvt
 {
@@ -7,30 +17,16 @@ namespace Idmr.Platform.Xvt
 	/// <remarks>This is the primary container object for XvT and BoP mission files</remarks>
 	public class Mission
 	{
-		private string _missionPath = "\\NewMission.tie";
-		private bool _bop = false;
-		private byte _unknown1 = 0;	// 0x0006
-		private byte _unknown2 = 0;	// 0x0008
-		private bool _unknown3 = false;	// 0x000B
-		private string _unknown4 = "";	// 0x0028, 16 char, BoP
-		private string _unknown5 = "";	// 0x0050, 16 char, BoP
-		private byte _missionType = 0;
-		private bool _unknown6 = false;	// 0x0065
-		private byte _timeLimitMin = 0;
-		private byte _timeLimitSec = 0;
-		private string _missionDescription = "";
-		private string _missionFailed = "";	// BoP
-		private string _missionSuccessful = "";	// BoP
-		private FlightGroupCollection _flightGroups = new FlightGroupCollection();
-		private MessageCollection _messages = new MessageCollection();
-		private BriefingCollection _briefings = new BriefingCollection();
-		private GlobalsCollection _globals = new GlobalsCollection();
-		private TeamCollection _teams = new TeamCollection();
+		string _unknown4 = "";	// 0x0028, 16 char, BoP
+		string _unknown5 = "";	// 0x0050, 16 char, BoP
+		string _missionDescription = "";
+		string _missionFailed = "";	// BoP
+		string _missionSuccessful = "";	// BoP
+		BriefingCollection _briefings = new BriefingCollection();
+		GlobalsCollection _globals = new GlobalsCollection();
+		TeamCollection _teams = new TeamCollection();
 
-		/// <summary>Parts of a Trigger array</summary>
-		/// <remarks>0 = Trigger<br>1 = TrigType<br>2 = Variable<br>3 = Amount</remarks>
-		public enum TriggerIndexes : byte { Trigger, TrigType, Variable, Amount };
-
+		#region constructors
 		/// <summary>Default constructor, create a blank mission</summary>
 		public Mission() { }
 
@@ -41,7 +37,9 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Create a new mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
 		public Mission(FileStream stream) { LoadFromStream(stream); }
+		#endregion
 
+		#region public methods
 		/// <summary>Load a mission from a file</summary>
 		/// <remarks>Calls LoadFromStream()</remarks>
 		/// <param name="filePath">Full path to the file</param>
@@ -64,7 +62,7 @@ namespace Idmr.Platform.Xvt
 		{
 			MissionFile.Platform p = MissionFile.GetPlatform(stream);
 			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException("File is not a valid XvT/BoP mission file");
-			_bop = (p == MissionFile.Platform.BoP ? true : false);
+			BoP = (p == MissionFile.Platform.BoP ? true : false);
 			BinaryReader br = new BinaryReader(stream);
 			int i, j;
 			stream.Position = 2;
@@ -93,11 +91,11 @@ namespace Idmr.Platform.Xvt
 			for (i=0;i<numFlightGroups;i++)
 			{
 				#region Craft
-				FlightGroups[i].Name = new string(br.ReadChars(0x14)).Trim('\0');	// null-termed
-				for (j=0;j<4;j++) FlightGroups[i].Roles[j] = new string(br.ReadChars(4)).Trim('\0');
+				FlightGroups[i].Name = new string(br.ReadChars(0x14));	// null-termed
+				for (j=0;j<4;j++) FlightGroups[i].Roles[j] = new string(br.ReadChars(4));
 				stream.Position += 4;
-				FlightGroups[i].Cargo = new string(br.ReadChars(0x14)).Trim('\0');	// null-termed
-				FlightGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).Trim('\0');	// null-termed
+				FlightGroups[i].Cargo = new string(br.ReadChars(0x14));	// null-termed
+				FlightGroups[i].SpecialCargo = new string(br.ReadChars(0x14));	// null-termed
 				stream.Read(buffer, 0, 0x1A);
 				FlightGroups[i].SpecialCargoCraft = buffer[0];
 				FlightGroups[i].RandSpecCargo = Convert.ToBoolean(buffer[1]);
@@ -134,12 +132,12 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].Difficulty = buffer[0];
 				for (j=0;j<4;j++)
 				{
-					FlightGroups[i].ArrDepTrigger[0, j] = buffer[1+j];	// Arr1...
-					FlightGroups[i].ArrDepTrigger[1, j] = buffer[5+j];
-					FlightGroups[i].ArrDepTrigger[2, j] = buffer[0xC+j];
-					FlightGroups[i].ArrDepTrigger[3, j] = buffer[0x10+j];
-					FlightGroups[i].ArrDepTrigger[4, j] = buffer[0x1B+j];	// Dep1...
-					FlightGroups[i].ArrDepTrigger[5, j] = buffer[0x1F+j];
+					FlightGroups[i].ArrDepTriggers[0][j] = buffer[1+j];	// Arr1...
+					FlightGroups[i].ArrDepTriggers[1][j] = buffer[5+j];
+					FlightGroups[i].ArrDepTriggers[2][j] = buffer[0xC+j];
+					FlightGroups[i].ArrDepTriggers[3][j] = buffer[0x10+j];
+					FlightGroups[i].ArrDepTriggers[4][j] = buffer[0x1B+j];	// Dep1...
+					FlightGroups[i].ArrDepTriggers[5][j] = buffer[0x1F+j];
 				}
 				FlightGroups[i].ArrDepAO[0] = Convert.ToBoolean(buffer[0xB]);
 				FlightGroups[i].ArrDepAO[1] = Convert.ToBoolean(buffer[0x16]);
@@ -166,28 +164,27 @@ namespace Idmr.Platform.Xvt
 				for (j=0;j<4;j++)
 				{
 					stream.Read(buffer, 0, 0x13);
-					for (int h=0;h<0x13;h++) FlightGroups[i].Orders[j, h] = buffer[h];
-					FlightGroups[i].OrderDesignations[j] = new string(br.ReadChars(16)).Trim('\0');	// null-termed
+					for (int h=0;h<0x13;h++) FlightGroups[i].Orders[j][h] = buffer[h];
+					FlightGroups[i].Orders[j].Designation = new string(br.ReadChars(16));	// null-termed
 					stream.Position += 0x2F;
 				}
 				stream.Read(buffer, 0, 0xB);
 				for (j=0;j<4;j++)
 				{
-					FlightGroups[i].SkipToOrder4Trigger[0, j] = buffer[j];
-					FlightGroups[i].SkipToOrder4Trigger[1, j] = buffer[4+j];
+					FlightGroups[i].SkipToOrder4Trigger[0][j] = buffer[j];
+					FlightGroups[i].SkipToOrder4Trigger[1][j] = buffer[4+j];
 				}
 				FlightGroups[i].SkipToO4T1AndOrT2 = Convert.ToBoolean(buffer[0xA]);
 				#endregion
 				#region Goals
 				for (j=0;j<8;j++)
 				{
-					stream.Read(buffer, 0, 0xF);
-					for (int h=0;h<0xF;h++) FlightGroups[i].Goals[j, h] = buffer[h];
+					FlightGroups[i].Goals[j] = new FlightGroup.Goal(br.ReadBytes(0xF));
 					stream.Position += 0x3F;
 				}
 				stream.Position++;
 				#endregion
-				for (j=0;j<4;j++) for (int k=0;k<22;k++) FlightGroups[i].Waypoints[k, j] = br.ReadInt16();
+				for (j=0;j<4;j++) for (int k=0;k<22;k++) FlightGroups[i].Waypoints[k][j] = br.ReadInt16();
 				#region Options/Other
 				FlightGroups[i].Unknowns.Unknown17 = br.ReadBoolean();
 				stream.Position++;
@@ -213,23 +210,28 @@ namespace Idmr.Platform.Xvt
 				for (j=0;j<8;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 8) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
+					if (x != 0 && x < 8) FlightGroups[i].OptLoadout[x] = true;
 				}
 				for (j=8;j<12;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[8] = false; }
+					if (x != 0 && x < 4) FlightGroups[i].OptLoadout[x] = true;
 				}
 				stream.Position += 2;
 				for (j=12;j<15;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 3) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[12] = false; }
+					if (x != 0 && x < 3) FlightGroups[i].OptLoadout[x] = true;
 				}
 				stream.Position++;
-				FlightGroups[i].OptCraftCategory = br.ReadByte();
+				FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
 				stream.Read(buffer, 0, 0x1E);
-				for (j=0;j<3;j++) for (int k=0;k<10;k++) FlightGroups[i].OptCraft[k, j] = buffer[j*3+k];
+				for (int k=0;k<10;k++)
+				{
+					FlightGroups[i].OptCraft[k].CraftType = buffer[k];
+					FlightGroups[i].OptCraft[k].NumberOfCraft = buffer[k+10];
+					FlightGroups[i].OptCraft[k].NumberOfWaves = buffer[k+20];
+				}
 				stream.Position++;
 				#endregion
 			}
@@ -262,10 +264,10 @@ namespace Idmr.Platform.Xvt
 					for (j=0;j<10;j++) Messages[i].SentToTeam[j] = Convert.ToBoolean(buffer[j]);
 					for (j=0;j<4;j++)
 					{
-						Messages[i].Triggers[0, j] = buffer[0xA+j];
-						Messages[i].Triggers[1, j] = buffer[0xE+j];
-						Messages[i].Triggers[2, j] = buffer[0x15+j];
-						Messages[i].Triggers[3, j] = buffer[0x19+j];
+						Messages[i].Triggers[0][j] = buffer[0xA+j];
+						Messages[i].Triggers[1][j] = buffer[0xE+j];
+						Messages[i].Triggers[2][j] = buffer[0x15+j];
+						Messages[i].Triggers[3][j] = buffer[0x19+j];
 					}
 					Messages[i].T1AndOrT2 = Convert.ToBoolean(buffer[0x14]);
 					Messages[i].T3AndOrT4 = Convert.ToBoolean(buffer[0x1F]);
@@ -286,23 +288,23 @@ namespace Idmr.Platform.Xvt
 					stream.Read(buffer, 0, 8);
 					for (j=0;j<4;j++)
 					{
-						Globals[i].Triggers[k*4, j] = buffer[j];
-						Globals[i].Triggers[k*4+1, j] = buffer[j+4];
+						Globals[i].Goals[k].Triggers[0][j] = buffer[j];
+						Globals[i].Goals[k].Triggers[1][j] = buffer[j+4];
 					}
 					stream.Position += 2;
-					Globals[i].AndOr[k*3] = Convert.ToBoolean(br.ReadByte());
+					Globals[i].Goals[k].T1AndOrT2 = br.ReadBoolean();
 					stream.Read(buffer, 0, 8);
 					for (j=0;j<4;j++)
 					{
-						Globals[i].Triggers[k*4+2, j] = buffer[j];
-						Globals[i].Triggers[k*4+3, j] = buffer[j+4];
+						Globals[i].Goals[k].Triggers[2][j] = buffer[j];
+						Globals[i].Goals[k].Triggers[3][j] = buffer[j+4];
 					}
 					stream.Position += 2;
-					Globals[i].AndOr[k*3+1] = Convert.ToBoolean(br.ReadByte());
+					Globals[i].Goals[k].T3AndOrT4 = br.ReadBoolean();
 					stream.Position += 0x11;
-					Globals[i].AndOr[k*3+2] = Convert.ToBoolean(br.ReadByte());
+					Globals[i].Goals[k].T12AndOrT34 = br.ReadBoolean();
 					stream.Position++;
-					Globals[i].SetGoalPoints(k, (short)(br.ReadSByte() * 250));
+					Globals[i].Goals[k].RawPoints = br.ReadSByte();
 				}
 			}
 			#endregion
@@ -311,19 +313,19 @@ namespace Idmr.Platform.Xvt
 			for (i=0;i<10;i++)
 			{
 				stream.Position += 2;
-				Teams[i].Name = new string(br.ReadChars(0x10)).Trim('\0');	// null-termed
+				Teams[i].Name = new string(br.ReadChars(0x10));	// null-termed
 				stream.Position += 8;
-				for (j=0;j<10;j++) Teams[i].AlliedWithTeam[j] = Convert.ToBoolean(br.ReadByte());
+				for (j=0;j<10;j++) Teams[i].AlliedWithTeam[j] = br.ReadBoolean();
 				for (j=0;j<6;j++)
 				{
-					Teams[i].SetEndOfMissionMessage(j, new string(br.ReadChars(0x40)).Trim('\0'));
-					if (Teams[i].GetEndOfMissionMessage(j) != "")
+					Teams[i].EndOfMissionMessages[j] = new string(br.ReadChars(0x40));
+					if (Teams[i].EndOfMissionMessages[j] != "")
 					{
-						string c = Teams[i].GetEndOfMissionMessage(j).Substring(0, 1);
-						if (c == "1" || c == "2" || c == "3")
+						char c = Teams[i].EndOfMissionMessages[j][0];
+						if (c == '1' || c == '2' || c == '3')
 						{
 							Teams[i].EndOfMissionMessageColor[j] = Convert.ToByte(c);
-							Teams[i].SetEndOfMissionMessage(j, Teams[i].GetEndOfMissionMessage(j).Substring(1));
+							Teams[i].EndOfMissionMessages[j] = Teams[i].EndOfMissionMessages[j].Substring(1);
 						}
 					}
 				}
@@ -356,23 +358,23 @@ namespace Idmr.Platform.Xvt
 			#endregion
 			#region FG goal strings
 			for (i=0;i<NumFlightGroups;i++)
-			{
 				for (j=0;j<8;j++)
 				{
-					for (int k=0;k<3;k++) FlightGroups[i].GoalStrings[j, k] = new string(br.ReadChars(0x40)).Trim('\0');
+					FlightGroups[i].Goals[j].IncompleteText = new string(br.ReadChars(0x40));
+					FlightGroups[i].Goals[j].CompleteText = new string(br.ReadChars(0x40));
+					FlightGroups[i].Goals[j].FailedText = new string(br.ReadChars(0x40));
 				}
-			}
 			#endregion
 			#region Globals strings
-			for (i=0;i<10;i++)
+			for (i = 0; i < 10; i++)	// Team
 			{
-				for (j=0;j<12;j++)
+				for (j = 0; j < 12; j++)	// Goal * Trigger
 				{
-					for (int k=0;k<3;k++)
+					for (int k = 0; k < 3; k++)	// State
 					{
-						if (j>=8 && k==0) { stream.Position += 0x40; continue; }	// skip Sec Inc
-						if (j>=4 && k==2) { stream.Position += 0x40; continue; }	// skip Prev & Sec Fail
-						Globals[i].SetGoalString(j, k, new string(br.ReadChars(0x40)).Trim('\0'));
+							if (j >= 8 && k == 0) { stream.Position += 0x40; continue; }	// skip Sec Inc
+							if (j >= 4 && k == 2) { stream.Position += 0x40; continue; }	// skip Prev & Sec Fail
+							Globals[i].Goals[j / 4].GoalStrings[j % 4, k] = new string(br.ReadChars(0x40));
 					}
 				}
 				stream.Position += 0xC00;
@@ -385,9 +387,9 @@ namespace Idmr.Platform.Xvt
 				_missionFailed = new string(br.ReadChars(0x1000)).Trim('\0');
 				_missionDescription = new string(br.ReadChars(0x1000)).Trim('\0');
 			}
-			else MissionDescription = new string(br.ReadChars(0x400)).Trim('\0');
+			else _missionDescription = new string(br.ReadChars(0x400)).Trim('\0');
 			#endregion
-			_missionPath = stream.Name;
+			MissionPath = stream.Name;
 		}
 
 		/// <summary>Save the mission with the default path</summary>
@@ -396,8 +398,8 @@ namespace Idmr.Platform.Xvt
 			FileStream fs = null;
 			try
 			{
-				if (File.Exists(_missionPath)) File.Delete(_missionPath);
-				fs = File.OpenWrite(_missionPath);
+				if (File.Exists(MissionPath)) File.Delete(MissionPath);
+				fs = File.OpenWrite(MissionPath);
 				BinaryWriter bw = new BinaryWriter(fs);
 				int i;
 				long p;
@@ -475,20 +477,20 @@ namespace Idmr.Platform.Xvt
 					#endregion
 					#region Arr/Dep
 					fs.WriteByte(FlightGroups[i].Difficulty);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].ArrDepTrigger, 0), 0, 4);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].ArrDepTrigger, 1), 0, 4);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[0][j]);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[1][j]);
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAO[0]);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].ArrDepTrigger, 2), 0, 4);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].ArrDepTrigger, 3), 0, 4);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[2][j]);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[3][j]);
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAO[1]);
 					bw.Write(FlightGroups[i].ArrDepAO[2]);
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown3);
 					fs.WriteByte(FlightGroups[i].ArrivalDelayMinutes);
 					fs.WriteByte(FlightGroups[i].ArrivalDelaySeconds);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].ArrDepTrigger, 4), 0, 4);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].ArrDepTrigger, 5), 0, 4);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[4][j]);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[5][j]);
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAO[3]);
 					fs.WriteByte(FlightGroups[i].DepartureTimerMinutes);
@@ -510,27 +512,37 @@ namespace Idmr.Platform.Xvt
 					#region Orders
 					for (j=0;j<4;j++)
 					{
-						for (int k=0;k<0x13;k++) fs.WriteByte(FlightGroups[i].Orders[j, k]);
-						string s = FlightGroups[i].OrderDesignations[j];
-						bw.Write((s.Length > 16 ? s.Substring(0, 16).ToCharArray() : s.ToCharArray()));
+						for (int k=0;k<0x13;k++) fs.WriteByte(FlightGroups[i].Orders[j][k]);
+						bw.Write(FlightGroups[i].Orders[j].Designation.ToCharArray());
 						fs.WriteByte(0);
 						fs.Position = p + 0xF4 + (j*0x52);
 					}
-					fs.Write(MissionFile.Trigger(FlightGroups[i].SkipToOrder4Trigger, 0), 0, 4);
-					fs.Write(MissionFile.Trigger(FlightGroups[i].SkipToOrder4Trigger, 1), 0, 4);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].SkipToOrder4Trigger[0][j]);
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].SkipToOrder4Trigger[1][j]);
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].SkipToO4T1AndOrT2);
 					#endregion
 					#region Goals
 					for (j=0;j<8;j++)
 					{
-						for (int k=0;k<0xF;k++) fs.WriteByte(FlightGroups[i].Goals[j, k]);
+						fs.WriteByte(FlightGroups[i].Goals[j].Argument);
+						fs.WriteByte(FlightGroups[i].Goals[j].Condition);
+						fs.WriteByte(FlightGroups[i].Goals[j].Amount);
+						bw.Write(FlightGroups[i].Goals[j].RawPoints);
+						bw.Write(FlightGroups[i].Goals[j].Enabled);
+						fs.WriteByte(FlightGroups[i].Goals[j].Team);
+						bw.Write(FlightGroups[i].Goals[j].Unknown10);
+						bw.Write(FlightGroups[i].Goals[j].Unknown11);
+						bw.Write(FlightGroups[i].Goals[j].Unknown12);
+						fs.WriteByte(FlightGroups[i].Goals[j].Unknown13);
+						bw.Write(FlightGroups[i].Goals[j].Unknown14);
+						fs.Position++;
+						fs.WriteByte(FlightGroups[i].Goals[j].Unknown16);
 						fs.Position = p + 0x243 + (j*0x4E);
 					}
 					fs.Position++;
 					#endregion
-					for (j=0;j<4;j++)
-						for (int k=0;k<22;k++) bw.Write(FlightGroups[i].Waypoints[k, j]);
+					for (j=0;j<4;j++) for (int k=0;k<22;k++) bw.Write(FlightGroups[i].Waypoints[k][j]);
 					#region Options/Other
 					bw.Write(FlightGroups[i].Unknowns.Unknown17);
 					fs.Position++;
@@ -558,8 +570,10 @@ namespace Idmr.Platform.Xvt
 					fs.Position += 3;	// only writing 3
 					for (j=1;j<3;j++) if (FlightGroups[i].OptLoadout[j+12]) bw.Write((byte)j); else fs.WriteByte(0);	// beam
 					fs.Position += 2;	// only writing 2
-					fs.WriteByte(FlightGroups[i].OptCraftCategory);
-					for (j=0;j<3;j++) for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k, j]);
+					fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
+					for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
+					for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfCraft);
+					for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfWaves);
 					fs.Position++;
 					#endregion
 				}
@@ -573,12 +587,12 @@ namespace Idmr.Platform.Xvt
 					fs.WriteByte(0);
 					fs.Position = p + 0x42;
 					for (int j=0;j<Messages[i].SentToTeam.Length;j++) bw.Write(Messages[i].SentToTeam[j]);
-					fs.Write(MissionFile.Trigger(Messages[i].Triggers, 0), 0, 4);
-					fs.Write(MissionFile.Trigger(Messages[i].Triggers, 1), 0, 4);
+					for (int j = 0; j < 4; j++) fs.WriteByte(Messages[i].Triggers[0][j]);
+					for (int j = 0; j < 4; j++) fs.WriteByte(Messages[i].Triggers[1][j]);
 					fs.Position += 2;
 					bw.Write(Messages[i].T1AndOrT2);
-					fs.Write(MissionFile.Trigger(Messages[i].Triggers, 2), 0, 4);
-					fs.Write(MissionFile.Trigger(Messages[i].Triggers, 3), 0, 4);
+					for (int j = 0; j < 4; j++) fs.WriteByte(Messages[i].Triggers[2][j]);
+					for (int j = 0; j < 4; j++) fs.WriteByte(Messages[i].Triggers[3][j]);
 					fs.Position += 2;
 					bw.Write(Messages[i].T3AndOrT4);
 					bw.Write(Messages[i].Note.ToCharArray());
@@ -594,18 +608,18 @@ namespace Idmr.Platform.Xvt
 					bw.Write((short)3);
 					for (int j=0;j<3;j++)
 					{
-						fs.Write(MissionFile.Trigger(Globals[i].Triggers, j*4), 0, 4);
-						fs.Write(MissionFile.Trigger(Globals[i].Triggers, j*4+1), 0, 4);
+						for (int k = 0; k < 4; k++) fs.WriteByte(Globals[i].Goals[j].Triggers[0][k]);
+						for (int k = 0; k < 4; k++) fs.WriteByte(Globals[i].Goals[j].Triggers[1][k]);
 						fs.Position += 2;
-						bw.Write(Globals[i].AndOr[j*3]);
-						fs.Write(MissionFile.Trigger(Globals[i].Triggers, j*4+2), 0, 4);
-						fs.Write(MissionFile.Trigger(Globals[i].Triggers, j*4+3), 0, 4);
+						bw.Write(Globals[i].Goals[j].T1AndOrT2);
+						for (int k = 0; k < 4; k++) fs.WriteByte(Globals[i].Goals[j].Triggers[2][k]);
+						for (int k = 0; k < 4; k++) fs.WriteByte(Globals[i].Goals[j].Triggers[3][k]);
 						fs.Position += 2;
-						bw.Write(Globals[i].AndOr[j*3+1]);
+						bw.Write(Globals[i].Goals[j].T3AndOrT4);
 						fs.Position += 0x11;
-						bw.Write(Globals[i].AndOr[j*3+2]);
+						bw.Write(Globals[i].Goals[j].T12AndOrT34);
 						fs.Position++;
-						fs.WriteByte((byte)(Globals[i].GetGoalPoints(j) / 250));
+						fs.WriteByte((byte)Globals[i].Goals[j].RawPoints);
 					}
 				}
 				#endregion
@@ -620,7 +634,7 @@ namespace Idmr.Platform.Xvt
 					for (int j=0;j<10;j++) bw.Write(Teams[i].AlliedWithTeam[j]);
 					for (int j=0;j<6;j++)
 					{
-						bw.Write(Teams[i].GetEndOfMissionMessage(j).ToCharArray());
+						bw.Write(Teams[i].EndOfMissionMessages[j].ToCharArray());
 						fs.WriteByte(0);
 						fs.Position = p + 0x64 + j*0x40;
 					}
@@ -656,7 +670,9 @@ namespace Idmr.Platform.Xvt
 						for (int k=0;k<3;k++)
 						{
 							p = fs.Position;
-							bw.Write(FlightGroups[i].GoalStrings[j, k].ToCharArray());
+							if (k == 0) bw.Write(FlightGroups[i].Goals[j].IncompleteText.ToCharArray());
+							else if (k == 1) bw.Write(FlightGroups[i].Goals[j].CompleteText.ToCharArray());
+							else bw.Write(FlightGroups[i].Goals[j].FailedText.ToCharArray());
 							fs.WriteByte(0);
 							fs.Position = p + 0x40;
 						}
@@ -664,17 +680,16 @@ namespace Idmr.Platform.Xvt
 				}
 				#endregion
 				#region Global Goal Strings
-				for (i=0;i<10;i++)
+				for (i = 0; i < 10; i++)
 				{
-					int j;
-					for (j=0;j<12;j++)
+					for (int j = 0; j < 12; j++)
 					{
-						for (int k=0;k<3;k++)
+						for (int k = 0; k < 3; k++)
 						{
 							if (j >= 8 && k==0) { fs.Position += 0x40; continue; }	// skip Sec Inc
 							if (j >= 4 && k==2) { fs.Position += 0x40; continue; }	// skip Prev & Sec Fail
 							p = fs.Position;
-							bw.Write(Globals[i].GetGoalString(j, k).ToCharArray());
+							bw.Write(Globals[i].Goals[j / 4].GoalStrings[j % 4, k].ToCharArray());
 							fs.WriteByte(0);
 							fs.Position = p + 0x40;
 						}
@@ -718,133 +733,79 @@ namespace Idmr.Platform.Xvt
 		/// <param name="filePath">Full path to the new file location</param>
 		public void Save(string filePath)
 		{
-			_missionPath = filePath;
+			MissionPath = filePath;
 			Save();
 		}
+		#endregion public methods
 
-		/// <value>The full path to the mission file</value>
+		#region public properties
+		/// <summary>The full path to the mission file</summary>
 		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath
-		{
-			get { return _missionPath; }
-			set { _missionPath = value; }
-		}
-		/// <value>The file name of the mission file</value>
+		public string MissionPath = "\\NewMission.tie";
+		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to "NewMission.tie"</remarks>
-		public string MissionFileName { get { return _missionPath.Substring(_missionPath.LastIndexOf("\\")+1); } }
-		/// <value>Defines if mission is XvT or BoP</value>
+		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
+		/// <summary>Gets or sets the mission platform</summary>
 		/// <remarks><i>true</i> for Balance of Power</remarks>
-		public bool BoP
-		{
-			get { return _bop; }
-			set { _bop = value; }
-		}
-		/// <value>Gets the number of FlightGroups in the mission</value>
-		public short NumFlightGroups { get { return (short)_flightGroups.Count; } }
-		/// <value>Gets the number of In-Flight Messages in the mission</value>
-		public short NumMessages { get { return (short)_messages.Count; } }
-		/// <value>Maximum number of craft that can exist at one time in-game</value>
-		/// <remarks>Value is 32</value>
+		public bool BoP = false;
+		/// <summary>Gets the number of FlightGroups in the mission</summary>
+		public short NumFlightGroups { get { return (short)FlightGroups.Count; } }
+		/// <summary>Gets the number of In-Flight Messages in the mission</summary>
+		public short NumMessages { get { return (short)Messages.Count; } }
+		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
+		/// <remarks>Value is 32</summary>
 		public const int CraftLimit = 32;
-		/// <value>Maximum number of FlightGroups that can exist in the mission file</value>
+		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
 		/// <remarks>Value is 46</remarks>
 		public const int FlightGroupLimit = 46;
-		/// <value>Maximum number of In-Flight Messages that can exist in the mission file</value>
+		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
 		/// <remarks>Value is 64</remarks>
 		public const int MessageLimit = 64;
-		/// <value>Unknown FileHeader value</value>
+		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x06</remarks>
-		public byte Unknown1
-		{
-			get { return _unknown1; }
-			set { _unknown1 = value; }
-		}
-		/// <value>Unknown FileHeader value</value>
+		public byte Unknown1;
+		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x08</remarks>
-		public byte Unknown2
-		{
-			get { return _unknown2; }
-			set { _unknown2 = value; }
-		}
-		/// <value>Unknown FileHeader value</value>
+		public byte Unknown2;
+		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B</remarks>
-		public bool Unknown3
-		{
-			get { return _unknown3; }
-			set { _unknown3 = value; }
-		}
-		/// <value>Unknown FileHeader value (BoP only?)</value>
+		public bool Unknown3;
+		/// <summary>Gets or sets an unknown FileHeader value (BoP only?)</summary>
 		/// <remarks>Offset = 0x28, 16 char</remarks>
 		public string Unknown4
 		{
 			get { return _unknown4; }
-			set
-			{
-				if (value.Length > 16) _unknown4 = value.Substring(0, 16);
-				else _unknown4 = value;
-			}
+			set { _unknown4 = StringFunctions.GetTrimmed(value, 16); }
 		}
-		/// <value>Unknown FileHeader value (BoP only?)</value>
+		/// <summary>Gets or sets an unknown FileHeader value (BoP only?)</summary>
 		/// <remarks>Offset = 0x50, 16 char</remarks>
 		public string Unknown5
 		{
 			get { return _unknown5; }
-			set
-			{
-				if (value.Length > 16) _unknown5 = value.Substring(0, 16);
-				else _unknown5 = value;
-			}
+			set { _unknown5 = StringFunctions.GetTrimmed(value, 16); }
 		}
-		/// <value>Defines which category the mission belongs to</value>
-		public byte MissionType
-		{
-			get { return _missionType; }
-			set { _missionType = value; }
-		}
-		/// <value>Unknown FileHeader value</value>
+		/// <summary>Gets or sets the category the mission belongs to</summary>
+		public byte MissionType;
+		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x65</remarks>
-		public bool Unknown6
-		{
-			get { return _unknown6; }
-			set { _unknown6 = value; }
-		}
-		/// <value>Minutes value of the time limit</value>
-		public byte TimeLimitMin
-		{
-			get { return _timeLimitMin; }
-			set { _timeLimitMin = value; }
-		}
-		/// <value>Seconds value of the time limit</value>
-		public byte TimeLimitSec
-		{
-			get { return _timeLimitSec; }
-			set { _timeLimitSec = value; }
-		}
-		/// <value>The FlightGroups for the mission</value>
+		public bool Unknown6;
+		/// <summary>Gets or sets the minutes value of the time limit</summary>
+		public byte TimeLimitMin;
+		/// <summary>Gets or sets the seconds value of the time limit</summary>
+		public byte TimeLimitSec;
+		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
-		public FlightGroupCollection FlightGroups
-		{
-			get { return _flightGroups; }
-			set { _flightGroups = value; }
-		}
-		/// <value>The In-Flight Messages for the mission</value>
+		public FlightGroupCollection FlightGroups = new FlightGroupCollection();
+		/// <summary>Gets or sets the In-Flight Messages for the mission</summary>
 		/// <remarks>Defaults to zero messages</remarks>
-		public MessageCollection Messages
-		{
-			get { return _messages; }
-			set { _messages = value; }
-		}
-		/// <value>The Global Goals for the mission</value>
-		public GlobalsCollection Globals { get { return _globals; } }
-		/// <value>The Teams for the mission</value>
-		public TeamCollection Teams { get { return _teams; } }
-		/// <value>The Briefings for the mission</value>
-		public BriefingCollection Briefings
-		{
-			get { return _briefings; }
-			set { if (value.Count == _briefings.Count) _briefings = value; }
-		}
-		/// <value>Summary of the mission</value>
+		public MessageCollection Messages = new MessageCollection();
+		/// <summary>Gets or sets the Global Goals for the mission</summary>
+		public GlobalsCollection Globals = new GlobalsCollection();
+		/// <summary>Gets or sets the Teams for the mission</summary>
+		public TeamCollection Teams = new TeamCollection();
+		/// <summary>Gets or sets the Briefings for the mission</summary>
+		public BriefingCollection Briefings = new BriefingCollection();
+		/// <summary>Gets or sets the summary of the mission</summary>
 		/// <remarks>1023 char limit for XvT, 4095 char limit for BoP</remarks>
 		public string MissionDescription
 		{
@@ -852,11 +813,10 @@ namespace Idmr.Platform.Xvt
 			set
 			{
 				string s = value.Replace("\r\n", "$");
-				if (s.Length > (_bop ? 0x1000 : 0x400)) _missionDescription = s.Substring(0, (_bop ? 0x1000 : 0x400));
-				_missionDescription = s;
+				_missionDescription = StringFunctions.GetTrimmed(s, (BoP ? 0x0FFF : 0x3FF));
 			}
 		}
-		/// <value>Debriefing text (BoP only)</value>
+		/// <summary>Gets or sets the BoP Debriefing text</summary>
 		/// <remarks>4095 char limit</remarks>
 		public string MissionFailed
 		{
@@ -864,11 +824,10 @@ namespace Idmr.Platform.Xvt
 			set
 			{
 				string s = value.Replace("\r\n", "$");
-				if (s.Length > 0x1000) _missionFailed = s.Substring(0, 0x1000);
-				else _missionFailed = s;
+				_missionFailed = StringFunctions.GetTrimmed(s, 0x0FFF);
 			}
 		}
-		/// <value>Debriefing text (BoP only)</value>
+		/// <summary>Gets or sets the BoP Debriefing text</summary>
 		/// <remarks>4095 char limit</remarks>
 		public string MissionSuccessful
 		{
@@ -876,9 +835,97 @@ namespace Idmr.Platform.Xvt
 			set
 			{
 				string s = value.Replace("\r\n", "$");
-				if (s.Length > 0x1000) _missionSuccessful = s.Substring(0, 0x1000);
-				else _missionSuccessful = s;
+				_missionSuccessful = StringFunctions.GetTrimmed(s, 0x0FFF);
 			}
+		}
+		#endregion public properties
+		
+		/// <summary>Object for a single Trigger</summary>
+		[Serializable] public class Trigger	: ITrigger
+		{
+			byte _condition = 0;
+			byte _variableType = 0;
+			byte _variable = 0;
+			byte _amount = 0;
+			
+			/// <summary>Initializes a blank Trigger</summary>
+			public Trigger() { }
+			
+			/// <summary>Initializes a new Trigger from raw data</summary>
+			/// <param name="raw">Raw data, must have Length of 4</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value</exception>
+			public Trigger(byte[] raw)
+			{
+				if (raw.Length != 4) throw new ArgumentException("raw does not have the correct length", "raw");
+				_condition = raw[0];
+				_variableType = raw[1];
+				_variable = raw[2];
+				_amount = raw[3];
+			}
+			
+			/// <summary>Initializes a new Trigger from raw data</summary>
+			/// <param name="raw">Raw data</param>
+			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
+			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
+			public Trigger(byte[] raw, int startIndex)
+			{
+				_condition = raw[startIndex];
+				_variableType = raw[startIndex + 1];
+				_variable = raw[startIndex + 2];
+				_amount = raw[startIndex + 3];
+			}
+			
+			#region ITrigger Members
+			/// <summary>The array form of the Trigger</summary>
+			/// <param name="index">Condition, VariableType, Variable, Amount</param>
+			/// <exception cref="ArgumentException"><i>index</i> must be 0-3</exception>
+			public byte this[int index]
+			{
+				get
+				{
+					if (index == 0) return _condition;
+					else if (index == 1) return _variableType;
+					else if (index == 2) return _variable;
+					else if (index == 3) return _amount;
+					else throw new ArgumentException("index must be 0-3", "index");
+				}
+				set
+				{
+					if (index == 0) _condition = value;
+					else if (index == 1) _variableType = value;
+					else if (index == 2) _variable = value;
+					else if (index == 3) _amount = value;
+				}
+			}
+			
+			/// <summary>Gets the size of the array</summary>
+			public int Length { get { return 4; } }
+			
+			/// <summary>Gets or sets the Trigger itself</summary>
+			public byte Condition
+			{
+				get { return _condition; }
+				set { _condition = value; }
+			}
+			/// <summary>Gets or sets the category <i>Variable</i> belongs to</summary>
+			public byte VariableType
+			{
+				get { return _variableType; }
+				set { _variableType = value; }
+			}
+			/// <summary>Gets or sets the Trigger subject</summary>
+			public byte Variable
+			{
+				get { return _variable; }
+				set { _variable = value; }
+			}
+			/// <summary>Gets or sets the amount required to fire the Trigger</summary>
+			public byte Amount
+			{
+				get { return _amount; }
+				set { _amount = value; }
+			}
+			#endregion
 		}
 	}
 }

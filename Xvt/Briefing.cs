@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
 
 namespace Idmr.Platform.Xvt
 {
@@ -7,11 +16,10 @@ namespace Idmr.Platform.Xvt
 	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48. Class is serializable for copy/paste functionality</remarks>
 	public class Briefing : BaseBriefing
 	{
-		private short _unknown3 = 0;
-		/// <value>Frames per second for briefing animation</value>
+		/// <summary>Frames per second for briefing animation</summary>
 		/// <remarks>Value is 20 (0x14)</remarks>
 		public const int TicksPerSecond = 0x14;
-		/// <value>Maximum number of events that can be held</value>
+		/// <summary>Maximum number of events that can be held</summary>
 		/// <remarks>Value is 202 (0xCA)</remarks>
 		public const int EventQuantityLimit = 0xCA;
 
@@ -19,7 +27,7 @@ namespace Idmr.Platform.Xvt
 		public Briefing()
 		{	//initialize
             _platform = MissionFile.Platform.XvT;
-			_length = 0x384;	// default to 45 seconds
+			Length = 0x384;	// default to 45 seconds
 			_events = new byte[0x32A];
 			_briefingTags = new string[0x20];
 			_briefingStrings = new string[0x20];
@@ -38,12 +46,8 @@ namespace Idmr.Platform.Xvt
 			_events[18] = 0x22;
 		}
 
-		/// <summary>Unknown setting</summary>
+		/// <summary>Gets or sets the unknown setting</summary>
 		/// <remarks>Briefing offset 0x08</remarks>
-		public short Unknown3
-		{
-			get { return _unknown3; }
-			set { _unknown3 = value; }
-		}
+		public short Unknown3 = 0;
 	}
 }

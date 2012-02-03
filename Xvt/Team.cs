@@ -1,62 +1,89 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
+using Idmr.Common;
 
 namespace Idmr.Platform.Xvt
 {
-	[Serializable]
 	/// <summary>Object for individual Team settings</summary>
-	public class Team
+	[Serializable] public class Team
 	{
-		private string _name = "";
-		private bool[] _alliedWithTeam = new bool[10];
-		private byte[] _endOfMissionMessageColor = new byte[6];
-		private string[] _endOfMissionMessages = new string[6];
+		string _name = "";
+		bool[] _alliedWithTeam = new bool[10];
+		byte[] _endOfMissionMessageColor = new byte[6];
+		string[] _endOfMissionMessages = new string[6];
+		EomMessageIndexer _eomMessageIndexer;
 
-		/// <summary>Initialize a new team</summary>
-		/// <remarks><i>Name</i> initializes according to <i>teamNumber</i>; 0 = Imperial, 1 = Rebel, other = Team #</remarks>
-		/// <param name="teamNumber">Team index being initialized</param>
+		/// <summary>Indexes for <i>EndOfMissionMessageColor</i> and <i>EndOfMissionMessages</i></summary>
+		public enum MessageIndex : byte { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PrimaryFailed2, SecondaryComplete1, SecondaryComplete2 }
+		
+		/// <summary>Initializes a new team</summary>
+		/// <remarks><i>Name</i> initializes according to <i>teamNumber</i>; 0 = Imperial, 1 = Rebel, other = Team (#+1)</remarks>
+		/// <param name="teamNumber">Team index being initialized. Corrects to 0-9 as required</param>
 		public Team(int teamNumber)
 		{
-			if (teamNumber == 0) { _name = "Imperial"; _alliedWithTeam[0] = true; }
+			if (teamNumber <= 0) { _name = "Imperial"; _alliedWithTeam[0] = true; }
 			else if (teamNumber == 1) _name = "Rebel";
-			else _name = "Team " + (teamNumber+1).ToString();
-			for (int i=0;i<6;i++) _endOfMissionMessages[i] = "";
+			else _name = "Team " + (teamNumber > 8 ? 10 : teamNumber + 1);
+			for (int i = 0; i < 6; i++) _endOfMissionMessages[i] = "";
+			_eomMessageIndexer = new EomMessageIndexer(this);
 		}
 
-		/// <value>Team name</value>
+		/// <summary>Gets or sets the Team name</summary>
 		/// <remarks>15 character limit</remarks>
 		public string Name
 		{
 			get { return _name; }
-			set
-			{
-				if (value.Length > 0xE) _name = value.Substring(0, 0xE);
-				else _name = value;
-			}
+			set { _name = StringFunctions.GetTrimmed(value, 0xE); }
 		}
-		/// <value>Controls allegiance with other teams</value>
+		/// <summary>Gets the allegiance with other teams</summary>
 		/// <remarks>Array is Length = 10</remarks>
-		public bool[] AlliedWithTeam
-		{
-			get { return _alliedWithTeam; }
-			set { if (value.Length == 10) _alliedWithTeam = value; }
-		}
-		/// <value>Defines the color of the specified EOM Message</value>
-		/// <remarks>Array is {PrimComp1, PrimComp2, PrimFail1, PrimFail2, SecComp1, SecComp2}</remarks>
+		public bool[] AlliedWithTeam { get { return _alliedWithTeam; } }
+		
+		/// <summary>Gets or sets the color of the specified EoM Message</summary>
+		/// <remarks>Use the MessageIndex enumeration for array indexes</remarks>
 		public byte[] EndOfMissionMessageColor { get { return _endOfMissionMessageColor; } }
-
-		/// <summary>Returns the Inflight Messages shown at goal completion</summary>
-		/// <param name="index">0=PrimComplete1, 1=PrimComplete2, 2=PrimFailed1... 5=SecComplete2</param>
-		/// <returns>Message string</returns>
-		public string GetEndOfMissionMessage(int index) { return _endOfMissionMessages[index]; }
-
-		/// <summary>Sets the Inflight Messages shown at goal completion</summary>
-		/// <param name="index">0=PrimComplete1, 1=PrimComplete2, 2=PrimFailed1... 5=SecComplete2</param>
-		/// <param name="message">Message string, 63 character limit</param>
-		public void SetEndOfMissionMessage(int index, string message)
+		
+		/// <summary>Gets the array accessor for the EoM Messages</summary>
+		public EomMessageIndexer EndOfMissionMessages { get { return _eomMessageIndexer; } }
+		
+		/// <summary>Object to provide array access to the EoM Messages</summary>
+		public class EomMessageIndexer
 		{
-			if (index < 0 || index > 5) return;
-			if (message.Length > 63) _endOfMissionMessages[index] = message.Substring(0, 63);
-			else _endOfMissionMessages[index] = message;
+			Team _owner;
+			
+			/// <summary>Initializes the indexer</summary>
+			/// <param name="parent">The parent Team</param>
+			public EomMessageIndexer(Team parent) { _owner = parent; }
+			
+			/// <summary>Gets the size of the array</summary>
+			public int Length { get { return _owner._endOfMissionMessages.Length; } }
+			
+			/// <summary>Gets or sets the EoM Message</summary>
+			/// <remarks>63 character limit</remarks>
+			/// <param name="index">MessageIndex enumerated value</param>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			public string this[int index]
+			{
+				get { return _owner._endOfMissionMessages[index]; }
+				set { _owner._endOfMissionMessages[index] = StringFunctions.GetTrimmed(value, 63); }
+			}
+			
+			/// <summary>Gets or sets the EoM Message</summary>
+			/// <remarks>63 character limit</remarks>
+			/// <param name="index">MessageIndex enumerated value</param>
+			public string this[MessageIndex index]
+			{
+				get { return _owner._endOfMissionMessages[(int)index]; }
+				set { _owner._endOfMissionMessages[(int)index] = StringFunctions.GetTrimmed(value, 63); }
+			}
 		}
 	}
 }

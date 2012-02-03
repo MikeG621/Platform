@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2009.12.26
+Updated: 2011.09.16
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -69,7 +69,7 @@ STR(0x18E0)		EditorNotes
 STR(100)[127]		UnknownMessageNotes
 STR(100)[64]		MessageNotes
 STR(100)[70]		UnknownMessageNotes
-STR(100)[3]		DescprtionsNotes?
+STR(100)[3]		DescriptionsNotes?
 STR(*)[NumFGs,8,3]	FGGoalStrings
 STR(*)[10,3,4,3]	GlobalGoalStrings
 0x1E0		Unknown
@@ -113,8 +113,8 @@ struct FlightGroup (size 0xE3E)
 	0x000	STR(20)	Name
 	0x014	BOOL	EnableDesignation
 	0x015	BOOL	EnableDesignation2
-	0x016	BYTE	Designation
-	0x017	BYTE	Designation2
+	0x016	BYTE	Designation (enum)
+	0x017	BYTE	Designation2 (enum)
 	0x018	BYTE	Unknown1
 	0x019	BYTE	GlobalCargoIndex
 	0x01A	BYTE	GlobalSpecialCargoIndex
@@ -344,9 +344,7 @@ struct Team (size 0x1E7)
 	0x01A	BYTE[10]	Allegiances
 	0x024	CHAR[64][6]	EndOfMissionMessages
 	0x1A4	BYTE[6]		Unknowns
-	0x1AA	CHAR[20] 	PrimaryCompleteVoice
-	0x1BE	CHAR[20] 	PrimaryFailedVoice
-	0x1D2	CHAR[20] 	OutstandingVoice
+	0x1AA	CHAR[20][3]	EomVoiceIDs
 }
 
 struct Briefing
@@ -511,7 +509,7 @@ of God/Allah/FSM use these goals instead of Global Goals if possible.
 The remaining Waypts are pretty self-explanatory; three start points and HYP
 are available here. The Enable value just tells the application if it needs to
 pay attention to it or not and is boolean. Region determines which region
-the point applies to. If more than one StartPOint is enabled, the application
+the point applies to. If more than one StartPoint is enabled, the application
 will pick one to use. Note that there are no briefing points in XWA, that's
 because XWA finally uses a true animated briefing. More on that later.
 
@@ -992,7 +990,7 @@ Status
 Warhead
 00	None
 01	Space Bomb
-02	Heavy Rockey
+02	Heavy Rocket
 03	Concussion Missile
 04	Torpedo
 05	Advanced Concussion Missile

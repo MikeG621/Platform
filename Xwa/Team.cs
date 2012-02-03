@@ -1,4 +1,14 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.html
+ * Version: 2.0
+ */
+
+using System;
+using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
 {
@@ -7,86 +17,115 @@ namespace Idmr.Platform.Xwa
 	public class Team
 	{
 		/// <summary>IFF relations to other Teams</summary>
-		/// <remarks>0 = Hostile<br/>1 = Friendly<br/>2 = Neutral</remarks>
 		public enum Allegeance : byte { Hostile, Friendly, Neutral }
 		
-		private string _name;
-		private string[] _endOfMissionMessages = new string[6];
-		private Allegeance[] _allies = new Allegeance[10];
-		private byte[] _unknowns = new byte[6];
-		private string[] _voiceIDs = new string[3];
+		/// <summary>Indexes for <i>EndOfMissionMessages</i></summary>
+		public enum EomMessageIndex : byte { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PriamryFailed2, OutstandingComplete1, OutstandingComplete2 }
+		
+		string _name;
+		string[] _endOfMissionMessages = new string[6];
+		Allegeance[] _allies = new Allegeance[10];
+		byte[] _unknowns = new byte[6];
+		string[] _voiceIDs = new string[3];
+		EomMessageIndexer _eomMessageIndexer;
+		VoiceIDIndexer _voiceIDIndexer;
 
-		/// <summary>Initialize a new team</summary>
+		/// <summary>Initializes a new team</summary>
 		/// <remarks><i>Name</i> initializes according to <i>teamNumber</i>; 0 = Imperial, 1 = Rebel, other = Team #</remarks>
 		/// <param name="teamNumber">Team index being initialized</param>
 		public Team(int teamNumber)
 		{
-			if (teamNumber == 0) { _name = "Imperial"; _allies[0] = Allegeance.Friendly; }
+			if (teamNumber <= 0) { _name = "Imperial"; _allies[0] = Allegeance.Friendly; }
 			else if (teamNumber == 1) _name = "Rebel";
-			else _name = "Team " + (teamNumber+1).ToString();
+			else _name = "Team " + (teamNumber > 8 ? 10 : teamNumber + 1);
 			for (int i=0;i<6;i++) _endOfMissionMessages[i] = "";
 			for (int i=0;i<3;i++) _voiceIDs[i] = "";
+			_eomMessageIndexer = new EomMessageIndexer(this);
+			_voiceIDIndexer = new VoiceIDIndexer(this);
 		}
-		/// <value>Team name</value>
+		/// <summary>Gets or sets the Team name</summary>
 		/// <remarks>17 character limit</remarks>
 		public string Name
 		{
 			get { return _name; }
-			set
-			{
-				if (value.Length > 0x11) _name = value.Substring(0, 0x11);
-				else _name = value;
-			}
+			set { _name = StringFunctions.GetTrimmed(value, 0x11); }
 		}
 
-		/// <summary>Returns the Inflight Messages shown at goal completion</summary>
-		/// <param name="index">0=PrimComplete1, 1=PrimComplete2, 2=PrimFailed1... 5=OutstandingComplete2</param>
-		/// <returns>Message string</returns>
-		public string GetEndOfMissionMessage(int index) { return _endOfMissionMessages[index]; }
+		/// <summary>Gets the array accessor for the EoM Messages</summary>
+		public EomMessageIndexer EndOfMissionMessages { get { return _eomMessageIndexer; } }
 
-		/// <summary>Sets the Inflight Messages shown at goal completion</summary>
-		/// <param name="index">0=PrimComplete1, 1=PrimComplete2, 2=PrimFailed1... 5=OutstandingComplete2</param>
-		/// <param name="message">Message string, 63 character limit</param>
-		public void SetEndOfMissionMessage(int index, string message)
-		{
-			if (message.Length > 63) _endOfMissionMessages[index] = message.Substring(0, 63);
-			else _endOfMissionMessages[index] = message;
-		}
-
-		/// <summary>Defines main team interactions, one value for each team</summary>
+		/// <summary>Gets the allegiance array with other teams</summary>
 		/// <remarks>Array is Length = 10</remarks>
-		/// <exception cref="ArgumentException">Attempting to set with the wrong array size</exception>
-		public Allegeance[] Allies
-		{
-			get { return _allies; }
-			set
-			{
-				if (value.Length != 10) throw new ArgumentException("Array must have Length of 10");
-				_allies = value;
-			}
-		}
-		/// <summary>Unknown values</summary>
+		public Allegeance[] Allies { get { return _allies; } }
+		
+		/// <summary>Gets the unknown values</summary>
 		/// <remarks>Array is Length = 6</remarks>
-		/// <exception cref="ArgumentException>Attempting to set with the wrong array size</exception>
-		public byte[] Unknowns
+		public byte[] Unknowns { get { return _unknowns; } }
+		
+		/// <summary>Gets the array accessor for the short EoM Message notes</summary>
+		public VoiceIDIndexer VoiceIDs { get { return _voiceIDIndexer; } }
+		
+		/// <summary>Object to provide array access to the EoM Message values</summary>
+		public class EomMessageIndexer
 		{
-			get { return _unknowns; }
-			set
+			Team _owner;
+			
+			/// <summary>Initializes the indexer</summary>
+			/// <param name="parent">The parent Team</param>
+			public EomMessageIndexer(Team parent) { _owner = parent; }
+			
+			/// <summary>Gets the length of the array</summary>
+			public int Length { get { return _owner._endOfMissionMessages.Length; } }
+			
+			/// <summary>Gets or sets the EoM Message</summary>
+			/// <remarks>64 character limit</remarks>
+			/// <param name="index">EomMessageIndex enumerated value, 0-5</param>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value>
+			public string this[int index]
 			{
-				if (value.Length != 6) throw new ArgumentException("Array must have Length of 6");
-				_unknowns = value;
+				get { return _owner._endOfMissionMessages[index]; }
+				set { _owner._endOfMissionMessages[index] = StringFunctions.GetTrimmed(value, 64); }
+			}
+			
+			/// <summary>Gets or sets the EoM Message</summary>
+			/// <remarks>64 character limit</remarks>
+			/// <param name="index">EomMessageIndex</param>
+			public string this[EomMessageIndex index]
+			{
+				get { return _owner._endOfMissionMessages[(int)index]; }
+				set { _owner._endOfMissionMessages[(int)index] = StringFunctions.GetTrimmed(value, 64); }
 			}
 		}
-		/// <summary>Short notes for EndOfMissionMessages</summary>
-		/// <remarks>Array is Length = 3, only 20 characters are saved</remarks>
-		/// <exception cref="ArgumentException>Attempting to set with the wrong array size</exception>
-		public string[] VoiceIDs
+		
+		/// <summary>Object to provide array access to the EoM Message notes</summary>
+		public class VoiceIDIndexer
 		{
-			get { return _voiceIDs; }
-			set
+			Team _owner;
+			
+			/// <summary>Initializes the indexer</summary>
+			/// <param name="parent">The parent Team</param>
+			public VoiceIDIndexer(Team parent) { _owner = parent; }
+			
+			/// <summary>Gets the length of the array</summary>
+			public int Length { get { return _owner._voiceIDs.Length; } }
+			
+			/// <summary>Gets or sets the EoM Message note</summary>
+			/// <remarks>20 character limit. Divide the EomMessageIndex value by 2 to get the appropriate <i>index</i></remarks>
+			/// <param name="index">EomMessage category, 0-2</param>
+			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value>
+			public string this[int index]
 			{
-				if (value.Length != 3) throw new ArgumentException("Array must have Length of 3");
-				_voiceIDs = value;
+				get { return _owner._voiceIDs[index]; }
+				set { _owner._voiceIDs[index] = StringFunctions.GetTrimmed(value, 20); }
+			}
+			
+			/// <summary>Gets or sets the EoM Message note</summary>
+			/// <remarks>20 character limit. Index will be divided by 2, so PrimaryFailed1 and PrimaryFailed2 both point to the same string</remarks>
+			/// <param name="index">EomMessage category</param>
+			public string this[EomMessageIndex index]
+			{
+				get { return _owner._voiceIDs[(int)index / 2]; }
+				set { _owner._voiceIDs[(int)index / 2] = StringFunctions.GetTrimmed(value, 20); }
 			}
 		}
 	}
