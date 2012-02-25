@@ -16,18 +16,18 @@ namespace Idmr.Platform.Tie
 	public abstract class Strings : BaseStrings
 	{
 		#region array definitions
-		private static string[] _iff = { "Rebel",
+		static string[] _iff = { "Rebel",
 								  "Imperial",
 								  "IFF3-Blue",
 								  "IFF4-Purple",
 								  "IFF5-Red",
 								  "IFF6-Purple"
 							  };
-		private static string[] _beam = { "None",
+		static string[] _beam = { "None",
 								   "Tractor beam",
 								   "Jamming beam"
 							   };
-		private static string[] _craftType = { "None",
+		static string[] _craftType = { "None",
 										"X-Wing",
 										"Y-Wing",
 										"A-Wing",
@@ -116,7 +116,7 @@ namespace Idmr.Platform.Tie
 										"Asteroid Field 2",
 										"Planet"
 									};
-		private static string[] _craftAbbrv = { "",
+		static string[] _craftAbbrv = { "",
 										 "X-W",
 										 "Y-W",
 										 "A-W",
@@ -205,14 +205,14 @@ namespace Idmr.Platform.Tie
 										 "Asteroid",
 										 "Planet"
 									 };
-		private static string[] _rating = { "Rookie",
+		static string[] _rating = { "Rookie",
 									 "Novice",
 									 "Veteran",
 									 "Officer",
 									 "Ace",
 									 "Top Ace (invul)"
 								 };
-		private static string[] _status = { "Normal",
+		static string[] _status = { "Normal",
 									 "2x Warheads",
 									 "1/2 Warheads",
 									 "Disabled",
@@ -234,7 +234,7 @@ namespace Idmr.Platform.Tie
 									 "",
 									 "Invincible"
 								 };
-		private static string[] _trigger = { "always (TRUE)",
+		static string[] _trigger = { "always (TRUE)",
 									  "be created",
 									  "be destroyed",
 									  "be attacked",
@@ -260,7 +260,7 @@ namespace Idmr.Platform.Tie
 									  "run out of missiles",
 									  "Unknown (arrive?)"
 								  };
-		private static string[] _triggerType = { "none",
+		static string[] _triggerType = { "none",
 										  "Flight Group",
 										  "Ship type",
 										  "Ship class",
@@ -271,7 +271,7 @@ namespace Idmr.Platform.Tie
 										  "Global Group",
 										  "Misc"
 									  };
-		private static string[] _amount = { "100%",
+		static string[] _amount = { "100%",
 									 "75%",
 									 "50%",
 									 "25%",
@@ -288,13 +288,13 @@ namespace Idmr.Platform.Tie
 									 "at least 1 of first wave",
 									 "all but 1 of first wave"
 								 };
-		private static string[] _goalAmount = { "100%",
+		static string[] _goalAmount = { "100%",
 									  "50%",
 									  "at least 1 of",
 									  "all but 1 of",
 									  "all special craft in"
 								  };
-		private static string[] _orders = { "Hold Steady",
+		static string[] _orders = { "Hold Steady",
 									 "Go Home",
 									 "Circle",
 									 "Circle and Evade",
@@ -335,7 +335,7 @@ namespace Idmr.Platform.Tie
 									 "Rendezvous II",
 									 "SS Disabled"
 								 };
-		private static string[] _craftWhen = { "",
+		static string[] _craftWhen = { "",
 										"Boarding",
 										"Boarded",
 										"Defending",
@@ -348,7 +348,7 @@ namespace Idmr.Platform.Tie
 										"Non-player craft",
 										""
 									};
-		private static string[] _misc = { "Rookie craft",
+		static string[] _misc = { "Rookie craft",
 								   "Novice craft",
 								   "Officer craft",
 								   "Veteran craft",
@@ -404,14 +404,14 @@ namespace Idmr.Platform.Tie
 								   "",
 								   "Mines"
 							   };
-		private static string[] _abort = { "never",
+		static string[] _abort = { "never",
 									"0% shields",
 									"75% systems (not SS)",
 									"out of warheads",
 									"50% hull",
 									"attacked"
 								};
-		private static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
+		static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
 										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless",
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless",
@@ -452,7 +452,7 @@ namespace Idmr.Platform.Tie
 										"Flies to Waypoint 1 and rendezvouses with other craft|Meaningless|Meaningless",
 										"Disabled|Meaningless|Meaningless"
 									};
-		private static string[] _formation = { "Vic",
+		static string[] _formation = { "Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",

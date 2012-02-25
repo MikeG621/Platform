@@ -7,6 +7,10 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 060212 - removed Logo, hangar
+ */
+
 using System;
 
 namespace Idmr.Platform.Xwa
@@ -24,15 +28,6 @@ namespace Idmr.Platform.Xwa
 											  "Left Half",
 											  "Left 3/4"
 										  };
-		static string[] _hangar = { "Junkyard",
-									   "Quick Start 1",
-									   "Quick Start 2",
-									   "Quick Start 3",
-									   "Skirmish",
-									   "Death Star Run",
-									   "Calamari Cruiser",
-									   "Family Transport"
-								   };
 		static string[] _roles = { "Command Ship",
 									"Base",
 									"Station",
@@ -83,12 +78,6 @@ namespace Idmr.Platform.Xwa
 										"",
 										"Emkay"
 									};
-		static string[] _logo = { "Defiance",
-									"Liberty",
-									"Independence",
-									"Family",
-									"Squadron (no logo)"
-								};
 		static string[] _iff = { "Rebel",
 										"Imperial",
 										"Blue",
@@ -876,9 +865,6 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets a copy of the shadows to be applied to a backdrop</summary>
 		/// <remarks>Array is Length = 7</remarks>
 		public static string[] Shadow { get { return (string[])_shadow.Clone(); } }
-		/// <summary>Gets a copy of the starting hangars for the player</summary>
-		/// <remarks>Array is Length = 8</remarks>
-		public static string[] Hangar { get { return (string[])_hangar.Clone(); } }
 		/// <summary>Gets a copy of the craft roles used for specialized in-flight messages</summary>
 		/// <remarks>Array is Length = 21</remarks>
 		public static string[] Roles { get { return (string[])_roles.Clone(); } }
@@ -888,9 +874,6 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets a copy of the voices of the mission control officer</summary>
 		/// <remarks>Array is Length = 9</remarks>
 		public static string[] Officer { get { return (string[])_officer.Clone(); } }
-		/// <summary>Gets a copy of the logos to be displayed during briefings</summary>
-		/// <remarks>Array is Length = 5</remarks>
-		public static string[] Logo { get { return (string[])_logo.Clone(); } }
 		/// <summary>Gets a copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] IFF { get { return (string[])_iff.Clone(); } }

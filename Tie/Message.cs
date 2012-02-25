@@ -34,10 +34,10 @@ namespace Idmr.Platform.Tie
 		}
 		/// <summary>Gets or sets the seconds after trigger is fired divided by five</summary>
 		/// <remarks>Default is zero. Value of 1 is 5s, 2 is 10s, etc.</remarks>
-		public byte Delay = 0;
+		public byte Delay { get; set; }
 		/// <summary>Gets or sets if both triggers must be completed</summary>
 		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
-		public bool Trig1AndOrTrig2 = false;
+		public bool Trig1AndOrTrig2 { get; set; }
 
 		/// <summary>Gets the Triggers that control the Message behaviour</summary>
 		/// <remarks>Array length is 2</remarks>

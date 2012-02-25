@@ -7,6 +7,10 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 060212 - removed MissType
+ */
+
 using System;
 
 namespace Idmr.Platform.Xvt
@@ -16,12 +20,6 @@ namespace Idmr.Platform.Xvt
 	public abstract class Strings : BaseStrings
 	{
 		#region array declarations
-		static string[] _missType = { "Training",
-									   "",
-									   "Melee",
-									   "MP Training",
-									   "MP Melee"
-								   };
 		static string[] _roles = { "None",
 									"Base",
 									"Command Ship",
@@ -485,9 +483,6 @@ namespace Idmr.Platform.Xvt
 										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless"
 									};
 		#endregion
-		/// <summary>Gets of copy of the categories for the mission file</summary>
-		/// <remarks>Array is Length = 5</remarks>
-		public static string[] MissType { get { return (string[])_missType.Clone(); } }
 		/// <summary>Gets of copy of the craft roles used for specialized in-flight messages</summary>
 		/// <remarks>Array is Length = 13</remarks>
 		public static string[] Roles { get { return (string[])_roles.Clone(); } }

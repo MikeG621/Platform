@@ -39,7 +39,7 @@ namespace Idmr.Platform.Tie
 			}
 			
 			/// <summary>Determines if both Triggers must be met</summary>
-			public bool T1AndOrT2;
+			public bool T1AndOrT2 { get; set; }
 			/// <summary>Gets the Triggers that define the Goal</summary>
 			/// <remarks>Array length is 2</remarks>
 			public Mission.Trigger[] Triggers { get { return _triggers; } }

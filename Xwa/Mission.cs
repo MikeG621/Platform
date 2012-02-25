@@ -7,6 +7,12 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120206 - added LogoEnum, _initialize()
+ * 120207 - Trigger(byte[]) now accepts Length 4, added Trigger conversions, Trigger._craftDowngrade()
+ * 120213 - removed ITrigger
+ */
+
 using System;
 using System.IO;
 using Idmr.Common;
@@ -17,38 +23,64 @@ namespace Idmr.Platform.Xwa
 	/// <remarks>This is the primary container object for XWA mission files</remarks>
 	public class Mission
 	{
-		string[] _iff = new string[6];
+		string[] _iff = Strings.IFF;
 		string[] _region = new string[4];
 		GlobCarg[] _globalCargo = new GlobCarg[16];
 		string[] _globalGroup = new string[16];
-		string _missionDescription = "#";	// 4096 CHAR
+		string _missionDescription = "#";
 		string _missionFailed = "#";
 		string _missionSuccessful = "";
 		string _notes = "";
-		GlobalGroupNameIndexer _globalGroupNameIndexer;
-		RegionNameIndexer _regionNameIndexer;
-		IffNameIndexer _iffNameIndexer;
+		Indexer<string> _globalGroupNameIndexer;
+		Indexer<string> _regionNameIndexer;
+		Indexer<string> _iffNameIndexer;
+
+		/// <summary>Briefing logo values</summary>
+		public enum LogoEnum : byte { Defiance = 4, Liberty, Independance, Family, None }
+		/// <summary>Mission starting location (aka MissionType)</summary>
+		public enum HangarEnum : byte { Junkyard, QuickStart1, QuickStart2, QuickStart3, Skirmish, DeathStar, MonCalCruiser, FamilyTransport }
 
 		#region constructors
 		/// <summary>Default constructor, creates a blank mission</summary>
 		public Mission()
 		{
+			_initialize();
 			for (int i=0;i<16;i++) { _globalCargo[i].Cargo = ""; _globalCargo[i].Unknown1 = true;  _globalGroup[i] = ""; }
 			for (int i=0;i<4;i++) { _region[i] = "Region " + (i+1).ToString(); _iff[i+2] = ""; }
-			_iff[0] = "Rebel";
-			_iff[1] = "Imperial";
-			_globalGroupNameIndexer = new GlobalGroupNameIndexer(this);
-			_regionNameIndexer = new RegionNameIndexer(this);
-			_iffNameIndexer = new IffNameIndexer(this);
+			MissionPath = "\\NewMission.tie";
+			Unknown1 = Unknown2 = true;
+			Hangar = HangarEnum.MonCalCruiser;
+			Logo = LogoEnum.None;
+			Unknown3 = 62;
 		}
 
 		/// <summary>Creates a new mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		public Mission(string filePath) { LoadFromFile(filePath); }
+		public Mission(string filePath)
+		{
+			_initialize();
+			LoadFromFile(filePath);
+		}
 
 		/// <summary>Creates a new mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		public Mission(FileStream stream) { LoadFromStream(stream); }
+		public Mission(FileStream stream)
+		{
+			_initialize();
+			LoadFromStream(stream);
+		}
+		
+		void _initialize()
+		{
+			_globalGroupNameIndexer = new Indexer<string>(_globalGroup, 56);
+			_regionNameIndexer = new Indexer<string>(_region, 0x83);
+			_iffNameIndexer = new Indexer<string>(_iff, 19, new bool[]{true, true, false, false, false, false});
+			FlightGroups = new FlightGroupCollection();
+			Messages = new MessageCollection();
+			Globals = new GlobalsCollection();
+			Teams = new TeamCollection();
+			Briefings = new BriefingCollection();
+		}
 		#endregion constructors
 
 		#region public methods
@@ -101,12 +133,12 @@ namespace Idmr.Platform.Xwa
 			}
 			for (i=0;i<16;i++) _globalGroup[i] = new string(br.ReadChars(0x57)).Trim('\0');
 			stream.Position = 0x23AC;
-			Hangar = br.ReadByte();
+			Hangar = (HangarEnum)br.ReadByte();
 			stream.Position++;
 			TimeLimitMin = br.ReadByte();
 			EndWhenComplete = br.ReadBoolean();
 			Officer = br.ReadByte();
-			Logo = (byte)(br.ReadByte()-4);
+			Logo = (LogoEnum)br.ReadByte();
 			stream.Position++;
 			Unknown3 = br.ReadByte();
 			Unknown4 = br.ReadByte();
@@ -475,9 +507,6 @@ namespace Idmr.Platform.Xwa
 			_missionFailed = new string(br.ReadChars(0x1000)).Trim('\0');
 			_missionDescription = new string(br.ReadChars(0x1000)).Trim('\0');
 			MissionPath = stream.Name;
-			_globalGroupNameIndexer = new GlobalGroupNameIndexer(this);
-			_regionNameIndexer = new RegionNameIndexer(this);
-			_iffNameIndexer = new IffNameIndexer(this);
 		}
 
 		/// <summary>Save the mission with the default path</summary>
@@ -532,12 +561,12 @@ namespace Idmr.Platform.Xwa
 					fs.Position = p + 0x57;
 				}
 				fs.Position = 0x23AC;
-				fs.WriteByte(Hangar);
+				fs.WriteByte((byte)Hangar);
 				fs.Position++;
 				fs.WriteByte(TimeLimitMin);
 				bw.Write(EndWhenComplete);
 				fs.WriteByte(Officer);
-				fs.WriteByte((byte)(Logo+4));
+				fs.WriteByte((byte)Logo);
 				fs.Position++;
 				fs.WriteByte(Unknown3);
 				fs.WriteByte(Unknown4);
@@ -931,7 +960,7 @@ namespace Idmr.Platform.Xwa
 		#region public properties
 		/// <summary>Gets or sets the full path to the mission file</summary>
 		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath = "\\NewMission.tie";
+		public string MissionPath { get; set; }
 		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to "NewMission.tie"</remarks>
 		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
@@ -950,34 +979,34 @@ namespace Idmr.Platform.Xwa
 		public const int MessageLimit = 64;
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B, defaults to <i>true</i></remarks>
-		public bool Unknown2 = true;
+		public bool Unknown2 { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x08, defaults to <i>true</i></remarks>
-		public bool Unknown1 = true;
+		public bool Unknown1 { get; set; }
 
 		/// <summary>Gets the Global Cargos for the mission</summary>
 		public GlobCarg[] GlobalCargo { get { return _globalCargo; } }
 		/// <summary>Gets or sets the start mode of the player (aka MissionType)</summary>
-		public byte Hangar = 6;
+		public HangarEnum Hangar { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
-		public byte TimeLimitMin = 0;
+		public byte TimeLimitMin { get; set; }
 		/// <summary>Gets or sets if the mission will automatically end when Primary goals are complete</summary>
-		public bool EndWhenComplete = false;
+		public bool EndWhenComplete { get; set; }
 		/// <summary>Gets or sets the voice of in-game mission update messages</summary>
-		public byte Officer = 0;
+		public byte Officer { get; set; }
 		/// <summary>Gets or sets the Briefing image</summary>
-		public byte Logo = 4;
+		public LogoEnum Logo { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x23B3</remarks>
-		public byte Unknown3 = 62;
+		/// <remarks>Offset = 0x23B3, default is 62</remarks>
+		public byte Unknown3 { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x23B4</remarks>
-		public byte Unknown4 = 0;
+		public byte Unknown4 { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x23B5</remarks>
-		public byte Unknown5 = 0;
+		public byte Unknown5 { get; set; }
 		/// <summary>Gets or sets the summary of the mission</summary>
-		/// <remarks>4095 char limit</remarks>
+		/// <remarks>4096 char limit</remarks>
 		public string MissionDescription
 		{
 			get { return _missionDescription.Replace("$", "\r\n"); }
@@ -985,11 +1014,11 @@ namespace Idmr.Platform.Xwa
 			{
 				string s = value.Replace("\r\n", "$");
 				if (!s.Contains("#")) s = "#" + s;
-				_missionDescription = StringFunctions.GetTrimmed(s, 4095);
+				_missionDescription = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
 		/// <summary>Gets or sets the debriefing text</summary>
-		/// <remarks>4095 char limit</remarks>
+		/// <remarks>4096 char limit</remarks>
 		public string MissionFailed
 		{
 			get { return _missionFailed.Replace("$", "\r\n"); }
@@ -997,7 +1026,7 @@ namespace Idmr.Platform.Xwa
 			{
 				string s = value.Replace("\r\n", "$");
 				if (!s.Contains("#")) s = "#" + s;
-				_missionFailed = StringFunctions.GetTrimmed(s, 4095);
+				_missionFailed = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
 		/// <summary>Gets or sets the debriefing text</summary>
@@ -1013,92 +1042,23 @@ namespace Idmr.Platform.Xwa
 		}
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
-		public FlightGroupCollection FlightGroups = new FlightGroupCollection();
+		public FlightGroupCollection FlightGroups { get; set; }
 		/// <summary>Gets or sets the In-Flight Messages for the mission</summary>
 		/// <remarks>Defaults to zero messages</remarks>
-		public MessageCollection Messages = new MessageCollection();
+		public MessageCollection Messages { get; set; }
 		/// <summary>Gets or sets the Global Goals for the mission</summary>
-		public GlobalsCollection Globals = new GlobalsCollection();
+		public GlobalsCollection Globals { get; set; }
 		/// <summary>Gets or sets the Teams for the mission</summary>
-		public TeamCollection Teams = new TeamCollection();
+		public TeamCollection Teams { get; set; }
 		/// <summary>Gets or sets the Briefings for the mission</summary>
-		public BriefingCollection Briefings = new BriefingCollection();
+		public BriefingCollection Briefings { get; set; }
 		/// <summary>Gets the array accessor for the GG names</summary>
-		public GlobalGroupNameIndexer GlobalGroups { get { return _globalGroupNameIndexer; } }
+		public Indexer<string> GlobalGroups { get { return _globalGroupNameIndexer; } }
 		/// <summary>Gets the array accessor for the Region names</summary>
-		public RegionNameIndexer Regions { get { return _regionNameIndexer; } }
+		public Indexer<string> Regions { get { return _regionNameIndexer; } }
 		/// <summary>Gets the array accessor for the IFF names</summary>
-		public IffNameIndexer Iffs { get { return _iffNameIndexer; } }
+		public Indexer<string> Iffs { get { return _iffNameIndexer; } }
 		#endregion public properties
-
-		/// <summary>Object to provide array access to the Global Group Name values</summary>
-		public class GlobalGroupNameIndexer
-		{
-			Mission _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
-			public GlobalGroupNameIndexer(Mission parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._globalGroup.Length; } }
-			
-			/// <summary>Gets or sets the name of the selected Global Group</summary>
-			/// <remarks>56 character limit</remarks>
-			/// <param name="index">Index of the Global Group, 0-15</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
-			public string this[int index]
-			{
-				get { return _owner._globalGroup[index]; }
-				set { _owner._globalGroup[index] = StringFunctions.GetTrimmed(value, 56); }
-			}
-		}
-		
-		/// <summary>Object to provide array access to the Region Name values</summary>
-		public class RegionNameIndexer
-		{
-			Mission _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
-			public RegionNameIndexer(Mission parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._region.Length; } }
-			
-			/// <summary>Gets or sets the name of the selected Region</summary>
-			/// <remarks>131 character limit</remarks>
-			/// <param name="index">Index of the Region, 0-3</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
-			public string this[int index]
-			{
-				get { return _owner._region[index]; }
-				set { _owner._region[index] = StringFunctions.GetTrimmed(value, 0x83); }
-			}
-		}
-		
-		/// <summary>Object to provide array access to the IFF Name values</summary>
-		public class IffNameIndexer
-		{
-			Mission _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
-			public IffNameIndexer(Mission parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._region.Length; } }
-			
-			/// <summary>Gets or sets the name of the selected IFF</summary>
-			/// <remarks>19 character limit, Rebel and Imperial names are read-only</remarks>
-			/// <param name="index">Index of the IFF, 0-5</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
-			public string this[int index]
-			{
-				get { return _owner._region[index]; }
-				set { if (index > 1) _owner._region[index] = StringFunctions.GetTrimmed(value, 19); }
-			}
-		}
 		
 		/// <summary>Container for Global Cargo data</summary>
 		[Serializable] public struct GlobCarg
@@ -1125,30 +1085,23 @@ namespace Idmr.Platform.Xwa
 		}
 		
 		/// <summary>Object for a single Trigger</summary>
-		[Serializable] public class Trigger : ITrigger
+		[Serializable] public class Trigger : BaseTrigger
 		{
-			byte _condition = 0;
-			byte _variableType = 0;
-			byte _variable = 0;
-			byte _amount = 0;
-			byte _parameter1 = 0;
-			byte _parameter2 = 0;
-
 			/// <summary>Initializes a blank Trigger</summary>
-			public Trigger() { }
+			public Trigger() : base(new byte[6]) { }
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, must have Length of 6</param>
+			/// <param name="raw">Raw data, must have Length of 4 or 6</param>
 			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value</exception>
 			public Trigger(byte[] raw)
 			{
-				if (raw.Length != 6) throw new ArgumentException("raw does not have the correct length", "raw");
-				_condition = raw[0];
-				_variableType = raw[1];
-				_variable = raw[2];
-				_amount = raw[3];
-				_parameter1 = raw[4];
-				_parameter2 = raw[5];
+				if (raw.Length == 6) _items = raw;
+				else if (raw.Length == 4)
+				{
+					_items = new byte[6];
+					for (int i = 0; i < 4; i++) _items[i] = raw[i];
+				}
+				else throw new ArgumentException("raw does not have the correct length", "raw");
 			}
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
@@ -1157,82 +1110,61 @@ namespace Idmr.Platform.Xwa
 			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
-				_condition = raw[startIndex];
-				_variableType = raw[startIndex + 1];
-				_variable = raw[startIndex + 2];
-				_amount = raw[startIndex + 3];
-				_parameter1 = raw[startIndex + 4];
-				_parameter2 = raw[startIndex + 5];
+				_items = new byte[6];
+				ArrayFunctions.TrimArray(raw, startIndex, _items);
 			}
+			
+			static byte[] _craftDowngrade(Trigger t)
+			{
+				byte[] b = new byte[4];
+				ArrayFunctions.TrimArray((byte[])t, 0, b);
+				if (b[1] == 2)
+				{
+					if (b[2] == 227) b[2] = 48;	// MC80 Liberty to MC80a
+					else if (b[2] == 228) b[2] = 51;	// VSD II to VSD
+					else if (b[2] == 229) b[2] = 52;	// ISD II to ISD
+					else if (b[2] == 10 || b[2] == 11 || b[2] == 31 || b[2] > 91)
+						throw new ArgumentException("Invalid CraftType Variable detected (" + b[2] + ")");
+					else if (b[2] == 39) b[2] = 38;	// Falcon to CORT
+					else if (b[2] == 71) b[2] = 69;	// SAT3 to SAT1
+					else if (b[2] == 84 || b[2] == 87) b[2] = 82;	// HypBuoy/RDVBuoy to NavBuoy1
+					else if (b[2] == 88) b[2] = 59;	// Cargo Canister to CN/A
+				}
+				return b;
+			}
+			
+			/// <summary>Converts a Trigger to a byte array</summary>
+			/// <remarks>Length will be 6</remarks>
+			/// <param name="trig">The Trigger to convert</param>
+			public static explicit operator byte[](Trigger t)
+			{
+				byte[] b = new byte[6];
+				for (int i = 0; i < 6; i++) b[i] = t[i];
+				return b;
+			}
+			/// <summary>Converts a Trigger for use in TIE</summary>
+			/// <remarks>Parameters are lost</remarks>
+			/// <param name="trig">The Trigger to convert</param>
+			/// <exception cref="ArgumentException">Invalid values detected</exception>
+			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
+			/// <summary>Converts a Trigger for use in XvT</summary>
+			/// <remarks>Parameters are lost</remarks>
+			/// <param name="trig">The Trigger to convert</param>
+			/// <exception cref="ArgumentException">Invalid values detected</exception>
+			public static explicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
 			
 			/// <summary>Gets or sets the first additional setting</summary>
 			public byte Parameter1
 			{
-				get { return _parameter1; }
-				set { _parameter1 = value; }
+				get { return _items[4]; }
+				set { _items[4] = value; }
 			}
 			/// <summary>Gets or sets the second additional setting</summary>
 			public byte Parameter2
 			{
-				get { return _parameter2; }
-				set { _parameter2 = value; }
+				get { return _items[5]; }
+				set { _items[5] = value; }
 			}
-			
-			#region ITrigger Members
-			/// <summary>The array form of the Trigger</summary>
-			/// <param name="index">Condition, VariableType, Variable, Amount, Parameter1, Parameter2</param>
-			/// <exception cref="ArgumentException"><i>index</i> must be 0-5</exception>
-			public byte this[int index]
-			{
-				get
-				{
-					if (index == 0) return Condition;
-					else if (index == 1) return VariableType;
-					else if (index == 2) return Variable;
-					else if (index == 3) return Amount;
-					else if (index == 4) return Parameter1;
-					else if (index == 5) return Parameter2;
-					else throw new ArgumentException("index must be 0-5", "index");
-				}
-				set
-				{
-					if (index == 0) Condition = value;
-					else if (index == 1) VariableType = value;
-					else if (index == 2) Variable = value;
-					else if (index == 3) Amount = value;
-					else if (index == 4) Parameter1 = value;
-					else if (index == 5) Parameter2 = value;
-				}
-			}
-			
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return 6; } }
-			
-			/// <summary>Gets or sets the Trigger itself</summary>
-			public byte Condition
-			{
-				get { return _condition; }
-				set { _condition = value; }
-			}
-			/// <summary>Gets or sets the category <i>Variable</i> belongs to</summary>
-			public byte VariableType
-			{
-				get { return _variableType; }
-				set { _variableType = value; }
-			}
-			/// <summary>Gets or sets the Trigger subject</summary>
-			public byte Variable
-			{
-				get { return _variable; }
-				set { _variable = value; }
-			}
-			/// <summary>Gets or sets the amount required to fire the Trigger</summary>
-			public byte Amount
-			{
-				get { return _amount; }
-				set { _amount = value; }
-			}
-			#endregion
 		}
 	}
 }

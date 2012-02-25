@@ -26,7 +26,6 @@ namespace Idmr.Platform
 			set { _messageString = Idmr.Common.StringFunctions.GetTrimmed(value, 0x3F); }
 		}
 		/// <summary>Gets or sets the message color index</summary>
-		/// <remarks>Default index of 0</remarks>
-		public byte Color = 0;
+		public byte Color { get; set; }
 	}
 }

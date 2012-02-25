@@ -15,7 +15,7 @@ namespace Idmr.Platform
 	public abstract class BaseStrings
 	{
 		#region array declarations
-		private static string[] _warheads = { "None",
+		static string[] _warheads = { "None",
 										"Space Bomb",
 										"Heavy Rocket",
 										"Concussion Missile",
@@ -24,12 +24,12 @@ namespace Idmr.Platform
 										"Adv. Torpedo",
 										"Mag Pulse"
 								   };
-		private static string[] _color = { "Red (TIE - none)",
+		static string[] _color = { "Red (TIE - none)",
 									"Gold (TIE - Red)",
 									"Blue (TIE - Gold)",
 									"Green (TIE - Blue)"
 								};
-		private static string[] _difficulty = { "All",
+		static string[] _difficulty = { "All",
 										"Easy",
 										"Medium",
 										"Hard",
@@ -37,7 +37,7 @@ namespace Idmr.Platform
 										"Less than Hard",
 										"Never",
 									 };
-		private static string[] _formation = { "Vic",
+		static string[] _formation = { "Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",
@@ -72,7 +72,7 @@ namespace Idmr.Platform
 										"Side Hexagon",
 										"Front Hexagon"
 									};
-		private static string[] _shipClass = { "Starfighters",
+		static string[] _shipClass = { "Starfighters",
 										"Transports",
 										"Freighters/Containers",
 										"Starships",
@@ -80,7 +80,7 @@ namespace Idmr.Platform
 										"Platforms",
 										"Mines"
 									};
-		private static string[] _objectType = { "Craft",
+		static string[] _objectType = { "Craft",
 										 "Weapons",
 										 "Satelites/Mines"
 									 };

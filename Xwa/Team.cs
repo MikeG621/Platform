@@ -7,6 +7,9 @@
  * Version: 2.0
  */
 
+/* CHANGELOG 
+ * 120222 - Indexer<T> implementation
+ */
 using System;
 using Idmr.Common;
 
@@ -40,8 +43,8 @@ namespace Idmr.Platform.Xwa
 			else _name = "Team " + (teamNumber > 8 ? 10 : teamNumber + 1);
 			for (int i=0;i<6;i++) _endOfMissionMessages[i] = "";
 			for (int i=0;i<3;i++) _voiceIDs[i] = "";
-			_eomMessageIndexer = new EomMessageIndexer(this);
-			_voiceIDIndexer = new VoiceIDIndexer(this);
+			_eomMessageIndexer = new EomMessageIndexer(_endOfMissionMessages);
+			_voiceIDIndexer = new VoiceIDIndexer(_voiceIDs);
 		}
 		/// <summary>Gets or sets the Team name</summary>
 		/// <remarks>17 character limit</remarks>
@@ -66,66 +69,36 @@ namespace Idmr.Platform.Xwa
 		public VoiceIDIndexer VoiceIDs { get { return _voiceIDIndexer; } }
 		
 		/// <summary>Object to provide array access to the EoM Message values</summary>
-		public class EomMessageIndexer
+		public class EomMessageIndexer : Indexer<string>
 		{
-			Team _owner;
-			
 			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Team</param>
-			public EomMessageIndexer(Team parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._endOfMissionMessages.Length; } }
-			
-			/// <summary>Gets or sets the EoM Message</summary>
-			/// <remarks>64 character limit</remarks>
-			/// <param name="index">EomMessageIndex enumerated value, 0-5</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value>
-			public string this[int index]
-			{
-				get { return _owner._endOfMissionMessages[index]; }
-				set { _owner._endOfMissionMessages[index] = StringFunctions.GetTrimmed(value, 64); }
-			}
+			/// <param name="eommessages">The EoM Message array</param>
+			public EomMessageIndexer(string[] eomMessages) : base(eomMessages, 64) { }
 			
 			/// <summary>Gets or sets the EoM Message</summary>
 			/// <remarks>64 character limit</remarks>
 			/// <param name="index">EomMessageIndex</param>
 			public string this[EomMessageIndex index]
 			{
-				get { return _owner._endOfMissionMessages[(int)index]; }
-				set { _owner._endOfMissionMessages[(int)index] = StringFunctions.GetTrimmed(value, 64); }
+				get { return _items[(int)index]; }
+				set { this[(int)index] = value; }
 			}
 		}
 		
 		/// <summary>Object to provide array access to the EoM Message notes</summary>
-		public class VoiceIDIndexer
+		public class VoiceIDIndexer : Indexer<string>
 		{
-			Team _owner;
-			
 			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Team</param>
-			public VoiceIDIndexer(Team parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._voiceIDs.Length; } }
-			
-			/// <summary>Gets or sets the EoM Message note</summary>
-			/// <remarks>20 character limit. Divide the EomMessageIndex value by 2 to get the appropriate <i>index</i></remarks>
-			/// <param name="index">EomMessage category, 0-2</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value>
-			public string this[int index]
-			{
-				get { return _owner._voiceIDs[index]; }
-				set { _owner._voiceIDs[index] = StringFunctions.GetTrimmed(value, 20); }
-			}
+			/// <param name="voiceIDs">The VoiceID array</param>
+			public VoiceIDIndexer(string[] voiceIDs) : base(voiceIDs, 20) { }
 			
 			/// <summary>Gets or sets the EoM Message note</summary>
 			/// <remarks>20 character limit. Index will be divided by 2, so PrimaryFailed1 and PrimaryFailed2 both point to the same string</remarks>
 			/// <param name="index">EomMessage category</param>
 			public string this[EomMessageIndex index]
 			{
-				get { return _owner._voiceIDs[(int)index / 2]; }
-				set { _owner._voiceIDs[(int)index / 2] = StringFunctions.GetTrimmed(value, 20); }
+				get { return _items[(int)index / 2]; }
+				set { this[(int)index / 2] = value; }
 			}
 		}
 	}

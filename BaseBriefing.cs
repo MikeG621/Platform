@@ -7,6 +7,10 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120223 - added EventParameterCount
+ */
+
 using System;
 
 namespace Idmr.Platform
@@ -20,6 +24,7 @@ namespace Idmr.Platform
 		protected string[] _briefingTags;
 		protected string[] _briefingStrings;
         protected MissionFile.Platform _platform;
+		protected EventParameters _eventParameters;
 
 		/// <summary>Known briefing event types</summary>
 		public enum EventType : byte { None, PageBreak = 3, TitleText, CaptionText, MoveMap, ZoomMap, ClearFGTags, FGTag1, FGTag2, FGTag3, FGTag4, FGTag5, 
@@ -47,7 +52,7 @@ namespace Idmr.Platform
 		}
 		/// <summary>Gets or sets the duration of the Briefing, in Ticks</summary>
 		/// <remarks>The X-wing series uses Ticks instead of seconds, TicksPerSecond is defined by the derivative class</remarks>
-		public short Length;
+		public short Length { get; set; }
 		/// <summary>Gets the number of int16 values in Events[] at time = 0</summary>
 		public short StartLength
 		{
@@ -58,22 +63,30 @@ namespace Idmr.Platform
 				for(offset=0; offset<(_events.Length-3); offset+=4)
 				{
 					if (BitConverter.ToInt16(_events, offset) != 0) break;
-					evnt = BitConverter.ToInt16(_events, offset+2);
-					if (evnt == (int)EventType.TitleText || evnt == (int)EventType.CaptionText
-						|| (evnt >= (int)EventType.FGTag1 && evnt <= (int)EventType.FGTag8)
-						|| (evnt == (int)EventType.XwaChangeRegion && _platform == MissionFile.Platform.XWA)) offset += 2;
-					else if (evnt == (int)EventType.MoveMap || evnt == (int)EventType.ZoomMap
-						|| (_platform == MissionFile.Platform.XWA
-						&& (evnt == (int)EventType.XwaShipInfo || evnt == (int)EventType.XwaRotateIcon))) offset += 4;
-					else if (evnt >= (int)EventType.TextTag1 && evnt <= (int)EventType.TextTag8) offset += 8;
-					else if ((evnt == (int)EventType.XwaNewIcon || evnt == (int)EventType.XwaMoveIcon) && _platform == MissionFile.Platform.XWA)
-						offset += 6;
+					offset += (short)(4 + _eventParameters[BitConverter.ToInt16(_events, offset + 2)]);
 				}
 				return (short)(offset/2);
 			}
 		}
 		/// <summary>Gets or sets the unknown value</summary>
-		/// <remarks>Briefing offset 0x02, between Length and StartLength. Defaults to 0</remarks>
-		public short Unknown1 = 0;
+		/// <remarks>Briefing offset 0x02, between Length and StartLength</remarks>
+		public short Unknown1 { get; set; }
+
+		/// <summary>Gets the array that contains the number of parameters per event type</summary>
+		public EventParameters EventParameterCount { get { return _eventParameters; } }
+
+		/// <summary>Object to maintain a read-only array</summary>
+		public class EventParameters
+		{
+			byte[] _counts = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
+			
+			/// <summary>Gets a parameter count</summary>
+			/// <param name="eventType">The briefing event</param>
+			public byte this[int eventType] { get { return _counts[eventType]; } }
+			
+			/// <summary>Gets a parameter count</summary>
+			/// <param name="eventType">The briefing event</param>
+			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
+		}
 	}
 }

@@ -40,27 +40,27 @@ namespace Idmr.Platform.Xwa
 			StringsIndexer _triggerStrings;
 			
 			/// <summary>Raw value stored in file</summary>
-			public sbyte RawPoints = 0;
+			public sbyte RawPoints { get; set; }
 			/// <summary>The Goal's location within the mission's Active Sequence</summary>
-			public byte ActiveSequence = 0;
+			public byte ActiveSequence { get; set; }
 			/// <summary>Unknown value</summary>
 			/// <remarks>Goal offset 0x11</remarks>
-			public bool Unknown1 = false;
+			public bool Unknown1 { get; set; }
 			/// <summary>Unknown value</summary>
 			/// <remarks>Goal offset 0x29</remarks>
-			public bool Unknown2 = false;
+			public bool Unknown2 { get; set; }
 			/// <summary>Unknown value</summary>
 			/// <remarks>Goal offset 0x34</remarks>
-			public byte Unknown3 = 0;
+			public byte Unknown3 { get; set; }
 			/// <summary>Unknown value</summary>
 			/// <remarks>Goal offset 0x36</remarks>
-			public byte Unknown4 = 0;
+			public byte Unknown4 { get; set; }
 			/// <summary>Unknown value</summary>
 			/// <remarks>Goal offset 0x37</remarks>
-			public byte Unknown5 = 0;
+			public byte Unknown5 { get; set; }
 			/// <summary>Unknown value</summary>
 			/// <remarks>Goal offset 0x38</remarks>
-			public byte Unknown6 = 0;
+			public byte Unknown6 { get; set; }
 			
 			/// <summary>Initializes a blank Goal</summary>
 			/// <remarks>All <i>Trigger.Conditions</i>s set to "never (FALSE)", AndOr values set to <i>true</i> (OR)</remarks>

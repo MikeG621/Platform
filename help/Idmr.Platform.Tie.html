@@ -17,11 +17,17 @@
 
 <p><a href="#Briefing">Briefing</a><br>
 <a href="#FlightGroup">FlightGroup</a><br>
+	-<a href="#FGGoals">FGGoals</a><br>
+	-<a href="#Order">Order</a><br>
+	-<a href="#Waypoint">Waypoint</a><br>
 <a href="#FlightGroupCollection">FlightGroupCollection</a><br>
 <a href="#Globals">Globals</a><br>
+	-<a href="#Goal">Goal</a><br>
 <a href="#Message">Message</a><br>
 <a href="#MessageCollection">MessageCollection</a><br>
 <a href="#Mission">Mission</a><br>
+	-<a href="#IffNameIndexer">IffNameIndexer</a><br>
+	-<a href="#Trigger">Trigger</a><br>
 <a href="#Questions">Questions</a><br>
 <a href="#Strings">Strings</a></p>
 <hr>
@@ -100,6 +106,12 @@
 <div style="margin-left: 25px">
 	<h3>Properties</h3>
 	
+	<p><img src="images/prop.gif"> <span><b>public</b> byte <b>this</b></span>[<span>int</span> index]<br>
+	<u>Array form of the Unknowns</u><br>
+	<i>index</i> - Valid indexes are 0-8<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - Invalid <i>index</i> value</p>
+	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown1<br>
 	<u>Gets or sets the unknown value</u>. Offset 0x003B, in Craft section, Reserved(0)</p>
 	
@@ -130,7 +142,7 @@
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> FGGoals<br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="FGGoals" class="anchor">FGGoals</a> : Idmr.Common.Indexer&lt;<span>byte</span>&gt;<br>
 <u>Object for the Flightgroup-specific mission goals</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -148,12 +160,6 @@
 	
 	<h3>Properties</h3>
 	
-	<p><img src="images/prop.gif"> <span><b>public</b> byte <b>this</b></span>[<span>int</span> index]<br>
-	<u>Array form of the Goals</u><br>
-	<i>index</i> - Valid indexes are 0-8</br>
-	<b>Exception</b><br>
-	<i>System.IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> BonusAmount<br>
 	<u>Gets or sets the amount of the FlightGroup required to meet <i>BonusCondition</i></u></p>
 	
@@ -162,9 +168,6 @@
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> short</span> BonusPoints<br>
 	<u>Gets or sets the points awarded or subtracted upon Bonus goal completion</u>. Equals <i>RawBonusPoints</i> * 50, limited from -6400 to +6350</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> PrimaryAmount<br>
 	<u>Gets or sets the amount of the FlightGroup required to meet <i>PrimaryCondition</i></u></p>
@@ -188,7 +191,7 @@
 	<u>Gets or sets the hidden goal</u>. Use of this goal is unknown, entirely hidden</p>
 </div></p>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Order : <span><a href="Idmr.Platform.html#IOrder">IOrder</a></span><br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="Order" class="anchor">Order</a> : <span><a href="Idmr.Platform.html#BaseOrder">BaseOrder</a></span><br>
 <u>Object for a single Order</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -208,10 +211,46 @@
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown18<br>
 	<u>Gets or sets the unknown value</u>. Order offset 0x04</p>
+	
+	<h3>Operators</h3>
+	
+	<p><span><b>public</b> static <b>explicit operator</b> byte</span>[](<span>Order</span> ord)<br>
+	<u>Converts an Order to a byte array</u>. Length will be 18<br>
+	<i>ord</i> - The Order to convert</p>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xvt.html#FlightGroup">Xvt.<span>FlightGroup</span></a>(<span>Order</span> ord)<br>
+	<u>Converts an Order for XvT</u><br>
+	<i>ord</i> - The Order to convert</p>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xwa.html#FlightGroup">Xwa.<span>FlightGroup</span></a>(<span>Order</span> ord)<br>
+	<u>Converts an Order for XWA</u><br>
+	<i>ord</i> - The Order to convert</p>
 </div></p>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Waypoint : <span><a href="Idmr.Platform.html#IWaypoint">IWaypoint</a></span><br>
-<u>Object for a single Waypoint</u></p>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="Waypoint" class="anchor">Waypoint</a> : <span><a href="Idmr.Platform.html#BaseWaypoint">BaseWaypoint</a></span><br>
+<u>Object for a single Waypoint</u><br>
+<div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Waypoint( )<br>
+	<u>Default constructor</u></p>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Waypoint(<span>short</span>[] raw)<br>
+	<u>Initialize a new Waypoint using raw data</u>. <i>raw</i> must have Length of 4<br>
+	<i>raw</i> - Raw data<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - Incorrect <i>raw</i>.Length</p>
+	
+	<h3>Operators</h3>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xvt.html#Waypoint">Xvt.<span>FlightGroup.Waypoint</span></a>(<span>Waypoint</span> wp)<br>
+	<u>Converts a Waypoint for XvT</u><br>
+	<i>wp</i> - The Waypoint to convert</p>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xwa.html#Waypoint">Xwa.<span>FlightGroup.Waypoint</span></a>(<span>Waypoint</span> wp)<br>
+	<u>Converts a Waypoint for XWA</u><br>
+	<i>wp</i> - The Waypoint to convert</p>
+</div></p>
 </div>
 <hr>
 
@@ -262,7 +301,7 @@
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> <span><b>public</b> class</span> Goal<br>
+<p><img src="images/class.gif"> <span><b>public</b> class</span> <a name="Goal" class="anchor">Goal</a><br>
 <u>Object for a single Global Goal</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -273,7 +312,7 @@
 	
 	<h3>Properties</h3>
 	
-	<p><img src="images/field.gif"> <span><b>public</b> bool</span> T1AndOrT2</br>
+	<p><img src="images/prop.gif"> <span><b>public</b> bool</span> T1AndOrT2</br>
 	<u>Determines if both Triggers must be met</u></p>
 	
 	<p><img src="images/prop.gif"> <span><b>public</b></span> Mission.<span>Trigger</span>[] Triggers</br>
@@ -360,6 +399,16 @@
 
 <h3>Methods</h3>
 
+<p><img src="images/static.gif"><img src="images/meth.gif"> <span><b>public</b> static void</span> CheckTarget(<span>byte</span> type, <span><b>ref</b> byte</span> variable, <span><b>out</b> string</span> errorMessage)<br>
+<u>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</u>. First checks for invalid Types, then runs through allows values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc<br>
+<i>type</i> - Trigger.Type or Order.TargetType<br>
+<i>variable</i> - Trigger.Variable or Order.Target, may be updated<br>
+<i>errorMessage</i> - Error description if found, otherwise ""</p>
+
+<p><img src="images/static.gif"><img src="images/meth.gif"> <span><b>public</b> static byte</span> CraftCheck<span>byte</span> craftType)<br>
+<u>Checks a CraftType for valid values and adjusts if necessary</u>. Returns 255 if CraftType cannot be converted<br>
+<i>craftType</i> - The craft index to check</p>
+
 <p><img src="images/meth.gif"> <span><b>public</b> void</span> LoadFromFile(<span>string</span> filePath)<br>
 <u>Loads a mission from a file</u>. Calls LoadFromStream( )<br>
 <i>filePath</i> - Full path to the unopened file<br>
@@ -392,7 +441,7 @@
 <p><img src="images/const.gif"> <span><b>public</b> const int</span> CraftLimit<br>
 <u>Maximum number of craft that can exist at one time in-game</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> EndOfMissionIndexer</span> EndOfMissionMessages<br>
+<p><img src="images/prop.gif"> <span><b>public</b></span> Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt; EndOfMissionMessages<br>
 <u>Gets the array accessor for the EoM Messages</u></p>
 
 <p><img src="images/const.gif"> <span><b>public</b> const int</span> FlightGroupLimit<br>
@@ -404,7 +453,7 @@
 <p><img src="images/prop.gif"> <span><b>public</b> Globals</span> GlobalGoals<br>
 <u>Gets or sets the Global Goals for the mission</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> IffHostileIndexer</span> IffHostile<br>
+<p><img src="images/prop.gif"> <span><b>public</b></span> Idmr.Common.<span>Indexer</span>&lt;<span>bool</span>&gt; IffHostile<br>
 <u>Gets the array accessor for the IFF behaviour</u></p>
 
 <p><img src="images/prop.gif"> <span><b>public</b> IffNameIndexer</span> IFFs<br>
@@ -438,43 +487,7 @@
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> <span><b>public</b> class</span> EndOfMissionIndexer<br>
-<u>Object to provide array access to the EoM Messages</u>
-<div style="margin-left: 25px">
-	<h3>Constructors</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> EndOfMissionIndexer(<span>Mission</span> parent)<br>
-	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Mission</p>
-	
-	<h3>Properties</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b> bool <b>this</b></span>[<span>int</span> index]<br>
-	<u>Gets or sets the EoM Message</u>. 63 character limit<br>
-	<i>index</i> - EoM index<br>
-	<b>Exceptions</b><br>
-	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-</div></p>
-
-<p><img src="images/class.gif"> <span><b>public</b> class</span> IffHostileIndexer<br>
-<u>Object to provide array access to the IFF behaviours</u>
-<div style="margin-left: 25px">
-	<h3>Constructors</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> IffHostileIndexer(<span>Mission</span> parent)<br>
-	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Mission</p>
-	
-	<h3>Properties</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b> bool <b>this</b></span>[<span>int</span> index]<br>
-	<u>Gets or sets the IFF behaviour</u>. Imperial is read-only<br>
-	<i>index</i> - IFF index<br>
-	<b>Exceptions</b><br>
-	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-</div></p>
-
-<p><img src="images/class.gif"> <span><b>public</b> class</span> IffNameIndexer<br>
+<p><img src="images/class.gif"> <span><b>public</b> class</span> <a name="IffNameIndexer" class="anchor">IffNameIndexer</a> : Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt;<br>
 <u>Object to provide array access to the IFF names</u>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -485,14 +498,15 @@
 	
 	<h3>Properties</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
+	<p><img src="images/meth.gif"> <span><b>public override</b> string <b>this</b></span>[<span>int</span> index]<br>
 	<u>Gets or sets the IFF Name</u>. 11 character limit, Rebel and Imperial are read-only<br>
 	<i>index</i> - IFF index<br>
 	<b>Exceptions</b><br>
-	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
+	<i>System.IndexOutOfBoundsException</i> - Invalid <i>index</i> value<br>
+	<i>System.InvalidOperationException</i> - Index is read-only</p>
 </div></p>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Trigger : <span><a href="Idmr.Platform.html#ITrigger">ITrigger</a></span><br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="Trigger" class="anchor">Trigger</a> : <span><a href="Idmr.Platform.html#BaseTrigger">BaseTrigger</a></span><br>
 <u>Object for a single Trigger</u>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -507,7 +521,21 @@
 	<i>startIndex</i> - Offset within <i>raw</i> to begin reading<br>
 	<b>Exceptions</b><br>
 	<i>System.ArgumentException</i> - <i>raw</i> is not the correct length<br>
-	<i>System.ArgumentException</i> - <i>startIndex</i> results in reading outside the range of <i>raw</i></p>
+	<i>System.IndexOutOfBoundsException</i> - <i>startIndex</i> results in reading outside the range of <i>raw</i></p>
+	
+	<h3>Operators</h3>
+	
+	<p><span><b>public</b> static <b>explicit operator</b> byte</span>[](<span>Trigger</span> trig)<br>
+	<u>Converts a Trigger to a byte array</u>. Length will be 4<br>
+	<i>trig</i> - The Trigger to Convert</p>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xvt.html#Trigger">Xvt.<span>Mission.Trigger</span></a>(<span>Trigger</span> trig)<br>
+	<u>Converts a Trigger for use in XvT</u><br>
+	<i>trig</i> - The Trigger to Convert</p>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xwa.html#Trigger">Xwa.<span>Mission.Trigger</span></a>(<span>Trigger</span> trig)<br>
+	<u>Converts a Trigger for use in XWA</u><br>
+	<i>trig</i> - The Trigger to Convert</p>
 </div></p>
 </div>
 <hr>
@@ -605,7 +633,7 @@ Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
 <small>This library is licensed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a> as published by the <a href="http://www.fsf.org">Free Software Foundation</a>; either v3.0 or later.<br><br>
 This documentation and items contained herein are distributed under the <a href="http://www.gnu.org/licenses/fdl.html" target=_blank>GNU Free Documentation License</a>.<br><br>
 Full notice displayed in <a href="Idmr.Platform.html">Idmr.Platform.html</a></small><br><br>
-Publish date: 31 Jan 2012
+Publish date: 22 Feb 2012
 <HR>
 </BODY>
 </HTML>

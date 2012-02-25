@@ -35,13 +35,13 @@ namespace Idmr.Platform.Xvt
 		public bool[] SentToTeam { get { return _sentToTeam; } }
 		/// <summary>Gets or sets if both triggers must be completed</summary>
 		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
-		public bool T1AndOrT2 = false;
+		public bool T1AndOrT2 { get; set; }
 		/// <summary>Gets or sets if both triggers must be completed</summary>
 		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
-		public bool T3AndOrT4 = false;
+		public bool T3AndOrT4 { get; set; }
 		/// <summary>Gets or sets if both trigger pairs must be completed</summary>
 		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
-		public bool T12AndOrT34 = false;
+		public bool T12AndOrT34 { get; set; }
 		/// <summary>Gets or sets the string used as editor notes</summary>
 		/// <remarks>Value is restricted to 15 characters</remarks>
 		public string Note
@@ -51,6 +51,6 @@ namespace Idmr.Platform.Xvt
 		}
 		/// <summary>Gets or sets the seconds after trigger is fired divded by five</summary>
 		/// <remarks>Default is zero. Value of 1 is 5s, 2 is 10s, etc.</remarks>
-		public byte Delay = 0;
+		public byte Delay { get; set; }
 	}
 }

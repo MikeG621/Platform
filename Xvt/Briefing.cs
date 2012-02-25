@@ -26,6 +26,7 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Initializes a blank Briefing</summary>
 		public Briefing()
 		{	//initialize
+			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.XvT;
 			Length = 0x384;	// default to 45 seconds
 			_events = new byte[0x32A];
@@ -48,6 +49,6 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Gets or sets the unknown setting</summary>
 		/// <remarks>Briefing offset 0x08</remarks>
-		public short Unknown3 = 0;
+		public short Unknown3 { get; set; }
 	}
 }

@@ -45,7 +45,7 @@ namespace Idmr.Platform.Xvt
 			bool[] _andOrs = new bool[3];
 			
 			/// <summary>Raw value stored in file</summary>
-			public sbyte RawPoints = 0;
+			public sbyte RawPoints { get; set; }
 
 			/// <summary>Initializes a new Goal</summary>
 			/// <remarks>All Triggers set to 10, "never (FALSE)". AndOr values set to <i>true</i>, "OR"</remarks>

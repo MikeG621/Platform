@@ -7,6 +7,11 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 080212 - implemented Trigger and Waypoint conversion
+ * 090212 - rewrote for Waypoint interface removal
+ * 130212 - removed craftCheck to use XXX.Mission.CraftCheck, adjust Order for internal checks
+ */
 using System;
 using Idmr.Common;
 
@@ -51,7 +56,8 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
 				tie.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
 				tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
-				tie.FlightGroups[i].CraftType = craftCheck("FG " + i, miss.FlightGroups[i].CraftType, 1);
+				tie.FlightGroups[i].CraftType = Tie.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
+				if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				tie.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
 				tie.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
 				tie.FlightGroups[i].Missile = miss.FlightGroups[i].Missile;
@@ -72,16 +78,12 @@ namespace Idmr.Platform
 				#endregion Craft
 				#region ArrDep
 				tie.FlightGroups[i].Difficulty = miss.FlightGroups[i].Difficulty;
-				for (int j = 0; j < 4; j++)
+				for (int j = 0; j < 3; j++)
 				{
-					tie.FlightGroups[i].ArrDepTriggers[0][j] = miss.FlightGroups[i].ArrDepTriggers[0][j];
-					tie.FlightGroups[i].ArrDepTriggers[1][j] = miss.FlightGroups[i].ArrDepTriggers[1][j];
-					tie.FlightGroups[i].ArrDepTriggers[2][j] = miss.FlightGroups[i].ArrDepTriggers[4][j];
+					try { tie.FlightGroups[i].ArrDepTriggers[j] = (Tie.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[j]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
 				}
 				tie.FlightGroups[i].AT1AndOrAT2 = miss.FlightGroups[i].ArrDepAO[0];
-				triggerCheck("Arrival Trigger 1, FG " + i, tie.FlightGroups[i].ArrDepTriggers[0], 1);
-				triggerCheck("Arrival Trigger 2, FG " + i, tie.FlightGroups[i].ArrDepTriggers[1], 1);
-				triggerCheck("Departure Trigger, FG " + i, tie.FlightGroups[i].ArrDepTriggers[2], 1);
 				tie.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
 				tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
@@ -117,11 +119,12 @@ namespace Idmr.Platform
 				tieGoalsCheck("FlightGroup " + i, tie.FlightGroups[i].Goals);
 				#endregion Goals
 				for (int j = 0; j < 3; j++)
-					for (int k = 0; k < 17; k++)
-						tie.FlightGroups[i].Orders[j][k] = miss.FlightGroups[i].Orders[j][k];
+				{
+					try { tie.FlightGroups[i].Orders[j] = (Tie.FlightGroup.Order)miss.FlightGroups[i].Orders[j]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
+				}
 				for (int j = 0; j < 15; j++)
-					for (int k = 0; k < 4; k++)
-						tie.FlightGroups[i].Waypoints[j][k] = miss.FlightGroups[i].Waypoints[j][k];
+					tie.FlightGroups[i].Waypoints[j] = (Tie.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[j];
 			}
 			#endregion FGs
 			#region Messages
@@ -132,13 +135,11 @@ namespace Idmr.Platform
 				tie.Messages[i].Delay = miss.Messages[i].Delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
 				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].T1AndOrT2;
-				for (int j=0; j<4; j++)
+				for (int j = 0; j < 2; j++)
 				{
-					tie.Messages[i].Triggers[0][j] = miss.Messages[i].Triggers[0][j];
-					tie.Messages[i].Triggers[1][j] = miss.Messages[i].Triggers[1][j];
+					try { tie.Messages[i].Triggers[j] = (Tie.Mission.Trigger)miss.Messages[i].Triggers[j]; }
+					catch (Exception x) { throw new ArgumentException("Mess[" + i + "] T[" + j + "]: " + x.Message, x); }
 				}
-				triggerCheck("Trigger 1, Message " + i, tie.Messages[i].Triggers[0], 1);
-				triggerCheck("Trigger 2, Message " + i, tie.Messages[i].Triggers[1], 1);
 			}
 			#endregion Messages
 			#region Briefing
@@ -146,7 +147,7 @@ namespace Idmr.Platform
 			for (int i = 0; i < tie.Briefing.BriefingString.Length; i++) tie.Briefing.BriefingString[i] = miss.Briefings[0].BriefingString[i];
 			tie.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
 			tie.Briefing.Length = (short)(miss.Briefings[0].Length * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-			byte[] evntVars = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
+			byte[] evntVars = { 0, 0, 0, 0, 2, 2, 4, 4, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 6, 4, 2, 0, 0, 0, 0 };
 			for (int i = 0; i < tie.Briefing.Events.Length; i += 4)
 			{
 				short time = BitConverter.ToInt16(miss.Briefings[0].Events, i);
@@ -158,31 +159,18 @@ namespace Idmr.Platform
 					break;
 				}
 				ArrayFunctions.WriteToArray((short)(time * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond), tie.Briefing.Events, i);
-				if (evntVars[evnt] != 0) Buffer.BlockCopy(miss.Briefings[0].Events, i + 4, tie.Briefing.Events, i + 4, 2 * evntVars[evnt]);
-				/*for (int j = 0; j < evntVars[evnt]; j++)
-				{
-					tie.Briefing.Events[i+4] = miss.Briefings[0].Events[i+4];
-					tie.Briefing.Events[i+5] = miss.Briefings[0].Events[i+5];
-					// j isn't factored in due to i incrementing
-					i += 2;
-				}*/
+				if (evntVars[evnt] != 0) Buffer.BlockCopy(miss.Briefings[0].Events, i + 4, tie.Briefing.Events, i + 4, evntVars[evnt]);
+				i += evntVars[evnt];
 			}
 			#endregion Briefing
 			#region Globals
 			tie.GlobalGoals.Goals[0].T1AndOrT2 = miss.Globals[0].Goals[0].T1AndOrT2;	// Primary
 			tie.GlobalGoals.Goals[2].T1AndOrT2 = miss.Globals[0].Goals[2].T1AndOrT2;	// Secondary to Bonus, Prevent will be ignored
-			for (int i=0; i<4; i++)
+			for (int j = 0; j < 4; j++)
 			{
-				// only take first 2 triggers for Primary and Bonus
-				tie.GlobalGoals.Goals[0].Triggers[0][i] = miss.Globals[0].Goals[0].Triggers[0][i];
-				tie.GlobalGoals.Goals[0].Triggers[1][i] = miss.Globals[0].Goals[0].Triggers[1][i];
-				tie.GlobalGoals.Goals[2].Triggers[0][i] = miss.Globals[0].Goals[2].Triggers[0][i];
-				tie.GlobalGoals.Goals[2].Triggers[1][i] = miss.Globals[0].Goals[2].Triggers[1][i];
+				try { tie.GlobalGoals.Goals[j/2*2].Triggers[j%2] = (Tie.Mission.Trigger)miss.Globals[0].Goals[j/2*2].Triggers[j%2]; }
+				catch (Exception x) { throw new ArgumentException("Goal[" + (j/2*2) + "] T[" + (j%2) + "]: " + x.Message, x); }
 			}
-			triggerCheck("Primary Goal Trigger 1", tie.GlobalGoals.Goals[0].Triggers[0], 1);
-			triggerCheck("Primary Goal Trigger 2", tie.GlobalGoals.Goals[0].Triggers[1], 1);
-			triggerCheck("Bonus Goal Trigger 1", tie.GlobalGoals.Goals[0].Triggers[0], 1);
-			triggerCheck("Bonus Goal Trigger 2", tie.GlobalGoals.Goals[0].Triggers[1], 1);
 			#endregion Globals
 			#region IFF/Team
 			for (int i = 0; i < 6; i++) tie.EndOfMissionMessages[i] = miss.Teams[0].EndOfMissionMessages[i];
@@ -247,7 +235,8 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
 				xvt.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
 				xvt.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
-				xvt.FlightGroups[i].CraftType = craftCheck("FG " + i, miss.FlightGroups[i].CraftType, 2);
+				xvt.FlightGroups[i].CraftType = Xvt.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
+				if (xvt.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				xvt.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
 				if (xvt.FlightGroups[i].Status1 > 21) throw flightException(0, i, Xwa.Strings.Status[miss.FlightGroups[i].Status1]);
 				xvt.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
@@ -277,8 +266,8 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].Difficulty = miss.FlightGroups[i].Difficulty;
 				for (int j = 0; j < 6; j++)
 				{
-					for (int k=0;k<4;k++) xvt.FlightGroups[i].ArrDepTriggers[j][k] = miss.FlightGroups[i].ArrDepTriggers[j][k];
-					triggerCheck("AD Trigger " + j + ", FG " + i, xvt.FlightGroups[i].ArrDepTriggers[j], 2);
+					try { xvt.FlightGroups[i].ArrDepTriggers[j] = (Xvt.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[j]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
 				}
 				for (int j=0; j<4; j++) xvt.FlightGroups[i].ArrDepAO[j] = miss.FlightGroups[i].ArrDepAndOr[j];
 				xvt.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
@@ -309,20 +298,18 @@ namespace Idmr.Platform
 				#endregion Goals
 				for (int j = 0; j < 4; j++)
 				{
-					for (int k = 0; k < 18; k++)
-						xvt.FlightGroups[i].Orders[j][k] = miss.FlightGroups[i].Orders[0, j][k];
-					if (xvt.FlightGroups[i].Orders[j].Command > 39) throw flightException(3, i, Xwa.Strings.Orders[xvt.FlightGroups[i].Orders[j].Command]);
-					xvt.FlightGroups[i].SkipToOrder4Trigger[0][j] = miss.FlightGroups[i].Orders[0, 3].SkipTriggers[0][j];
-					xvt.FlightGroups[i].SkipToOrder4Trigger[1][j] = miss.FlightGroups[i].Orders[0, 3].SkipTriggers[1][j];
+					try { xvt.FlightGroups[i].Orders[j] = (Xvt.FlightGroup.Order)miss.FlightGroups[i].Orders[0, j]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
 				}
 				xvt.FlightGroups[i].SkipToO4T1AndOrT2 = miss.FlightGroups[i].Orders[0, 3].SkipT1AndOrT2;
-				triggerCheck("FG " + i + ", Skip Order 0", xvt.FlightGroups[i].SkipToOrder4Trigger[0], 2);
-				triggerCheck("FG " + i + ", Skip Order 1", xvt.FlightGroups[i].SkipToOrder4Trigger[1], 2);
+				for (int j = 0; j < 2; j++)
+				{
+					try { xvt.FlightGroups[i].SkipToOrder4Trigger[j] = (Xvt.Mission.Trigger)miss.FlightGroups[i].Orders[0, 3].SkipTriggers[j]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] SkipT[" + j + "]: " + x.Message, x); }
+				}
 				for (int j = 0; j < 3; j++)
-					for (int k = 0; k < 4; k++)
-						xvt.FlightGroups[i].Waypoints[j][k] = miss.FlightGroups[i].Waypoints[j][k];
-				for (int k = 0; k < 4; k++)
-					xvt.FlightGroups[i].Waypoints[13][k] = miss.FlightGroups[i].Waypoints[3][k];
+					xvt.FlightGroups[i].Waypoints[j] = (Xvt.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[j];
+				xvt.FlightGroups[i].Waypoints[13] = (Xvt.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[3];
 			}
 			#endregion FGs
 			#region Messages
@@ -338,8 +325,8 @@ namespace Idmr.Platform
 				for (int j = 0; j < 10; j++) xvt.Messages[i].SentToTeam[j] = miss.Messages[i].SentTo[j];
 				for (int j = 0; j < 4; j++)
 				{
-					for (int k = 0; k < 4; k++) xvt.Messages[i].Triggers[j][k] = miss.Messages[i].Triggers[j][k];
-					triggerCheck("Trig " + j + ", Message " + i, xvt.Messages[i].Triggers[j], 2);
+					try { xvt.Messages[i].Triggers[j] = (Xvt.Mission.Trigger)miss.Messages[i].Triggers[j]; }
+					catch (Exception x) { throw new ArgumentException("Mess[" + i + "] T[" + j + "]: " + x.Message, x); }
 				}
 			}
 			#endregion Messages
@@ -360,13 +347,12 @@ namespace Idmr.Platform
 					xvt.Globals[i].Goals[j].T1AndOrT2 = miss.Globals[i].Goals[j].T1AndOrT2;
 					xvt.Globals[i].Goals[j].T3AndOrT4 = miss.Globals[i].Goals[j].T3AndOrT4;
 					xvt.Globals[i].Goals[j].T12AndOrT34 = miss.Globals[i].Goals[j].T12AndOrT34;
-					//string[,] s = miss.Globals[i].Goals[j].GoalStrings;
 					for (int k = 0; k < 12; k++) xvt.Globals[i].Goals[j].GoalStrings[k / 3, k % 3] = miss.Globals[i].Goals[j].GoalStrings[k / 3, k % 3];
 					xvt.Globals[i].Goals[j].RawPoints = miss.Globals[i].Goals[j].RawPoints;
 					for (int h = 0; h < 4; h++)
 					{
-						for (int k = 0; k < 4; k++) xvt.Globals[i].Goals[j].Triggers[h][k] = miss.Globals[i].Goals[j].Triggers[h][k];
-						triggerCheck("Global Goal " + i + " Trig " + j, xvt.Globals[i].Goals[j].Triggers[h], 2);
+						try { xvt.Globals[i].Goals[j].Triggers[h] = (Xvt.Mission.Trigger)miss.Globals[i].Goals[j].Triggers[h]; }
+						catch (Exception x) { throw new ArgumentException("Team[" + i + "] Goal[" + j + "] T[" + h + "]: " + x.Message, x); }
 					}
 				}
 			}
@@ -420,7 +406,8 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
 				tie.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
 				tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
-				tie.FlightGroups[i].CraftType = craftCheck("FG " + i, miss.FlightGroups[i].CraftType, 3);
+				tie.FlightGroups[i].CraftType = Tie.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
+				if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				tie.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
 				tie.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
 				if (tie.FlightGroups[i].Status1 > 19) throw flightException(0, i, Xwa.Strings.Status[miss.FlightGroups[i].Status1]);
@@ -442,16 +429,12 @@ namespace Idmr.Platform
 				#endregion Craft
 				#region ArrDep
 				tie.FlightGroups[i].Difficulty = miss.FlightGroups[i].Difficulty;
-				for (int j = 0; j < 4; j++)
+				for (int j = 0; j < 3; j++)
 				{
-					tie.FlightGroups[i].ArrDepTriggers[0][j] = miss.FlightGroups[i].ArrDepTriggers[0][j];
-					tie.FlightGroups[i].ArrDepTriggers[1][j] = miss.FlightGroups[i].ArrDepTriggers[1][j];
-					tie.FlightGroups[i].ArrDepTriggers[2][j] = miss.FlightGroups[i].ArrDepTriggers[4][j];
+					try { tie.FlightGroups[i].ArrDepTriggers[j] = (Tie.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[(j == 2 ? 4 : j)]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
 				}
 				tie.FlightGroups[i].AT1AndOrAT2 = miss.FlightGroups[i].ArrDepAndOr[0];
-				triggerCheck("Arrival Trigger 1, FG " + i, tie.FlightGroups[i].ArrDepTriggers[0], 3);
-				triggerCheck("Arrival Trigger 2, FG " + i, tie.FlightGroups[i].ArrDepTriggers[1], 3);
-				triggerCheck("Departure Trigger, FG " + i, tie.FlightGroups[i].ArrDepTriggers[2], 3);
 				tie.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
 				tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
@@ -488,15 +471,12 @@ namespace Idmr.Platform
 				#endregion Goals
 				for (int j = 0; j < 3; j++)
 				{
-					for (int k = 0; k < 17; k++)
-						tie.FlightGroups[i].Orders[j][k] = miss.FlightGroups[i].Orders[0,j][k];
-					if (tie.FlightGroups[i].Orders[j].Command > 38) throw flightException(3, i, Xwa.Strings.Orders[tie.FlightGroups[i].Orders[j].Command]);
+					try { tie.FlightGroups[i].Orders[j] = (Tie.FlightGroup.Order)miss.FlightGroups[i].Orders[0,j]; }
+					catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
 				}
 				for (int j = 0; j < 3; j++)
-					for(int k = 0; k < 4; k++)
-						tie.FlightGroups[i].Waypoints[j][k] = miss.FlightGroups[i].Waypoints[j][k];
-				for (int k = 0; k < 4; k++)
-					tie.FlightGroups[i].Waypoints[13][k] = miss.FlightGroups[i].Waypoints[3][k];
+					tie.FlightGroups[i].Waypoints[j] = (Tie.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[j];
+				tie.FlightGroups[i].Waypoints[13] = (Tie.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[3];
 			}
 			#endregion FGs
 			#region Messages
@@ -507,12 +487,11 @@ namespace Idmr.Platform
 				tie.Messages[i].Delay = (byte)((miss.Messages[i].DelaySeconds + miss.Messages[i].DelayMinutes * 60) / 5);	// should throw if delay > 21:15
 				tie.Messages[i].Short = miss.Messages[i].Note;
 				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].TrigAndOr[0];
-				for (int j=0; j<4; j++)
+				for (int j = 0; j < 2; j++)
 				{
-					tie.Messages[i].Triggers[0][j] = miss.Messages[i].Triggers[0][j];
-					tie.Messages[i].Triggers[1][j] = miss.Messages[i].Triggers[1][j];
+					try { tie.Messages[i].Triggers[j] = (Tie.Mission.Trigger)miss.Messages[i].Triggers[j]; }
+					catch (Exception x) { throw new ArgumentException("Mess[" + i + "] T[" + j + "]: " + x.Message, x); }
 				}
-				for (int j = 0; j < 2; j++) triggerCheck("Trigger " + j + ", Message " + i, tie.Messages[i].Triggers[j], 3);
 			}
 			#endregion Messages
 			#region Briefing
@@ -524,18 +503,11 @@ namespace Idmr.Platform
 			#region Globals
 			tie.GlobalGoals.Goals[0].T1AndOrT2 = miss.Globals[0].Goals[0].T1AndOrT2;	// Primary
 			tie.GlobalGoals.Goals[2].T1AndOrT2 = miss.Globals[0].Goals[2].T1AndOrT2;	// Secondary to Bonus, Prevent will be ignored
-			for (int i=0; i<4; i++)
+			for (int j = 0; j < 4; j++)
 			{
-				// only take first 2 triggers for Primary and Bonus
-				tie.GlobalGoals.Goals[0].Triggers[0][i] = miss.Globals[0].Goals[0].Triggers[0][i];
-				tie.GlobalGoals.Goals[0].Triggers[1][i] = miss.Globals[0].Goals[0].Triggers[1][i];
-				tie.GlobalGoals.Goals[2].Triggers[0][i] = miss.Globals[0].Goals[2].Triggers[0][i];
-				tie.GlobalGoals.Goals[2].Triggers[1][i] = miss.Globals[0].Goals[2].Triggers[1][i];
+				try { tie.GlobalGoals.Goals[j/2*2].Triggers[j%2] = (Tie.Mission.Trigger)miss.Globals[0].Goals[j/2*2].Triggers[j%2]; }
+				catch (Exception x) { throw new ArgumentException("Goal[" + (j/2*2) + "] T[" + (j%2) + "]: " + x.Message, x); }
 			}
-			triggerCheck("Primary Goal Trigger 1", tie.GlobalGoals.Goals[0].Triggers[0], 3);
-			triggerCheck("Primary Goal Trigger 2", tie.GlobalGoals.Goals[0].Triggers[1], 3);
-			triggerCheck("Bonus Goal Trigger 1", tie.GlobalGoals.Goals[2].Triggers[0], 3);
-			triggerCheck("Bonus Goal Trigger 2", tie.GlobalGoals.Goals[2].Triggers[1], 3);
 			#endregion Globals
 			#region IFF/Team
 			for (int i = 0; i < 6; i++) tie.EndOfMissionMessages[i] = miss.Teams[0].EndOfMissionMessages[i];
@@ -569,33 +541,6 @@ namespace Idmr.Platform
 			tie.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", "_TIE.tie");
 			return tie;
 		}
-
-		/// <summary>Validates Trigger conversions</summary>
-		/// <remarks>Updates CraftType as necessary.<br>
-		/// Converts 66% to 75%, 33% to 50%, "each" to 100% when converting to TIE, converts "each special" to "100% special" from XWA</remarks>
-		/// <param name="label">Identifier used in error message</param>
-		/// <param name="trigger">The single Trigger being checked</param>
-		/// <param name="mode">The Conversion method; 1 = XvT-TIE, 2 = XWA-XvT, 3 = XWA-TIE</param>
-		/// <exception cref="ArgumentException">Invalid Trigger or TrigType detected</exception>
-		static void triggerCheck(string label, ITrigger trigger, byte mode)
-		{
-			bool toTie = ((mode & 1) == 1);
-			if (trigger.Condition > (toTie ? 24 : 46)) throw triggerException(0, label, Xwa.Strings.Trigger[trigger.Condition]);
-			if (trigger.VariableType > (toTie ? 9 : 23)) throw triggerException(1, label, Xwa.Strings.VariableType[trigger.VariableType]);
-			else if (trigger.VariableType == 2)
-			{
-				try { trigger.Variable = craftCheck(label, trigger.Variable, mode); }
-				catch (ArgumentException) { throw triggerException(2, label, Xwa.Strings.CraftType[trigger.Variable]); }
-				/*if (trigger.Variable == 77) trigger.Variable = 31;	// G/PLT
-				else if (trigger.Variable == 89) trigger.Variable = 10;	// SHPYD
-				else if (trigger.Variable == 90) trigger.Variable = 11;	// REPYD
-				else if (trigger.Variable == 91) trigger.Variable = 39;	// M/SC
-				else if (trigger.Variable > 91) throw triggerException(2, label, Xwa.Strings.CraftType[trigger.Variable]);*/
-			}
-			byte a = trigger.Amount;
-			if (toTie) trigger.Amount = (byte)(a == 16 ? 1 : (a == 17 ? 2 : (a == 18 ? 0 : a)));	// 66% to 75%, 33% to 50%, "each" to 100%
-			if (trigger.Amount == 19) trigger.Amount = 6;	// "each special" to "100% special"
-		}
 		
 		/// <summary>Validates FlightGroup.Goals for TIE</summary>
 		/// <remarks>Converts 75% to 100%, 25% to 50%</remarks>
@@ -613,35 +558,6 @@ namespace Idmr.Platform
 				else if (goals[i+1] > 1) goals[i+1] -= 2;	// 25 to 50, slide everything after
 			}
 		}
-		
-		/// <summary>Makes necessary adjustments for CraftType and returns the updated CraftIndex</summary>
-		/// <remarks>(Only from XWA) Falcon to CORT, SAT3 to SAT1, Hyp/RDV Buoys to NavBuoy1, C/CN to CN/A, MC80 Liberty to MC80a, VSD II to VSD, ISD II to ISD. (Only to TIE) G/PLT, SHPYD, REPYD and M/SC indexes updated</remarks>
-		/// <param name="label">Indentifier used in error messages</param>
-		/// <param name="craft">CraftType index</param>
-		/// <param name="mode">The Conversion method; 1 = XvT-TIE, 2 = XWA-XvT, 3 = XWA-TIE</param>
-		/// <returns>Resultant CraftType index</returns>
-		/// <exception cref="ArgumentException">Invalid CraftType detected</exception>
-		static byte craftCheck(string label, byte craft, byte mode)
-		{
-			bool toTie = ((mode & 1) == 1);
-			bool fromXwa = ((mode & 2) == 2);
-			if (craft == 10 || craft == 11 || craft == 31)
-				throw new ArgumentException("Invalid FlightGroup CraftType detected. " + label + ", " + Xwa.Strings.CraftType[craft]);
-			else if (fromXwa && craft == 39) return 38;	// Falcon to CORT
-			else if (fromXwa && craft == 71) return 69;	// SAT3 to SAT1
-			else if (craft == 77 && toTie) return 31;	// G/PLT
-			else if (fromXwa && (craft == 84 || craft == 87)) return 82;	// HypBuoy/RDVBuoy to NavBuoy1
-			else if (fromXwa && craft == 88) return 59;	// Cargo Canister to CN/A
-			else if (craft == 89 && toTie) return 10;	// SHPYD
-			else if (craft == 90 && toTie) return 11;	// REPYD
-			else if (craft == 91 && toTie) return 39;	// M/SC
-			else if (craft == 227) return 48;	// MC80 Liberty to MC80a
-			else if (craft == 228) return 51;	// VSD II to VSD
-			else if (craft == 229) return 52;	// ISD II to ISD
-			else if (craft > 91)
-				throw new ArgumentException("Invalid FlightGroup CraftType detected. " + label + ", " + Xwa.Strings.CraftType[craft]);
-			else return craft;
-		}
 
 		/// <summary>Returns an ArgumentException formatted for MissionLimits based on the inputs</summary>
 		/// <param name="toTie"><i>true</i> for TIE95, <i>false</i> for XvT</param>
@@ -654,27 +570,25 @@ namespace Idmr.Platform
 				+ " maximum (" + limit + "). Remove " + s + " before converting");
 		}
 		
-		/// <summary>Returns an ArgumentExceptionformatted  for Triggers based on the inputs</summary>
+		/// <summary>Returns an ArgumentException formatted for Triggers based on the inputs</summary>
 		/// <param name="index">0 for Trigger condition, 1 for Trigger Type, 2 for Trigger Craft Type, 3 for Amount</param>
 		/// <param name="label">Trigger indentifier string</param>
 		/// <param name="id">String for the invalid value</param>
 		static ArgumentException triggerException(byte index, string label, string id)
 		{
 			return new ArgumentException("Invalid Trigger "
-				+ (index == 0 ? "Trigger condition" : (index == 1 ? "VariableType" : (index == 2 ? "Trigger Craft" : " Trigger Amount")))
-				+ " detected. " + label + ", "
-				+ (index == 0 ? "Trigger" : (index == 1 ? "TrigType" : (index == 2 ? "CraftType" : "Amount")))
-				+ ": " + id);
+				+ (index == 0 ? "Condition" : (index == 1 ? "VariableType" : (index == 2 ? "Craft" : "Amount")))
+				+ " detected (" + id + "). " + label);
 		}
 		
 		/// <summary>Returns an ArgumentException formatted for FlightGroups based on the inputs</summary>
-		/// <param name="mode">0 for Status, 1 for Formation, 2 for Abort, 3 for Order</param>
+		/// <param name="mode">0 for Status, 1 for Formation, 2 for Abort, 3 for Order, 4 for CraftType</param>
 		/// <param name="index">FG index</param>
 		/// <param name="id">String for the invalid value</param>
 		static ArgumentException flightException(byte mode, int index, string id)
 		{
 			return new ArgumentException("Invalid FlightGroup "
-			+ (mode == 0 ? "Status" : (mode == 1 ? "Formation" : (mode == 2 ? "Abort condition" : "Order")))
+			+ (mode == 0 ? "Status" : (mode == 1 ? "Formation" : (mode == 2 ? "Abort condition" : (mode == 3 ? "Order" : "CraftType"))))
 			+ " detected. FG " + index + ", " + (mode == 3 ? "Order: " : "") + id);
 		}
 	}

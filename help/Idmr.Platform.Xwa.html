@@ -18,12 +18,19 @@
 <p><a href="#Briefing">Briefing</a><br>
 <a href="#BriefingCollection">BriefingCollection</a><br>
 <a href="#FlightGroup">FlightGroup</a><br>
+	-<a href="#FGoal">Goal</a><br>
+	-<a href="#LoadoutIndexer">LoadoutIndexer</a><br>
+	-<a href="#Order">Order</a><br>
+	-<a href="#Waypoint">Waypoint</a><br>
 <a href="#FlightGroupCollection">FlightGroupCollection</a><br>
 <a href="#Globals">Globals</a><br>
+	-<a href="#GGoal">Goal</a><br>
+		--<a href="#StringsIndexer">StringsIndexer</a><br>
 <a href="#GlobalsCollection">GlobalsCollection</a><br>
 <a href="#Message">Message</a><br>
 <a href="#MessageCollection">MessageCollection</a><br>
 <a href="#Mission">Mission</a><br>
+	-<a href="#Trigger">Trigger</a><br>
 <a href="#Strings">Strings</a><br>
 <a href="#Team">Team</a><br>
 <a href="#TeamCollection">TeamCollection</a></p>
@@ -54,7 +61,7 @@
 
 <div>
 <h2><a name="BriefingCollection" class="anchor">BriefingCollection Class</a></h2>
-<img src="images/class.gif"> <span><b>public</b> class</span> BriefingCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;Briefing&gt;<br>
+<img src="images/class.gif"> <span><b>public</b> class</span> BriefingCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;<span>Briefing</span>&gt;<br>
 <u>Object to hold all Briefings</u>. Two briefings in total, first being used for single-player
 
 <h3>Constructors</h3>
@@ -301,7 +308,7 @@
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Goal<br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="FGoal" class="anchor">Goal</a> : Idmr.Common.<span>Indexer</span>&lt;<span>byte</span>&gt;<br>
 <u>Object for a single FlightGroup-specific Goal</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -318,12 +325,6 @@
 	<i>System.ArgumentException</i> - <i>raw</i> is not the correct length</p>
 	
 	<h3>Properties</h3>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> byte <b>this</b></span>[<span>int</span> index]<br>
-	<u>Array form of the Goals</u><br>
-	<i>index</i> - Valid indexes are 0-15. Indexes 6-13 are read-only</br>
-	<b>Exceptions</b><br>
-	<i>System.IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Amount<br>
 	<u>Gets or sets the amount of the FlightGroup required to meet <i>Condition</i></u></p>
@@ -346,9 +347,6 @@
 	<p><img src="images/prop.gif"> <span><b>public</b> string</span> IncompleteText<br>
 	<u>Gets or sets the goal text shown before completion</u>. String is limited to 63 char. Not used for Secondary goals</p>
 	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
-	
 	<p><img src="images/prop.gif"> <span><b>public</b> short</span> Points<br>
 	<u>Gets or sets the points awarded or subtracted after Goal completion</u>. Equals <i>RawPoints</i> * 25, limited from -3200 to +3175</p>
 	
@@ -362,26 +360,23 @@
 	<u>Unknown value</u>. Goal offset 0x4F</p>
 </div></p>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> LoadoutIndexer<br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="LoadoutIndexer" class="anchor">LoadoutIndexer</a> : Idmr.Common.<span>Indexer</span>&lt;<span>bool</span>&gt;</img><br>
 <u>Object to provide array access to the Optional Craft Loadout values</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> LoadoutIndexer(<span>FlightGroup</span> parent)<br>
+	<p><img src="images/meth.gif"> <span><b>public</b></span> LoadoutIndexer(<span>bool</span>[] loadout)<br>
 	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent FlightGroup</p>
+	<i>loadout</i> - The loadout array</p>
 	
 	<h3>Properties</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b> bool <b>this</b></span>[<span>int</span> index]<br>
+	<p><img src="images/meth.gif"> <span><b>public override</b> bool <b>this</b></span>[<span>int</span> index]<br>
 	<img src="images/meth.gif"> <span><b>public</b> bool <b>this</b></span>[<span>Indexes</span> index]<br>
 	<u>Gets or sets the Loadout values</u>. Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes. Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes. Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value. Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value<br>
 	<i>index</i> - Indexes enumerated value<br>
 	<b>Exceptions</b><br>
 	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
 	
 	<h3>Enumerations</h3>
 	
@@ -389,7 +384,7 @@
 	<u>Indexes for <i>this</i>[]</u></p>
 </div></p>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Order : <span><a href="Idmr.Platform.html#IOrder">IOrder</a></span><br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="Order" class="anchor">Order</a> : <span><a href="Idmr.Platform.html#BaseOrder">BaseOrder</a></span><br>
 <u>Object for a single Order</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -442,22 +437,57 @@
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> Waypoint</span>[] Waypoints<br>
 	<u>Gets the order-specific location markers</u>. Array is length 8</p>
+	
+	<h3>Operators</h3>
+	
+	<p><span><b>public</b> static <b>explicit operator</b> byte</span>[](<span>Order</span> ord)<br>
+	<u>Converts an Order to a byte array</u>. Length will be 19. CustomText, Waypoints and SkipTriggers lost<br>
+	<i>ord</i> - The Order to convert</p>
+	
+	<p><span><b>public</b> static <b>explicit operator</b></span> <a href="Idmr.Platform.Tie.html#Order">Tie.<span>FlightGroup.Order</span></a>(<span>Order</span> ord)<br>
+	<u>Converts an Order for TIE</u>. Speed, CustomText, Waypoints and SkipTriggers lost<br>
+	<i>ord</i> - The Order to convert</p>
+	
+	<p><span><b>public</b> static <b>explicit operator</b></span> <a href="Idmr.Platform.Xvt.html#Order">Xvt.<span>FlightGroup.Order</span></a>(<span>Order</span> ord)<br>
+	<u>Converts an Order for XvT</u>. Waypoints and SkipTriggers lost. CustomText trimmed to 16 characters<br>
+	<i>ord</i> - The Order to convert</p>
 </div></p>
 
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Waypoint : <span><a href="Idmr.Platform.html#IWaypoint">IWaypoint</a></span><br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="Waypoint" class="anchor">Waypoint</a> : <span><a href="Idmr.Platform.html#BaseWaypoint">BaseWaypoint</a></span><br>
 <u>Object for a single Waypoint</u>
 <div style="margin-left: 25px">
+	<h3>Constructors</h3>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Waypoint( )<br>
+	<u>Default constructor</u></p>
+	
+	<p><img src="images/meth.gif"> <span><b>public</b></span> Waypoint(<span>short</span>[] raw)<br>
+	<u>Initialize a new Waypoint using raw data</u>. <i>raw</i> must have Length of 4<br>
+	<i>raw</i> - Raw data<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - Incorrect <i>raw</i>.Length</p>
+	
 	<h3>Properties</h3>
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Region<br>
-	<u>Gets or sets the Region that the Waypoint is located in</u></p>
+	<u>Gets or sets the Region that the Waypoint is located in</u>. Restricted to values 0-3</p>
+	
+	<h3>Operators</h3>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Tie.html#Waypoint">Tie.<span>FlightGroup.Waypoint</span></a>(<span>Waypoint</span> wp)<br>
+	<u>Converts a Waypoint for TIE</u><br>
+	<i>wp</i> - The Waypoint to convert</p>
+	
+	<p><span><b>public</b> static <b>implicit operator</b></span> <a href="Idmr.Platform.Xvt.html#Waypoint">Xvt.<span>FlightGroup.Waypoint</span></a>(<span>Waypoint</span> wp)<br>
+	<u>Converts a Waypoint for XvT</u><br>
+	<i>wp</i> - The Waypoint to convert</p>
 </div></p>
 </div>
 <hr>
 
 <div>
 <h2><a name="FlightGroupCollection" class="anchor">FlightGroupCollection Class</a></h2>
-<img src="images/class.gif"> <span><b>public</b> class</span> FlightGroupCollection : Idmr.Common.<span>ResizableCollection</span>&lt;FlightGroup&gt;<br>
+<img src="images/class.gif"> <span><b>public</b> class</span> FlightGroupCollection : Idmr.Common.<span>ResizableCollection</span>&lt;<span>FlightGroup</span>&gt;<br>
 <u>Object to maintain mission FG list</u>. ItemLimit is set to Mission.FlightGroupLimit (46)
 
 <h3>Constructors</h3>
@@ -510,7 +540,7 @@
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> <span><b>public</b> class</span> Goal<br>
+<p><img src="images/class.gif"> <span><b>public</b> class</span> <a name="GGoal" class="anchor">Goal</a><br>
 <u>Container for a single Global Goal</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -567,7 +597,7 @@
 	
 	<h3>Sub-Classes</h3>
 	
-	<p><img src="images/class.gif"> <span><b>public</b> class</span> StringsIndexer<br>
+	<p><img src="images/class.gif"> <span><b>public</b> class</span> <a name="StringsIndexer" class="anchor">StringsIndexer</a><br>
 	<u>Object to provide array access to the GoalString values</u><br>
 	<div style="margin-left: 50px">
 		<h3>Constructors</h3>
@@ -595,7 +625,7 @@
 
 <div>
 <h2><a name="GlobalsCollection" class="anchor">GlobalsCollection Class</a></h2>
-<img src="images/class.gif"> <span><b>public</b> class</span> GlobalsCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;Globals&gt;<br>
+<img src="images/class.gif"> <span><b>public</b> class</span> GlobalsCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;<span>Globals</span>&gt;<br>
 <u>Object to maintain all Team Global Goals</u>
 
 <h3>Constructors</h3>
@@ -672,7 +702,7 @@
 
 <div>
 <h2><a name="MessageCollection" class="anchor">MessageCollection Class</a></h2>
-<img src="images/class.gif"> <span><b>public</b> class</span> MessageCollection : Idmr.Common.<span>ResizableCollection</span>&lt;Message&gt;<br>
+<img src="images/class.gif"> <span><b>public</b> class</span> MessageCollection : Idmr.Common.<span>ResizableCollection</span>&lt;<span>Message</span>&gt;<br>
 <u>Object to maintain mission in-flight messages</u>. ItemLimit is set to Mission.MessageLimit (64)
 
 <h3>Constructors</h3>
@@ -760,19 +790,19 @@
 <p><img src="images/prop.gif"> <span><b>public</b> GlobCarg</span>[] GlobalCargo<br>
 <u>Gets the Global Cargos for the mission</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> GlobalGroupNameIndexer</span> GlobalGroups<br>
-<u>>Gets the array accessor for the GG names</u></p>
+<p><img src="images/prop.gif"> <span><b>public</b></span> Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt; GlobalGroups<br>
+<u>Gets the array accessor for the GG names</u></p>
 
 <p><img src="images/prop.gif"> <span><b>public</b> GlobalsCollection</span> Globals<br>
 <u>Gets the Global Goals for the mission</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Hangar<br>
+<p><img src="images/prop.gif"> <span><b>public</b> HangarEnum</span> Hangar<br>
 <u>Gets or sets the start mode of the player (aka MissionType)</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> IffNameIndexer</span> Iffs<br>
+<p><img src="images/prop.gif"> <span><b>public</b></span> Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt; Iffs<br>
 <u>Gets the array accessor for the IFF names</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Logo<br>
+<p><img src="images/prop.gif"> <span><b>public</b> LogoEnum</span> Logo<br>
 <u>Gets or sets the Briefing image</u></p>
 
 <p><img src="images/const.gif"> <span><b>public</b> const int</span> MessageLimit<br>
@@ -805,7 +835,7 @@
 <p><img src="images/prop.gif"> <span><b>public</b> byte</span> Officer<br>
 <u>Gets or sets the voice of in-game mission update messages</u></p>
 
-<p><img src="images/prop.gif"> <span><b>public</b> RegionNameIndexer</span> Regions<br>
+<p><img src="images/prop.gif"> <span><b>public</b></span> Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt; Regions<br>
 <u>Gets the array accessor for the Region names</u></p>
 
 <p><img src="images/prop.gif"> <span><b>public</b> TeamCollection</span> Teams<br>
@@ -828,6 +858,14 @@
 
 <p><img src="images/prop.gif"> <span><b>public</b> byte</span> Unknown5<br>
 <u>Gets or sets an unknown FileHeader value</u>. Offset = 0x23B5</p>
+
+<h3>Enumerations</h3>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> HangarEnum : <span>byte</span> { Junkyard, QuickStart1, QuickStart2, QuickStart3, Skirmish, DeathStar, MonCalCruiser, FamilyTransport }<br>
+<u>Mission starting location (aka MissionType)</u></p>
+
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> LogoEnum : <span>byte</span> { Defiance = 4, Liberty, Independance, Family, None }<br>
+<u>Briefing logo values</u></p>
 
 <h3>Structures</h3>
 
@@ -857,70 +895,7 @@
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> <span><b>public</b> class</span> GlobalGroupNameIndexer<br>
-<u>Object to provide array access to the Global Group Name values</u><br>
-<div style="margin-left: 25px">
-	<h3>Constructors</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> GlobalGroupNameIndexer(<span>Mission</span> parent)<br>
-	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Mission</p>
-	
-	<h3>Properties</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
-	<u>Gets or sets the name of the selected Global Group</u>. Limited to 56 characters<br>
-	<i>index</i> - Index of the Global Group, 0-15<br>
-	<b>Exceptions</b><br>
-	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
-</div></p>
-
-<p><img src="images/class.gif"> <span><b>public</b> class</span> IffNameIndexer<br>
-<u>Object to provide array access to the IFF Name values</u><br>
-<div style="margin-left: 25px">
-	<h3>Constructors</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> IffNameIndexer(<span>Mission</span> parent)<br>
-	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Mission</p>
-	
-	<h3>Properties</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
-	<u>Gets or sets the name of the selected IFF</u>. 19 character limit, Rebel and Imperial names are read-only<br>
-	<i>index</i> - Index of the IFF, 0-5<br>
-	<b>Exceptions</b><br>
-	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
-</div></p>
-
-<p><img src="images/class.gif"> <span><b>public</b> class</span> RegionNameIndexer<br>
-<u>Object to provide array access to the Region Name values</u><br>
-<div style="margin-left: 25px">
-	<h3>Constructors</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> RegionNameIndexer(<span>Mission</span> parent)<br>
-	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Mission</p>
-	
-	<h3>Properties</h3>
-	
-	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
-	<u>Gets or sets the name of the selected Region</u>. 131 character limit<br>
-	<i>index</i> - Index of the Region, 0-3<br>
-	<b>Exceptions</b><br>
-	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
-</div></p>
-
-<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> Trigger : <span><a href="Idmr.Platform.html#ITrigger">ITrigger</a></span><br>
+<p><img src="images/class.gif"> [Serializable] <span><b>public</b> class</span> <a name="Trigger" class="anchor">Trigger</a> : <span><a href="Idmr.Platform.html#BaseTrigger">BaseTrigger</a></span><br>
 <u>Object for a single Trigger</u>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
@@ -943,6 +918,24 @@
 	
 	<p><img src="images/prop.gif"> <span><b>public</b> byte</span> Parameter2<br>
 	<u>Gets or sets the second additional setting</u></p>
+	
+	<h3>Operators</h3>
+	
+	<p><span><b>public</b> static <b>explicit operator</b> byte</span>[](<span>Trigger</span> trig)<br>
+	<u>Converts a Trigger to a byte array</u>. Length will be 6<br>
+	<i>trig</i> - The Trigger to Convert</p>
+	
+	<p><span><b>public</b> static <b>explicit operator</b></span> <a href="Idmr.Platform.Tie.html#Trigger">Tie.<span>Mission.Trigger</span></a>(<span>Trigger</span> trig)<br>
+	<u>Converts a Trigger for use in TIE</u>. Parameters are lost<br>
+	<i>trig</i> - The Trigger to Convert<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - Invalid values detected</p>
+	
+	<p><span><b>public</b> static <b>explicit operator</b></span> <a href="Idmr.Platform.Xwa.html#Trigger">Xvt.<span>Mission.Trigger</span></a>(<span>Trigger</span> trig)<br>
+	<u>Converts a Trigger for use in XvT</u>. Parameters are lost<br>
+	<i>trig</i> - The Trigger to Convert<br>
+	<b>Exceptions</b><br>
+	<i>System.ArgumentException</i> - Invalid values detected</p>
 </div></p>
 </div>
 <hr>
@@ -972,14 +965,8 @@
 <p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] CraftWhen<br>
 <u>Gets a copy of the craft behaviour to be used in triggers</u>. Array is Length = 13</p>
 
-<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Hangar<br>
-<u>Gets a copy of the starting hangars for the player</u>. Array is Length = 8</p>
-
 <p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] IFF<br>
 <u>Gets a copy of the default IFF Names</u>. Array is Length = 6</p>
-
-<p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Logo<br>
-<u>Gets a copy of the logos to be displayed during briefings</u>. Array is Length = 5</p>
 
 <p><img src="images/static.gif"><img src="images/prop.gif"> <span><b>public</b> static string</span>[] Officer<br>
 <u>Gets a copy of the voices of the mission control officer</u>. Array is Length = 9</p>
@@ -1040,63 +1027,55 @@
 
 <h3>Enumerations</h3>
 
-<p><img src="image/senum.gif"> <span><b>public</b> enum</span> Allegeance : <span>byte</span> { Hostile, Friendly, Neutral }<br>
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> Allegeance : <span>byte</span> { Hostile, Friendly, Neutral }<br>
 <u>IFF relations to other Teams</u></p>
 
-<p><img src="image/senum.gif"> <span><b>public</b> enum</span> EomMessageIndex : <span>byte</span> { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PriamryFailed2, OutstandingComplete1, OutstandingComplete2 }<br>
+<p><img src="images/enum.gif"> <span><b>public</b> enum</span> EomMessageIndex : <span>byte</span> { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PriamryFailed2, OutstandingComplete1, OutstandingComplete2 }<br>
 <u>Indexes for <i>EndOfMissionMessages</i></u></p>
 
 <h3>Sub-Classes</h3>
 
-<p><img src="images/class.gif"> <span><b>public</b> class</span> EomMessageIndexer<br>
+<p><img src="images/class.gif"> <span><b>public</b> class</span> EomMessageIndexer : Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt;<br>
 <u>Object to provide array access to the EoM Messages</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> EomMessageIndexer(<span>Team</span> parent)<br>
+	<p><img src="images/meth.gif"> <span><b>public</b></span> EomMessageIndexer(<span>string</span>[] eomMessages)<br>
 	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Team</p>
+	<i>eomMessages</i> - The EoM Message array</p>
 	
 	<h3>Properties</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
-	<img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>EomMessageIndex</span> index]<br>
+	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>EomMessageIndex</span> index]<br>
 	<u>Gets or sets the EoM Message</u>. 64 character limit<br>
 	<i>index</i> - EomMessageIndex enumerated value<br>
 	<b>Exceptions</b><br>
 	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
 </div></p>
 
-<p><img src="images/class.gif"> <span><b>public</b> class</span> VoiceIDIndexer<br>
+<p><img src="images/class.gif"> <span><b>public</b> class</span> VoiceIDIndexer : Idmr.Common.<span>Indexer</span>&lt;<span>string</span>&gt;<br>
 <u>Object to provide array access to the EoM Message notes</u><br>
 <div style="margin-left: 25px">
 	<h3>Constructors</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b></span> VoiceIDIndexer(<span>Team</span> parent)<br>
+	<p><img src="images/meth.gif"> <span><b>public</b></span> VoiceIDIndexer(<span>string</span>[] voiceIDs)<br>
 	<u>Initializes the indexer</u><br>
-	<i>parent</i> - The parent Team</p>
+	<i>voiceIDs</i> - The VoiceID array</p>
 	
 	<h3>Properties</h3>
 	
-	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>int</span> index]<br>
-	<img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>EomMessageIndex</span> index]<br>
+	<p><img src="images/meth.gif"> <span><b>public</b> string <b>this</b></span>[<span>EomMessageIndex</span> index]<br>
 	<u>Gets or sets the EoM Message note</u>. 20 character limit. Divide the EomMessageIndex value by 2 to get the appropriate <i>index</i><br>
 	<i>index</i> - EomMessageIndex enumerated value<br>
 	<b>Exceptions</b><br>
 	<i>IndexOutOfBoundsException</i> - Invalid <i>index</i> value</p>
-	
-	<p><img src="images/prop.gif"> <span><b>public</b> int</span> Length<br>
-	<u>Gets the size of the array</u></p>
 </div></p>
 </div>
 <hr>
 
 <div>
 <h2><a name="TeamCollection" class="anchor">TeamCollection Class</a></h2>
-<img src="images/class.gif"> <span><b>public</b> class</span> TeamCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;Team&gt;<br>
+<img src="images/class.gif"> <span><b>public</b> class</span> TeamCollection : Idmr.Common.<span>FixedSizeCollection</span>&lt;<span>Team</span>&gt;<br>
 <u>Object to maintain Teams</u>
 
 <h3>Constructors</h3>
@@ -1119,7 +1098,7 @@ Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)<BR><BR>
 <small>This library is licensed under the <a href="http://www.gnu.org/licenses/gpl.html" target=_blank>GNU General Public License</a> as published by the <a href="http://www.fsf.org">Free Software Foundation</a>; either v3.0 or later.<br><br>
 This documentation and items contained herein are distributed under the <a href="http://www.gnu.org/licenses/fdl.html" target=_blank>GNU Free Documentation License</a>.<br><br>
 Full notice displayed in <a href="Idmr.Platform.html">Idmr.Platform.html</a></small><br><br>
-Publish date: 01 Feb 2012
+Publish date: 22 Feb 2012
 <HR>
 </BODY>
 </HTML>

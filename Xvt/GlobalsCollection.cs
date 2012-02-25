@@ -7,7 +7,12 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120212 - T[] to List<T> conversion
+ */
+
 using System;
+using System.Collections.Generic;
 
 namespace Idmr.Platform.Xvt
 {
@@ -17,9 +22,8 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Creates a new Collection of Global Goals for each team (10)</summary>
 		public GlobalsCollection()
 		{
-			_count = 10;
-			_items = new Globals[_count];
-			for (int i=0;i<_count;i++) _items[i] = new Globals();
+			_items = new List<Globals>(10);
+			for (int i = 0; i < _items.Capacity; i++) _items.Add(new Globals());
 		}
 
 		/// <summary>Resets Globals Goals for selected Team to defaults</summary>
@@ -27,6 +31,6 @@ namespace Idmr.Platform.Xvt
 		public void Clear(int team) { _setItem(team, new Globals()); }
 
 		/// <summary>Resets all Global Goals to defaults</summary>
-		public void ClearAll() { for (int i=0;i<_count;i++) _setItem(i, new Globals()); }
+		public void ClearAll() { for (int i = 0; i < Count; i++) _setItem(i, new Globals()); }
 	}
 }

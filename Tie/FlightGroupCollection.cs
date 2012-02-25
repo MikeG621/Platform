@@ -7,7 +7,12 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120212 - T[] to List<T> conversion
+ */
+
 using System;
+using System.Collections.Generic;
 
 namespace Idmr.Platform.Tie
 {
@@ -19,21 +24,19 @@ namespace Idmr.Platform.Tie
 		public FlightGroupCollection()
 		{
 			_itemLimit = Mission.FlightGroupLimit;
-			_count = 1;
-			_items = new FlightGroup[_count];
-			_items[0] = new FlightGroup();
+			_items = new List<FlightGroup>(_itemLimit);
+			_items.Add(new FlightGroup());
 		}
 
 		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>
 		/// <param name="quantity">Number of FlightGroups to start with</param>
+		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than 1 or greater than Mission.FlightGroupLimit</exception>
 		public FlightGroupCollection(int quantity)
 		{
 			_itemLimit = Mission.FlightGroupLimit;
-			if (quantity <= _itemLimit && quantity > 0) _count = quantity;
-			else if (quantity <= 0) _count = 1;
-			else _count = _itemLimit;
-			_items = new FlightGroup[_count];
-			for (int i=0;i<_count;i++) _items[i] = new FlightGroup();
+			if (quantity < 1 || quantity > _itemLimit) throw new ArgumentOutOfRangeException("quantity", "Invalid quantity, must be 1-" + _itemLimit);
+			_items = new List<FlightGroup>(_itemLimit);
+			for (int i = 0; i < quantity; i++) _items.Add(new FlightGroup());
 		}
 
 		/// <summary>Adds a new FlightGroup to the end of the Collection</summary>
@@ -49,9 +52,8 @@ namespace Idmr.Platform.Tie
 		/// <remarks>All existing FlightGroups are lost, first FG is re-initialized</remarks>
 		public void Clear()
 		{
-			_count = 1;
-			_items = new FlightGroup[1];
-			_items[0] = new FlightGroup();
+			_items.Clear();
+			_items.Add(new FlightGroup());
 		}
 
 		/// <summary>Deletes the FlightGroup at the specified index</summary>
@@ -60,8 +62,8 @@ namespace Idmr.Platform.Tie
 		/// <returns>The index of the next available FlightGroup if successfull, otherwise -1</returns>
 		public int RemoveAt(int index)
 		{
-			if (index >= 0 && index < _count && _count > 1) { return _removeAt(index); }
-			else if (index == 0 && _count == 1)
+			if (index >= 0 && index < Count && Count > 1) { return _removeAt(index); }
+			else if (index == 0 && Count == 1)
 			{
 				_items[0] = new FlightGroup();
 				return 0;

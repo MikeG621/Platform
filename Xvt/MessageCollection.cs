@@ -7,7 +7,12 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120212 - T[] to List<T> conversion
+ */
+
 using System;
+using System.Collections.Generic;
 
 namespace Idmr.Platform.Xvt
 {
@@ -19,18 +24,18 @@ namespace Idmr.Platform.Xvt
 		public MessageCollection()
 		{
 			_itemLimit = Mission.MessageLimit;
+			_items = new List<Message>(_itemLimit);
 		}
 
 		/// <summary>Creates a new Collection with multiple initial Messages</summary>
 		/// <param name="quantity">Number of Messages to start with</param>
+		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than 0 or greater than Mission.MessageLimit</exception>
 		public MessageCollection(int quantity)
 		{
 			_itemLimit = Mission.MessageLimit;
-			if (quantity <= _itemLimit && quantity > 0) _count = quantity;
-			else if (quantity <= 0) _count = 1;
-			else _count = _itemLimit;
-			_items = new Message[_count];
-			for (int i=0;i<_count;i++) _items[i] = new Message();
+			if (quantity < 0 || quantity > _itemLimit) throw new ArgumentOutOfRangeException("quantity", "Invalid quantity, must be 0-" + _itemLimit);
+			_items = new List<Message>(_itemLimit);
+			for (int i = 0; i < quantity; i++) _items.Add(new Message());
 		}
 
 		/// <summary>Adds a new Message to the end of the Collection</summary>
@@ -49,11 +54,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Empties the Collection of entries</summary>
 		/// <remarks>All existing messages are lost, Count is set to zero</remarks>
-		public void Clear()
-		{
-			_count = 0;
-			_items = null;
-		}
+		public void Clear() { _items.Clear(); }
 
 		/// <summary>Inserts a new Message at the specified index</summary>
 		/// <param name="index">Location of the Message</param>
@@ -77,8 +78,8 @@ namespace Idmr.Platform.Xvt
 		/// <returns>The index of the next available Message if successfull, otherwise -1</returns>
 		public int RemoveAt(int index)
 		{
-			if (index >= 0 && index < _count && _count > 1) { return _removeAt(index); }
-			else if (index == 0 && _count == 1) Clear();
+			if (index >= 0 && index < Count && Count > 1) { return _removeAt(index); }
+			else if (index == 0 && Count == 1) Clear();
 			return -1;
 		}
 	}

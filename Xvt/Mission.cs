@@ -7,6 +7,12 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120207 - Trigger conversions, _checkValues()
+ * 120213 - added CraftCheck(), removed _briefings/_globals/_teams, removed ITrigger
+ * 120214 - added CheckTarget()
+ */
+
 using System;
 using System.IO;
 using Idmr.Common;
@@ -17,26 +23,40 @@ namespace Idmr.Platform.Xvt
 	/// <remarks>This is the primary container object for XvT and BoP mission files</remarks>
 	public class Mission
 	{
-		string _unknown4 = "";	// 0x0028, 16 char, BoP
-		string _unknown5 = "";	// 0x0050, 16 char, BoP
+		string _unknown4 = "";
+		string _unknown5 = "";
 		string _missionDescription = "";
-		string _missionFailed = "";	// BoP
-		string _missionSuccessful = "";	// BoP
-		BriefingCollection _briefings = new BriefingCollection();
-		GlobalsCollection _globals = new GlobalsCollection();
-		TeamCollection _teams = new TeamCollection();
+		string _missionFailed = "";
+		string _missionSuccessful = "";
+
+		/// <summary>The types of mission</summary>
+		public enum MissionTypeEnum : byte { Training, Unknown, Melee, MPTraining, MPMelee }
 
 		#region constructors
 		/// <summary>Default constructor, create a blank mission</summary>
-		public Mission() { }
+		public Mission()
+		{
+			MissionPath = "\\NewMission.tie";
+			MissionType = MissionTypeEnum.Training;
+			_initialize();
+		}
 
 		/// <summary>Create a new mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		public Mission(string filePath) { LoadFromFile(filePath); }
+		public Mission(string filePath) { _initialize(); LoadFromFile(filePath); }
 
 		/// <summary>Create a new mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		public Mission(FileStream stream) { LoadFromStream(stream); }
+		public Mission(FileStream stream) { _initialize(); LoadFromStream(stream); }
+		
+		void _initialize()
+		{
+			FlightGroups = new FlightGroupCollection();
+			Messages = new MessageCollection();
+			Globals = new GlobalsCollection();
+			Teams = new TeamCollection();
+			Briefings = new BriefingCollection();
+		}
 		#endregion
 
 		#region public methods
@@ -79,7 +99,7 @@ namespace Idmr.Platform.Xvt
 			stream.Position = 0x50;
 			Unknown5 = new string(br.ReadChars(0x10)).Trim('\0');
 			stream.Position = 0x64;
-			MissionType = br.ReadByte();
+			MissionType = (MissionTypeEnum)br.ReadByte();
 			Unknown6 = Convert.ToBoolean(br.ReadByte());
 			TimeLimitMin = br.ReadByte();
 			TimeLimitSec = br.ReadByte();
@@ -419,7 +439,7 @@ namespace Idmr.Platform.Xvt
 				bw.Write(Unknown5.ToCharArray());
 				fs.WriteByte(0);	// just to ensure termination
 				fs.Position = 0x64;
-				bw.Write(MissionType);
+				bw.Write((byte)MissionType);
 				bw.Write(Unknown6);
 				bw.Write(TimeLimitMin);
 				bw.Write(TimeLimitSec);
@@ -736,18 +756,58 @@ namespace Idmr.Platform.Xvt
 			MissionPath = filePath;
 			Save();
 		}
+		
+		/// <summary>Checks a CraftType for valid values and adjusts if necessary</summary>
+		/// <remarks>Returns 255 if CraftType cannot be converted</remarks>
+		/// <param name="craftType">The craft index to check</param>
+		public static byte CraftCheck(byte craftType)
+		{
+			if (craftType > 91) return 255;
+			else return craftType;
+		}
+		
+		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</summary>
+		/// <remarks>First checks for invalid Types, then runs through allows values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or GlobalUnit</remarks>
+		/// <param name="type">Trigger.Type or Order.TargetType</param>
+		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
+		/// <param name="errorMessage">Error description if found, otherwise ""</param>
+		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
+		{
+			errorMessage = "";
+			if (type > 9)
+			{
+				errorMessage = "Type (" + type + ")";
+				return;
+			}
+			// can't check FG
+			else if (type == 2)
+			{
+				byte newCraft = CraftCheck(variable);
+				if (newCraft == 255) errorMessage = "CraftType";
+				else variable = newCraft;
+			}
+			else if (type == 3) if (variable > 6) errorMessage = "CraftCategory";
+			else if (type == 4) if (variable > 2) errorMessage = "ObjectCategory";
+			else if (type == 5) if (variable > 5) errorMessage = "IFF";
+			else if (type == 6) if (variable > 39) errorMessage = "Order";
+			// don't want to check CraftWhen
+			// can't check GG
+			else if (type == 12 || type == 21) if (variable > 9) errorMessage = "Team";
+			// can't check GU
+			if (errorMessage != "") errorMessage += " (" + variable + ")";
+		}
 		#endregion public methods
 
 		#region public properties
 		/// <summary>The full path to the mission file</summary>
 		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath = "\\NewMission.tie";
+		public string MissionPath { get; set; }
 		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to "NewMission.tie"</remarks>
 		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
 		/// <summary>Gets or sets the mission platform</summary>
 		/// <remarks><i>true</i> for Balance of Power</remarks>
-		public bool BoP = false;
+		public bool BoP { get; set; }
 		/// <summary>Gets the number of FlightGroups in the mission</summary>
 		public short NumFlightGroups { get { return (short)FlightGroups.Count; } }
 		/// <summary>Gets the number of In-Flight Messages in the mission</summary>
@@ -763,13 +823,13 @@ namespace Idmr.Platform.Xvt
 		public const int MessageLimit = 64;
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x06</remarks>
-		public byte Unknown1;
+		public byte Unknown1 { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x08</remarks>
-		public byte Unknown2;
+		public byte Unknown2 { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B</remarks>
-		public bool Unknown3;
+		public bool Unknown3 { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value (BoP only?)</summary>
 		/// <remarks>Offset = 0x28, 16 char</remarks>
 		public string Unknown4
@@ -785,26 +845,26 @@ namespace Idmr.Platform.Xvt
 			set { _unknown5 = StringFunctions.GetTrimmed(value, 16); }
 		}
 		/// <summary>Gets or sets the category the mission belongs to</summary>
-		public byte MissionType;
+		public MissionTypeEnum MissionType { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x65</remarks>
-		public bool Unknown6;
+		public bool Unknown6 { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
-		public byte TimeLimitMin;
+		public byte TimeLimitMin { get; set; }
 		/// <summary>Gets or sets the seconds value of the time limit</summary>
-		public byte TimeLimitSec;
+		public byte TimeLimitSec { get; set; }
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
-		public FlightGroupCollection FlightGroups = new FlightGroupCollection();
+		public FlightGroupCollection FlightGroups { get; set; }
 		/// <summary>Gets or sets the In-Flight Messages for the mission</summary>
 		/// <remarks>Defaults to zero messages</remarks>
-		public MessageCollection Messages = new MessageCollection();
+		public MessageCollection Messages { get; set; }
 		/// <summary>Gets or sets the Global Goals for the mission</summary>
-		public GlobalsCollection Globals = new GlobalsCollection();
+		public GlobalsCollection Globals { get; set; }
 		/// <summary>Gets or sets the Teams for the mission</summary>
-		public TeamCollection Teams = new TeamCollection();
+		public TeamCollection Teams { get; set; }
 		/// <summary>Gets or sets the Briefings for the mission</summary>
-		public BriefingCollection Briefings = new BriefingCollection();
+		public BriefingCollection Briefings { get; set; }
 		/// <summary>Gets or sets the summary of the mission</summary>
 		/// <remarks>1023 char limit for XvT, 4095 char limit for BoP</remarks>
 		public string MissionDescription
@@ -841,15 +901,10 @@ namespace Idmr.Platform.Xvt
 		#endregion public properties
 		
 		/// <summary>Object for a single Trigger</summary>
-		[Serializable] public class Trigger	: ITrigger
+		[Serializable] public class Trigger	: BaseTrigger
 		{
-			byte _condition = 0;
-			byte _variableType = 0;
-			byte _variable = 0;
-			byte _amount = 0;
-			
 			/// <summary>Initializes a blank Trigger</summary>
-			public Trigger() { }
+			public Trigger() : base(new byte[4]) { }
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, must have Length of 4</param>
@@ -857,10 +912,8 @@ namespace Idmr.Platform.Xvt
 			public Trigger(byte[] raw)
 			{
 				if (raw.Length != 4) throw new ArgumentException("raw does not have the correct length", "raw");
-				_condition = raw[0];
-				_variableType = raw[1];
-				_variable = raw[2];
-				_amount = raw[3];
+				_items = raw;
+				_checkValues(this);
 			}
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
@@ -869,63 +922,40 @@ namespace Idmr.Platform.Xvt
 			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
-				_condition = raw[startIndex];
-				_variableType = raw[startIndex + 1];
-				_variable = raw[startIndex + 2];
-				_amount = raw[startIndex + 3];
+				_items = new byte[4];
+				ArrayFunctions.TrimArray(raw, startIndex, _items);
+				_checkValues(this);
 			}
 			
-			#region ITrigger Members
-			/// <summary>The array form of the Trigger</summary>
-			/// <param name="index">Condition, VariableType, Variable, Amount</param>
-			/// <exception cref="ArgumentException"><i>index</i> must be 0-3</exception>
-			public byte this[int index]
+			static void _checkValues(Trigger t)
 			{
-				get
-				{
-					if (index == 0) return _condition;
-					else if (index == 1) return _variableType;
-					else if (index == 2) return _variable;
-					else if (index == 3) return _amount;
-					else throw new ArgumentException("index must be 0-3", "index");
-				}
-				set
-				{
-					if (index == 0) _condition = value;
-					else if (index == 1) _variableType = value;
-					else if (index == 2) _variable = value;
-					else if (index == 3) _amount = value;
-				}
+				string error = "";
+				string msg;
+				if (t.Condition > 46) error = "Condition (" + t.Condition + ")";
+				byte tempVar = t.Variable;
+				CheckTarget(t.VariableType, ref tempVar, out msg);
+				t.Variable = tempVar;
+				if (msg != "") error += (error != "" ? ", " : "") + msg;
+				if (error != "") throw new ArgumentException("Invalid values detected: " + error+  ".");
+				if (t.Amount == 19) t.Amount = 6;	// "each special" to "100% special"
 			}
 			
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return 4; } }
-			
-			/// <summary>Gets or sets the Trigger itself</summary>
-			public byte Condition
+			/// <summary>Converts a Trigger to a byte array</summary>
+			/// <remarks>Length will be 4</remarks>
+			/// <param name="trig">The Trigger to convert</param>
+			public static explicit operator byte[](Trigger trig)
 			{
-				get { return _condition; }
-				set { _condition = value; }
+				byte[] b = new byte[4];
+				for (int i = 0; i < 4; i++) b[i] = trig[i];
+				return b;
 			}
-			/// <summary>Gets or sets the category <i>Variable</i> belongs to</summary>
-			public byte VariableType
-			{
-				get { return _variableType; }
-				set { _variableType = value; }
-			}
-			/// <summary>Gets or sets the Trigger subject</summary>
-			public byte Variable
-			{
-				get { return _variable; }
-				set { _variable = value; }
-			}
-			/// <summary>Gets or sets the amount required to fire the Trigger</summary>
-			public byte Amount
-			{
-				get { return _amount; }
-				set { _amount = value; }
-			}
-			#endregion
+			/// <summary>Converts a Trigger for use in TIE</summary>
+			/// <param name="trig">The Trigger to convert</param>
+			/// <exception cref="ArgumentException">Invalid values detected</exception>
+			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger((byte[])trig); }
+			/// <summary>Converts a Trigger for use in XWA</summary>
+			/// <param name="trig">The Trigger to convert</param>
+			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger((byte[])trig); }
 		}
 	}
 }

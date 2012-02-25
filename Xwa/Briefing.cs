@@ -29,6 +29,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Initializes a blank briefing</summary>
 		public Briefing()
 		{	//initialize
+			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.XWA;
 			Length = 0x465;		// default to 45 seconds
 			_events = new byte[0x4400];

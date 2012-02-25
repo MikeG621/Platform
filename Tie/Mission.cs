@@ -7,6 +7,12 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 070212 - added Trigger conversions, Trigger._checkValues(), Trigger._craftUpgrade()
+ * 130212 - added CraftCheck()/CheckTarget(), removed ITrigger
+ * 150212 - implmented Indexer<T>
+ */
+
 using System;
 using System.IO;
 using Idmr.Common;
@@ -18,11 +24,11 @@ namespace Idmr.Platform.Tie
 	public class Mission
 	{
 		string[] _endOfMissionMessages = new string[6];	//Mission Comp/Fail messages
-		string[] _iff = new string[6];
+		string[] _iff = Strings.IFF;
 		bool[] _iffHostile = new bool[6];
 		IffNameIndexer _iffNameIndexer;
-		IffHostileIndexer _iffHostileIndexer;
-		EndOfMissionIndexer _endOfMissionIndexer;
+		Indexer<bool> _iffHostileIndexer;
+		Indexer<string> _endOfMissionIndexer;
 		
 		/// <summary>Pre- and Post-mission officers</summary>
 		/// <remarks>0 = None<br>1 = Both<br>2 = FlightOfficer<br>3 = SecretOrder</remarks>
@@ -32,13 +38,9 @@ namespace Idmr.Platform.Tie
 		/// <summary>Default constructor, creates a blank mission</summary>
 		public Mission()
 		{
+			_initialize();
 			for (int i=0;i<6;i++) _endOfMissionMessages[i] = "";
-			_iff = Strings.IFF;
-			_iffHostile[0] = true;
-			for (int i=2;i<6;i++) _iff[i] = "";
-			_iffNameIndexer = new IffNameIndexer(this);
-			_iffHostileIndexer = new IffHostileIndexer(this);
-			_endOfMissionIndexer = new EndOfMissionIndexer(this);
+			MissionPath = "\\NewMission.tie";
 		}
 
 		/// <summary>Creates a new mission from a file</summary>
@@ -46,8 +48,7 @@ namespace Idmr.Platform.Tie
 		/// <param name="filePath">Full path to the file</param>
 		public Mission(string filePath)
 		{
-			_iff = Strings.IFF;
-			_iffHostile[0] = true;
+			_initialize();
 			LoadFromFile(filePath);
 		}
 
@@ -56,9 +57,21 @@ namespace Idmr.Platform.Tie
 		/// <param name="stream">Opened FileStream to mission file</param>
 		public Mission(FileStream stream)
 		{
-			_iff = Strings.IFF;
-			_iffHostile[0] = true;
+			_initialize();
 			LoadFromStream(stream);
+		}
+		
+		void _initialize()
+		{
+			_iffHostile[0] = true;
+			_iffNameIndexer = new IffNameIndexer(this);
+			_iffHostileIndexer = new Indexer<bool>(_iffHostile, new bool[]{true, true, false, false, false, false});
+			_endOfMissionIndexer = new Indexer<string>(_endOfMissionMessages, 63);
+			FlightGroups = new FlightGroupCollection();
+			Messages = new MessageCollection();
+			GlobalGoals = new Globals();
+			Briefing = new Briefing();
+			BriefingQuestions = new Questions();
 		}
 		#endregion constructors
 		
@@ -233,13 +246,11 @@ namespace Idmr.Platform.Tie
 			for (i=0;i<32;i++)
 			{
 				int j = br.ReadInt16();
-				//if (j > 0) for (int k=0;k<j;k++) { Briefing.BriefingTag[i] += Convert.ToChar(stream.ReadByte()).ToString(); }
 				if (j > 0) Briefing.BriefingTag[i] = new string(br.ReadChars(j));
 			}
 			for (i=0;i<32;i++)
 			{
 				int j = br.ReadInt16();
-				//if (j > 0) for (int k=0;k<j;k++) { Briefing.BriefingString[i] += Convert.ToChar(stream.ReadByte()).ToString(); }
 				if (j > 0) Briefing.BriefingString[i] = new string(br.ReadChars(j));
 			}
 			#endregion
@@ -556,19 +567,62 @@ namespace Idmr.Platform.Tie
 			MissionPath = filePath;
 			Save();
 		}
+		
+		/// <summary>Checks a CraftType for valid values and adjusts if necessary</summary>
+		/// <remarks>Returns 255 if CraftType cannot be converted</remarks>
+		/// <param name="craftType">The craft index to check</param>
+		public static byte CraftCheck(byte craftType)
+		{
+			if (craftType > 91) return 255;
+			else if (craftType == 77) return 31;	// G/PLT
+			else if (craftType == 89) return 10;	// SHPYD
+			else if (craftType == 90) return 11;	// REPYD
+			else if (craftType == 91) return 39;	// M/SC
+			else return craftType;
+		}
+		
+		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</summary>
+		/// <remarks>First checks for invalid Types, then runs through allows values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
+		/// <param name="type">Trigger.Type or Order.TargetType</param>
+		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
+		/// <param name="errorMessage">Error description if found, otherwise ""</param>
+		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
+		{
+			errorMessage = "";
+			if (type > 9)
+			{
+				errorMessage = "Type (" + type + ")";
+				return;
+			}
+			// can't check FG
+			else if (type == 2)
+			{
+				byte newCraft = CraftCheck(variable);
+				if (newCraft == 255) errorMessage = "CraftType";
+				else variable = newCraft;
+			}
+			else if (type == 3) if (variable > 6) errorMessage = "CraftCategory";
+			else if (type == 4) if (variable > 2) errorMessage = "ObjectCategory";
+			else if (type == 5) if (variable > 5) errorMessage = "IFF";
+			else if (type == 6) if (variable > 39) errorMessage = "Order";
+			// don't want to check CraftWhen
+			// can't check GlobalGroup
+			// don't want to check Misc
+			if (errorMessage != "") errorMessage += " (" + variable + ")";
+		}
 		#endregion public methods
 		
 		#region public properties
 		/// <summary>Gets the array accessor for the IFF names</summary>
 		public IffNameIndexer IFFs { get { return _iffNameIndexer; } }
 		/// <summary>Gets the array accessor for the IFF behaviour</summary>
-		public IffHostileIndexer IffHostile { get { return _iffHostileIndexer; } }
+		public Indexer<bool> IffHostile { get { return _iffHostileIndexer; } }
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
-		public EndOfMissionIndexer EndOfMissionMessages { get { return _endOfMissionIndexer; } }
+		public Indexer<string> EndOfMissionMessages { get { return _endOfMissionIndexer; } }
 		
 		/// <summary>Gets or sets the full path to the mission file</summary>
 		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath = "\\NewMission.tie";
+		public string MissionPath { get; set; }
 		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to "NewMission.tie"</remarks>
 		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
@@ -590,184 +644,120 @@ namespace Idmr.Platform.Tie
 		public BriefingOfficers OfficersPresent = BriefingOfficers.FlightOfficer;
 		/// <summary>Gets or sets if the pilot is captured upon ejection or destruction</summary>
 		/// <remarks><i>true</i> results in capture, <i>false</i> results in rescue (default)</remarks>
-		public bool CapturedOnEjection = false;
+		public bool CapturedOnEjection { get; set; }
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
-		public FlightGroupCollection FlightGroups = new FlightGroupCollection();
+		public FlightGroupCollection FlightGroups { get; set; }
 		/// <summary>Gets or sets the In-Flight Messages for the mission</summary>
 		/// <remarks>Defaults to zero messages</remarks>
-		public MessageCollection Messages = new MessageCollection();
+		public MessageCollection Messages { get; set; }
 		/// <summary>Gets or sets the Global Goals for the mission</summary>
-		public Globals GlobalGoals  = new Globals();
+		public Globals GlobalGoals { get; set; }
 		/// <summary>Gets or sets the Briefing for the mission</summary>
-		public Briefing Briefing = new Briefing();
+		public Briefing Briefing { get; set; }
 		/// <summary>Gets or sets the questions for the Briefing Officers</summary>
-		public Questions BriefingQuestions = new Questions();
+		public Questions BriefingQuestions { get; set; }
 		#endregion public properties
 		
 		/// <summary>Object to provide array access to the IFF names</summary>
-		public class IffNameIndexer	// : IIndexer<string>
-		{	//TODO: Idmr.Common.Generics.IIndexer
+		public class IffNameIndexer	: Indexer<string>
+		{	
 			Mission _owner;
 			
 			/// <summary>Initializes the indexer</summary>
 			/// <param name="parent">The parent Mission</param>
-			public IffNameIndexer(Mission parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._iff.Length; } }	// IIndexer.Length { get; }
+			public IffNameIndexer(Mission parent) : base(parent._iff) { _owner = parent; }
 			
 			/// <summary>Gets or sets the IFF Name</summary>
 			/// <remarks>11 character limit, Rebel and Imperial are read-only</remarks>
 			/// <param name="index">IFF index</param>
 			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
-			public string this[int index]	// <string> IIndexer.this[int index]
+			/// <exception cref="InvalidOperationException">Index is read-only</exception>
+			public override string this[int index]
 			{
-				get { return _owner._iff[index]; }
+				get { return _items[index]; }
 				set
 				{
-					if (index < 2) return;
+					if (index < 2) throw new InvalidOperationException("Index (" + index + ") is read-only");
 					if (value != "" && value[0] == '1')
 					{
 						_owner._iffHostile[index] = true;
 						value = value.Substring(1);
 					}
-					_owner._iff[index] = StringFunctions.GetTrimmed(value, 11);
+					_items[index] = StringFunctions.GetTrimmed(value, 11);
 				}
 			}
 		}
-		
-		/// <summary>Object to provide array access to the IFF behaviours</summary>
-		public class IffHostileIndexer
-		{
-			Mission _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
-			public IffHostileIndexer(Mission parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._iffHostile.Length; } }
-			
-			/// <summary>Gets or sets the IFF behaviour</summary>
-			/// <remarks>Imperial is read-only</remarks>
-			/// <param name="index">IFF index</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
-			public bool this[int index]
-			{
-				get { return _owner._iffHostile[index]; }
-				set { if (index > 1) _owner._iffHostile[index] = value; }
-			}
-		}
-
-		/// <summary>Object to provide array access to the EoM Messages</summary>
-		public class EndOfMissionIndexer
-		{
-			Mission _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
-			public EndOfMissionIndexer(Mission parent) { _owner = parent; }
-			
-			/// <summary>Gets the length of the array</summary>
-			public int Length { get { return _owner._endOfMissionMessages.Length; } }
-			
-			/// <summary>Gets or sets the EoM Message</summary>
-			/// <remarks>63 character limit</remarks>
-			/// <param name="index">EoM index</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
-			public string this[int index]
-			{
-				get { return _owner._endOfMissionMessages[index]; }
-				set { _owner._endOfMissionMessages[index] = StringFunctions.GetTrimmed(value, 63); }
-			}
-		}
 		/// <summary>Object for a single Trigger</summary>
-		[Serializable] public class Trigger : ITrigger
+		[Serializable] public class Trigger : BaseTrigger
 		{
-			byte _condition = 0;
-			byte _variableType = 0;
-			byte _variable = 0;
-			byte _amount = 0;
-			
 			/// <summary>Initializes a blank Trigger</summary>
-			public Trigger() { }
+			public Trigger() : base(new byte[4]) { }
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, must have Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value</exception>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value, invalid member values</exception>
 			public Trigger(byte[] raw)
 			{
 				if (raw.Length != 4) throw new ArgumentException("raw does not have the correct length", "raw");
-				_condition = raw[0];
-				_variableType = raw[1];
-				_variable = raw[2];
-				_amount = raw[3];
+				_items = raw;
+				_checkValues(this);
 			}
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid member values</exception>
 			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
-				_condition = raw[startIndex];
-				_variableType = raw[startIndex + 1];
-				_variable = raw[startIndex + 2];
-				_amount = raw[startIndex + 3];
-			}
-
-			#region ITrigger Members
-			/// <summary>The array form of the Trigger</summary>
-			/// <param name="index">Condition, VariableType, Variable, Amount</param>
-			/// <exception cref="ArgumentException"><i>index</i> must be 0-3</exception>
-			public byte this[int index]
-			{
-				get
-				{
-					if (index == 0) return _condition;
-					else if (index == 1) return _variableType;
-					else if (index == 2) return _variable;
-					else if (index == 3) return _amount;
-					else throw new ArgumentException("index must be 0-3", "index");
-				}
-				set
-				{
-					if (index == 0) _condition = value;
-					else if (index == 1) _variableType = value;
-					else if (index == 2) _variable = value;
-					else if (index == 3) _amount = value;
-				}
+				_items = new byte[4];
+				ArrayFunctions.TrimArray(raw, startIndex, _items);
+				_checkValues(this);
 			}
 			
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return 4; } }
+			static void _checkValues(Trigger t)
+			{
+				string error = "";
+				string msg;
+				if (t.Condition > 24) error = "Condition (" + t.Condition + ")";
+				byte tempVar = t.Variable;
+				CheckTarget(t.VariableType, ref tempVar, out msg);
+				t.Variable = tempVar;
+				if (msg != "") error += (error != "" ? ", " : "") + msg;
+				if (error != "") throw new ArgumentException("Invalid values detected: " + error + ".");
+				// 66% to 75%, 33% to 50%, "each" to 100%, "each special" to "100% special"
+				t.Amount = (byte)(t.Amount == 16 ? 1 : (t.Amount == 17 ? 2 : (t.Amount == 18 ? 0 : (t.Amount == 19 ? 6 : t.Amount))));
+			}
 			
-			/// <summary>Gets or sets the Trigger itself</summary>
-			public byte Condition
+			static byte[] _craftUpgrade(Trigger t)
 			{
-				get { return _condition; }
-				set { _condition = value; }
+				byte[] b = (byte[])t;
+				if (b[1] == 2)
+				{
+					if (b[2] == 10) b[2] = 89;	// SHPYD
+					else if (b[2] == 11) b[2] = 90;	// REPYD
+					else if (b[2] == 31) b[2] = 77;	// G/PLT
+					else if (b[2] == 39) b[2] = 91;	// M/SC
+				}
+				return b;
 			}
-			/// <summary>Gets or sets the category <i>Variable</i> belongs to</summary>
-			public byte VariableType
+			
+			/// <summary>Converts a Trigger to a byte array</summary>
+			/// <remarks>Length will be 4</remarks>
+			/// <param name="trig">The Trigger to convert</param>
+			public static explicit operator byte[](Trigger trig)
 			{
-				get { return _variableType; }
-				set { _variableType = value; }
+				byte[] b = new byte[4];
+				for (int i = 0; i < 4; i++) b[i] = trig[i];
+				return b;
 			}
-			/// <summary>Gets or sets the Trigger subject</summary>
-			public byte Variable
-			{
-				get { return _variable; }
-				set { _variable = value; }
-			}
-			/// <summary>Gets or sets the amount required to fire the Trigger</summary>
-			public byte Amount
-			{
-				get { return _amount; }
-				set { _amount = value; }
-			}
-			#endregion ITrigger Members
+			/// <summary>Converts a Trigger for use in XvT</summary>
+			/// <param name="trig">The Trigger to convert</param>
+			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftUpgrade(trig)); }
+			/// <summary>Converts a Trigger for use in XWA</summary>
+			/// <param name="trig">The Trigger to convert</param>
+			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(_craftUpgrade(trig)); }
 		}
 	}
 }

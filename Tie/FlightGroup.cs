@@ -7,6 +7,14 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 120207 - added Waypoint conversions
+ * 120208 - added Order conversions
+ * 120210 - rewrote Waypoint
+ * 120213 - rewrote for IOrder removal, added Order value checks
+ * 120215 - Indexer<T> implmentation
+ */
+ 
 using System;
 using Idmr.Common;
 
@@ -35,9 +43,6 @@ namespace Idmr.Platform.Tie
 			Goals = new FGGoals();
 			for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
 			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
-			//Radio = false;
-			//AT1AndOrAT2 = false;
-			//Unknowns = new UnknownValues();
 		}
 
 		/// <summary>Gets or sets the Pilot name, used as short note</summary>
@@ -77,195 +82,127 @@ namespace Idmr.Platform.Tie
 		public Waypoint[] Waypoints { get { return _waypoints; } }
 		
 		/// <summary>Object for a single Waypoint</summary>
-		[Serializable] public class Waypoint : IWaypoint
+		[Serializable] public class Waypoint : BaseWaypoint
 		{
-			short _rawX = 0;
-			short _rawY = 0;
-			short _rawZ = 0;
-			bool _enabled = false;
+			/// <summary>Default constructor</summary>
+			public Waypoint() : base(new short[4]) { }
 			
-			#region IWaypoint Members
-			/// <summary>Array form of the Waypoint</summary>
-			/// <param name="index">X, Y, Z, Enabled</param>
-			/// <exception cref="ArgumentException">Invalid <i>index</i> value</exception>
-			public short this[int index]
-			{
-				get
-				{
-					if (index == 0) return _rawX;
-					else if (index == 1) return _rawY;
-					else if (index == 2) return _rawZ;
-					else if (index == 3) return Convert.ToInt16(_enabled);
-					else throw new ArgumentException("index must be 0-3", "index");
-					// TODO: throw InvalidOperation?
-				}
-				set
-				{
-					if (index == 0) _rawX = value;
-					else if (index == 1) _rawY = value;
-					else if (index == 2) _rawZ = value;
-					else if (index == 3) _enabled = Convert.ToBoolean(value);
-				}
-			}
+			/// <summary>Initialize a new Waypoint using raw data</summary>
+			/// <remarks><i>raw</i> must have Length of 4</remarks>
+			/// <param name="raw">Raw data</param>
+			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
+			public Waypoint(short[] raw) : base(raw) { if (raw.Length != 4) throw new ArgumentException("raw does not have the correct size"); }
 			
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return 4; } }
-			
-			/// <summary>Gets or sets if the Waypoint is active for use</summary>
-			public bool Enabled
-			{
-				get { return _enabled; }
-				set { _enabled = value; }
-			}
-			/// <summary>Gets or sets the stored X value</summary>
-			public short RawX
-			{
-				get { return _rawX; }
-				set { _rawX = value; }
-			}
-			/// <summary>Gets or sets the stored Y value</summary>
-			public short RawY
-			{
-				get { return _rawY; }
-				set { _rawY = value; }
-			}
-			/// <summary>Gets or sets the stored Z value</summary>
-			public short RawZ
-			{
-				get { return _rawZ; }
-				set { _rawZ = value; }
-			}
-			/// <summary>Gets or sets the X value in kilometers</summary>
-			public double X
-			{
-				get { return (double)RawX / 160; }
-				set { RawX = (short)(value * 160); }
-			}
-			/// <summary>Gets or sets the Y value in kilometers</summary>
-			public double Y
-			{
-				get { return (double)RawY / 160; }
-				set { RawY = (short)(value * 160); }
-			}
-			/// <summary>Gets or sets the Z value in kilometers</summary>
-			public double Z
-			{
-				get { return (double)RawZ / 160; }
-				set { RawZ = (short)(value * 160); }
-			}
-			#endregion
+			/// <summary>Converts a Waypoint for XvT</summary>
+			/// <param name="wp">The Waypoint to convert</param>
+			public static implicit operator Xvt.FlightGroup.Waypoint(Waypoint wp) { return new Xvt.FlightGroup.Waypoint((short[])wp); }
+			/// <summary>Converts a Waypoint for XWA</summary>
+			/// <param name="wp">The Waypoint to convert</param>
+			public static implicit operator Xwa.FlightGroup.Waypoint(Waypoint wp) { return new Xwa.FlightGroup.Waypoint((short[])wp); }
 		}
 		/// <summary>Object for the Flightgroup-specific mission goals</summary>
-		[Serializable] public class FGGoals
+		[Serializable] public class FGGoals : Indexer<byte>
 		{
-			byte[] _raw = new byte[9];
+			// _items is the raw byte data from file
 			
 			/// <summary>Initializes a new instance with all goals set to "never (FALSE)" (10)</summary>
-			public FGGoals() { for (int i = 0; i < _raw.Length; i += 2) _raw[i] = 10; }
+			public FGGoals()
+			{
+				_items = new byte[9];
+				for (int i = 0; i < _items.Length; i += 2) _items[i] = 10;
+			}
 			
 			/// <summary>Initializes the Goals from raw data</summary>
 			/// <param name="raw">Raw byte data, must have Length of 9</param>
 			/// <exception cref="ArgumentException"><i>raw</i> does not have the correct Length</exception>
-			public FGGoals(byte[] raw)
-			{
-				if (raw.Length != 9) throw new ArgumentException("raw does not have the correct length", "raw");
-				_raw = raw;
-			}
+			public FGGoals(byte[] raw) : base(raw) { if (raw.Length != 9) throw new ArgumentException("raw does not have the correct length", "raw"); }
 			
 			/// <summary>Initializes the Goals from raw data</summary>
 			/// <param name="raw">Raw byte data</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			public FGGoals(byte[] raw, int startIndex) { ArrayFunctions.TrimArray(raw, startIndex, _raw); }
-			
-			/// <summary>Array form of the Goals</summary>
-			/// <param name="index">Valid indexes are 0-8</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
-			public byte this[int index]
+			public FGGoals(byte[] raw, int startIndex)
 			{
-				get { return _raw[index]; }
-				set { _raw[index] = value; }
+				_items = new byte[9];
+				ArrayFunctions.TrimArray(raw, startIndex, _items);
 			}
 			
 			#region public properties
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return _raw.Length; } }
-			
 			/// <summary>Gets or sets the Primary goal</summary>
 			public byte PrimaryCondition
 			{
-				get { return _raw[0]; }
-				set { _raw[0] = value; }
+				get { return _items[0]; }
+				set { _items[0] = value; }
 			}
 			/// <summary>Gets or sets the amount of the FlightGroup required to meet <i>PrimaryCondition</i></summary>
 			public byte PrimaryAmount
 			{
-				get { return _raw[1]; }
-				set { _raw[1] = value; }
+				get { return _items[1]; }
+				set { _items[1] = value; }
 			}
 			/// <summary>Gets or sets the Secondary goal</summary>
 			public byte SecondaryCondition
 			{
-				get { return _raw[2]; }
-				set { _raw[2] = value; }
+				get { return _items[2]; }
+				set { _items[2] = value; }
 			}
 			/// <summary>Gets or sets the amount of the FlightGroup required to meet <i>SecondaryCondition</i></summary>
 			public byte SecondaryAmount
 			{
-				get { return _raw[3]; }
-				set { _raw[3] = value; }
+				get { return _items[3]; }
+				set { _items[3] = value; }
 			}
 			/// <summary>Gets or sets the hidden goal</summary>
 			/// <remarks>Use of this goal is unknown, entirely hidden</summary>
 			public byte SecretCondition
 			{
-				get { return _raw[4]; }
-				set { _raw[4] = value; }
+				get { return _items[4]; }
+				set { _items[4] = value; }
 			}
 			/// <summary>Gets or sets the amount of the FlightGroup required to meet <i>SecretCondition</i></summary>
 			public byte SecretAmount
 			{
-				get { return _raw[5]; }
-				set { _raw[5] = value; }
+				get { return _items[5]; }
+				set { _items[5] = value; }
 			}
 			/// <summary>Gets or sets the Bonus goal</summary>
 			public byte BonusCondition
 			{
-				get { return _raw[6]; }
-				set { _raw[6] = value; }
+				get { return _items[6]; }
+				set { _items[6] = value; }
 			}
 			/// <summary>Gets or sets the amount of the FlightGroup required to meet <i>BonusCondition</i></summary>
 			public byte BonusAmount
 			{
-				get { return _raw[7]; }
-				set { _raw[7] = value; }
+				get { return _items[7]; }
+				set { _items[7] = value; }
 			}
 			/// <summary>Gets or sets the raw points value stored in the file</summary>
 			public sbyte RawBonusPoints
 			{
-				get { return (sbyte)_raw[8]; }
-				set { _raw[8] = (byte)value; }
+				get { return (sbyte)_items[8]; }
+				set { _items[8] = (byte)value; }
 			}
 			/// <summary>Gets or sets the points awarded or subtracted upon Bonus goal completion</summary>
 			/// <remarks>Equals <i>RawBonusPoints</i> * 50, limited from -6400 to +6350</remarks>
 			public short BonusPoints
 			{
-				get { return (short)(_raw[8] * 50); }
-				set { _raw[8] = (byte)((value > 6350 ? 6350 : (value < -6400 ? -6400 : value)) / 50); }
+				get { return (short)(RawBonusPoints * 50); }
+				set { RawBonusPoints = (sbyte)((value > 6350 ? 6350 : (value < -6400 ? -6400 : value)) / 50); }
 			}
 			#endregion public properties
 		}
 		/// <summary>Object for a single Order</summary>
-		[Serializable] public class Order : IOrder
+		[Serializable] public class Order : BaseOrder
 		{
-			byte[] _raw = new byte[18];
-
+			#region constructors
 			/// <summary>Initializes a blank order</summary>
 			/// <remarks><i>Throttle</i> set to 100%, AndOr values to <i>true</i></remarks>
 			public Order()
 			{
-				_raw[1] = 10;
-				_raw[10] = 1;
-				_raw[16] = 1;
+				_items = new byte[18];
+				_items[1] = 10;
+				_items[10] = 1;
+				_items[16] = 1;
 			}
 			
 			/// <summary>Initializes the order from raw data</summary>
@@ -273,128 +210,68 @@ namespace Idmr.Platform.Tie
 			public Order(byte[] raw)
 			{
 				if (raw.Length != 18) throw new ArgumentException("raw does not have the correct length", "raw");
-				_raw = raw;
+				_items = raw;
+				_checkValues(this);
 			}
 			
 			/// <summary>Initializes the order from raw data</summary>
 			/// <param name="raw">Raw byte data</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			public Order(byte[] raw, int startIndex) { ArrayFunctions.TrimArray(raw, startIndex, _raw); }
+			public Order(byte[] raw, int startIndex)
+			{
+				_items = new byte[18];
+				ArrayFunctions.TrimArray(raw, startIndex, _items);
+				_checkValues(this);
+			}
+			#endregion
+			
+			static void _checkValues(Order o)
+			{
+				string error = "";
+				string msg;
+				byte tempVar;
+				if (o.Command > 39) error += "Command (" + o.Command + ")";
+				tempVar = o.Target1;
+				Mission.CheckTarget(o.Target1Type, ref tempVar, out msg);
+				o.Target1 = tempVar;
+				if (msg != "") error += (error != "" ? ", " : "") + "T1 " + msg;
+				tempVar = o.Target2;
+				Mission.CheckTarget(o.Target2Type, ref tempVar, out msg);
+				o.Target2 = tempVar;
+				if (msg != "") error += (error != "" ? ", " : "") + "T2 " + msg;
+				tempVar = o.Target3;
+				Mission.CheckTarget(o.Target3Type, ref tempVar, out msg);
+				o.Target3 = tempVar;
+				if (msg != "") error += (error != "" ? ", " : "") + "T3 " + msg;
+				tempVar = o.Target4;
+				Mission.CheckTarget(o.Target4Type, ref tempVar, out msg);
+				o.Target4 = tempVar;
+				if (msg != "") error += (error != "" ? ", " : "") + "T4 " + msg;
+				if (error != "") throw new ArgumentException("Invalid values detected: " + error);
+			}
+			/// <summary>Converts an Order into a byte array</summary>
+			/// <remarks>Length will be 18</remarks>
+			/// <param name="ord">The Order to convert</param>
+			public static explicit operator byte[](Order ord)
+			{
+				byte[] b = new byte[18];
+				for (int i = 0; i < 18; i++) b[i] = ord[i];
+				return b;
+			}
+			/// <summary>Converts an Order for XvT</summary>
+			/// <param name="ord">The Order to convert</param>
+			public static implicit operator Xvt.FlightGroup.Order(Order ord) { return new Xvt.FlightGroup.Order((byte[])ord); }
+			/// <summary>Converts an Order for XWA</summary>
+			/// <param name="ord">The Order to convert</param>
+			public static implicit operator Xwa.FlightGroup.Order(Order ord) { return new Xwa.FlightGroup.Order((byte[])ord); }
 			
 			/// <summary>Gets or sets the unknown value</summary>
 			/// <remarks>Order offset 0x04</remarks>
 			public byte Unknown18
 			{
-				get { return _raw[4]; }
-				set { _raw[4] = value; }
+				get { return _items[4]; }
+				set { _items[4] = value; }
 			}
-			
-			#region IOrder Members
-			/// <summary>Array form of the Order</summary>
-			/// <param name="index">Valid indexes are 0-17. 5, 11 and 17 are always zero and cannot be set</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
-			public byte this[int index]
-			{
-				get { return _raw[index]; }
-				set
-				{
-					if (index == 5 || index == 11 || index == 17) return;
-					_raw[index] = value;
-					// TODO: catch IndexOutOfBounds and throw InvalidOperation?
-				}
-			}
-			
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return _raw.Length; } }
-
-			/// <summary>Gets or sets the command for the FlightGroup</summary>
-			public byte Command
-			{
-				get { return _raw[0]; }
-				set { _raw[0] = value; }
-			}
-			/// <summary>Gets or sets the throttle setting</summary>
-			/// <remarks>Multiply value by 10 to get Throttle percent</remarks>
-			public byte Throttle
-			{
-				get { return _raw[1]; }
-				set { _raw[1] = value; }
-			}
-			/// <summary>Gets or sets the first order-specific setting</summary>
-			public byte Variable1
-			{
-				get { return _raw[2]; }
-				set { _raw[2] = value; }
-			}
-			/// <summary>Gets or sets the second order-specific setting</summary>
-			public byte Variable2
-			{
-				get { return _raw[3]; }
-				set { _raw[3] = value; }
-			}
-			/// <summary>Gets or sets the type for Target 3</summary>
-			public byte Target3Type
-			{
-				get { return _raw[6]; }
-				set { _raw[6] = value; }
-			}
-			/// <summary>Gets or sets the type for target 4</summary>
-			public byte Target4Type
-			{
-				get { return _raw[7]; }
-				set { _raw[7] = value; }
-			}
-			/// <summary>Gets or sets the third target</summary>
-			public byte Target3
-			{
-				get { return _raw[8]; }
-				set { _raw[8] = value; }
-			}
-			/// <summary>Fourth target</summary>
-			public byte Target4
-			{
-				get { return _raw[9]; }
-				set { _raw[9] = value; }
-			}
-			/// <summary>Gets or sets if the T3 and T4 settings are mutually exclusive</summary>
-			/// <remarks><i>false</i> is And/If and <i>true</i> is Or</remarks>
-			public bool T3AndOrT4
-			{
-				get { return Convert.ToBoolean(_raw[10]); }
-				set { _raw[10] = Convert.ToByte(value); }
-			}
-			/// <summary>Gets or sets the type for Target 1</summary>
-			public byte Target1Type
-			{
-				get { return _raw[12]; }
-				set { _raw[12] = value; }
-			}
-			/// <summary>Gets or sets the first target</summary>
-			public byte Target1
-			{
-				get { return _raw[13]; }
-				set { _raw[13] = value; }
-			}
-			/// <summary>Gets or sets the type for Target 2</summary>
-			public byte Target2Type
-			{
-				get { return _raw[14]; }
-				set { _raw[14] = value; }
-			}
-			/// <summary>Gets or sets the second target</summary>
-			public byte Target2
-			{
-				get { return _raw[15]; }
-				set { _raw[15] = value; }
-			}
-			/// <summary>Gets or sets if the T1 and T2 settings are mutually exclusive</summary>
-			/// <remarks><i>false</i> is And/If and <i>true</i> is Or</remarks>
-			public bool T1AndOrT2
-			{
-				get { return Convert.ToBoolean(_raw[16]); }
-				set { _raw[16] = Convert.ToByte(value); }
-			}
-			#endregion IOrder Members
 		}
 		
 		/// <summary>Container for unknown values</summary>
@@ -402,39 +279,39 @@ namespace Idmr.Platform.Tie
 		{
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x003B, in Craft section, Reserved(0)</remarks>
-			public byte Unknown1;
+			public byte Unknown1 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0041, in Craft section</remarks>
-			public byte Unknown5;
+			public byte Unknown5 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0046, in Craft section</remarks>
-			public bool Unknown9;
+			public bool Unknown9 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0047, in Craft section</remarks>
-			public byte Unknown10;
+			public byte Unknown10 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0048, in Craft section, Reserved(0)</remarks>
-			public byte Unknown11;
+			public byte Unknown11 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0053, in Arr/Dep section, Reserved(0)</remarks>
-			public byte Unknown12;
+			public byte Unknown12 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x005D, in Arr/Dep section, Reserved(0)</remarks>
-			public byte Unknown15;
+			public byte Unknown15 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x005E, in Arr/Dep section</remarks>
-			public byte Unknown16;
+			public byte Unknown16 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x005F, in Arr/Dep section, Reserved(0)</remarks>
-			public byte Unknown17;
+			public byte Unknown17 { get; set; }
 
 			/// <summary>Array form of the Unknowns</summary>
 			/// <param name="index">Valid indexes are 0-8</param>

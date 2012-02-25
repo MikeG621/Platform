@@ -66,7 +66,7 @@ namespace Idmr.Platform.Xwa
 		public bool[] TrigAndOr { get { return _trigAndOr; } }
 		/// <summary>Unknown value</summary>
 		/// <remarks>Offset 0x66</remarks>
-		public byte Unknown1 = 0;
+		public byte Unknown1 { get; set; }
 		/// <summary>Gets or sets the editor note typically used to signify the speaker</summary>
 		/// <remarks>Value is restricted to 8 characters</remarks>
 		public string VoiceID
@@ -76,16 +76,16 @@ namespace Idmr.Platform.Xwa
 		}
 		/// <summary>Gets or sets the editor note typically used to signify the FlightGroup index of the speaker</summary>
 		/// <remarks>Defaults to zero, there appears to be no game mechanic or consequence for using this value</remark>
-		public byte OriginatingFG = 0;
+		public byte OriginatingFG { get; set; }
 		/// <summary>Gets or sets the seconds after trigger is fired</summary>
 		/// <remarks>Default is zero. Can be combined with <i>DelayMinutes</i></remarks>
-		public byte DelaySeconds = 0;
+		public byte DelaySeconds { get; set; }
 		/// <summary>Gets or sets the minutes after trigger is fired</summary>
 		/// <remarks>Default is zero. Can be combined with <i>DelaySeconds</i></remarks>
-		public byte DelayMinutes = 0;
+		public byte DelayMinutes { get; set; }
 		/// <summary>Unknown value</summary>
 		/// <remarks>Offset 0xA0</remarks>
-		public bool Unknown2 = false;
+		public bool Unknown2 { get; set; }
 		/// <summary>Gets or sets the editor note</summary>
 		/// <remarks>Value is restricted to 63 characters</remarks>
 		public string Note

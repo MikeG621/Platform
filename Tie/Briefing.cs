@@ -25,6 +25,7 @@ namespace Idmr.Platform.Tie
 		/// <summary>Initializes a blank Briefing</summary>
 		public Briefing()
 		{	//initialize
+			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.TIE;
 			Length = 0x21C;	//default 45 seconds
 			_events = new byte[0x320];

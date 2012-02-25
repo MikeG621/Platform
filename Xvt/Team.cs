@@ -7,6 +7,9 @@
  * Version: 2.0
  */
 
+/* CHANGELOG
+ * 200212 - Indexer<T> implementation
+ */
 using System;
 using Idmr.Common;
 
@@ -19,7 +22,7 @@ namespace Idmr.Platform.Xvt
 		bool[] _alliedWithTeam = new bool[10];
 		byte[] _endOfMissionMessageColor = new byte[6];
 		string[] _endOfMissionMessages = new string[6];
-		EomMessageIndexer _eomMessageIndexer;
+		Indexer<string> _eomMessageIndexer;
 
 		/// <summary>Indexes for <i>EndOfMissionMessageColor</i> and <i>EndOfMissionMessages</i></summary>
 		public enum MessageIndex : byte { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PrimaryFailed2, SecondaryComplete1, SecondaryComplete2 }
@@ -33,7 +36,7 @@ namespace Idmr.Platform.Xvt
 			else if (teamNumber == 1) _name = "Rebel";
 			else _name = "Team " + (teamNumber > 8 ? 10 : teamNumber + 1);
 			for (int i = 0; i < 6; i++) _endOfMissionMessages[i] = "";
-			_eomMessageIndexer = new EomMessageIndexer(this);
+			_eomMessageIndexer = new Indexer<string>(_endOfMissionMessages, 63);
 		}
 
 		/// <summary>Gets or sets the Team name</summary>
@@ -52,38 +55,6 @@ namespace Idmr.Platform.Xvt
 		public byte[] EndOfMissionMessageColor { get { return _endOfMissionMessageColor; } }
 		
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
-		public EomMessageIndexer EndOfMissionMessages { get { return _eomMessageIndexer; } }
-		
-		/// <summary>Object to provide array access to the EoM Messages</summary>
-		public class EomMessageIndexer
-		{
-			Team _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Team</param>
-			public EomMessageIndexer(Team parent) { _owner = parent; }
-			
-			/// <summary>Gets the size of the array</summary>
-			public int Length { get { return _owner._endOfMissionMessages.Length; } }
-			
-			/// <summary>Gets or sets the EoM Message</summary>
-			/// <remarks>63 character limit</remarks>
-			/// <param name="index">MessageIndex enumerated value</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
-			public string this[int index]
-			{
-				get { return _owner._endOfMissionMessages[index]; }
-				set { _owner._endOfMissionMessages[index] = StringFunctions.GetTrimmed(value, 63); }
-			}
-			
-			/// <summary>Gets or sets the EoM Message</summary>
-			/// <remarks>63 character limit</remarks>
-			/// <param name="index">MessageIndex enumerated value</param>
-			public string this[MessageIndex index]
-			{
-				get { return _owner._endOfMissionMessages[(int)index]; }
-				set { _owner._endOfMissionMessages[(int)index] = StringFunctions.GetTrimmed(value, 63); }
-			}
-		}
+		public Indexer<string> EndOfMissionMessages { get { return _eomMessageIndexer; } }
 	}
 }
