@@ -3,14 +3,18 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
 /* CHANGELOG
- * 070212 - added Trigger conversions, Trigger._checkValues(), Trigger._craftUpgrade()
- * 130212 - added CraftCheck()/CheckTarget(), removed ITrigger
- * 150212 - implmented Indexer<T>
+ * 120207 - added Trigger conversions, Trigger._checkValues(), Trigger._craftUpgrade()
+ * 120213 - added CraftCheck()/CheckTarget(), removed ITrigger
+ * 120215 - implmented Indexer<T>
+ * 120228 - added Trigger.ToString() override
+ * 120308 - inherit MissionFile
+ * 120321 - Trigger exceptions, NumFlightGroups and NumMessages removed
+ * *** v2.0 ***
  */
 
 using System;
@@ -21,7 +25,7 @@ namespace Idmr.Platform.Tie
 {
 	/// <summary>Framework for TIE95</summary>
 	/// <remarks>This is the primary container object for a TIE95 mission file</remarks>
-	public class Mission
+	public class Mission : MissionFile
 	{
 		string[] _endOfMissionMessages = new string[6];	//Mission Comp/Fail messages
 		string[] _iff = Strings.IFF;
@@ -31,8 +35,16 @@ namespace Idmr.Platform.Tie
 		Indexer<string> _endOfMissionIndexer;
 		
 		/// <summary>Pre- and Post-mission officers</summary>
-		/// <remarks>0 = None<br>1 = Both<br>2 = FlightOfficer<br>3 = SecretOrder</remarks>
-		public enum BriefingOfficers : byte { None, Both, FlightOfficer, SecretOrder };
+		public enum BriefingOfficers : byte {
+			/// <summary>No officers present</summary>
+			None,
+			/// <summary>Both officers are present</summary>
+			Both,
+			/// <summary>Only the Flight Officer is present</summary>
+			FlightOfficer,
+			/// <summary>Only the Secret Order member is present</summary>
+			SecretOrder
+		}
 
 		#region constructors
 		/// <summary>Default constructor, creates a blank mission</summary>
@@ -40,11 +52,9 @@ namespace Idmr.Platform.Tie
 		{
 			_initialize();
 			for (int i=0;i<6;i++) _endOfMissionMessages[i] = "";
-			MissionPath = "\\NewMission.tie";
 		}
 
 		/// <summary>Creates a new mission from a file</summary>
-		/// <remarks>Calls LoadFromFile( )</remarks>
 		/// <param name="filePath">Full path to the file</param>
 		public Mission(string filePath)
 		{
@@ -53,7 +63,6 @@ namespace Idmr.Platform.Tie
 		}
 
 		/// <summary>Creates a new mission from an open FileStream</summary>
-		/// <remarks>Calls LoadFromStream( )</remarks>
 		/// <param name="stream">Opened FileStream to mission file</param>
 		public Mission(FileStream stream)
 		{
@@ -63,6 +72,8 @@ namespace Idmr.Platform.Tie
 		
 		void _initialize()
 		{
+			OfficersPresent = BriefingOfficers.FlightOfficer;
+			_invalidError = _invalidError.Replace("{0}", "TIE");
 			_iffHostile[0] = true;
 			_iffNameIndexer = new IffNameIndexer(this);
 			_iffHostileIndexer = new Indexer<bool>(_iffHostile, new bool[]{true, true, false, false, false, false});
@@ -77,14 +88,12 @@ namespace Idmr.Platform.Tie
 		
 		#region public methods
 		/// <summary>Loads a mission from a file</summary>
-		/// <remarks>Calls LoadFromStream()</remarks>
 		/// <param name="filePath">Full path to the file</param>
 		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
 		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
-			if (MissionFile.GetPlatform(filePath) != MissionFile.Platform.TIE) throw new InvalidDataException("File is not a valid TIE mission file");
 			FileStream fs = File.OpenRead(filePath);
 			LoadFromStream(fs);
 			fs.Close();
@@ -95,7 +104,7 @@ namespace Idmr.Platform.Tie
 		/// <exception cref="System.IO.InvalidDataException"><i>stream</i> is not a valid TIE mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
-			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.TIE) throw new InvalidDataException("Stream is not a valid TIE mission file");
+			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.TIE) throw new InvalidDataException(_invalidError);
 			BinaryReader br = new BinaryReader(stream);
 			int i;
 			stream.Position = 2;
@@ -113,7 +122,7 @@ namespace Idmr.Platform.Tie
 			for (i=2;i<6;i++) IFFs[i] = new string(br.ReadChars(12));
 			#region FlightGroups
 			FlightGroups = new FlightGroupCollection(numFlightGroups);
-			for (i=0;i<NumFlightGroups;i++)
+			for (i=0;i<FlightGroups.Count;i++)
 			{
 				#region Craft
 				int j;
@@ -134,7 +143,7 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].IFF = buffer[7];
 				FlightGroups[i].AI = buffer[8];
 				FlightGroups[i].Markings = buffer[9];
-				FlightGroups[i].Radio = Convert.ToBoolean(buffer[0xA]);
+				FlightGroups[i].FollowsOrders = Convert.ToBoolean(buffer[0xA]);
 				FlightGroups[i].Unknowns.Unknown1 = buffer[0xB];
 				FlightGroups[i].Formation = buffer[0xC];
 				FlightGroups[i].FormDistance = buffer[0xD];
@@ -187,7 +196,7 @@ namespace Idmr.Platform.Tie
 			if (numMessages != 0)
 			{
 				Messages = new MessageCollection(numMessages);
-				for (i=0;i<NumMessages;i++)
+				for (i=0;i<Messages.Count;i++)
 				{
 					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
@@ -239,10 +248,10 @@ namespace Idmr.Platform.Tie
 			for (i=0;i<12;i++)
 			{
 				stream.Read(buffer, 0, 0x40);
-				for (int j=0;j<64;j++) { Briefing.Events[j+64*i] = buffer[j]; }
+				Buffer.BlockCopy(buffer, 0, Briefing.Events, 0x40 * i, 0x40);
 			}
 			stream.Read(buffer, 0, 0x20);
-			for (i=0;i<32;i++) { Briefing.Events[0x300+i] = buffer[i]; }
+			Buffer.BlockCopy(buffer, 0, Briefing.Events, 0x300, 0x20);
 			for (i=0;i<32;i++)
 			{
 				int j = br.ReadInt16();
@@ -343,7 +352,8 @@ namespace Idmr.Platform.Tie
 			MissionPath = stream.Name;
 		}
 
-		/// <summary>Saves the mission to <i>MissionPath</i></summary>
+		/// <summary>Saves the mission to <see cref="MissionFile.MissionPath"/></summary>
+		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			FileStream fs = null;
@@ -354,8 +364,8 @@ namespace Idmr.Platform.Tie
 				fs = File.OpenWrite(MissionPath);
 				BinaryWriter bw = new BinaryWriter(fs);
 				bw.Write((short)-1);
-				bw.Write(NumFlightGroups);
-				bw.Write(NumMessages);
+				bw.Write((short)FlightGroups.Count);
+				bw.Write((short)Messages.Count);
 				bw.Write((short)3);
 				fs.Position = 0xA;
 				fs.WriteByte((byte)OfficersPresent);
@@ -377,7 +387,7 @@ namespace Idmr.Platform.Tie
 					fs.Position = p + 0xC;
 				}
 				#region Flightgroups
-				for (int i=0;i<NumFlightGroups;i++)
+				for (int i=0;i<FlightGroups.Count;i++)
 				{
 					long p = fs.Position;
 					int j;
@@ -401,7 +411,7 @@ namespace Idmr.Platform.Tie
 					fs.WriteByte(FlightGroups[i].IFF);
 					fs.WriteByte(FlightGroups[i].AI);
 					fs.WriteByte(FlightGroups[i].Markings);
-					bw.Write(FlightGroups[i].Radio);
+					bw.Write(FlightGroups[i].FollowsOrders);
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown1);
 					fs.WriteByte(FlightGroups[i].Formation);
 					fs.WriteByte(FlightGroups[i].FormDistance);
@@ -450,7 +460,7 @@ namespace Idmr.Platform.Tie
 				}
 				#endregion
 				#region Messages
-				for (int i=0;i<NumMessages;i++)
+				for (int i=0;i<Messages.Count;i++)
 				{
 					long p = fs.Position;
 					if (Messages[i].Color != 0) bw.Write((byte)(Messages[i].Color + 0x30));
@@ -482,7 +492,9 @@ namespace Idmr.Platform.Tie
 				bw.Write(Briefing.StartLength);
 				bw.Write(Briefing.EventsLength);
 				fs.Position += 2;
-				fs.Write(Briefing.Events, 0, 0x320);
+				byte[] briefBuffer = new byte[Briefing.Events.Length * 2];
+				Buffer.BlockCopy(Briefing.Events, 0, briefBuffer, 0, briefBuffer.Length);
+				bw.Write(briefBuffer);
 				for (int i=0;i<32;i++)
 				{
 					string str_t = Briefing.BriefingTag[i].Replace("\r", "");
@@ -560,8 +572,9 @@ namespace Idmr.Platform.Tie
 			}
 		}
 
-		/// <summary>Saves the mission to a new <i>MissionPath</i></summary>
-		/// <param name="filePath">Full path to the new <i>MissionPath</i></param>
+		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
+		/// <param name="filePath">Full path to the new <see cref="MissionFile.MissionPath"/></param>
+		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -569,8 +582,8 @@ namespace Idmr.Platform.Tie
 		}
 		
 		/// <summary>Checks a CraftType for valid values and adjusts if necessary</summary>
-		/// <remarks>Returns 255 if CraftType cannot be converted</remarks>
 		/// <param name="craftType">The craft index to check</param>
+		/// <returns>Resultant CraftType index, or <b>255</b> if invalid</returns>
 		public static byte CraftCheck(byte craftType)
 		{
 			if (craftType > 91) return 255;
@@ -582,10 +595,10 @@ namespace Idmr.Platform.Tie
 		}
 		
 		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</summary>
-		/// <remarks>First checks for invalid Types, then runs through allows values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
+		/// <remarks>First checks for invalid Types, then runs through allowed values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
 		/// <param name="type">Trigger.Type or Order.TargetType</param>
 		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
-		/// <param name="errorMessage">Error description if found, otherwise ""</param>
+		/// <param name="errorMessage">Error description if found, otherwise <b>""</b></param>
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";
@@ -620,31 +633,23 @@ namespace Idmr.Platform.Tie
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
 		public Indexer<string> EndOfMissionMessages { get { return _endOfMissionIndexer; } }
 		
-		/// <summary>Gets or sets the full path to the mission file</summary>
-		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath { get; set; }
-		/// <summary>Gets the file name of the mission file</summary>
-		/// <remarks>Defaults to "NewMission.tie"</remarks>
-		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
-		/// <summary>Gets the number of FlightGroups in the mission</summary>
-		public short NumFlightGroups { get { return (short)FlightGroups.Count; } }
-		/// <summary>Gets the number of In-Flight Messages in the mission</summary>
-		public short NumMessages { get { return (short)Messages.Count; } }
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
-		/// <remarks>Value is 28</summary>
+		/// <remarks>Value is <b>28</b></remarks>
 		public const int CraftLimit = 28;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is 48</remarks>
+		/// <remarks>Value is <b>48</b></remarks>
 		public const int FlightGroupLimit = 48;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is 16</remarks>
+		/// <remarks>Value is <b>16</b></remarks>
 		public const int MessageLimit = 16;
+		
 		/// <summary>Gets or sets the officers present before and after the mission</summary>
-		/// <remarks>Defaults to <i>FlightOfficer</i></remarks>
-		public BriefingOfficers OfficersPresent = BriefingOfficers.FlightOfficer;
+		/// <remarks>Defaults to <b>FlightOfficer</b></remarks>
+		public BriefingOfficers OfficersPresent { get; set; }
 		/// <summary>Gets or sets if the pilot is captured upon ejection or destruction</summary>
-		/// <remarks><i>true</i> results in capture, <i>false</i> results in rescue (default)</remarks>
+		/// <remarks><b>true</b> results in capture, <b>false</b> results in rescue (default)</remarks>
 		public bool CapturedOnEjection { get; set; }
+		
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
 		public FlightGroupCollection FlightGroups { get; set; }
@@ -671,8 +676,9 @@ namespace Idmr.Platform.Tie
 			/// <summary>Gets or sets the IFF Name</summary>
 			/// <remarks>11 character limit, Rebel and Imperial are read-only</remarks>
 			/// <param name="index">IFF index</param>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			/// <exception cref="InvalidOperationException">Index is read-only</exception>
+			/// <returns>The IFF name</returns>
 			public override string this[int index]
 			{
 				get { return _items[index]; }
@@ -695,22 +701,26 @@ namespace Idmr.Platform.Tie
 			public Trigger() : base(new byte[4]) { }
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, must have Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value, invalid member values</exception>
+			/// <param name="raw">Raw data, minimum Length of 4</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
 			public Trigger(byte[] raw)
 			{
-				if (raw.Length != 4) throw new ArgumentException("raw does not have the correct length", "raw");
-				_items = raw;
+				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
+				_items = new byte[4];
+				ArrayFunctions.TrimArray(raw, 0, _items);
 				_checkValues(this);
 			}
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid member values</exception>
-			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
+				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
+				if (raw.Length - startIndex < 4 || startIndex < 0)
+					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
 				_items = new byte[4];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
 				_checkValues(this);
@@ -743,9 +753,57 @@ namespace Idmr.Platform.Tie
 				return b;
 			}
 			
+			/// <summary>Returns a representative string of the Trigger</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> for later substitution if required</remarks>
+			/// <returns>Description of the trigger and targets if applicable</returns>
+			public override string ToString()
+			{
+				string trig = "";
+				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				{
+					trig = Strings.Amount[Amount] + " of ";
+					switch (VariableType)
+					{
+						case 1:
+							trig += "FG:" + Variable;
+							break;
+						case 2:
+							trig += "Ship type " + Strings.CraftType[Variable + 1];
+							break;
+						case 3:
+							trig += "Ship class " + Strings.ShipClass[Variable];
+							break;
+						case 4:
+							trig += "Object type " + Strings.ObjectType[Variable];
+							break;
+						case 5:
+							trig += Strings.IFF[Variable] + "s";
+							break;
+						case 6:
+							trig += "Ship orders " + Strings.Orders[Variable];
+							break;
+						case 7:
+							trig += "Craft When " + Strings.CraftWhen[Variable];
+							break;
+						case 8:
+							trig += "Global Group " + Variable;
+							break;
+						case 9:
+							trig += "Misc " + Strings.Misc[Variable];
+							break;
+						default:
+							trig += VariableType + " " + Variable;
+							break;
+					}
+					trig += " must ";
+				}
+				trig += Strings.Trigger[Condition];
+				return trig;
+			}
+			
 			/// <summary>Converts a Trigger to a byte array</summary>
-			/// <remarks>Length will be 4</remarks>
 			/// <param name="trig">The Trigger to convert</param>
+			/// <returns>A byte array with a length of 4 containing the trigger data</returns>
 			public static explicit operator byte[](Trigger trig)
 			{
 				byte[] b = new byte[4];
@@ -753,10 +811,14 @@ namespace Idmr.Platform.Tie
 				return b;
 			}
 			/// <summary>Converts a Trigger for use in XvT</summary>
+			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
+			/// <returns>A copy of <i>trig</i> for XvT</returns>
 			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftUpgrade(trig)); }
 			/// <summary>Converts a Trigger for use in XWA</summary>
+			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
+			/// <returns>A copy of <i>trig</i> for XWA</returns>
 			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(_craftUpgrade(trig)); }
 		}
 	}

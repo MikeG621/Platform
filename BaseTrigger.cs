@@ -3,12 +3,13 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in /help/Idmr.Platform.html
+ * Full notice in help/Idmr.Platform.chm
  * Version: 2.0
  */
 
 /* CHANGELOG
  * 200212 - Indexer<T> implementation
+ * *** v2.0 ***
  */
 using System;
 
@@ -30,7 +31,7 @@ namespace Idmr.Platform
 			get { return _items[0]; }
 			set { _items[0] = value; }
 		}
-		/// <summary>Gets or sets the category <i>Variable</i> belongs to</summary>
+		/// <summary>Gets or sets the category <see cref="Variable"/> belongs to</summary>
 		public byte VariableType
 		{
 			get { return _items[1]; }

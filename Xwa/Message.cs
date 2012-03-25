@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -12,9 +12,9 @@ using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
 {
-	[Serializable]
 	/// <summary>Object for individual in-flight messages</summary>
-	/// <remarks>Class is serializable to allow copy & paste functionality</remarks>
+	/// <remarks>Class is serializable to allow copy and paste functionality</remarks>
+	[Serializable]
 	public class Message : BaseMessage
 	{
 		Mission.Trigger[] _triggers = new Mission.Trigger[6];
@@ -62,7 +62,7 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Array length = 10</remarks>
 		public bool[] SentTo { get { return _sentTo; } }
 		/// <summary>Gets the array for the trigger AndOr values</summary>
-		/// <remarks>Array is {1AO2, 3AO4, 12AO34, Cancel1AO2}. <i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
+		/// <remarks>Array is {1AO2, 3AO4, 12AO34, Cancel1AO2}. <b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b></remarks>
 		public bool[] TrigAndOr { get { return _trigAndOr; } }
 		/// <summary>Unknown value</summary>
 		/// <remarks>Offset 0x66</remarks>
@@ -75,13 +75,13 @@ namespace Idmr.Platform.Xwa
 			set { _voiceID = StringFunctions.GetTrimmed(value, 8); }
 		}
 		/// <summary>Gets or sets the editor note typically used to signify the FlightGroup index of the speaker</summary>
-		/// <remarks>Defaults to zero, there appears to be no game mechanic or consequence for using this value</remark>
-		public byte OriginatingFG { get; set; }
+		/// <remarks>Defaults to <b>zero</b>, there appears to be no game mechanic or consequence for using this value</remarks>
+		public byte OriginatingFG { get; set; }	// TODO: test this in-game for highlighting
 		/// <summary>Gets or sets the seconds after trigger is fired</summary>
-		/// <remarks>Default is zero. Can be combined with <i>DelayMinutes</i></remarks>
+		/// <remarks>Default is <b>zero</b>. Can be combined with <see cref="DelayMinutes"/></remarks>
 		public byte DelaySeconds { get; set; }
 		/// <summary>Gets or sets the minutes after trigger is fired</summary>
-		/// <remarks>Default is zero. Can be combined with <i>DelaySeconds</i></remarks>
+		/// <remarks>Default is <b>zero</b>. Can be combined with <see cref="DelaySeconds"/></remarks>
 		public byte DelayMinutes { get; set; }
 		/// <summary>Unknown value</summary>
 		/// <remarks>Offset 0xA0</remarks>

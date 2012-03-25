@@ -3,14 +3,16 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in /help/Idmr.Platform.html
+ * Full notice in help/Idmr.Platform.chm
  * Version: 2.0
  */
 
 /* CHANGELOG
- * 080212 - implemented Trigger and Waypoint conversion
- * 090212 - rewrote for Waypoint interface removal
- * 130212 - removed craftCheck to use XXX.Mission.CraftCheck, adjust Order for internal checks
+ * 120208 - implemented Trigger and Waypoint conversion
+ * 120209 - rewrote for Waypoint interface removal
+ * 120213 - removed craftCheck to use XXX.Mission.CraftCheck, adjust Order for internal checks
+ * 120301 - XvtBopToTie: Briefing.Events to short[]
+ * *** v2.0 ***
  */
 using System;
 using Idmr.Common;
@@ -18,23 +20,23 @@ using Idmr.Common;
 namespace Idmr.Platform
 {
 	/// <summary>Object for Mission Platform conversions</summary>
-	/// <remarks>Primarily handles downgrading of platforms, due to existing utilities for upgrading<br>
+	/// <remarks>Primarily handles downgrading of platforms, due to existing utilities for upgrading<br/>
 	/// Converted files will use same MissionPath with platform included ("test.tie" to "test_Xvt.tie")</remarks>
 	public static class Converter
 	{
 		/// <summary>Downgrades XvT and BoP missions to TIE95</summary>
-		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br>
-		/// FG.Radio is not converted, since TIE behaviour is different<br>
-		/// Maximum FG.Formation value of 12 allowed<br>
-		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br>
-		/// Maximum Abort index of 5<br>
-		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br>
-		/// First two Arrival triggers used, first Departure trigger used. First three Orders used. All standard WPs and first Briefing WP used.<br>
-		/// For Messages, first two triggers used.<br>
-		/// For the Briefing, entire thing should be able to be used unless the original actually uses close to 200 commands (yikes). There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br>
-		/// Primary Global goals used, XvT Secondary goals converted to Bonus goals. Prevent goals ignored<br>
-		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br>
-		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br>
+		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers and orders will update.<br/>
+		/// FG.Radio is not converted, since TIE behaviour is different<br/>
+		/// Maximum FG.Formation value of 12 allowed<br/>
+		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br/>
+		/// Maximum Abort index of 5<br/>
+		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
+		/// First two Arrival triggers used, first Departure trigger used. First three Orders used. All standard WPs and first Briefing WP used.<br/>
+		/// For Messages, first two triggers used.<br/>
+		/// For the Briefing, entire thing should be able to be used unless the original actually uses close to 200 commands (yikes). There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
+		/// Primary Global goals used, XvT Secondary goals converted to Bonus goals. Prevent goals ignored<br/>
+		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br/>
+		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br/>
 		/// Filename will end in "_TIE.tie"</remarks>
 		/// <param name="miss">XvT/BoP mission to convert</param>
 		/// <returns>Downgraded mission</returns>
@@ -43,11 +45,11 @@ namespace Idmr.Platform
 		{
 			Tie.Mission tie = new Tie.Mission();
 			// FG limit is okay, since XvT < TIE for some reason
-			if (miss.NumMessages > Tie.Mission.MessageLimit) throw maxException(true, false, Tie.Mission.MessageLimit);
-			tie.FlightGroups = new Tie.FlightGroupCollection(miss.NumFlightGroups);
-			if (miss.NumMessages > 0) tie.Messages = new Tie.MessageCollection(miss.NumMessages);
+			if (miss.Messages.Count > Tie.Mission.MessageLimit) throw maxException(true, false, Tie.Mission.MessageLimit);
+			tie.FlightGroups = new Tie.FlightGroupCollection(miss.FlightGroups.Count);
+			if (miss.Messages.Count > 0) tie.Messages = new Tie.MessageCollection(miss.Messages.Count);
 			#region FGs
-			for (int i=0; i < tie.NumFlightGroups; i++)
+			for (int i = 0; i < tie.FlightGroups.Count; i++)
 			{
 				#region Craft
 				// Radio is omitted intentionally
@@ -128,7 +130,7 @@ namespace Idmr.Platform
 			}
 			#endregion FGs
 			#region Messages
-			for (int i=0; i < tie.NumMessages; i++)
+			for (int i=0; i < tie.Messages.Count; i++)
 			{
 				tie.Messages[i].MessageString = miss.Messages[i].MessageString;
 				tie.Messages[i].Color = miss.Messages[i].Color;
@@ -147,20 +149,20 @@ namespace Idmr.Platform
 			for (int i = 0; i < tie.Briefing.BriefingString.Length; i++) tie.Briefing.BriefingString[i] = miss.Briefings[0].BriefingString[i];
 			tie.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
 			tie.Briefing.Length = (short)(miss.Briefings[0].Length * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-			byte[] evntVars = { 0, 0, 0, 0, 2, 2, 4, 4, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 6, 4, 2, 0, 0, 0, 0 };
-			for (int i = 0; i < tie.Briefing.Events.Length; i += 4)
+			for (int i = 0; i < tie.Briefing.Events.Length; i += 2)
 			{
-				short time = BitConverter.ToInt16(miss.Briefings[0].Events, i);
-				short evnt = BitConverter.ToInt16(miss.Briefings[0].Events, i+2);
-				ArrayFunctions.WriteToArray(evnt, tie.Briefing.Events, i + 2);
+				short time = miss.Briefings[0].Events[i];
+				short evnt = miss.Briefings[0].Events[i + 1];
+				tie.Briefing.Events[i + 1] = evnt;
 				if (time == 9999 && evnt == 0x22)
 				{
-					ArrayFunctions.WriteToArray(time, tie.Briefing.Events, i);
+					tie.Briefing.Events[i] = time;
 					break;
 				}
-				ArrayFunctions.WriteToArray((short)(time * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond), tie.Briefing.Events, i);
-				if (evntVars[evnt] != 0) Buffer.BlockCopy(miss.Briefings[0].Events, i + 4, tie.Briefing.Events, i + 4, evntVars[evnt]);
-				i += evntVars[evnt];
+				tie.Briefing.Events[i] = (short)(time * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
+				i += 2;
+				for (int j = 0; j < tie.Briefing.EventParameterCount[evnt]; j++, i++)
+					tie.Briefing.Events[i] = miss.Briefings[0].Events[i];
 			}
 			#endregion Briefing
 			#region Globals
@@ -206,10 +208,10 @@ namespace Idmr.Platform
 		}
 		
 		/// <summary>Downgrades XWA missions to XvT and BoP</summary>
-		/// <remarks>Maximum CraftType of 91. Triggers will update.<br>
-		/// For Triggers, maximum Trigger index of 46, maximum VariableType of 23, Amounts will be adjusted as "each special" to "100% special"<br>
-		/// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br>
-		/// For the Briefing, first 32 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br>
+		/// <remarks>Maximum CraftType of 91. Triggers will update.<br/>
+		/// For Triggers, maximum Trigger index of 46, maximum VariableType of 23, Amounts will be adjusted as "each special" to "100% special"<br/>
+		/// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br/>
+		/// For the Briefing, first 32 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br/>
 		/// Filename will end in "_XvT.tie" or "_.BoP.tie"</remarks>
 		/// <param name="miss">XWA mission to convert</param>
 		/// <param name="bop">Determines if mission is to be converted to BoP instead of XvT</param>
@@ -218,16 +220,16 @@ namespace Idmr.Platform
 		public static Xvt.Mission XwaToXvtBop(Xwa.Mission miss, bool bop)
 		{
 			Xvt.Mission xvt = new Xvt.Mission();
-			xvt.BoP = bop;
-			if (miss.NumFlightGroups > Xvt.Mission.FlightGroupLimit) throw maxException(false, true, Xvt.Mission.FlightGroupLimit);
-			if (miss.NumMessages > Xvt.Mission.MessageLimit) throw maxException(false, false, Xvt.Mission.MessageLimit);
-			xvt.FlightGroups = new Xvt.FlightGroupCollection(miss.NumFlightGroups);
-			if (miss.NumMessages > 0) xvt.Messages = new Xvt.MessageCollection(miss.NumMessages);
+			xvt.IsBop = bop;
+			if (miss.FlightGroups.Count > Xvt.Mission.FlightGroupLimit) throw maxException(false, true, Xvt.Mission.FlightGroupLimit);
+			if (miss.Messages.Count > Xvt.Mission.MessageLimit) throw maxException(false, false, Xvt.Mission.MessageLimit);
+			xvt.FlightGroups = new Xvt.FlightGroupCollection(miss.FlightGroups.Count);
+			if (miss.Messages.Count > 0) xvt.Messages = new Xvt.MessageCollection(miss.Messages.Count);
 			xvt.MissionDescription = miss.MissionDescription;
 			xvt.MissionFailed = miss.MissionFailed;
 			xvt.MissionSuccessful = miss.MissionSuccessful;
 			#region FGs
-			for (int i = 0; i < xvt.NumFlightGroups; i++)
+			for (int i = 0; i < xvt.FlightGroups.Count; i++)
 			{
 				#region craft
 				xvt.FlightGroups[i].Name = miss.FlightGroups[i].Name;
@@ -313,7 +315,7 @@ namespace Idmr.Platform
 			}
 			#endregion FGs
 			#region Messages
-			for (int i = 0; i < xvt.NumMessages; i++)
+			for (int i = 0; i < xvt.Messages.Count; i++)
 			{
 				xvt.Messages[i].MessageString = miss.Messages[i].MessageString;
 				xvt.Messages[i].Color = miss.Messages[i].Color;
@@ -372,19 +374,19 @@ namespace Idmr.Platform
 		}
 
 		/// <summary>Downgrades XWA missions to TIE95</summary>
-		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br>
-		/// FG.Radio is not converted, since TIE behaviour is different<br>
-		/// Maximum FG.Formation value of 12 allowed<br>
-		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br>
-		/// Maximum Abort index of 5<br>
-		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br>
-		/// First two Arrival triggers used, first Departure trigger used. First three Region 1 Orders used, max index of 38.<br>
-		/// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br>
-		/// For Messages, first two triggers used.<br>
-		/// For the Briefing, first 16 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br>
-		/// Primary Global goals used, XWA Secondary goals converted to Bonus goals. Prevent goals ignored<br>
-		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br>
-		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br>
+		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br/>
+		/// FG.Radio is not converted, since TIE behaviour is different<br/>
+		/// Maximum FG.Formation value of 12 allowed<br/>
+		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br/>
+		/// Maximum Abort index of 5<br/>
+		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
+		/// First two Arrival triggers used, first Departure trigger used. First three Region 1 Orders used, max index of 38.<br/>
+		/// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br/>
+		/// For Messages, first two triggers used.<br/>
+		/// For the Briefing, first 16 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br/>
+		/// Primary Global goals used, XWA Secondary goals converted to Bonus goals. Prevent goals ignored<br/>
+		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br/>
+		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br/>
 		/// Filename will end in "_TIE.tie"</remarks>
 		/// <param name="miss">XWA mission to convert</param>
 		/// <returns>Downgraded mission</returns>
@@ -392,12 +394,12 @@ namespace Idmr.Platform
 		public static Tie.Mission XwaToTie(Xwa.Mission miss)
 		{
 			Tie.Mission tie = new Tie.Mission();
-			if (miss.NumFlightGroups > Tie.Mission.FlightGroupLimit) throw maxException(true, true, Tie.Mission.FlightGroupLimit);
-			if (miss.NumMessages > Tie.Mission.MessageLimit) throw maxException(true, false, Tie.Mission.MessageLimit);
-			tie.FlightGroups = new Tie.FlightGroupCollection(miss.NumFlightGroups);
-			if (miss.NumMessages > 0) tie.Messages = new Tie.MessageCollection(miss.NumMessages);
+			if (miss.FlightGroups.Count > Tie.Mission.FlightGroupLimit) throw maxException(true, true, Tie.Mission.FlightGroupLimit);
+			if (miss.Messages.Count > Tie.Mission.MessageLimit) throw maxException(true, false, Tie.Mission.MessageLimit);
+			tie.FlightGroups = new Tie.FlightGroupCollection(miss.FlightGroups.Count);
+			if (miss.Messages.Count > 0) tie.Messages = new Tie.MessageCollection(miss.Messages.Count);
 			#region FGs
-			for (int i=0; i < tie.NumFlightGroups; i++)
+			for (int i=0; i < tie.FlightGroups.Count; i++)
 			{
 				#region Craft
 				// Radio is omitted intentionally
@@ -480,7 +482,7 @@ namespace Idmr.Platform
 			}
 			#endregion FGs
 			#region Messages
-			for (int i=0; i < tie.NumMessages; i++)
+			for (int i=0; i < tie.Messages.Count; i++)
 			{
 				tie.Messages[i].MessageString = miss.Messages[i].MessageString;
 				tie.Messages[i].Color = miss.Messages[i].Color;
@@ -545,7 +547,7 @@ namespace Idmr.Platform
 		/// <summary>Validates FlightGroup.Goals for TIE</summary>
 		/// <remarks>Converts 75% to 100%, 25% to 50%</remarks>
 		/// <param name="label">Identifier used in error message</param>
-		/// <param name="array">The complete Goal to check</param>
+		/// <param name="goals">The Goal object to check</param>
 		/// <exception cref="ArgumentException">Invalid Goal.Amount detected</exception>
 		static void tieGoalsCheck(string label, Tie.FlightGroup.FGGoals goals)
 		{

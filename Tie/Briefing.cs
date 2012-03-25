@@ -3,8 +3,13 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
+ */
+
+/* CHANGELOG
+ * 120301 - Events to short[]
+ * *** v2.0 ***
  */
 
 using System;
@@ -16,10 +21,10 @@ namespace Idmr.Platform.Tie
 	public class Briefing : BaseBriefing
 	{
 		/// <summary>Frames per second for briefing animation</summary>
-		/// <remarks>Value is 12 (0xC)</remarks>
+		/// <remarks>Value is <b>12 (0xC)</b></remarks>
 		public const int TicksPerSecond = 0xC;
 		/// <summary>Maximum number of events that can be held</summary>
-		/// <remarks>Value is 200 (0xC8)</remarks>
+		/// <remarks>Value is <b>200 (0xC8)</b></remarks>
 		public const int EventQuantityLimit = 0xC8;
 
 		/// <summary>Initializes a blank Briefing</summary>
@@ -28,7 +33,7 @@ namespace Idmr.Platform.Tie
 			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.TIE;
 			Length = 0x21C;	//default 45 seconds
-			_events = new byte[0x320];
+			_events = new short[0x190];
 			_briefingTags = new string[0x20];
 			_briefingStrings = new string[0x20];
 			for (int i=0;i<0x20;i++)
@@ -36,13 +41,12 @@ namespace Idmr.Platform.Tie
 				_briefingTags[i] = "";
 				_briefingStrings[i] = "";
 			}
-			_events[2] = 6;		// move map to (0,0)
-			_events[10] = 7;	// zoom map
-			_events[12] = 0x30;
-			_events[14] = 0x30;
-			_events[16] = 0xF;
-			_events[17] = 0x27;
-			_events[18] = 0x22;
+			_events[1] = (short)EventType.MoveMap;
+			_events[5] = (short)EventType.ZoomMap;
+			_events[6] = 0x30;
+			_events[7] = 0x30;
+			_events[8] = 9999;
+			_events[9] = (short)EventType.EndBriefing;
 		}
 	}
 }

@@ -3,12 +3,13 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
 /* CHANGELOG
  * 200212 - Indexer<T> implementation
+ * *** v2.0 ***
  */
 using System;
 using Idmr.Common;
@@ -24,12 +25,25 @@ namespace Idmr.Platform.Xvt
 		string[] _endOfMissionMessages = new string[6];
 		Indexer<string> _eomMessageIndexer;
 
-		/// <summary>Indexes for <i>EndOfMissionMessageColor</i> and <i>EndOfMissionMessages</i></summary>
-		public enum MessageIndex : byte { PrimaryComplete1, PrimaryComplete2, PrimaryFailed1, PrimaryFailed2, SecondaryComplete1, SecondaryComplete2 }
+		/// <summary>Indexes for <see cref="EndOfMissionMessageColor"/> and <see cref="EndOfMissionMessages"/></summary>
+		public enum MessageIndex : byte {
+			/// <summary>First message displayed after Primary mission is complete</summary>
+			PrimaryComplete1,
+			/// <summary>Second message displayed after Primary mission is complete</summary>
+			PrimaryComplete2,
+			/// <summary>First message displayed after Primary mission is failed</summary>
+			PrimaryFailed1,
+			/// <summary>Second message displayed after Primary mission is failed</summary>
+			PrimaryFailed2,
+			/// <summary>First message displayed after Secondary mission is complete</summary>
+			SecondaryComplete1,
+			/// <summary>Second message displayed after Secondary mission is complete</summary>
+			SecondaryComplete2
+		}
 		
 		/// <summary>Initializes a new team</summary>
-		/// <remarks><i>Name</i> initializes according to <i>teamNumber</i>; 0 = Imperial, 1 = Rebel, other = Team (#+1)</remarks>
-		/// <param name="teamNumber">Team index being initialized. Corrects to 0-9 as required</param>
+		/// <remarks><see cref="Name"/> initializes according to <i>teamNumber</i>; <b>0</b> = "Imperial", <b>1</b> = "Rebel", other = "Team #"</remarks>
+		/// <param name="teamNumber">Team index being initialized. Corrects to <b>0-9</b> as required</param>
 		public Team(int teamNumber)
 		{
 			if (teamNumber <= 0) { _name = "Imperial"; _alliedWithTeam[0] = true; }
@@ -51,10 +65,11 @@ namespace Idmr.Platform.Xvt
 		public bool[] AlliedWithTeam { get { return _alliedWithTeam; } }
 		
 		/// <summary>Gets or sets the color of the specified EoM Message</summary>
-		/// <remarks>Use the MessageIndex enumeration for array indexes</remarks>
+		/// <remarks>Use the <see cref="MessageIndex"/> enumeration for array indexes</remarks>
 		public byte[] EndOfMissionMessageColor { get { return _endOfMissionMessageColor; } }
 		
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
+		/// <remarks>Use the <see cref="MessageIndex"/> enumeration for array indexes</remarks>
 		public Indexer<string> EndOfMissionMessages { get { return _eomMessageIndexer; } }
 	}
 }

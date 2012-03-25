@@ -3,12 +3,13 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
- 
+
 /* CHANGELOG
  * 310112 - removed Goal.AndOrIndexer, Goal.AndOr to bool[]
+ * *** v2.0 ***
  */
 
 using System;
@@ -20,20 +21,34 @@ namespace Idmr.Platform.Xvt
 	[Serializable] public class Globals
 	{
 		Goal[] _goals = new Goal[3];
-		
-		/// <summary>Goal string indexes</summary>
-		/// <remarks>0 = Primary<br>1 = Prevent<br>2 = Secondary</remarks>
-		public enum GoalIndex : byte { Primary, Prevent, Secondary };
+
+		/// <summary>Goal indexes</summary>
+		public enum GoalIndex : byte
+		{
+			/// <summary>Primary goals</summary>
+			Primary,
+			/// <summary>Prevent goals</summary>
+			Prevent,
+			/// <summary>Secondary goals</summary>
+			Secondary
+		}
 		/// <summary>Goal status</summary>
-		/// <remarks>0 = Incomplete<br>1 = Complete<br>2 = Failed</remarks>
-		public enum GoalState : byte { Incomplete, Complete, Failed };
+		public enum GoalState : byte
+		{
+			/// <summary>Goals that have not yet been completed.<br/>Does not apply to Secondary goals</summary>
+			Incomplete,
+			/// <summary>Goals that have been completed</summary>
+			Complete,
+			/// <summary>Goals that cannot be completed due to gameplay (mission design may permit inability to complete goals without direct failure).<br/>Does not apply to Prevent or Secondary goals</summary>
+			Failed
+		}
 		
 		/// <summary>Creates a new Globals object</summary>
-		/// <remarks>Three Goals, each with four Triggers all set to "never (FALSE)"</remarks>
+		/// <remarks>Three <see cref="Goals"/>, each with four <see cref="Goal.Triggers"/> all set to <b>"never (FALSE)"</b></remarks>
 		public Globals() { for (int i = 0; i < 3; i++) _goals[i] = new Goal(); }
 		
 		/// <summary>Gets the Global Goals</summary>
-		/// <remarks>Use the <i>GoalIndex</i> enumeration for indexes</remarks>
+		/// <remarks>Use the <see cref="GoalIndex"/> enumeration for indexes</remarks>
 		public Goal[] Goals { get { return _goals; } }
 		
 		/// <summary>Container for a single Global Goal</summary>
@@ -43,19 +58,23 @@ namespace Idmr.Platform.Xvt
 			string[,] _goalStrings = new string[4, 3];	// No PreventFailed, SecondaryIncomplete, SecondaryFailed
 			GoalStringIndexer _goalStringsIndexer;
 			bool[] _andOrs = new bool[3];
-			
-			/// <summary>Raw value stored in file</summary>
-			public sbyte RawPoints { get; set; }
 
 			/// <summary>Initializes a new Goal</summary>
-			/// <remarks>All Triggers set to 10, "never (FALSE)". AndOr values set to <i>true</i>, "OR"</remarks>
+			/// <remarks>All <see cref="Triggers"/> set to <b>10</b>, "never (FALSE)". <see cref="AndOr"/> values set to <b>true</b>, "OR"</remarks>
 			public Goal()
 			{
 				for (int i = 0; i < 12; i++) _goalStrings[i / 3, i % 3] = "";
-				for (int i = 0; i < 4; i++) { _triggers[i] = new Mission.Trigger(); _triggers[i].Condition = 10; }
+				for (int i = 0; i < 4; i++)
+				{
+					_triggers[i] = new Mission.Trigger();
+					_triggers[i].Condition = 10;
+				}
 				for (int i = 0; i < 3; i++) _andOrs[i] = true;
 				_goalStringsIndexer = new GoalStringIndexer(this);
 			}
+			
+			/// <summary>Raw value stored in file</summary>
+			public sbyte RawPoints { get; set; }
 			
 			/// <summary>Gets or sets if both Triggers must be met</summary>
 			public bool T1AndOrT2
@@ -79,8 +98,8 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Gets the array for the AndOr values</summary>
 			public bool[] AndOr { get { return _andOrs; } }
 
-			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summ>
-			/// <remarks>Equal to RawPoints * 250, limited from -32000 to +31750</remarks>
+			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
+			/// <remarks>Equal to <see cref="RawPoints"/> * 250, limited from <b>-32000</b> to <b>+31750</b></remarks>
 			public short Points
 			{
 				get { return (short)(RawPoints * 250); }
@@ -110,7 +129,7 @@ namespace Idmr.Platform.Xvt
 				/// <remarks>Limited to 63 characters</remarks>
 				/// <param name="trigger">Trigger index, 0-3</param>
 				/// <param name="state">GoalState value, 0-2</param>
-				/// <exception cref="IndexOutOfBoundsException">Invalid <i>trigger</i> or <i>state</i> value</exception>
+				/// <exception cref="IndexOutOfRangeException">Invalid <i>trigger</i> or <i>state</i> value</exception>
 				public string this[int trigger, int state]
 				{
 					get { return _owner._goalStrings[trigger, state]; }
@@ -121,7 +140,7 @@ namespace Idmr.Platform.Xvt
 				/// <remarks>Limited to 63 characters</remarks>
 				/// <param name="trigger">Trigger index, 0-3</param>
 				/// <param name="state">GoalState value</param>
-				/// <exception cref="IndexOutOfBoundsException">Invalid <i>trigger</i> or <i>state</i> value</exception>
+				/// <exception cref="IndexOutOfRangeException">Invalid <i>trigger</i> value</exception>
 				public string this[int trigger, GoalState state]
 				{
 					get { return _owner._goalStrings[trigger, (int)state]; }

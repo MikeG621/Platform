@@ -3,12 +3,13 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
 /* CHANGELOG
  * 120212 - T[] to List<T> conversion
+ * *** v2.0 ***
  */
 
 using System;
@@ -17,7 +18,7 @@ using System.Collections.Generic;
 namespace Idmr.Platform.Xvt
 {
 	/// <summary>Object to maintain mission in-flight messages</summary>
-	/// <remarks>ItemLimit is set to Mission.MessageLimit (64)</remarks>
+	/// <remarks><see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.MessageLimit"/> (64)</remarks>
 	public class MessageCollection : Idmr.Common.ResizableCollection<Message>
 	{
 		/// <summary>Creates a new empty Collection</summary>
@@ -29,7 +30,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Creates a new Collection with multiple initial Messages</summary>
 		/// <param name="quantity">Number of Messages to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than 0 or greater than Mission.MessageLimit</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than 0 or greater than <see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/></exception>
 		public MessageCollection(int quantity)
 		{
 			_itemLimit = Mission.MessageLimit;
@@ -39,12 +40,12 @@ namespace Idmr.Platform.Xvt
 		}
 
 		/// <summary>Adds a new Message to the end of the Collection</summary>
-		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
+		/// <returns>The index of the added Message if successfull, otherwise <b>-1</b></returns>
 		public int Add() { return _add(new Message()); }
 
 		/// <summary>Adds a new Message with the given string to the end of the Collection</summary>
 		/// <param name="message">The message string</param>
-		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
+		/// <returns>The index of the added Message if successfull, otherwise <b>-1</b></returns>
 		public int Add(string message)
 		{
 			int index = Add();
@@ -53,18 +54,18 @@ namespace Idmr.Platform.Xvt
 		}
 
 		/// <summary>Empties the Collection of entries</summary>
-		/// <remarks>All existing messages are lost, Count is set to zero</remarks>
+		/// <remarks>All existing messages are lost, <see cref="Idmr.Common.FixedSizeCollection{T}.Count"/> is set to <b>zero</b></remarks>
 		public void Clear() { _items.Clear(); }
 
 		/// <summary>Inserts a new Message at the specified index</summary>
 		/// <param name="index">Location of the Message</param>
-		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
+		/// <returns>The index of the added Message if successfull, otherwise <b>-1</b></returns>
 		public int Insert(int index) { return _insert(index, new Message()); }
 
 		/// <summary>Inserts a new Message with the given string at the specified index</summary>
 		/// <param name="index">Location of the Message</param>
 		/// <param name="message">The message string</param>
-		/// <returns>The index of the added Message if successfull, otherwise -1</returns>
+		/// <returns>The index of the added Message if successfull, otherwise <b>-1</b></returns>
 		public int Insert(int index, string message)
 		{
 			int newIndex = Insert(index);
@@ -73,9 +74,8 @@ namespace Idmr.Platform.Xvt
 		}
 
 		/// <summary>Deletes the Message at the specified index</summary>
-		/// <remarks>If first and only Message is specified, executes Clear()</remarks>
 		/// <param name="index">The index of the Message to be deleted</param>
-		/// <returns>The index of the next available Message if successfull, otherwise -1</returns>
+		/// <returns>The index of the next available Message if successfull, otherwise <b>-1</b></returns>
 		public int RemoveAt(int index)
 		{
 			if (index >= 0 && index < Count && Count > 1) { return _removeAt(index); }

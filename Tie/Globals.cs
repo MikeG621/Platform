@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -17,7 +17,7 @@ namespace Idmr.Platform.Tie
 		Goal[] _goals = new Goal[3];
 
 		/// <summary>Initializes a blank set of Global Goals</summary>
-		/// <remarks>Three Goals with two Triggers each, all set to "never (FALSE)"</remarks>
+		/// <remarks>Three Goals with two Triggers each, all set to <b>"never (FALSE)"</b></remarks>
 		public Globals() { for (int i = 0; i < 3; i++) _goals[i] = new Goal(10); }
 
 		/// <summary>Gets the Global Goals array</summary>
@@ -30,11 +30,15 @@ namespace Idmr.Platform.Tie
 			Mission.Trigger[] _triggers = new Mission.Trigger[2];
 			
 			/// <summary>Initialize a new Goal</summary>
-			/// <remarks>If <i>condition</i> is set to 10, "never (FALSE)", AndOr values set to <i>true</i>, "OR"</remarks>
+			/// <remarks>If <i>condition</i> is set to <b>10</b> ("never (FALSE)"), <see cref="T1AndOrT2"/> is set to <b>true</b> ("OR")</remarks>
 			/// <param name="condition">Default Trigger.Condition</param>
 			public Goal(byte condition)
 			{
-				for (int i = 0; i < 2; i++) { _triggers[i] = new Mission.Trigger(); _triggers[i].Condition = condition; }
+				for (int i = 0; i < 2; i++)
+				{
+					_triggers[i] = new Mission.Trigger();
+					_triggers[i].Condition = condition;
+				}
 				T1AndOrT2 = (condition == 10);
 			}
 			

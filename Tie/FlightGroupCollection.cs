@@ -3,12 +3,14 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
 /* CHANGELOG
  * 120212 - T[] to List<T> conversion
+ * 120308 - GetList()
+ * *** v2.0 ***
  */
 
 using System;
@@ -17,7 +19,7 @@ using System.Collections.Generic;
 namespace Idmr.Platform.Tie
 {
 	/// <summary>Object to maintain mission FG list</summary>
-	/// <remarks>ItemLimit is set to Mission.FlightGroupLimit (48)</remarks>
+	/// <remarks><see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (48)</remarks>
 	public class FlightGroupCollection : Idmr.Common.ResizableCollection<FlightGroup>
 	{
 		/// <summary>Creates a new Collection with one FlightGroup</summary>
@@ -30,7 +32,7 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>
 		/// <param name="quantity">Number of FlightGroups to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than 1 or greater than Mission.FlightGroupLimit</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than <b>1</b> or greater than <see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/></exception>
 		public FlightGroupCollection(int quantity)
 		{
 			_itemLimit = Mission.FlightGroupLimit;
@@ -40,12 +42,12 @@ namespace Idmr.Platform.Tie
 		}
 
 		/// <summary>Adds a new FlightGroup to the end of the Collection</summary>
-		/// <returns>The index of the added FlightGroup if successfull, otherwise -1</returns>
+		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b></returns>
 		public int Add() { return _add(new FlightGroup()); }
 
 		/// <summary>Inserts a new FlightGroup at the specified index</summary>
 		/// <param name="index">Location of the FlightGroup</param>
-		/// <returns>The index of the added FlightGroup if successfull, otherwise -1</returns>
+		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b></returns>
 		public int Insert(int index) { return _insert(index, new FlightGroup()); }
 
 		/// <summary>Removes all existing entries in the Collection, creates a single new FlightGroup</summary>
@@ -59,7 +61,7 @@ namespace Idmr.Platform.Tie
 		/// <summary>Deletes the FlightGroup at the specified index</summary>
 		/// <remarks>If the first and only FlightGroup is selected, initializes it to a new FlightGroup</remarks>
 		/// <param name="index">The index of the FlightGroup to be deleted</param>
-		/// <returns>The index of the next available FlightGroup if successfull, otherwise -1</returns>
+		/// <returns>The index of the next available FlightGroup if successfull, otherwise <b>-1</b></returns>
 		public int RemoveAt(int index)
 		{
 			if (index >= 0 && index < Count && Count > 1) { return _removeAt(index); }
@@ -69,6 +71,15 @@ namespace Idmr.Platform.Tie
 				return 0;
 			}
 			else return -1;
+		}
+		
+		/// <summary>Provides quick access to an array of FlightGroup names</summary>
+		/// <returns>A new array of short-form string representations</returns>
+		public string[] GetList()
+		{
+			string[] list = new string[Count];
+			for (int i = 0; i < Count; i++) list[i] = _items[i].ToString(false);
+			return list;
 		}
 	}
 }

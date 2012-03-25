@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -11,6 +11,10 @@
  * 120207 - Trigger conversions, _checkValues()
  * 120213 - added CraftCheck(), removed _briefings/_globals/_teams, removed ITrigger
  * 120214 - added CheckTarget()
+ * 120228 - added Trigger.ToString() override
+ * 120308 - inherit MissionFile
+ * 120321 - Trigger exceptions, NumFlightGroups and NumMessages removed, rename BoP to IsBop
+ * *** v2.0 ***
  */
 
 using System;
@@ -21,7 +25,7 @@ namespace Idmr.Platform.Xvt
 {
 	/// <summary>Framework for XvT and BoP</summary>
 	/// <remarks>This is the primary container object for XvT and BoP mission files</remarks>
-	public class Mission
+	public class Mission : MissionFile
 	{
 		string _unknown4 = "";
 		string _unknown5 = "";
@@ -30,27 +34,49 @@ namespace Idmr.Platform.Xvt
 		string _missionSuccessful = "";
 
 		/// <summary>The types of mission</summary>
-		public enum MissionTypeEnum : byte { Training, Unknown, Melee, MPTraining, MPMelee }
+		public enum MissionTypeEnum : byte {
+			/// <summary>Standard combat mission</summary>
+			Training,
+			/// <summary>Unknown mission type</summary>
+			Unknown,
+			/// <summary>Melee (Skirmish) mission</summary>
+			Melee,
+			/// <summary>Multiplayer combat mission</summary>
+			MPTraining,
+			/// <summary>Multiplayer Melee (Skirmish) mission</summary>
+			MPMelee
+		}
 
 		#region constructors
 		/// <summary>Default constructor, create a blank mission</summary>
 		public Mission()
 		{
-			MissionPath = "\\NewMission.tie";
 			MissionType = MissionTypeEnum.Training;
 			_initialize();
 		}
 
 		/// <summary>Create a new mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		public Mission(string filePath) { _initialize(); LoadFromFile(filePath); }
+		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
+		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a XvT or BoP mission file</exception>
+		public Mission(string filePath)
+		{
+			_initialize();
+			LoadFromFile(filePath);
+		}
 
 		/// <summary>Create a new mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		public Mission(FileStream stream) { _initialize(); LoadFromStream(stream); }
+		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid XvT or BoP mission file</exception>
+		public Mission(FileStream stream)
+		{
+			_initialize();
+			LoadFromStream(stream);
+		}
 		
 		void _initialize()
 		{
+			_invalidError = _invalidError.Replace("{0}", "XvT or BoP");
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			Globals = new GlobalsCollection();
@@ -61,15 +87,12 @@ namespace Idmr.Platform.Xvt
 
 		#region public methods
 		/// <summary>Load a mission from a file</summary>
-		/// <remarks>Calls LoadFromStream()</remarks>
 		/// <param name="filePath">Full path to the file</param>
 		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
 		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a XvT or BoP mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
-			MissionFile.Platform p = MissionFile.GetPlatform(filePath);
-			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException("File is not a valid XvT/BoP mission file");
 			FileStream fs = File.OpenRead(filePath);
 			LoadFromStream(fs);
 			fs.Close();
@@ -81,8 +104,8 @@ namespace Idmr.Platform.Xvt
 		public void LoadFromStream(FileStream stream)
 		{
 			MissionFile.Platform p = MissionFile.GetPlatform(stream);
-			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException("File is not a valid XvT/BoP mission file");
-			BoP = (p == MissionFile.Platform.BoP ? true : false);
+			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException(_invalidError);
+			IsBop = (p == MissionFile.Platform.BoP);
 			BinaryReader br = new BinaryReader(stream);
 			int i, j;
 			stream.Position = 2;
@@ -360,8 +383,13 @@ namespace Idmr.Platform.Xvt
 				Briefings[i].Unknown1 = br.ReadInt16();
 				stream.Position += 4;	// StartLength, EventsLength
 				Briefings[i].Unknown3 = br.ReadInt16();
-				for (j=0;j<12;j++) stream.Read(Briefings[i].Events, j*0x40, 0x40);
-				stream.Read(Briefings[i].Events, 0x300, 0x2A);
+				for (i=0;i<12;i++)
+				{
+					stream.Read(buffer, 0, 0x40);
+					Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x20 * i, 0x40);
+				}
+				stream.Read(buffer, 0, 0x2A);
+				Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x300, 0x2A);
 				for (j=0;j<32;j++)
 				{
 					int k = br.ReadInt16();
@@ -377,7 +405,7 @@ namespace Idmr.Platform.Xvt
 			}
 			#endregion
 			#region FG goal strings
-			for (i=0;i<NumFlightGroups;i++)
+			for (i=0;i<FlightGroups.Count;i++)
 				for (j=0;j<8;j++)
 				{
 					FlightGroups[i].Goals[j].IncompleteText = new string(br.ReadChars(0x40));
@@ -401,7 +429,7 @@ namespace Idmr.Platform.Xvt
 			}
 			#endregion
 			#region Debriefs
-			if (BoP)
+			if (IsBop)
 			{
 				_missionSuccessful = new string(br.ReadChars(0x1000)).Trim('\0');
 				_missionFailed = new string(br.ReadChars(0x1000)).Trim('\0');
@@ -413,6 +441,7 @@ namespace Idmr.Platform.Xvt
 		}
 
 		/// <summary>Save the mission with the default path</summary>
+		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			FileStream fs = null;
@@ -424,10 +453,10 @@ namespace Idmr.Platform.Xvt
 				int i;
 				long p;
 				#region Platform
-				if (BoP) bw.Write((short)14);
+				if (IsBop) bw.Write((short)14);
 				else bw.Write((short)12);
-				bw.Write(NumFlightGroups);
-				bw.Write(NumMessages);
+				bw.Write((short)FlightGroups.Count);
+				bw.Write((short)Messages.Count);
 				bw.Write((short)Unknown1);
 				bw.Write((short)Unknown2);
 				fs.Position++;
@@ -446,7 +475,7 @@ namespace Idmr.Platform.Xvt
 				fs.Position = 0xA4;
 				#endregion
 				#region FlightGroups
-				for (i = 0;i<NumFlightGroups;i++)
+				for (i = 0;i<FlightGroups.Count;i++)
 				{
 					p = fs.Position;
 					int j;
@@ -599,7 +628,7 @@ namespace Idmr.Platform.Xvt
 				}
 				#endregion
 				#region Messages
-				for (i=0;i<NumMessages;i++)
+				for (i=0;i<Messages.Count;i++)
 				{
 					p = fs.Position;
 					bw.Write((short)i);
@@ -669,7 +698,9 @@ namespace Idmr.Platform.Xvt
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
 					bw.Write(Briefings[i].Unknown3);
-					fs.Write(Briefings[i].Events, 0, Briefings[i].Events.Length);
+					byte[] briefBuffer = new byte[Briefings[i].Events.Length * 2];
+					Buffer.BlockCopy(Briefings[i].Events, 0, briefBuffer, 0, briefBuffer.Length);
+					bw.Write(briefBuffer);
 					for (int j=0;j<32;j++)
 					{
 						bw.Write((short)Briefings[i].BriefingTag[j].Length);
@@ -683,7 +714,7 @@ namespace Idmr.Platform.Xvt
 				}
 				#endregion
 				#region FG Goal Strings
-				for (i=0;i<NumFlightGroups;i++)
+				for (i=0;i<FlightGroups.Count;i++)
 				{
 					for (int j=0;j<8;j++)
 					{
@@ -719,7 +750,7 @@ namespace Idmr.Platform.Xvt
 				#endregion
 				#region Debriefs
 				p = fs.Position;
-				if (BoP)
+				if (IsBop)
 				{
 					bw.Write(_missionSuccessful.ToCharArray());
 					fs.WriteByte(0);
@@ -751,6 +782,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Save the mission to a new location</summary>
 		/// <param name="filePath">Full path to the new file location</param>
+		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -758,15 +790,15 @@ namespace Idmr.Platform.Xvt
 		}
 		
 		/// <summary>Checks a CraftType for valid values and adjusts if necessary</summary>
-		/// <remarks>Returns 255 if CraftType cannot be converted</remarks>
 		/// <param name="craftType">The craft index to check</param>
+		/// <returns>Validated craft type, otherwise <b>255</b></returns>
 		public static byte CraftCheck(byte craftType)
 		{
 			if (craftType > 91) return 255;
 			else return craftType;
 		}
 		
-		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</summary>
+		/// <summary>Checks <see cref="Trigger"/>.Type/Variable or <see cref="FlightGroup.Order"/>.TargetType/Target pairs for values compatible with TIE</summary>
 		/// <remarks>First checks for invalid Types, then runs through allows values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or GlobalUnit</remarks>
 		/// <param name="type">Trigger.Type or Order.TargetType</param>
 		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
@@ -799,45 +831,36 @@ namespace Idmr.Platform.Xvt
 		#endregion public methods
 
 		#region public properties
-		/// <summary>The full path to the mission file</summary>
-		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath { get; set; }
-		/// <summary>Gets the file name of the mission file</summary>
-		/// <remarks>Defaults to "NewMission.tie"</remarks>
-		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
-		/// <summary>Gets or sets the mission platform</summary>
-		/// <remarks><i>true</i> for Balance of Power</remarks>
-		public bool BoP { get; set; }
-		/// <summary>Gets the number of FlightGroups in the mission</summary>
-		public short NumFlightGroups { get { return (short)FlightGroups.Count; } }
-		/// <summary>Gets the number of In-Flight Messages in the mission</summary>
-		public short NumMessages { get { return (short)Messages.Count; } }
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
-		/// <remarks>Value is 32</summary>
+		/// <remarks>Value is <b>32</b></remarks>
 		public const int CraftLimit = 32;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is 46</remarks>
+		/// <remarks>Value is <b>46</b></remarks>
 		public const int FlightGroupLimit = 46;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is 64</remarks>
+		/// <remarks>Value is <b>64</b></remarks>
 		public const int MessageLimit = 64;
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
+		
+		/// <summary>Gets or sets the mission platform</summary>
+		/// <remarks><b>true</b> for Balance of Power</remarks>
+		public bool IsBop { get; set; }
+		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x06</remarks>
 		public byte Unknown1 { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
+		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x08</remarks>
 		public byte Unknown2 { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
+		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B</remarks>
 		public bool Unknown3 { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value (BoP only?)</summary>
+		/// <summary>Unknown FileHeader value (BoP only?)</summary>
 		/// <remarks>Offset = 0x28, 16 char</remarks>
 		public string Unknown4
 		{
 			get { return _unknown4; }
 			set { _unknown4 = StringFunctions.GetTrimmed(value, 16); }
 		}
-		/// <summary>Gets or sets an unknown FileHeader value (BoP only?)</summary>
+		/// <summary>Unknown FileHeader value (BoP only?)</summary>
 		/// <remarks>Offset = 0x50, 16 char</remarks>
 		public string Unknown5
 		{
@@ -850,8 +873,10 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Offset = 0x65</remarks>
 		public bool Unknown6 { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
+		/// <remarks>Can be used in conjunction with <see cref="TimeLimitSec"/></remarks>
 		public byte TimeLimitMin { get; set; }
 		/// <summary>Gets or sets the seconds value of the time limit</summary>
+		/// <remarks>Can be used in conjunction with <see cref="TimeLimitMin"/></remarks>
 		public byte TimeLimitSec { get; set; }
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
@@ -873,7 +898,7 @@ namespace Idmr.Platform.Xvt
 			set
 			{
 				string s = value.Replace("\r\n", "$");
-				_missionDescription = StringFunctions.GetTrimmed(s, (BoP ? 0x0FFF : 0x3FF));
+				_missionDescription = StringFunctions.GetTrimmed(s, (IsBop ? 0x0FFF : 0x3FF));
 			}
 		}
 		/// <summary>Gets or sets the BoP Debriefing text</summary>
@@ -907,11 +932,12 @@ namespace Idmr.Platform.Xvt
 			public Trigger() : base(new byte[4]) { }
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, must have Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value</exception>
+			/// <param name="raw">Raw data, minimum Length of 4</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
 			public Trigger(byte[] raw)
 			{
-				if (raw.Length != 4) throw new ArgumentException("raw does not have the correct length", "raw");
+				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
+				_items = new byte[4];
 				_items = raw;
 				_checkValues(this);
 			}
@@ -919,9 +945,13 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
+				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
+				if (raw.Length - startIndex < 4 || startIndex < 0)
+					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
 				_items = new byte[4];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
 				_checkValues(this);
@@ -936,13 +966,67 @@ namespace Idmr.Platform.Xvt
 				CheckTarget(t.VariableType, ref tempVar, out msg);
 				t.Variable = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + msg;
-				if (error != "") throw new ArgumentException("Invalid values detected: " + error+  ".");
+				if (error != "") throw new ArgumentException("Invalid values detected: " + error +  ".");
 				if (t.Amount == 19) t.Amount = 6;	// "each special" to "100% special"
 			}
 			
+			/// <summary>Returns a representative string of the Trigger</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required</remarks>
+			/// <returns>Description of the trigger and targets if applicable</returns>
+			public override string ToString()
+			{
+				string trig = "";
+				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				{
+					trig = Strings.Amount[Amount] + " of ";
+					switch (VariableType)
+					{
+						case 1:
+							trig += "FG:" + Variable;
+							break;
+						case 2:
+							trig += "Ship type " + Strings.CraftType[Variable+1];
+							break;
+						case 3:
+							trig += "Ship class " + Strings.ShipClass[Variable];
+							break;
+						case 4:
+							trig += "Object type " + Strings.ObjectType[Variable];
+							break;
+						case 5:
+							trig += "IFF " + Strings.IFF[Variable];
+							break;
+						case 6:
+							trig += "Ship orders " + Strings.Orders[Variable];
+							break;
+						case 7:
+							trig += "Craft When " + Strings.CraftWhen[Variable];
+							break;
+						case 8:
+							trig += "Global Group " + Variable;
+							break;
+						case 0xC:
+							trig += "TM:" + Variable;
+							break;
+						case 0x15:
+							trig += "Not TM:" + Variable;
+							break;
+						case 0x17:
+							trig += "Global Unit " + Variable;
+							break;
+						default:
+							trig += VariableType + " " + Variable;
+							break;
+					}
+					trig += " must ";
+				}
+				trig += Strings.Trigger[Condition];
+				return trig;
+			}
+			
 			/// <summary>Converts a Trigger to a byte array</summary>
-			/// <remarks>Length will be 4</remarks>
 			/// <param name="trig">The Trigger to convert</param>
+			/// <returns>A byte array of Length 4 containing the Trigger data</returns>
 			public static explicit operator byte[](Trigger trig)
 			{
 				byte[] b = new byte[4];
@@ -952,9 +1036,11 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Converts a Trigger for use in TIE</summary>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
+			/// <returns>A copy of <i>trig</i> for use in TIE95</returns>
 			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger((byte[])trig); }
 			/// <summary>Converts a Trigger for use in XWA</summary>
 			/// <param name="trig">The Trigger to convert</param>
+			/// <returns>A copy of <i>trig</i> for use in XWA</returns>
 			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger((byte[])trig); }
 		}
 	}

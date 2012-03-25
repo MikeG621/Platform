@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -13,8 +13,11 @@
  * 120210 - rewrote Waypoint
  * 120213 - rewrote RolesIndexer to test array ref instead of class, rewrote for IOrder removal
  * 120220 - Indexer<T> implementation
+ * 120227 - ToString() overrides
+ * 120321 - Goal and Order exceptions
+ * *** v2.0 ***
  */
- 
+
 using System;
 using Idmr.Common;
 
@@ -36,15 +39,84 @@ namespace Idmr.Platform.Xvt
 		Indexer<string> _rolesIndexer;
 		LoadoutIndexer _loadoutIndexer;
 
-		/// <summary>Indexes for <i>ArrDepTrigger</i></summary>
-		public enum ArrDepTriggerIndex : byte { Arrival1, Arrival2, Arrival3, Arrival4, Departure1, Departure2 }
-		/// <summary>Indexes for <i>Waypoints</i></summary>
-		public enum WaypointIndex : byte { Start1, Start2, Start3, Start4, WP1, WP2, WP3, WP4, WP5, WP6, WP7, WP8, Rendezvous, Hyperspace, Briefing1, Briefing2, Briefing3, Briefing4, Briefing5, Briefing6, Briefing7, Briefing8 }
-		/// <summary>Values for <i>OptCraftCategory</i></summary>
-		public enum OptionalCraftCategory : byte { None, AllFlyable, AllRebelFlyable, AllImperialFlyable, Custom }
+		/// <summary>Indexes for <see cref="ArrDepTriggers"/></summary>
+		public enum ArrDepTriggerIndex : byte {
+			/// <summary>First Arrival trigger</summary>
+			Arrival1,
+			/// <summary>Second Arrival trigger</summary>
+			Arrival2,
+			/// <summary>Third Arrival trigger</summary>
+			Arrival3,
+			/// <summary>Fourth Arrival trigger</summary>
+			Arrival4,
+			/// <summary>First Departure trigger</summary>
+			Departure1,
+			/// <summary>Second Departure trigger</summary>
+			Departure2
+		}
+		/// <summary>Indexes for <see cref="Waypoints"/></summary>
+		public enum WaypointIndex : byte {
+			/// <summary>Primary starting coordinate</summary>
+			Start1,
+			/// <summary>Optional starting coordinate</summary>
+			Start2,
+			/// <summary>Optional starting coordinate</summary>
+			Start3,
+			/// <summary>Optional starting coordinate</summary>
+			Start4,
+			/// <summary>First coordinate for orders and initial trajectory</summary>
+			WP1,
+			/// <summary>Second order coordinate</summary>
+			WP2,
+			/// <summary>Third order coordinate</summary>
+			WP3,
+			/// <summary>Fourth order coordinate</summary>
+			WP4,
+			/// <summary>Fifth order coordinate</summary>
+			WP5,
+			/// <summary>Sixth order coordinate</summary>
+			WP6,
+			/// <summary>Seventh order coordinate</summary>
+			WP7,
+			/// <summary>Eigth order coordinate</summary>
+			WP8,
+			/// <summary>Coordinate for Rendezvous orders</summary>
+			Rendezvous,
+			/// <summary>Arrival and Departure coordinate</summary>
+			Hyperspace,
+			/// <summary>Primary briefing coordinate</summary>
+			Briefing1,
+			/// <summary>Team 2 briefing coordinate</summary>
+			Briefing2,
+			/// <summary>Team 3 briefing coordinate</summary>
+			Briefing3,
+			/// <summary>Team 4 briefing coordinate</summary>
+			Briefing4,
+			/// <summary>Team 5 briefing coordinate</summary>
+			Briefing5,
+			/// <summary>Team 6 briefing coordinate</summary>
+			Briefing6,
+			/// <summary>Team 7 briefing coordinate</summary>
+			Briefing7,
+			/// <summary>Team 8 briefing coordinate</summary>
+			Briefing8
+		}
+		/// <summary>Values for <see cref="OptCraftCategory"/></summary>
+		public enum OptionalCraftCategory : byte {
+			/// <summary>No other available craft</summary>
+			None,
+			/// <summary>All craft set to 'Flyable' are avai;able</summary>
+			AllFlyable,
+			/// <summary>All Rebel craft set to 'Flyable' are available</summary>
+			AllRebelFlyable,
+			/// <summary>All Imperial craft set tp 'Flyable' are available</summary>
+			AllImperialFlyable,
+			/// <summary>Available craft are determined by <see cref="OptCraft"/></summary>
+			Custom 
+		}
 		
 		/// <summary>Initializes a new FlightGroup</summary>
-		/// <remarks>All Orders set to 100% Throttle, Goals set to NONE, SP1 Enabled, Unknowns 0/false</remarks>
+		/// <remarks>All <see cref="Orders"/> set to <b>100%</b> <see cref="BaseFlightGroup.BaseOrder.Throttle"/>, <see cref="Goals"/> are all set to <b>NONE</b>, SP1 <b>Enabled</b>, <see cref="Unknowns"/> are <b>0/false</b></remarks>
 		public FlightGroup()
 		{
 			_stringLength = 0x14;
@@ -62,9 +134,26 @@ namespace Idmr.Platform.Xvt
 			_loadoutIndexer = new LoadoutIndexer(_optLoad);
 		}
 
+		/// <summary>Gets a string representation of the FlightGroup</summary>
+		/// <returns>Short representation of the FlightGroup as <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b></returns>
+		public override string ToString() { return ToString(false); }
+		/// <summary>Gets a string representation of the FlightGroup</summary>
+		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b><br/>
+		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - IsPlayer
+		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
+		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/> (<see cref="GlobalUnit"/>)"</b></remarks>
+		/// <param name="verbose">When <b>true</b> returns long form</param>
+		/// <returns>Representation of the FlightGroup</returns>
+		public string ToString(bool verbose)
+		{
+			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
+			if (!verbose) return longName;
+			return Team + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "");
+		}
+		
 		#region craft
 		/// <summary>Gets the craft roles, such as Command Ship or Strike Craft</summary>
-		/// <remarks>This value has been seen as an AI string with unknown results.</remarks>
+		/// <remarks>This value has been seen as an AI string with unknown results. Restricted to 4 characters.</remarks>
 		public Indexer<string> Roles { get { return _rolesIndexer; } }
 		
 		/// <summary>The allegiance value that controls goals and IFF behaviour</summary>
@@ -74,45 +163,38 @@ namespace Idmr.Platform.Xvt
 		public byte Radio { get; set; }
 		
 		/// <summary>Determines if the craft has a human or AI pilot</summary>
-		/// <remarks>Value of zero defined as AI-controlled craft. Human craft will launch as AI-controlled if no player is present.</remarks>
+		/// <remarks>Value of <b>zero</b> defined as AI-controlled craft. Human craft will launch as AI-controlled if no player is present.</remarks>
 		public byte PlayerNumber { get; set; }
 		
 		/// <summary>Determines if craft is required to be player-controlled</summary>
-		/// <remarks>When <i>true</i>, craft with PlayerNumber set will not appear without a human player.</remarks>
+		/// <remarks>When <b>true</b>, craft with PlayerNumber set will not appear without a human player.</remarks>
 		public bool ArriveOnlyIfHuman { get; set; }
 		#endregion
 		#region arr/dep
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds
-		{
-			get
-			{
-				if (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && _arrDepTriggers[2].Condition == 0 && _arrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30) return true;
-				else return false;
-			}
-		}
+		public bool ArrivesIn30Seconds { get { return (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && _arrDepTriggers[2].Condition == 0 && _arrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
 		/// <summary>Gets the Arrival and Departure triggers</summary>
-		/// <remarks>Use the <i>ArrDepTriggerIndex</i> enumeration for indexes</remarks>
+		/// <remarks>Use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
 		public Mission.Trigger[] ArrDepTriggers { get { return _arrDepTriggers; } }
-		/// <summary>Gets which ArrDep triggers must be completed</summary>
-		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}</remarks>
+		/// <summary>Gets which <see cref="ArrDepTriggers"/> must be completed</summary>
+		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}; effectively <see cref="ArrDepTriggerIndex"/> / 2</remarks>
 		public bool[] ArrDepAO { get { return _arrDepAO; } }
 		#endregion
 		/// <summary>Gets the Orders used to control FlightGroup behaviour</summary>
 		public Order[] Orders { get { return _orders; } }
-		/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to Order[3]</summary>
+		/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to <see cref="Orders">Order[3]</see></summary>
 		/// <remarks>Array length is 2</remarks>
 		public Mission.Trigger[] SkipToOrder4Trigger { get { return _skipToOrder4Trigger; } }
-		/// <summary>Determines if both Skip triggers must be completed</summary>
-		/// <remarks><i>true</i> is AND, <i>false</i> is OR</remarks>
+		/// <summary>Determines if both <see cref="SkipToOrder4Trigger">Skip triggers</see> must be completed</summary>
+		/// <remarks><b>true</b> is AND, <b>false</b> is OR</remarks>
 		public bool SkipToO4T1AndOrT2 { get; set; }
 		/// <summary>Gets the FlightGroup-specific mission goals</summary>
-		/// <remarks>Array is Length = 7</remarks>
+		/// <remarks>Array is Length = 8</remarks>
 		public Goal[] Goals { get { return _goals; } }
 		
 		/// <summary>Gets the FlightGroup location markers</summary>
-		/// <remarks>Use <i>WaypointIndex</i> enumeration for array indexes</remarks>
+		/// <remarks>Use <see cref="WaypointIndex"/> for indexes</remarks>
 		public Waypoint[] Waypoints { get { return _waypoints; } }
 		
 		#region Unks and Options
@@ -121,13 +203,13 @@ namespace Idmr.Platform.Xvt
 		/// <summary>The duration of death animation</summary>
 		/// <remarks>Unknown multiplier, appears to react differently depending on craft class</remarks>
 		public byte ExplosionTime { get; set; }
-		/// <summary>The second condition of FlightGroup upon creation</summary>
+		/// <summary>The second condition of the FlightGroup upon creation</summary>
 		public byte Status2 { get; set; }
 		/// <summary>The additional grouping assignment, can share craft numbering</summary>
 		public byte GlobalUnit { get; set; }
 		
 		/// <summary>Gets the array of alternate weapons the player can select</summary>
-		/// <remarks>Use the <i>LoadoutIndexer.Indexes</i> enumeration for indexes</remarks>
+		/// <remarks>Use <see cref="LoadoutIndexer.Indexes"/> for indexes</remarks>
 		public LoadoutIndexer OptLoadout { get { return _loadoutIndexer; } }
 		/// <summary>Gets the array of alternate craft types the player can select</summary>
 		/// <remarks>Array is Length = 10</remarks>
@@ -135,27 +217,58 @@ namespace Idmr.Platform.Xvt
 		/// <summary>The alternate craft types the player can select by list</summary>
 		public OptionalCraftCategory OptCraftCategory { get; set; }
 		/// <summary>The unknown values container</summary>
-		/// <remarks>All values initialize to 0 or <i>false</i>. Orders contain Unknown6-9, Goals contain Unknown10-16</remarks>
+		/// <remarks>All values initialize to <b>0</b> or <b>false</b>. <see cref="Orders"/> contain Unknown6-9, <see cref="Goals"/> contain Unknown10-16</remarks>
 		public UnknownValues Unknowns;
 		#endregion
 		
 		/// <summary>Object to provide array access to the Optional Craft Loadout values</summary>
 		[Serializable] public class LoadoutIndexer : Indexer<bool>
 		{
-			/// <summary>Indexes for <i>this</i>[]</summary>
-			public enum Indexes : byte { NoWarheads, SpaceBomb, HeavyRocket, Missile, Torpedo, AdvMissile, AdvTorpedo, MagPulse, NoBeam, TractorBeam, JammingBeam, DecoyBeam, NoCountermeasures, Chaff, Flare }
+			/// <summary>Indexes for <see cref="this[Indexes]"/></summary>
+			public enum Indexes : byte {
+				/// <summary>All warheads unavailable</summary>
+				NoWarheads,
+				/// <summary>Space Bomb warheads</summary>
+				SpaceBomb,
+				/// <summary>Heavy Rocket warhesds</summary>
+				HeavyRocket,
+				/// <summary>Missile warheads</summary>
+				Missile,
+				/// <summary>Torpedo warheads</summary>
+				Torpedo,
+				/// <summary>Advanced Missile warheads</summary>
+				AdvMissile,
+				/// <summary>Advanced Torpedo warheads</summary>
+				AdvTorpedo,
+				/// <summary>MagPulse distruption warheads</summary>
+				MagPulse,
+				/// <summary>All beams unavailable</summary>
+				NoBeam,
+				/// <summary>Tractor beam</summary>
+				TractorBeam,
+				/// <summary>Targeting Jamming beam</summary>
+				JammingBeam,
+				/// <summary>Decoy beam</summary>
+				DecoyBeam,
+				/// <summary>All countermeasures unavailable</summary>
+				NoCountermeasures,
+				/// <summary>Chaff countermeasures</summary>
+				Chaff,
+				/// <summary>Flare countermeasures</summary>
+				Flare
+			}
 			
 			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The Loadout array</param>
+			/// <param name="loadout">The Loadout array</param>
 			public LoadoutIndexer(bool[] loadout) : base(loadout) { }
 			
 			/// <summary>Gets or sets the Loadout values</summary>
-			/// <param name="index">LoadoutIndex enumerated value, 0-15</param>
-			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br>
-			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br>
-			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br>
+			/// <param name="index">LoadoutIndex enumerated value, <b>0-15</b></param>
+			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br/>
+			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
+			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
 			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public override bool this[int index]
 			{
 				get { return _items[index]; }
@@ -192,11 +305,11 @@ namespace Idmr.Platform.Xvt
 			
 			/// <summary>Gets or sets the Loadout values</summary>
 			/// <param name="index">LoadoutIndex enumerated value</param>
-			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br>
-			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br>
-			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br>
+			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br/>
+			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
+			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
 			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
-			/// <exception cref="IndexOutOfBoundsException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public bool this[Indexes index]
 			{
 				get { return _items[(int)index]; }
@@ -225,12 +338,14 @@ namespace Idmr.Platform.Xvt
 			/// <param name="raw">Raw data</param>
 			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
 			public Waypoint(short[] raw) : base(raw) { if (raw.Length != 4) throw new ArgumentException("raw does not have the correct size"); }
-			
+
 			/// <summary>Converts a Waypoint for TIE</summary>
 			/// <param name="wp">The Waypoint to convert</param>
+			/// <returns>A copy of <i>wp</i> for TIE95</returns>
 			public static implicit operator Tie.FlightGroup.Waypoint(Waypoint wp) { return new Tie.FlightGroup.Waypoint((short[])wp); }
-			/// <summary>Converts a Waypoint for XvT</summary>
+			/// <summary>Converts a Waypoint for XWA</summary>
 			/// <param name="wp">The Waypoint to convert</param>
+			/// <returns>A copy of <i>wp</i> for XWA</returns>
 			public static implicit operator Xwa.FlightGroup.Waypoint(Waypoint wp) { return new Xwa.FlightGroup.Waypoint((short[])wp); }
 		}
 		/// <summary>Object for a single FlightGroup-specific Goal</summary>
@@ -241,7 +356,7 @@ namespace Idmr.Platform.Xvt
 			string _failedText = "";
 			
 			/// <summary>Initializes a blank Goal</summary>
-			/// <remarks>Condition is set to "never (FALSE)"</remarks>
+			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)")</remarks>
 			public Goal()
 			{
 				_items = new byte[15];
@@ -249,22 +364,47 @@ namespace Idmr.Platform.Xvt
 			}
 			
 			/// <summary>Initlialize a new Goal from raw data</summary>
-			/// <param name="raw">Raw byte data, must have Length of 15</param>
-			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
-			public Goal(byte[] raw) : base(raw) { if (raw.Length != 15) throw new ArgumentException("Incorrect raw data length", "raw"); }
+			/// <param name="raw">Raw byte data, minimum Length of 15</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
+			public Goal(byte[] raw)
+			{
+				if (raw.Length < 15) throw new ArgumentException("Minimum length of raw is 15", "raw");
+				_items = new byte[15];
+				ArrayFunctions.TrimArray(raw, 0, _items);
+			}
 			
 			/// <summary>Initlialize a new Goal from raw data</summary>
-			/// <param name="raw">Raw byte data</param>
+			/// <param name="raw">Raw byte data, minimum Length of 15</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
 			public Goal(byte[] raw, int startIndex)
 			{
+				if (raw.Length < 15) throw new ArgumentException("Minimum length of raw is 15", "raw");
+				if (raw.Length - startIndex < 15 || startIndex < 0)
+					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 15));
 				_items = new byte[15];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
 			}
-			
+
+			/// <summary>Gets a representative string of the Goal</summary>
+			/// <returns>Description of the goal if enabled, otherwise <b>"None"</b></returns>
+			public override string ToString()
+			{
+				string goal = "";
+				if (Condition != 0 && Condition != 10 && Enabled)
+				{
+					goal = Strings.Amount[Amount] + " of Flight Group ";
+					goal += (Argument == 0 ? "must" : (Argument == 1 ? "must NOT" : (Argument == 2 ? "BONUS must" : "BONUS must NOT")));
+					goal += " " + Strings.Trigger[Condition] + " (" + Points + " points)";
+				}
+				else goal = "None";
+				return goal;
+			}
+
 			#region public properties
 			/// <summary>Gets or sets the goal behaviour</summary>
-			/// <remarks>Values are 0-3; must, must not (Prevent), BONUS must, BONUS must not (bonus prevent)</remarks>
+			/// <remarks>Values are <b>0-3</b>; must, must not (prevent), BONUS must, BONUS must not (bonus prevent)</remarks>
 			public byte Argument
 			{
 				get { return _items[0]; }
@@ -276,7 +416,7 @@ namespace Idmr.Platform.Xvt
 				get { return _items[1]; }
 				set { _items[1] = value; }
 			}
-			/// <summary>Gets or sets the amount of the FlightGroup required to meet <i>Condition</i></summary>
+			/// <summary>Gets or sets the amount of the FlightGroup required to meet <see cref="Condition"/></summary>
 			public byte Amount
 			{
 				get { return _items[2]; }
@@ -289,7 +429,7 @@ namespace Idmr.Platform.Xvt
 				set { _items[3] = (byte)value; }
 			}
 			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
-			/// <remarks>Equals <i>RawPoints</i> * 250, limited from -32000 to +31750</remarks>
+			/// <remarks>Equals <see cref="RawPoints"/> * 250, limited from <b>-32000</b> to <b>+31750</b></remarks>
 			public short Points
 			{
 				get { return (short)(_items[3] * 250); }
@@ -307,43 +447,43 @@ namespace Idmr.Platform.Xvt
 				get { return _items[5]; }
 				set { _items[5] = value; }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
-			/// <remarks>Goal offset 0x06</summary>
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x06</remarks>
 			public bool Unknown10
 			{
 				get { return Convert.ToBoolean(_items[6]); }
 				set { _items[6] = Convert.ToByte(value); }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
-			/// <remarks>Goal offset 0x07</summary>
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x07</remarks>
 			public bool Unknown11
 			{
 				get { return Convert.ToBoolean(_items[7]); }
 				set { _items[7] = Convert.ToByte(value); }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
-			/// <remarks>Goal offset 0x08</summary>
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x08</remarks>
 			public bool Unknown12
 			{
 				get { return Convert.ToBoolean(_items[8]); }
 				set { _items[8] = Convert.ToByte(value); }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
-			/// <remarks>Goal offset 0x0B</summary>
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x0B</remarks>
 			public byte Unknown13
 			{
 				get { return _items[11]; }
 				set { _items[11] = value; }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
-			/// <remarks>Goal offset 0x0C</summary>
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x0C</remarks>
 			public bool Unknown14
 			{
 				get { return Convert.ToBoolean(_items[12]); }
 				set { _items[12] = Convert.ToByte(value); }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
-			/// <remarks>Goal offset 0x0E</summary>
+			/// <summary>Unknown value</summary>
+			/// <remarks>Goal offset 0x0E</remarks>
 			public byte Unknown16
 			{
 				get { return _items[14]; }
@@ -455,7 +595,7 @@ namespace Idmr.Platform.Xvt
 			
 			#region constructors
 			/// <summary>Initializes a blank Order</summary>
-			/// <remarks>Throttle set to 100%, AndOr values set to "Or"</remarks>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b></remarks>
 			public Order()
 			{
 				_items = new byte[19];
@@ -464,23 +604,40 @@ namespace Idmr.Platform.Xvt
 			}
 			
 			/// <summary>Initlializes a new Order from raw data</summary>
-			/// <param name="raw">Raw byte data, must have Length of 18 or 19</param>
-			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
+			/// <remarks>If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
+			/// <param name="raw">Raw byte data, minimum Length of 18</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
 			public Order(byte[] raw)
 			{
-				if (raw.Length == 19) _items = raw;
-				else if (raw.Length == 18) for (int i = 0; i < 18; i++) _items[i] = raw[i];
-				else throw new ArgumentException("Incorrect raw data length", "raw");
+				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
+				_items = new byte[19];
+				if (raw.Length >= 19) ArrayFunctions.TrimArray(raw, 0, _items);
+				else ArrayFunctions.WriteToArray(raw, _items, 0);
 				_checkValues(this);
 			}
 			
 			/// <summary>Initlialize a new Order from raw data</summary>
-			/// <param name="raw">Raw byte data</param>
+			/// <remarks>If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
+			/// <param name="raw">Raw byte data, minimum Length of 18</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
 			public Order(byte[] raw, int startIndex)
 			{
+				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
 				_items = new byte[19];
-				ArrayFunctions.TrimArray(raw, startIndex, _items);
+				if (raw.Length >= 19)
+				{
+					if (raw.Length - startIndex < 19 || startIndex < 0)
+						throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 19));
+					ArrayFunctions.TrimArray(raw, startIndex, _items);
+				}
+				else
+				{
+					if (startIndex != 0)
+						throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0");
+					ArrayFunctions.WriteToArray(raw, _items, 0);
+				}
 				_checkValues(this);
 			}
 			#endregion
@@ -509,57 +666,136 @@ namespace Idmr.Platform.Xvt
 				if (msg != "") error += (error != "" ? ", " : "") + "T4 " + msg;
 				if (error != "") throw new ArgumentException("Invalid values detected: " + error);
 			}
-			
+
+			static string _orderTargetString(byte target, byte type)
+			{
+				string s = "";
+				switch (type)
+				{
+					case 0:
+						break;
+					case 1:
+						s += "FG:" + target;
+						break;
+					case 2:
+						s += Strings.CraftType[target + 1] + "s";
+						break;
+					case 3:
+						s += Strings.ShipClass[target];
+						break;
+					case 4:
+						s += Strings.ObjectType[target];
+						break;
+					case 5:
+						s += Strings.IFF[target] + "s";
+						break;
+					case 6:
+						s += "Craft with " + Strings.Orders[target] + " orders";
+						break;
+					case 7:
+						s += "Craft when " + Strings.CraftWhen[target];
+						break;
+					case 8:
+						s += "Global Group " + target;
+						break;
+					case 0xC:
+						s += "TM:" + target;
+						break;
+					case 0x15:
+						s += "All Teams except TM:" + target;
+						break;
+					case 0x17:
+						s += "Global Unit " + target;
+						break;
+					default:
+						s += type + " " + target;
+						break;
+				}
+				return s;
+			}
+
+			/// <summary>Returns a representative string of the Order</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required</remarks>
+			/// <returns>Description of the order and targets if applicable, otherwise <b>"None"</b></returns>
+			public override string ToString()
+			{
+				if (Command == 0) return "None";
+				string order = Strings.Orders[Command];
+				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
+				{
+					string s = _orderTargetString(Target1, Target1Type);
+					string s2 = _orderTargetString(Target2, Target2Type);
+					if (s != "") order += ", " + s;
+					if (s != "" && s2 != "")
+					{
+						if (T1AndOrT2) order += " or " + s2;
+						else order += " if " + s2;
+					}
+					s = _orderTargetString(Target3, Target3Type);
+					s2 = _orderTargetString(Target4, Target4Type);
+					if (s != "") order += ", " + s;
+					if (s != "" && s2 != "")
+					{
+						if (T3AndOrT4) order += " or " + s2;
+						else order += " if " + s2;
+					}
+				}
+				return order;
+			}
+
 			/// <summary>Converts an Order into a byte array</summary>
-			/// <remarks>Length will be 19, Designtation is lost</remarks>
-			/// <param name="ord">The Order to convert</param>
-			public static explicit operator byte[](Order o)
+			/// <remarks><see cref="Designation"/> is lost in the conversion</remarks>
+			/// <param name="order">The Order to convert</param>
+			/// <returns>A byte array of Length 19 containing the order data</returns>
+			public static explicit operator byte[](Order order)
 			{
 				// Designation is lost
 				byte[] b = new byte[19];
-				for (int i = 0; i < 19; i++) b[i] = o[i];
+				for (int i = 0; i < 19; i++) b[i] = order[i];
 				return b;
 			}
 			/// <summary>Converts an Order for TIE</summary>
-			/// <remarks>Speed and Designation are lost</remarks>
-			/// <param name="ord">The Order to convert</param>
-			public static explicit operator Tie.FlightGroup.Order(Order o)
+			/// <remarks><see cref="Speed"/> and <see cref="Designation"/> are lost</remarks>
+			/// <param name="order">The Order to convert</param>
+			/// <returns>A copy of <i>order</i> for use in TIE95</returns>
+			public static explicit operator Tie.FlightGroup.Order(Order order)
 			{
 				// Speed, Designtation are lost
-				return new Tie.FlightGroup.Order((byte[])o, 0);
+				return new Tie.FlightGroup.Order((byte[])order, 0);
 			}
 			/// <summary>Converts an Order for XWA</summary>
-			/// <param name="ord">The Order to convert</param>
-			public static implicit operator Xwa.FlightGroup.Order(Order o)
+			/// <param name="order">The Order to convert</param>
+			/// <returns>A copy of <i>order</i> for use in XWA</returns>
+			public static implicit operator Xwa.FlightGroup.Order(Order order)
 			{
-				Xwa.FlightGroup.Order ord = new Xwa.FlightGroup.Order((byte[])o);
-				ord.CustomText = o.Designation;
+				Xwa.FlightGroup.Order ord = new Xwa.FlightGroup.Order((byte[])order);
+				ord.CustomText = order.Designation;
 				return ord;
 			}
 			
 			#region public properties
-			/// <summary>Gets or sets the unknown value</summary>
+			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x04</remarks>
 			public byte Unknown6
 			{
 				get { return _items[4]; }
 				set { _items[4] = value; }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
+			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x05</remarks>
 			public byte Unknown7
 			{
 				get { return _items[5]; }
 				set { _items[5] = value; }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
+			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x0B</remarks>
 			public byte Unknown8
 			{
 				get { return _items[11]; }
 				set { _items[11] = value; }
 			}
-			/// <summary>Gets or sets the unknown value</summary>
+			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x11</remarks>
 			public byte Unknown9
 			{

@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -17,19 +17,31 @@ namespace Idmr.Platform.Xwa
 		Goal[] _goals = new Goal[3];
 
 		/// <summary>Creates a new Globals object</summary>
-		/// <remarks>Three Goals, each with four Triggers all set to "never (FALSE)"</remarks>
+		/// <remarks>Three <see cref="Goals"/>, each with four <see cref="Goal.Triggers"/> all set to "<b>never (FALSE)</b>"</remarks>
 		public Globals() { for (int i = 0; i < 3; i++) _goals[i] = new Goal(); }
 		
 		/// <summary>The Global Goals</summary>
-		/// <remarks>Use the <i>GoalIndex</i> enumeration for indexes</remarks>
+		/// <remarks>Use the <see cref="GoalIndex"/> enumeration for indexes</remarks>
 		public Goal[] Goals { get { return _goals; } }
 		
 		/// <summary>Goal indexes</summary>
-		/// <remarks>0 = Primary<br>1 = Prevent<br>2 = Secondary</remarks>
-		public enum GoalIndex : byte { Primary, Prevent, Secondary };
+		public enum GoalIndex : byte {
+			/// <summary>Primary goals</summary>
+			Primary,
+			/// <summary>Prevent goals</summary>
+			Prevent,
+			/// <summary>Secondary goals</summary>
+			Secondary
+		}
 		/// <summary>Goal status</summary>
-		/// <remarks>0 = Incomplete<br>1 = Complete<br>2 = Failed</remarks>
-		public enum GoalState : byte { Incomplete, Complete, Failed };
+		public enum GoalState : byte {
+			/// <summary>Goals that have not yet been completed.<br/>Does not apply to Secondary goals</summary>
+			Incomplete,
+			/// <summary>Goals that have been completed</summary>
+			Complete,
+			/// <summary>Goals that cannot be completed due to gameplay (mission design may permit inability to complete goals without direct failure).<br/>Does not apply to Prevent or Secondary goals</summary>
+			Failed
+		}
 		
 		/// <summary>Class for a single Global Goal</summary>
 		public class Goal
@@ -63,7 +75,7 @@ namespace Idmr.Platform.Xwa
 			public byte Unknown6 { get; set; }
 			
 			/// <summary>Initializes a blank Goal</summary>
-			/// <remarks>All <i>Trigger.Conditions</i>s set to "never (FALSE)", AndOr values set to <i>true</i> (OR)</remarks>
+			/// <remarks>All <see cref="Triggers"/> set to <b>"never (FALSE)"</b>, <see cref="AndOr"/> values set to <b>true</b> (OR)</remarks>
 			public Goal()
 			{
 				for (int i = 0; i < 12; i++) _strings[i / 3, i % 3] = "";
@@ -72,8 +84,8 @@ namespace Idmr.Platform.Xwa
 				_triggerStrings = new StringsIndexer(this);
 			}
 			
-			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summ>
-			/// <remarks>Equal to RawPoints * 25, limited from -3200 to +3175</remarks>
+			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
+			/// <remarks>Equal to <see cref="RawPoints"/> * 25, limited from <b>-3200</b> to <b>+3175</b></remarks>
 			public short Points
 			{
 				get { return (short)(RawPoints * 25); }
@@ -124,8 +136,8 @@ namespace Idmr.Platform.Xwa
 				/// <summary>Gets or sets the Trigger Status strings</summary>
 				/// <remarks><i>value</i> is limited to 63 characters</remarks>
 				/// <param name="trigger">The Trigger index, 0-3</param>
-				/// <param name="state">GoalState value</param>
-				/// <exception cref="IndexOutOfBoundsException">Invalid <i>trigger</i> or <i>state</i> value</exception>
+				/// <param name="state"><see cref="GoalState"/> index</param>
+				/// <exception cref="IndexOutOfRangeException">Invalid <i>trigger</i> or <i>state</i> value</exception>
 				public string this[int trigger, int state]
 				{
 					get { return _owner._strings[trigger, state]; }
@@ -135,8 +147,8 @@ namespace Idmr.Platform.Xwa
 				/// <summary>Gets or sets the Trigger Status strings</summary>
 				/// <remarks><i>value</i> is limited to 63 characters</remarks>
 				/// <param name="trigger">The Trigger index, 0-3</param>
-				/// <param name="state">GoalState value</param>
-				/// <exception cref="IndexOutOfBoundsException">Invalid <i>trigger</i> value</exception>
+				/// <param name="state"><see cref="GoalState"/> value</param>
+				/// <exception cref="IndexOutOfRangeException">Invalid <i>trigger</i> value</exception>
 				public string this[int trigger, GoalState state]
 				{
 					get { return _owner._strings[trigger, (int)state]; }

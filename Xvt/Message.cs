@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -11,9 +11,9 @@ using System;
 
 namespace Idmr.Platform.Xvt
 {
-	[Serializable]
 	/// <summary>Object for individual in-flight messages</summary>
-	/// <remarks>Class is serializable to allow copy & paste functionality</remarks>
+	/// <remarks>Class is serializable to allow copy and paste functionality</remarks>
+	[Serializable]
 	public class Message : BaseMessage
 	{
 		Mission.Trigger[] _triggers = new Mission.Trigger[4];
@@ -34,13 +34,13 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array length is 10</remarks>
 		public bool[] SentToTeam { get { return _sentToTeam; } }
 		/// <summary>Gets or sets if both triggers must be completed</summary>
-		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
+		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b></remarks>
 		public bool T1AndOrT2 { get; set; }
 		/// <summary>Gets or sets if both triggers must be completed</summary>
-		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
+		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b></remarks>
 		public bool T3AndOrT4 { get; set; }
 		/// <summary>Gets or sets if both trigger pairs must be completed</summary>
-		/// <remarks><i>false</i> is "And", <i>true</i> is "Or", defaults to <i>false</i></remarks>
+		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b></remarks>
 		public bool T12AndOrT34 { get; set; }
 		/// <summary>Gets or sets the string used as editor notes</summary>
 		/// <remarks>Value is restricted to 15 characters</remarks>
@@ -50,7 +50,7 @@ namespace Idmr.Platform.Xvt
 			set { _note = Idmr.Common.StringFunctions.GetTrimmed(value, 0xF); }
 		}
 		/// <summary>Gets or sets the seconds after trigger is fired divded by five</summary>
-		/// <remarks>Default is zero. Value of 1 is 5s, 2 is 10s, etc.</remarks>
+		/// <remarks>Default is <b>zero</b>. Value of <b>1</b> is 5s, <b>2</b> is 10s, etc.</remarks>
 		public byte Delay { get; set; }
 	}
 }

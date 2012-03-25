@@ -3,7 +3,7 @@
  * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the GPL v3.0 or later
  * 
- * Full notice in ../help/Idmr.Platform.html
+ * Full notice in ../help/Idmr.Platform.chm
  * Version: 2.0
  */
 
@@ -11,6 +11,11 @@
  * 120206 - added LogoEnum, _initialize()
  * 120207 - Trigger(byte[]) now accepts Length 4, added Trigger conversions, Trigger._craftDowngrade()
  * 120213 - removed ITrigger
+ * 120228 - added Trigger.ToString() override
+ * 120308 - inherit MissionFile
+ * 120321 - Trigger exceptions, NumFlightGroups and NumMessages removed
+ * 120324 - Hangar renamed to MissionType
+ * *** v2.0 ***
  */
 
 using System;
@@ -21,7 +26,7 @@ namespace Idmr.Platform.Xwa
 {
 	/// <summary>Framework for XWA</summary>
 	/// <remarks>This is the primary container object for XWA mission files</remarks>
-	public class Mission
+	public class Mission : MissionFile
 	{
 		string[] _iff = Strings.IFF;
 		string[] _region = new string[4];
@@ -30,15 +35,46 @@ namespace Idmr.Platform.Xwa
 		string _missionDescription = "#";
 		string _missionFailed = "#";
 		string _missionSuccessful = "";
-		string _notes = "";
+		string _missionNote = "";
+		string _descriptionNote = "";
+		string _failedNote = "";
+		string _successfulNote = "";
 		Indexer<string> _globalGroupNameIndexer;
 		Indexer<string> _regionNameIndexer;
 		Indexer<string> _iffNameIndexer;
 
-		/// <summary>Briefing logo values</summary>
-		public enum LogoEnum : byte { Defiance = 4, Liberty, Independance, Family, None }
-		/// <summary>Mission starting location (aka MissionType)</summary>
-		public enum HangarEnum : byte { Junkyard, QuickStart1, QuickStart2, QuickStart3, Skirmish, DeathStar, MonCalCruiser, FamilyTransport }
+		/// <summary>Briefing <see cref="Logo"/> values</summary>
+		public enum LogoEnum : byte {
+			/// <summary>Defiance logo</summary>
+			Defiance = 4,
+			/// <summary>Liberty logo</summary>
+			Liberty,
+			/// <summary>Independance logo</summary>
+			Independance,
+			/// <summary>Family logo</summary>
+			Family,
+			/// <summary>No logo shown</summary>
+			None
+		}
+		/// <summary>Mission starting <see cref="Hangar"/> (aka MissionType)</summary>
+		public enum HangarEnum : byte {
+			/// <summary>Junkyard starting location</summary>
+			Junkyard,
+			/// <summary>Instant start, only through the Simulator</summary>
+			Simulator1,
+			/// <summary>Instant start</summary>
+			QuickStart,
+			/// <summary>Instant start, only through the Simulator</summary>
+			Simulator2,
+			/// <summary>Skirmish mission type</summary>
+			Skirmish,
+			/// <summary>Death Star mission type</summary>
+			DeathStar,
+			/// <summary>Standard Rebel mission</summary>
+			MonCalCruiser,
+			/// <summary>Standard Family mission</summary>
+			FamilyTransport
+		}
 
 		#region constructors
 		/// <summary>Default constructor, creates a blank mission</summary>
@@ -47,9 +83,8 @@ namespace Idmr.Platform.Xwa
 			_initialize();
 			for (int i=0;i<16;i++) { _globalCargo[i].Cargo = ""; _globalCargo[i].Unknown1 = true;  _globalGroup[i] = ""; }
 			for (int i=0;i<4;i++) { _region[i] = "Region " + (i+1).ToString(); _iff[i+2] = ""; }
-			MissionPath = "\\NewMission.tie";
 			Unknown1 = Unknown2 = true;
-			Hangar = HangarEnum.MonCalCruiser;
+			MissionType = HangarEnum.MonCalCruiser;
 			Logo = LogoEnum.None;
 			Unknown3 = 62;
 		}
@@ -72,6 +107,7 @@ namespace Idmr.Platform.Xwa
 		
 		void _initialize()
 		{
+			_invalidError = _invalidError.Replace("{0}", "XWA");
 			_globalGroupNameIndexer = new Indexer<string>(_globalGroup, 56);
 			_regionNameIndexer = new Indexer<string>(_region, 0x83);
 			_iffNameIndexer = new Indexer<string>(_iff, 19, new bool[]{true, true, false, false, false, false});
@@ -85,14 +121,12 @@ namespace Idmr.Platform.Xwa
 
 		#region public methods
 		/// <summary>Load a mission from a file</summary>
-		/// <remarks>Calls LoadFromStream()</remarks>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="System.IO.FileNotFoundException"></exception>
-		/// <exception cref="System.IO.InvalidDataException">Throws if file is not a XWA mission file</exception>
+		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> cannot be lcoated</exception>
+		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a XWA mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
-			if (MissionFile.GetPlatform(filePath) != MissionFile.Platform.XWA) throw new InvalidDataException("File is not a valid XWA mission file");
 			FileStream fs = File.OpenRead(filePath);
 			LoadFromStream(fs);
 			fs.Close();
@@ -100,10 +134,10 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Load a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException">Thrown when stream is not a valid XWA mission file</exception>
+		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid XWA mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
-			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.XWA) throw new InvalidDataException("File is not a valid XWA mission file");
+			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.XWA) throw new InvalidDataException(_invalidError);
 			BinaryReader br = new BinaryReader(stream);
 			int i, j;
 			long p;
@@ -133,7 +167,7 @@ namespace Idmr.Platform.Xwa
 			}
 			for (i=0;i<16;i++) _globalGroup[i] = new string(br.ReadChars(0x57)).Trim('\0');
 			stream.Position = 0x23AC;
-			Hangar = (HangarEnum)br.ReadByte();
+			MissionType = (HangarEnum)br.ReadByte();
 			stream.Position++;
 			TimeLimitMin = br.ReadByte();
 			EndWhenComplete = br.ReadBoolean();
@@ -440,7 +474,12 @@ namespace Idmr.Platform.Xwa
 				Briefings[i].Length = br.ReadInt16();
 				Briefings[i].Unknown1 = br.ReadInt16();
 				stream.Position += 6;	// StartLength, EventsLength, Res(0)
-				for (j=0;j<0x44;j++) stream.Read(Briefings[i].Events, j*0x100, 0x100);
+				byte[] briefBuffer = new byte[0x100];
+				for (j=0;j<0x44;j++)
+				{
+					stream.Read(briefBuffer, 0, 0x100);
+					Buffer.BlockCopy(briefBuffer, 0, Briefings[i].Events, 0x100 * j, 0x100);
+				}
 				stream.Read(buffer, 0, 0xA);
 				for (j=0;j<10;j++) Briefings[i].Team[j] = Convert.ToBoolean(buffer[j]);
 				for (j=0;j<128;j++)
@@ -458,18 +497,21 @@ namespace Idmr.Platform.Xwa
 			}
 			#endregion
 			#region notes
-			_notes = new string(br.ReadChars(0x18E0)).Trim('\0');
-			stream.Position += 0x319C;	// TODO: unknown message notes (L 100, qty 127)
-			for (i=0;i<64;i++)
+			_missionNote = new string(br.ReadChars(0x187C)).Trim('\0');
+			for (i = 0; i < 128; i++) Briefings[0].BriefingStringsNotes[i] = new string(br.ReadChars(0x64)).Trim('\0');
+			for (i = 0; i < 64; i++)
 			{
 				if (i < Messages.Count) Messages[i].Note = new string(br.ReadChars(0x64)).Trim('\0');
 				else stream.Position += 0x64;
 			}
-			stream.Position += 0x1B58;	// TODO: unknown message notes (L 100, qty 70)
-			stream.Position += 0x12C;	// TODO: EoM notes? (L 100, qty 3)
+			for (i = 0; i < 10; i++) for (j = 0; j < 3; j++) Teams[i].EomNotes[j] = new string(br.ReadChars(0x64)).Trim('\0');
+			stream.Position += 0xFA0;	// unknown space, possibly message notes
+			_descriptionNote = new string(br.ReadChars(0x64)).Trim('\0');
+			_successfulNote = new string(br.ReadChars(0x64)).Trim('\0');
+			_failedNote = new string(br.ReadChars(0x64)).Trim('\0');
 			#endregion
 			#region FG goal strings
-			for (i=0;i<NumFlightGroups;i++)
+			for (i=0;i<FlightGroups.Count;i++)
 				for (j=0;j<8;j++)	// per goal
 					for (int k=0;k<3;k++)	// per string
 						if (br.ReadByte() != 0)
@@ -510,6 +552,7 @@ namespace Idmr.Platform.Xwa
 		}
 
 		/// <summary>Save the mission with the default path</summary>
+		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			FileStream fs = null;
@@ -522,8 +565,8 @@ namespace Idmr.Platform.Xwa
 				long p;
 				#region Platform
 				bw.Write((short)0x12);
-				bw.Write(NumFlightGroups);
-				bw.Write(NumMessages);
+				bw.Write((short)FlightGroups.Count);
+				bw.Write((short)Messages.Count);
 				fs.Position = 8;
 				bw.Write(Unknown1);
 				fs.Position = 0xB;
@@ -561,7 +604,7 @@ namespace Idmr.Platform.Xwa
 					fs.Position = p + 0x57;
 				}
 				fs.Position = 0x23AC;
-				fs.WriteByte((byte)Hangar);
+				fs.WriteByte((byte)MissionType);
 				fs.Position++;
 				fs.WriteByte(TimeLimitMin);
 				bw.Write(EndWhenComplete);
@@ -574,7 +617,7 @@ namespace Idmr.Platform.Xwa
 				fs.Position = 0x23F0;
 				#endregion
 				#region FlightGroups
-				for(i=0;i<NumFlightGroups;i++)
+				for(i=0;i<FlightGroups.Count;i++)
 				{
 					p = fs.Position;
 					int j;
@@ -763,7 +806,7 @@ namespace Idmr.Platform.Xwa
 				}
 				#endregion
 				#region Messages
-				for (i=0;i<NumMessages;i++)
+				for (i=0;i<Messages.Count;i++)
 				{
 					p = fs.Position;
 					bw.Write((short)i);
@@ -861,7 +904,9 @@ namespace Idmr.Platform.Xwa
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
 					fs.Position += 2;
-					fs.Write(Briefings[i].Events, 0, Briefings[i].Events.Length);
+					byte[] briefBuffer = new byte[Briefings[i].Events.Length * 2];
+					Buffer.BlockCopy(Briefings[i].Events, 0, briefBuffer, 0, briefBuffer.Length);
+					bw.Write(briefBuffer);
 					for (int j=0;j<10;j++) bw.Write(Briefings[i].Team[j]);
 					for (int j=0;j<128;j++)
 					{
@@ -877,20 +922,40 @@ namespace Idmr.Platform.Xwa
 				#endregion
 				#region notes
 				p = fs.Position;
-				bw.Write(_notes.ToCharArray());
-				fs.Position = p + 0x18E0;
-				fs.Position += 0x319C;	// TODO: write unknown message notes
+				bw.Write(_missionNote.ToCharArray());
+				fs.Position = p + 0x187C;
+				for (i = 0; i < 128; i++)
+				{
+					p = fs.Position;
+					bw.Write(Briefings[0].BriefingStringsNotes[i].ToCharArray());
+					fs.Position = p + 0x64;
+				}
 				for (i=0;i<64;i++)
 				{
 					p = fs.Position;
 					if (i < Messages.Count) bw.Write(Messages[i].Note.ToCharArray());
 					fs.Position = p + 0x64;
 				}
-				fs.Position += 0x1B58;	// TODO: write unkown message notes
-				fs.Position += 0x12C;	// TODO: write EoM? notes
+				for (i = 0; i < 10; i++)
+					for (int j = 0; j < 3; j++)
+					{
+						p = fs.Position;
+						bw.Write(Teams[i].EomNotes[j].ToCharArray());
+						fs.Position = p + 0x64;
+					}
+				fs.Position += 0xFA0;	// unknown space, possibly message notes
+				p = fs.Position;
+				bw.Write(_descriptionNote.ToCharArray());
+				fs.Position = p + 0x64;
+				p = fs.Position;
+				bw.Write(_successfulNote.ToCharArray());
+				fs.Position = p + 0x64;
+				p = fs.Position;
+				bw.Write(_failedNote.ToCharArray());
+				fs.Position = p + 0x64;
 				#endregion
 				#region FG Goal Strings
-				for (i=0;i<NumFlightGroups;i++)
+				for (i=0;i<FlightGroups.Count;i++)
 					for (int j=0;j<8;j++)	// per goal
 						for (int k=0;k<3;k++)	// per string
 						{
@@ -950,6 +1015,7 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Save the mission to a new location</summary>
 		/// <param name="filePath">Full path to the new file location</param>
+		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -958,36 +1024,26 @@ namespace Idmr.Platform.Xwa
 		#endregion public methods
 
 		#region public properties
-		/// <summary>Gets or sets the full path to the mission file</summary>
-		/// <remarks>Defaults to "\\NewMission.tie"</remarks>
-		public string MissionPath { get; set; }
-		/// <summary>Gets the file name of the mission file</summary>
-		/// <remarks>Defaults to "NewMission.tie"</remarks>
-		public string MissionFileName { get { return StringFunctions.GetFileName(MissionPath); } }
-		/// <summary>Gets the number of FlightGroups in the mission</summary>
-		public short NumFlightGroups { get { return (short)FlightGroups.Count; } }
-		/// <summary>Gets the number of In-Flight Messages in the mission</summary>
-		public short NumMessages { get { return (short)Messages.Count; } }
 		/// <summary>Maximum number of craft that can exist at one time in a single region</summary>
-		/// <remarks>Value is 96</summary>
+		/// <remarks>Value is <b>96</b></remarks>
 		public const int CraftLimit = 96;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is 100</remarks>
+		/// <remarks>Value is <b>100</b></remarks>
 		public const int FlightGroupLimit = 100;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is 64</remarks>
+		/// <remarks>Value is <b>64</b></remarks>
 		public const int MessageLimit = 64;
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x0B, defaults to <i>true</i></remarks>
+		/// <summary>Unknown FileHeader value</summary>
+		/// <remarks>Offset = 0x0B, defaults to <b>true</b></remarks>
 		public bool Unknown2 { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x08, defaults to <i>true</i></remarks>
+		/// <summary>Unknown FileHeader value</summary>
+		/// <remarks>Offset = 0x08, defaults to <b>true</b></remarks>
 		public bool Unknown1 { get; set; }
 
 		/// <summary>Gets the Global Cargos for the mission</summary>
 		public GlobCarg[] GlobalCargo { get { return _globalCargo; } }
-		/// <summary>Gets or sets the start mode of the player (aka MissionType)</summary>
-		public HangarEnum Hangar { get; set; }
+		/// <summary>Gets or sets the start mode of the player)</summary>
+		public HangarEnum MissionType { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
 		public byte TimeLimitMin { get; set; }
 		/// <summary>Gets or sets if the mission will automatically end when Primary goals are complete</summary>
@@ -996,13 +1052,13 @@ namespace Idmr.Platform.Xwa
 		public byte Officer { get; set; }
 		/// <summary>Gets or sets the Briefing image</summary>
 		public LogoEnum Logo { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
+		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x23B3, default is 62</remarks>
 		public byte Unknown3 { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
+		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x23B4</remarks>
 		public byte Unknown4 { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
+		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x23B5</remarks>
 		public byte Unknown5 { get; set; }
 		/// <summary>Gets or sets the summary of the mission</summary>
@@ -1017,6 +1073,13 @@ namespace Idmr.Platform.Xwa
 				_missionDescription = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
+		/// <summary>Gets or sets the notes attributed to <see cref="MissionDescription"/></summary>
+		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
+		public string DescriptionNotes
+		{
+			get { return _descriptionNote; }
+			set { _descriptionNote = StringFunctions.GetTrimmed(value, 100); }
+		}
 		/// <summary>Gets or sets the debriefing text</summary>
 		/// <remarks>4096 char limit</remarks>
 		public string MissionFailed
@@ -1029,6 +1092,13 @@ namespace Idmr.Platform.Xwa
 				_missionFailed = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
+		/// <summary>Gets or sets the notes attributed to <see cref="MissionFailed"/></summary>
+		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
+		public string FailedNotes
+		{
+			get { return _failedNote; }
+			set { _failedNote = StringFunctions.GetTrimmed(value, 100); }
+		}
 		/// <summary>Gets or sets the debriefing text</summary>
 		/// <remarks>4096 char limit</remarks>
 		public string MissionSuccessful
@@ -1038,6 +1108,24 @@ namespace Idmr.Platform.Xwa
 			{
 				string s = value.Replace("\r\n", "$");
 				_missionSuccessful = StringFunctions.GetTrimmed(s, 4096);
+			}
+		}
+		/// <summary>Gets or sets the notes attributed to <see cref="MissionSuccessful"/></summary>
+		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
+		public string SuccessfulNotes
+		{
+			get { return _successfulNote; }
+			set { _successfulNote = StringFunctions.GetTrimmed(value, 100); }
+		}
+		/// <summary>Editor-only notes for the mission</summary>
+		/// <remarks>6268 char limit</remarks>
+		public string MissionNotes
+		{
+			get { return _missionNote.Replace("$", "\r\n"); }
+			set
+			{
+				string s = value.Replace("\r\n", "$");
+				_missionNote = StringFunctions.GetTrimmed(s, 0x187C);
 			}
 		}
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
@@ -1072,15 +1160,15 @@ namespace Idmr.Platform.Xwa
 				get { return _cargo; }
 				set { _cargo = StringFunctions.GetTrimmed(value, 63); }
 			}
-			/// <summary>Gets or sets the Unknown value, local 0x44</summary>
+			/// <summary>Unknown value, local 0x44</summary>
 			public bool Unknown1 { get; set; }
-			/// <summary>Gets or sets the Unknown value, local 0x48</summary>
+			/// <summary>Unknown value, local 0x48</summary>
 			public byte Unknown2 { get; set; }
-			/// <summary>Gets or sets the Unknown value, local 0x49</summary>
+			/// <summary>Unknown value, local 0x49</summary>
 			public byte Unknown3 { get; set; }
-			/// <summary>Gets or sets the Unknown value, local 0x4A</summary>
+			/// <summary>Unknown value, local 0x4A</summary>
 			public byte Unknown4 { get; set; }
-			/// <summary>Gets or sets the Unknown value, local 0x4B</summary>
+			/// <summary>Unknown value, local 0x4B</summary>
 			public byte Unknown5 { get; set; }
 		}
 		
@@ -1091,27 +1179,38 @@ namespace Idmr.Platform.Xwa
 			public Trigger() : base(new byte[6]) { }
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, must have Length of 4 or 6</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>Length value</exception>
+			/// <param name="raw">Raw data, minimum Length of 4</param>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i> Length</exception>
 			public Trigger(byte[] raw)
 			{
-				if (raw.Length == 6) _items = raw;
-				else if (raw.Length == 4)
-				{
-					_items = new byte[6];
-					for (int i = 0; i < 4; i++) _items[i] = raw[i];
-				}
-				else throw new ArgumentException("raw does not have the correct length", "raw");
+				_items = new byte[6];
+				if (raw.Length >= 6) ArrayFunctions.TrimArray(raw, 0, _items);
+				else if (raw.Length >= 4) for (int i = 0; i < 4; i++) _items[i] = raw[i];
+				else throw new ArgumentException("Minimum length of raw is 4", "raw");
 			}
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data</param>
+			/// <remarks>If <i>raw</i>.Length is 6 or greater, reads six bytes. If the length is 4 or 5, reads only four bytes</remarks>
+			/// <param name="raw">Raw data, minimum Length of 4</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="IndexOutOfBoundsException"><i>startIndex</i> results in reading outside the range of <i>raw</i></exception>
+			/// <exception cref="ArgumentException">Invalid <i>raw</i> Length</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
+				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
 				_items = new byte[6];
-				ArrayFunctions.TrimArray(raw, startIndex, _items);
+				if (raw.Length >= 6)
+				{
+					if (raw.Length - startIndex < 6 || startIndex < 0)
+						throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 6));
+					ArrayFunctions.TrimArray(raw, startIndex, _items);
+				}
+				else
+				{
+					if (raw.Length - startIndex < 4 || startIndex < 0)
+						throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
+					for (int i = 0; i < 4; i++) _items[i] = raw[startIndex + i];
+				}
 			}
 			
 			static byte[] _craftDowngrade(Trigger t)
@@ -1133,24 +1232,90 @@ namespace Idmr.Platform.Xwa
 				return b;
 			}
 			
+			/// <summary>Returns a representative string of the Trigger</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required</remarks>
+			/// <returns>Description of the trigger and targets if applicable</returns>
+			public override string ToString()
+			{
+				string trig = "";
+				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				{
+					trig = Strings.Amount[Amount] + " of ";
+					switch (VariableType)
+					{
+						case 1:
+							trig += "FG:" + Variable;
+							break;
+						case 2:
+							trig += "Ship type " + Strings.CraftType[Variable + 1];
+							break;
+						case 3:
+							trig += "Ship class " + Strings.ShipClass[Variable];
+							break;
+						case 4:
+							trig += "Object type " + Strings.ObjectType[Variable];
+							break;
+						case 5:
+							trig += "IFF " + Strings.IFF[Variable];
+							break;
+						case 6:
+							trig += "Ship orders " + Strings.Orders[Variable];
+							break;
+						case 7:
+							trig += "Craft When " + Strings.CraftWhen[Variable];
+							break;
+						case 8:
+							trig += "Global Group " + Variable;
+							break;
+						case 0xC:
+							trig += "TM:" + Variable;
+							break;
+						case 0xD:
+							trig += "Player of GG " + Variable;
+							break;
+						case 0x15:
+							trig += "Not TM:" + Variable;
+							break;
+						case 0x17:
+							trig += "Global Unit " + Variable;
+							break;
+						case 0x19:
+							trig += "Global Cargo " + Variable;
+							break;
+						case 0x1B:
+							trig += "Message #" + Variable;
+							break;
+						default:
+							trig += VariableType + " " + Variable;
+							break;
+					}
+					trig += " must ";
+				}
+				trig += Strings.Trigger[Condition];
+				if (trig.Contains("Region")) trig += " " + Parameter1;
+				return trig;
+			}
+			
 			/// <summary>Converts a Trigger to a byte array</summary>
-			/// <remarks>Length will be 6</remarks>
-			/// <param name="trig">The Trigger to convert</param>
-			public static explicit operator byte[](Trigger t)
+			/// <param name="trigger">The Trigger to convert</param>
+			/// <returns>A byte array with Length 6 contianing the Trigger data</returns>
+			public static explicit operator byte[](Trigger trigger)
 			{
 				byte[] b = new byte[6];
-				for (int i = 0; i < 6; i++) b[i] = t[i];
+				for (int i = 0; i < 6; i++) b[i] = trigger[i];
 				return b;
 			}
 			/// <summary>Converts a Trigger for use in TIE</summary>
-			/// <remarks>Parameters are lost</remarks>
+			/// <remarks>Parameters are lost in the conversion</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
+			/// <returns>A copy of <i>trig</i> for use in TIE95</returns>
 			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
 			/// <summary>Converts a Trigger for use in XvT</summary>
-			/// <remarks>Parameters are lost</remarks>
+			/// <remarks>Parameters are lost in the conversion</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
+			/// <returns>A copy of <i>trig</i> for use in XvT</returns>
 			public static explicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
 			
 			/// <summary>Gets or sets the first additional setting</summary>
