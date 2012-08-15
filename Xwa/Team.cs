@@ -4,21 +4,21 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG 
- * 120222 - Indexer<T> implementation
- * *** v2.0 ***
+ * v2.0, 120525
+ * [NEW] Indexer<T> implementation
  */
+
 using System;
 using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
 {
 	/// <summary>Object for individual Team settings</summary>
-	[Serializable]
-	public class Team
+	[Serializable] public partial class Team
 	{
 		/// <summary>IFF relations to other Teams</summary>
 		public enum Allegeance : byte {
@@ -99,62 +99,5 @@ namespace Idmr.Platform.Xwa
 		
 		/// <summary>Gets the array accessor for the short EoM Message notes</summary>
 		public VoiceIDIndexer VoiceIDs { get { return _voiceIDIndexer; } }
-		
-		/// <summary>Object to provide array access to the EoM Message values</summary>
-		/// <remarks>Six EoM Messages, use <see cref="EomMessageIndex"/> for indexes</remarks>
-		public class EomMessageIndexer : Indexer<string>
-		{
-			/// <summary>Initializes the indexer</summary>
-			/// <remarks>Character limit set to 64</remarks>
-			/// <param name="eomMessages">The EoM Message array</param>
-			public EomMessageIndexer(string[] eomMessages) : base(eomMessages, 64) { }
-			
-			/// <summary>Gets or sets the EoM Message</summary>
-			/// <remarks>64 character limit</remarks>
-			/// <param name="index">EomMessageIndex</param>
-			public string this[EomMessageIndex index]
-			{
-				get { return _items[(int)index]; }
-				set { this[(int)index] = value; }
-			}
-		}
-		
-		/// <summary>Object to provide array access to the EoM Message notes</summary>
-		/// <remarks>Used primarily to identify the speaker. Three strings, one per EoM Message pair.</remarks>
-		public class VoiceIDIndexer : Indexer<string>
-		{
-			/// <summary>Initializes the indexer</summary>
-			/// <remarks>Character limit set to 20</remarks>
-			/// <param name="voiceIDs">The VoiceID array</param>
-			public VoiceIDIndexer(string[] voiceIDs) : base(voiceIDs, 20) { }
-			
-			/// <summary>Gets or sets the EoM Message note</summary>
-			/// <remarks>20 character limit. Index will be divided by 2, so PrimaryFailed1 and PrimaryFailed2 both point to the same string</remarks>
-			/// <param name="index">EomMessage category</param>
-			public string this[EomMessageIndex index]
-			{
-				get { return _items[(int)index / 2]; }
-				set { this[(int)index / 2] = value; }
-			}
-		}
-
-		/// <summary>Object to provide array access tot he EoM Message notes</summary>
-		/// <remarks>Used primarily as instructions for the voice actors. Six notes, use <see cref="EomMessageIndex"/> for indexes</remarks>
-		public class EomMessageNoteIndexer : Indexer<string>
-		{
-			/// <summary>Initializes the indexer</summary>
-			/// <remarks>Character limit set to 100</remarks>
-			/// <param name="eomNotes">The EoM Message Notes array</param>
-			public EomMessageNoteIndexer(string[] eomNotes) : base(eomNotes, 100) { }
-			
-			/// <summary>Gets or sets the EoM Message Note</summary>
-			/// <remarks>100 character limit</remarks>
-			/// <param name="index">EomMessageIndex</param>
-			public string this[EomMessageIndex index]
-			{
-				get { return _items[(int)index / 2]; }
-				set { this[(int)index / 2] = value; }
-			}
-		}
 	}
 }

@@ -4,17 +4,18 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG
- * 120207 - added Trigger conversions, Trigger._checkValues(), Trigger._craftUpgrade()
- * 120213 - added CraftCheck()/CheckTarget(), removed ITrigger
- * 120215 - implmented Indexer<T>
- * 120228 - added Trigger.ToString() override
- * 120308 - inherit MissionFile
- * 120321 - Trigger exceptions, NumFlightGroups and NumMessages removed
- * *** v2.0 ***
+ * v2.0.1, 120814
+ * [FIX] Officer questions save [higlighting] properly
+ * [FIX] FlightGroup.SpecialCargoCraft load/save
+ * v2.0, 120525
+ * [NEW] CraftCheck(), CheckTarget()
+ * [UPD] IffHostile and EndOfMissionMessages inherit Indexer<T>
+ * [UPD] class inherits MissionFile
+ * [DEL] NumFlightGroups and NumMessages
  */
 
 using System;
@@ -25,7 +26,7 @@ namespace Idmr.Platform.Tie
 {
 	/// <summary>Framework for TIE95</summary>
 	/// <remarks>This is the primary container object for a TIE95 mission file</remarks>
-	public class Mission : MissionFile
+	public partial class Mission : MissionFile
 	{
 		string[] _endOfMissionMessages = new string[6];	//Mission Comp/Fail messages
 		string[] _iff = Strings.IFF;
@@ -135,8 +136,12 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].RandSpecCargo = Convert.ToBoolean(buffer[1]);
 				FlightGroups[i].CraftType = buffer[2];
 				FlightGroups[i].NumberOfCraft = buffer[3];
-				if (FlightGroups[i].SpecialCargoCraft >= FlightGroups[i].NumberOfCraft) FlightGroups[i].SpecialCargoCraft = 0;
-				else FlightGroups[i].SpecialCargoCraft++;
+				// the Rand part of the check below is because if true, don't need to mess with it
+				if (!FlightGroups[i].RandSpecCargo)
+				{
+					if (FlightGroups[i].SpecialCargoCraft >= FlightGroups[i].NumberOfCraft) FlightGroups[i].SpecialCargoCraft = 0;
+					else FlightGroups[i].SpecialCargoCraft++;
+				}
 				FlightGroups[i].Status1 = buffer[4];
 				FlightGroups[i].Missile = buffer[5];
 				FlightGroups[i].Beam = buffer[6];
@@ -189,7 +194,10 @@ namespace Idmr.Platform.Tie
 				stream.Read(buffer, 0, 0xA);
 				FlightGroups[i].Goals = new FlightGroup.FGGoals(buffer, 0);
 				for (j = 0; j < 4; j++) for (int k = 0; k < 15; k++) FlightGroups[i].Waypoints[k][j] = br.ReadInt16();
-				stream.Position += 4;
+				FlightGroups[i].Unknowns.Unknown19 = br.ReadBoolean();
+				stream.Position++;
+				FlightGroups[i].Unknowns.Unknown20 = br.ReadByte();
+				FlightGroups[i].Unknowns.Unknown21 = br.ReadBoolean();
 			}
 			#endregion
 			#region Messages
@@ -456,6 +464,10 @@ namespace Idmr.Platform.Tie
 					for (j = 0; j < 9; j++) fs.WriteByte(FlightGroups[i].Goals[j]);
 					fs.Position++;
 					for (j = 0; j < 4; j++) for (int k = 0; k < 15; k++) bw.Write(FlightGroups[i].Waypoints[k][j]);
+					bw.Write(FlightGroups[i].Unknowns.Unknown19);
+					fs.Position++;
+					fs.WriteByte(FlightGroups[i].Unknowns.Unknown20);
+					bw.Write(FlightGroups[i].Unknowns.Unknown21);
 					fs.Position = p + 0x124;
 				}
 				#endregion
@@ -517,7 +529,11 @@ namespace Idmr.Platform.Tie
 					string str_q = BriefingQuestions.PreMissQuestions[i];
 					string str_a = BriefingQuestions.PreMissAnswers[i];
 					str_q = str_q.Replace("\r", "");
+					str_q = str_q.Replace(']', Convert.ToChar(1));
+					str_q = str_q.Replace('[', Convert.ToChar(2));
 					str_a = str_a.Replace("\r", "");
+					str_a = str_a.Replace(']', Convert.ToChar(1));
+					str_a = str_a.Replace('[', Convert.ToChar(2));
 					j = str_q.Length + str_a.Length;
 					if (j == 0)
 					{
@@ -663,163 +679,5 @@ namespace Idmr.Platform.Tie
 		/// <summary>Gets or sets the questions for the Briefing Officers</summary>
 		public Questions BriefingQuestions { get; set; }
 		#endregion public properties
-		
-		/// <summary>Object to provide array access to the IFF names</summary>
-		public class IffNameIndexer	: Indexer<string>
-		{	
-			Mission _owner;
-			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
-			public IffNameIndexer(Mission parent) : base(parent._iff) { _owner = parent; }
-			
-			/// <summary>Gets or sets the IFF Name</summary>
-			/// <remarks>11 character limit, Rebel and Imperial are read-only</remarks>
-			/// <param name="index">IFF index</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
-			/// <exception cref="InvalidOperationException">Index is read-only</exception>
-			/// <returns>The IFF name</returns>
-			public override string this[int index]
-			{
-				get { return _items[index]; }
-				set
-				{
-					if (index < 2) throw new InvalidOperationException("Index (" + index + ") is read-only");
-					if (value != "" && value[0] == '1')
-					{
-						_owner._iffHostile[index] = true;
-						value = value.Substring(1);
-					}
-					_items[index] = StringFunctions.GetTrimmed(value, 11);
-				}
-			}
-		}
-		/// <summary>Object for a single Trigger</summary>
-		[Serializable] public class Trigger : BaseTrigger
-		{
-			/// <summary>Initializes a blank Trigger</summary>
-			public Trigger() : base(new byte[4]) { }
-			
-			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			public Trigger(byte[] raw)
-			{
-				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
-				_items = new byte[4];
-				ArrayFunctions.TrimArray(raw, 0, _items);
-				_checkValues(this);
-			}
-			
-			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
-			public Trigger(byte[] raw, int startIndex)
-			{
-				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
-				if (raw.Length - startIndex < 4 || startIndex < 0)
-					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
-				_items = new byte[4];
-				ArrayFunctions.TrimArray(raw, startIndex, _items);
-				_checkValues(this);
-			}
-			
-			static void _checkValues(Trigger t)
-			{
-				string error = "";
-				string msg;
-				if (t.Condition > 24) error = "Condition (" + t.Condition + ")";
-				byte tempVar = t.Variable;
-				CheckTarget(t.VariableType, ref tempVar, out msg);
-				t.Variable = tempVar;
-				if (msg != "") error += (error != "" ? ", " : "") + msg;
-				if (error != "") throw new ArgumentException("Invalid values detected: " + error + ".");
-				// 66% to 75%, 33% to 50%, "each" to 100%, "each special" to "100% special"
-				t.Amount = (byte)(t.Amount == 16 ? 1 : (t.Amount == 17 ? 2 : (t.Amount == 18 ? 0 : (t.Amount == 19 ? 6 : t.Amount))));
-			}
-			
-			static byte[] _craftUpgrade(Trigger t)
-			{
-				byte[] b = (byte[])t;
-				if (b[1] == 2)
-				{
-					if (b[2] == 10) b[2] = 89;	// SHPYD
-					else if (b[2] == 11) b[2] = 90;	// REPYD
-					else if (b[2] == 31) b[2] = 77;	// G/PLT
-					else if (b[2] == 39) b[2] = 91;	// M/SC
-				}
-				return b;
-			}
-			
-			/// <summary>Returns a representative string of the Trigger</summary>
-			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> for later substitution if required</remarks>
-			/// <returns>Description of the trigger and targets if applicable</returns>
-			public override string ToString()
-			{
-				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
-				{
-					trig = Strings.Amount[Amount] + " of ";
-					switch (VariableType)
-					{
-						case 1:
-							trig += "FG:" + Variable;
-							break;
-						case 2:
-							trig += "Ship type " + Strings.CraftType[Variable + 1];
-							break;
-						case 3:
-							trig += "Ship class " + Strings.ShipClass[Variable];
-							break;
-						case 4:
-							trig += "Object type " + Strings.ObjectType[Variable];
-							break;
-						case 5:
-							trig += Strings.IFF[Variable] + "s";
-							break;
-						case 6:
-							trig += "Ship orders " + Strings.Orders[Variable];
-							break;
-						case 7:
-							trig += "Craft When " + Strings.CraftWhen[Variable];
-							break;
-						case 8:
-							trig += "Global Group " + Variable;
-							break;
-						case 9:
-							trig += "Misc " + Strings.Misc[Variable];
-							break;
-						default:
-							trig += VariableType + " " + Variable;
-							break;
-					}
-					trig += " must ";
-				}
-				trig += Strings.Trigger[Condition];
-				return trig;
-			}
-			
-			/// <summary>Converts a Trigger to a byte array</summary>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A byte array with a length of 4 containing the trigger data</returns>
-			public static explicit operator byte[](Trigger trig)
-			{
-				byte[] b = new byte[4];
-				for (int i = 0; i < 4; i++) b[i] = trig[i];
-				return b;
-			}
-			/// <summary>Converts a Trigger for use in XvT</summary>
-			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A copy of <i>trig</i> for XvT</returns>
-			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftUpgrade(trig)); }
-			/// <summary>Converts a Trigger for use in XWA</summary>
-			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A copy of <i>trig</i> for XWA</returns>
-			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(_craftUpgrade(trig)); }
-		}
 	}
 }

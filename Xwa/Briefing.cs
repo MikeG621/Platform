@@ -4,13 +4,13 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG
- * 111208 - removed Team.set
- * 120301 - Events to short[]
- * *** v2.0 ***
+ * v2.0, 120525
+ * [DEL] Team.set
+ * [NEW] BriefingStringsNotes
  */
 
 using System;

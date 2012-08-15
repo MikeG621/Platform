@@ -4,14 +4,14 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG
- * 120213 - added BaseOrder, BaseWaypoint
- * 120220 - Indexer<T> implementation in BaseOrder/BaseWaypoint
- * *** v2.0 ***
+ * v2.0, 120525
+ * [NEW] BaseOrder/BaseWaypoint
  */
+
 using System;
 using Idmr.Common;
 
@@ -20,7 +20,7 @@ namespace Idmr.Platform
 	/// <summary>Base class for FlightGroups</summary>
 	/// <remarks>Contains values that are common to all FlightGroup types. Class is Serializable for copy/paste functionality</remarks>
 	[Serializable]
-	public abstract class BaseFlightGroup
+	public abstract partial class BaseFlightGroup
 	{
 		/// <summary>Maximum string length for <see cref="Name"/>, <see cref="Cargo"/> and <see cref="SpecialCargo"/></summary>
 		/// <remarks>Defaults to 0x13, may be redefined by derivative classes</remarks>
@@ -207,189 +207,5 @@ namespace Idmr.Platform
 		/// <remarks>When <b>true</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>false</b></remarks>
 		public bool DepartureMethod2 { get; set; }
 		#endregion
-		
-		/// <summary>Base class for FlightGroup orders</summary>
-		[Serializable] public abstract class BaseOrder : Indexer<byte>
-		{
-			// Doesn't need protected constructors, all handling done in derived classes
-			#region public properties
-			/// <summary>Gets or sets the command for the FlightGroup</summary>
-			public byte Command
-			{
-				get { return _items[0]; }
-				set { _items[0] = value; }
-			}
-			/// <summary>Gets or sets the throttle setting</summary>
-			/// <remarks>Multiply value by 10 to get Throttle percent</remarks>
-			public byte Throttle
-			{
-				get { return _items[1]; }
-				set { _items[1] = value; }
-			}
-			/// <summary>Gets or sets the first order-specific setting</summary>
-			public byte Variable1
-			{
-				get { return _items[2]; }
-				set { _items[2] = value; }
-			}
-			/// <summary>Gets or sets the second order-specific setting</summary>
-			public byte Variable2
-			{
-				get { return _items[3]; }
-				set { _items[3] = value; }
-			}
-			/// <summary>Gets or sets the Type for <see cref="Target3"/></summary>
-			public byte Target3Type
-			{
-				get { return _items[6]; }
-				set { _items[6] = value; }
-			}
-			/// <summary>Gets or sets the Type for <see cref="Target4"/></summary>
-			public byte Target4Type
-			{
-				get { return _items[7]; }
-				set { _items[7] = value; }
-			}
-			/// <summary>Gets or sets the third target</summary>
-			public byte Target3
-			{
-				get { return _items[8]; }
-				set { _items[8] = value; }
-			}
-			/// <summary>Gets or sets the fourth target</summary>
-			public byte Target4
-			{
-				get { return _items[9]; }
-				set { _items[9] = value; }
-			}
-			/// <summary>Gets or sets if the T3 and T4 settings are mutually exclusive</summary>
-			/// <remarks><b>false</b> is And/If and <b>true</b> is Or</remarks>
-			public bool T3AndOrT4
-			{
-				get { return Convert.ToBoolean(_items[10]); }
-				set { _items[10] = Convert.ToByte(value); }
-			}
-			/// <summary>Gets or sets the Type for <see cref="Target1"/></summary>
-			public byte Target1Type
-			{
-				get { return _items[12]; }
-				set { _items[12] = value; }
-			}
-			/// <summary>Gets or sets the first target</summary>
-			public byte Target1
-			{
-				get { return _items[13]; }
-				set { _items[13] = value; }
-			}
-			/// <summary>Gets or sets the Type for <see cref="Target2"/></summary>
-			public byte Target2Type
-			{
-				get { return _items[14]; }
-				set { _items[14] = value; }
-			}
-			/// <summary>Gets or sets the second target</summary>
-			public byte Target2
-			{
-				get { return _items[15]; }
-				set { _items[15] = value; }
-			}
-			/// <summary>Gets or sets if the T1 and T2 settings are mutually exclusive</summary>
-			/// <remarks><b>false</b> is And/If and <b>true</b> is Or</remarks>
-			public bool T1AndOrT2
-			{
-				get { return Convert.ToBoolean(_items[16]); }
-				set { _items[16] = Convert.ToByte(value); }
-			}
-			#endregion public properties
-		}
-		
-		/// <summary>Base class for FlightGroup waypoints</summary>
-		[Serializable] public abstract class BaseWaypoint : Indexer<short>
-		{
-			/// <summary>Default constructor for derived classes</summary>
-			protected BaseWaypoint() { /* do nothing */ }
-
-			/// <summary>Default constructor for derived classes</summary>
-			/// <param name="raw">Raw data</param>
-			protected BaseWaypoint(short[] raw) : base(raw) { /* do nothing */ }
-
-			/// <summary>Returns a representative string of the Waypoint</summary>
-			/// <returns>Waypoint coordinates in the form of <b>"(X, Y, Z)"</b>if enabled, otherwise <b>"Disabled"</b></returns>
-			public override string ToString() { return (Enabled ? "(" + X + ", " + Y + ", " + Z + ") " : "Disabled"); }
-
-			#region public properties
-			/// <summary>Array form of the waypoint</summary>
-			/// <remarks><see cref="Enabled"/> restricted to <b>0</b> and <b>1</b>, <see cref="Idmr.Platform.Xwa.FlightGroup.Waypoint.Region"/> restricted to <b>0-3</b>. No effect for invalid values</remarks>
-			/// <param name="index">X, Y, Z, Enabled, Region (XWA only)</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
-			public override short this[int index]
-			{
-				get { return _items[index]; }
-				set
-				{
-					if (index == 3 && value != 0) _items[index] = 1;
-					else if (Length == 5 && index == 4 && (value < 0 || value > 3)) return;
-					else _items[index] = value;
-				}
-			}
-			
-			/// <summary>Gets or sets if the Waypoint is active for use</summary>
-			public bool Enabled
-			{
-				get { return Convert.ToBoolean(_items[3]); }
-				set { _items[3] = Convert.ToInt16(value); }
-			}
-			/// <summary>Gets or sets the stored X value</summary>
-			public short RawX
-			{
-				get { return _items[0]; }
-				set { _items[0] = value; }
-			}
-			/// <summary>Gets or sets the stored Y value</summary>
-			public short RawY
-			{
-				get { return _items[1]; }
-				set { _items[1] = value; }
-			}
-			/// <summary>Gets or sets the stored Z value</summary>
-			public short RawZ
-			{
-				get { return _items[2]; }
-				set { _items[2] = value; }
-			}
-			/// <summary>Gets or sets the X value in kilometers</summary>
-			/// <remarks>Equals <see cref="RawX"/> divided by 160</remarks>
-			public double X
-			{
-				get { return (double)_items[0] / 160; }
-				set { _items[0] = (short)(value * 160); }
-			}
-			/// <summary>Gets or sets the Y value in kilometers</summary>
-			/// <remarks>Equals <see cref="RawY"/> divided by 160</remarks>
-			public double Y
-			{
-				get { return (double)_items[1] / 160; }
-				set { _items[1] = (short)(value * 160); }
-			}
-			/// <summary>Gets or sets the Z value in kilometers</summary>
-			/// <remarks>Equals <see cref="RawZ"/> divided by 160</remarks>
-			public double Z
-			{
-				get { return (double)_items[2] / 160; }
-				set { _items[2] = (short)(value * 160); }
-			}
-			#endregion public properties
-
-			/// <summary>Converts a waypoint to a short array</summary>
-			/// <remarks>Always returns Length 4 array, even for XWA, due to how values are stored in the file</remarks>
-			/// <param name="wp">The waypoint to convert</param>
-			/// <returns>An array of shorts containing <see cref="X"/>, <see cref="Y"/>, <see cref="Z"/> and <see cref="Enabled"/></returns>
-			public static explicit operator short[](BaseWaypoint wp)
-			{
-				short[] s = new short[4];
-				for (int i = 0; i < 4; i++) s[i] = wp[i];
-				return s;
-			}
-		}
 	}
 }

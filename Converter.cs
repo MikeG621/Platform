@@ -4,15 +4,15 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG
- * 120208 - implemented Trigger and Waypoint conversion
- * 120209 - rewrote for Waypoint interface removal
- * 120213 - removed craftCheck to use XXX.Mission.CraftCheck, adjust Order for internal checks
- * 120301 - XvtBopToTie: Briefing.Events to short[]
- * *** v2.0 ***
+ * v2.0, 120525
+ * - rewrote Trigger and Waypoint conversions
+ * - rewrote for Waypoint interface removal
+ * - removed craftCheck() to use *.Mission.CraftCheck
+ * - XvtBopToTie: Briefing.Events to short[]
  */
 using System;
 using Idmr.Common;

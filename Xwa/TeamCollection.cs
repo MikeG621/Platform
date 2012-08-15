@@ -4,12 +4,12 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG
- * 120212 - T[] to List<T> conversion
- * *** v2.0 ***
+ * v2.0, 120525
+ * [NEW] GetList()
  */
 
 using System;

@@ -284,6 +284,7 @@ struct GoalFG (size 0x50)
 	0x03	SBYTE	Points
 	0x04	BOOL	Enabled
 	0x05	BYTE	Team
+	0x0D	BYTE	Unknown42 [goal time limit?]
 	0x0E	BYTE	Parameter
 	0x0F	BYTE	ActiveSequence
 	0x4F	BOOL	Unknown15		** retains FG Unknown numbering
@@ -657,7 +658,7 @@ were used as notes for the voice actors.
 
 -- DescriptionNotes --
 
-Appears to be the exact same thing as MessageNotes, but possibly applying to
+Appears to be the exact same thing as MessageNotes, but instead applying to
 the Description strings in the order Successful, Description and Failed.
 
 -- FGGoalStrings --
@@ -672,7 +673,7 @@ and Failed in that order.
 -- GlobalGoalStrings --
 
 For the most part, the same as Section 11. Define your own strings, this
-section is always here in the same dynamic matter and repeats 10 times, once
+section is always here in the same dynamic manner and repeats 10 times, once
 for each team. As before * is 1 if 00, 64 otherwise.
 
 The array structure here is 3 strings per Trigger, 4 Triggers per goal, 3 goals
@@ -1157,8 +1158,14 @@ VariableType
 08	Global Group
 0C	Team
 0D	Player of Global Group
-15	All Teams except
+0F	All Flight Groups except?
+10	All Ship Types except?
+11	All Ship Categories except?
+12	All Object Categories except?
+13	All IFFs except?
+15	All Teams except?
 17	Global Unit
+18	All Global Units except?
 19	Global Cargo
 1B	Message #
 

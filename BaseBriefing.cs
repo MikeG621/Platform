@@ -4,13 +4,15 @@
  * Licensed under the GPL v3.0 or later
  * 
  * Full notice in help/Idmr.Platform.chm
- * Version: 2.0
+ * Version: 2.0.1
  */
 
 /* CHANGELOG
- * 120223 - added EventParameterCount
- * 120301 - Events to short[]
- * *** v2.0 ***
+ * v2.0.1, 120814
+ * [FIX] StartEvents calculation
+ * v2.0, 120525
+ * [UPD] Events changed to short[]
+ * [NEW] EventParameterCount
  */
 
 using System;
@@ -127,7 +129,7 @@ namespace Idmr.Platform
 				for (offset = 0; offset < (_events.Length - 1); offset += 2)
 				{
 					if (_events[offset] != 0) break;
-					offset += (short)(2 + _eventParameters[_events[offset + 1]]);
+					offset +=  _eventParameters[_events[offset + 1]];
 				}
 				return offset;
 			}
