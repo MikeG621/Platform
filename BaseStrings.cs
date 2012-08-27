@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [NEW] Warheads.(Ion Pulse)
  */
 
 using System;
@@ -25,7 +26,8 @@ namespace Idmr.Platform
 										"Torpedo",
 										"Adv. Concussion Missile",
 										"Adv. Torpedo",
-										"Mag Pulse"
+										"Mag Pulse",
+										"(Ion Pulse)"
 								   };
 		static string[] _color = { "Red (TIE - none)",
 									"Gold (TIE - Red)",

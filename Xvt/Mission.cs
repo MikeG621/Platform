@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] Team.EndOfMissionMessageColor load/save
  * v2.0.1, 120814
  * [FIX] Critical load failure (located in briefing)
  * [FIX] Save failure (located in briefing)
@@ -373,7 +374,7 @@ namespace Idmr.Platform.Xvt
 						char c = Teams[i].EndOfMissionMessages[j][0];
 						if (c == '1' || c == '2' || c == '3')
 						{
-							Teams[i].EndOfMissionMessageColor[j] = Convert.ToByte(c);
+							Teams[i].EndOfMissionMessageColor[j] = Byte.Parse(c.ToString());
 							Teams[i].EndOfMissionMessages[j] = Teams[i].EndOfMissionMessages[j].Substring(1);
 						}
 					}
@@ -690,9 +691,10 @@ namespace Idmr.Platform.Xvt
 					for (int j=0;j<10;j++) bw.Write(Teams[i].AlliedWithTeam[j]);
 					for (int j=0;j<6;j++)
 					{
+						if (Teams[i].EndOfMissionMessageColor[j] != 0) bw.Write(Convert.ToByte(Teams[i].EndOfMissionMessageColor[j] + 48));
 						bw.Write(Teams[i].EndOfMissionMessages[j].ToCharArray());
 						fs.WriteByte(0);
-						fs.Position = p + 0x64 + j*0x40;
+						fs.Position = p + 0x24 + j*0x40;
 					}
 					fs.Position = p + 0x1E7;
 				}

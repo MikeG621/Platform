@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] CheckTarget accepts TargetType 10 (LA sloppiness, caused load fail on certain missions)
  * v2.0.1, 120814
  * [FIX] Officer questions save [higlighting] properly
  * [FIX] FlightGroup.SpecialCargoCraft load/save
@@ -618,7 +619,7 @@ namespace Idmr.Platform.Tie
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";
-			if (type > 9)
+			if (type > 10)
 			{
 				errorMessage = "Type (" + type + ")";
 				return;

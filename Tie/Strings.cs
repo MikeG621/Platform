@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [NEW] TargetType 10
  * v2.0, 120525
  */
 
@@ -226,16 +227,16 @@ namespace Idmr.Platform.Tie
 									 "Shields 0%, charging",
 									 "Shields added",
 									 "Hyperdrive added",
-									 "",
-									 "",
-									 "",
-									 "",
-									 "",
-									 "",
-									 "",
-									 "",
-									 "",
-									 "",
+									 "10",
+									 "11",
+									 "12",
+									 "13",
+									 "14",
+									 "15",
+									 "16",
+									 "17",
+									 "18",
+									 "19",
 									 "Invincible"
 								 };
 		static string[] _trigger = { "always (TRUE)",
@@ -273,7 +274,8 @@ namespace Idmr.Platform.Tie
 										  "Ship orders",
 										  "Craft when",
 										  "Global Group",
-										  "Misc"
+										  "Misc",
+										  "10"
 									  };
 		static string[] _amount = { "100%",
 									 "75%",

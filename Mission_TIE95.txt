@@ -626,6 +626,10 @@ VariableType
 07	CraftWhen (enum)
 08	Global Group
 09	Misc (enum)
+0A	Unknown*
+
+* Appears to be nothing, probably due to sloppiness with the format
+Only seen as "100% of 0A 01 must TRUE" and "Hold Steady, T3: 0A None"
 
 CraftCategory
 00	Starfighters
