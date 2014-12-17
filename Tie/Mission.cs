@@ -1,14 +1,15 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
+ * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0.1
+ * Version: 2.1
  */
 
 /* CHANGELOG
- * [FIX] CheckTarget accepts TargetType 10 (LA sloppiness, caused load fail on certain missions)
+ * v2.1, 141214
+ * [UPD] change to MPL
  * v2.0.1, 120814
  * [FIX] Officer questions save [higlighting] properly
  * [FIX] FlightGroup.SpecialCargoCraft load/save
@@ -619,7 +620,7 @@ namespace Idmr.Platform.Tie
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";
-			if (type > 10)
+			if (type > 9)
 			{
 				errorMessage = "Type (" + type + ")";
 				return;

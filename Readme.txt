@@ -2,14 +2,20 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.0.1
-Date: 2012.08.14
+Version: 2.1
+Date: 2014.12.14
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
 
+v2.1 - 14 Dec 2014
+ - Converted license to MPLv2.0
+ - (*.FlightGroupCollection) SetCount and IsModified implementation
+ - (*.MessageCollection) SetCount and IsModified implementation
+ - Couple other minor fixes that have been sitting here for a while...
+ 
 v2.0.1 - 14 Aug 2012
  - (BaseBriefing) Fixed bug regarding StartLength calculation
  - (*.FlightGroup) Fixed bug preventing proper SpecialCargoCraft handling during Load/Save
@@ -74,9 +80,9 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2012 Michael Gaisser
-This library file and related files are licensed under the GNU Public License
-or GNU Free Documentation License.  See GPL.txt or FDL.txt as appropriate.
+Copyright © 2009-2014 Michael Gaisser
+This library file and related files are licensed under the Mozilla Public License
+v2.0 or later.  See MPL.txt for further details.
 
 The Galactic Empire: Empire Reborn is Copyright © 2004- Tiberius Fel
 

@@ -1,13 +1,16 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
+ * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0.1
+ * Version: 2.1
  */
 
 /* CHANGELOG
+ * v2.1, 141214
+ * [UPD] change to MPL
+ * [FIX] _checkValues reverts TargetType 0A to 00 (LA sloppiness, caused load fail on certain missions)
  * v2.0, 120525
  * [NEW] value checks, exceptions, conversions
  * [NEW] ToString() override
@@ -67,6 +70,10 @@ namespace Idmr.Platform.Tie
 				string msg;
 				byte tempVar;
 				if (o.Command > 39) error += "Command (" + o.Command + ")";
+				if (o.Target1Type == 10) o.Target1Type = o.Target1 = 0;
+				if (o.Target2Type == 10) o.Target2Type = o.Target2 = 0;
+				if (o.Target3Type == 10) o.Target3Type = o.Target3 = 0;
+				if (o.Target4Type == 10) o.Target4Type = o.Target4 = 0;
 				tempVar = o.Target1;
 				Mission.CheckTarget(o.Target1Type, ref tempVar, out msg);
 				o.Target1 = tempVar;

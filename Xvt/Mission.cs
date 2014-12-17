@@ -1,13 +1,15 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
+ * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0.1
+ * Version: 2.1
  */
 
 /* CHANGELOG
+ * v2.1, 141214
+ * [UPD] change to MPL
  * [FIX] Team.EndOfMissionMessageColor load/save
  * v2.0.1, 120814
  * [FIX] Critical load failure (located in briefing)

@@ -1,13 +1,17 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
+ * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0.1
+ * Version: 2.1
  */
 
 /* CHANGELOG
+ * v2.1, 141214
+ * [UPD] change to MPL
+ * [NEW] IsModified implementation
+ * [NEW] SetCount
  * v2.0, 120525
  * [NEW] GetList()
  */
@@ -42,19 +46,30 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Adds a new FlightGroup to the end of the Collection</summary>
 		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b></returns>
-		public int Add() { return _add(new FlightGroup()); }
+		public int Add()
+		{
+			int result = _add(new FlightGroup());
+			if (result != -1 && !_isLoading) _isModified = true;
+			return result;
+		}
 
 		/// <summary>Inserts a new FlightGroup at the specified index</summary>
 		/// <param name="index">Location of the FlightGroup</param>
 		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b></returns>
-		public int Insert(int index) { return _insert(index, new FlightGroup()); }
+		public int Insert(int index)
+		{
+			int result = _insert(index, new FlightGroup());
+			if (result != -1) _isModified = true;
+			return result;
+		}
 
 		/// <summary>Removes all existing entries in the Collection, creates a single new FlightGroup</summary>
 		/// <remarks>All existing FlightGroups are lost, first FG is re-initialized</remarks>
-		public void Clear()
+		public override void Clear()
 		{
 			_items.Clear();
 			_items.Add(new FlightGroup());
+			if (!_isLoading) _isModified = true;
 		}
 
 		/// <summary>Deletes the FlightGroup at the specified index</summary>
@@ -63,13 +78,33 @@ namespace Idmr.Platform.Tie
 		/// <returns>The index of the next available FlightGroup if successfull, otherwise <b>-1</b></returns>
 		public int RemoveAt(int index)
 		{
-			if (index >= 0 && index < Count && Count > 1) { return _removeAt(index); }
+			int result = -1;
+			if (index >= 0 && index < Count && Count > 1) { result = _removeAt(index); }
 			else if (index == 0 && Count == 1)
 			{
 				_items[0] = new FlightGroup();
-				return 0;
+				result = 0;
 			}
-			else return -1;
+			if (result != -1) _isModified = true;
+			return result;
+		}
+
+		/// <summary>Expands or contracts the Collection, populating as necessary</summary>
+		/// <param name="value">The new size of the Collection. Must be greater than <b>0</b>.</param>
+		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
+		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><i>value</i> must be greater than 0.</exception>
+		/// <remarks>If the Collection expands, the new items will be a new <see cref="FlightGroup"/>. When truncating, items will be removed starting from the last index.</remarks>
+		public override void SetCount(int value, bool allowTruncate)
+		{
+			if (value == Count) return;
+			else if (value < 1 || value > _itemLimit) throw new ArgumentOutOfRangeException("value", "Invalid quantity, must be 1-" + _itemLimit);
+			else if (value < Count)
+			{
+				if (!allowTruncate) throw new InvalidOperationException("Reducing 'value' will cause data loss");
+				else while (Count > value) RemoveAt(Count - 1);
+			}
+			else while (Count < value) Add();
 		}
 		
 		/// <summary>Provides quick access to an array of FlightGroup names</summary>

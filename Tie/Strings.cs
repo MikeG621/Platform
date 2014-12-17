@@ -1,14 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2012 Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
+ * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.0.1
+ * Version: 2.1
  */
 
 /* CHANGELOG
- * [NEW] TargetType 10
+ * v2.1, 141214
+ * [UPD] change to MPL
  * v2.0, 120525
  */
 
@@ -275,7 +276,6 @@ namespace Idmr.Platform.Tie
 										  "Craft when",
 										  "Global Group",
 										  "Misc",
-										  "10"
 									  };
 		static string[] _amount = { "100%",
 									 "75%",
