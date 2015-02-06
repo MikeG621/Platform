@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2015 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.2
  */
 
 /* CHANGELOG
+ * v2.2, 150205
+ * [FIX] marked Serializable
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -18,6 +20,7 @@ using System;
 namespace Idmr.Platform
 {
 	/// <summary>Base class for mission Triggers</summary>
+	[Serializable]
 	public abstract class BaseTrigger : Idmr.Common.Indexer<byte>
 	{
 		/// <summary>Default constructor for derived classes</summary>

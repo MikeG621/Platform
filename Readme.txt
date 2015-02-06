@@ -2,14 +2,18 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.1
-Date: 2014.12.14
+Version: 2.2
+Date: 2015.02.05
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
 
+v2.2 - 5 Feb 2015
+ - (Team.*) set classes to Serializable
+ - (BaseTrigger) set to Serializable
+ 
 v2.1 - 14 Dec 2014
  - Converted license to MPLv2.0
  - (*.FlightGroupCollection) SetCount and IsModified implementation
