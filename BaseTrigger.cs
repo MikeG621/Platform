@@ -9,7 +9,7 @@
 
 /* CHANGELOG
  * v2.2, 150205
- * [FIX] marked Serializable
+ * [FIX #5] marked Serializable
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525

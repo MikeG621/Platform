@@ -11,8 +11,8 @@ Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 Version History
 
 v2.2 - 5 Feb 2015
- - (Team.*) set classes to Serializable
- - (BaseTrigger) set to Serializable
+ - (Team.*) set classes to Serializable (YOGEME Issue #8)
+ - (BaseTrigger) set to Serializable (YOGEME Issue #5)
  
 v2.1 - 14 Dec 2014
  - Converted license to MPLv2.0
