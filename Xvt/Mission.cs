@@ -431,7 +431,7 @@ namespace Idmr.Platform.Xvt
 					{
 							if (j >= 8 && k == 0) { stream.Position += 0x40; continue; }	// skip Sec Inc
 							if (j >= 4 && k == 2) { stream.Position += 0x40; continue; }	// skip Prev & Sec Fail
-							Globals[i].Goals[j / 4].GoalStrings[j % 4, k] = new string(br.ReadChars(0x40));
+							Globals[i].Goals[j / 4].Triggers[j % 4].GoalStrings[k] = new string(br.ReadChars(0x40));
 					}
 				}
 				stream.Position += 0xC00;
@@ -751,7 +751,7 @@ namespace Idmr.Platform.Xvt
 							if (j >= 8 && k==0) { fs.Position += 0x40; continue; }	// skip Sec Inc
 							if (j >= 4 && k==2) { fs.Position += 0x40; continue; }	// skip Prev & Sec Fail
 							p = fs.Position;
-							bw.Write(Globals[i].Goals[j / 4].GoalStrings[j % 4, k].ToCharArray());
+							bw.Write(Globals[i].Goals[j / 4].Triggers[j % 4].GoalStrings[k].ToCharArray());
 							fs.WriteByte(0);
 							fs.Position = p + 0x40;
 						}

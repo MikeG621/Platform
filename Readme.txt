@@ -2,14 +2,19 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.2
-Date: 2015.02.05
+Version: 2.3
+Date: 2015.04.05
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
 
+v2.3 - 5 Apr 2015
+ - (BaseTrigger) Added TriggerIndex enum
+ - (XvT.Globals.Goal) set to Serializable
+ - (XvT.Globals.Goal) Deleted GoalStringIndexer, strings wrapped into new subclass, Trigger
+ 
 v2.2 - 5 Feb 2015
  - (Team.*) set classes to Serializable (YOGEME Issue #8)
  - (BaseTrigger) set to Serializable (YOGEME Issue #5)

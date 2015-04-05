@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.2
+ * Version: 2.3
  */
 
 /* CHANGELOG
+ * v2.3, 150405
+ * [NEW] Added TriggerIndex enum
  * v2.2, 150205
  * [FIX #5] marked Serializable
  * v2.1, 141214
@@ -23,6 +25,18 @@ namespace Idmr.Platform
 	[Serializable]
 	public abstract class BaseTrigger : Idmr.Common.Indexer<byte>
 	{
+		/// <summary>Indexes within the Trigger array</summary>
+		public enum TriggerIndex : byte {
+			/// <summary>The Trigger event</summary>
+			Condition,
+			/// <summary>The category <see cref="Variable"/> belongs to</summary>
+			VariableType,
+			/// <summary>The Trigger subject</summary>
+			Variable,
+			/// <summary>The amount required to fire the event</summary>
+			Amount
+		};
+
 		/// <summary>Default constructor for derived classes</summary>
 		protected BaseTrigger() { /* do nothing */ }
 

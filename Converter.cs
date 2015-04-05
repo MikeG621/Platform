@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.3
  */
 
 /* CHANGELOG
+ * v2.3, 150405
+ * [UPD] XvT.Globals.Goal.Trigger implementation
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -172,7 +174,7 @@ namespace Idmr.Platform
 			tie.GlobalGoals.Goals[2].T1AndOrT2 = miss.Globals[0].Goals[2].T1AndOrT2;	// Secondary to Bonus, Prevent will be ignored
 			for (int j = 0; j < 4; j++)
 			{
-				try { tie.GlobalGoals.Goals[j/2*2].Triggers[j%2] = (Tie.Mission.Trigger)miss.Globals[0].Goals[j/2*2].Triggers[j%2]; }
+				try { tie.GlobalGoals.Goals[j/2*2].Triggers[j%2] = (Tie.Mission.Trigger)miss.Globals[0].Goals[j/2*2].Triggers[j%2].GoalTrigger; }
 				catch (Exception x) { throw new ArgumentException("Goal[" + (j/2*2) + "] T[" + (j%2) + "]: " + x.Message, x); }
 			}
 			#endregion Globals
@@ -351,11 +353,11 @@ namespace Idmr.Platform
 					xvt.Globals[i].Goals[j].T1AndOrT2 = miss.Globals[i].Goals[j].T1AndOrT2;
 					xvt.Globals[i].Goals[j].T3AndOrT4 = miss.Globals[i].Goals[j].T3AndOrT4;
 					xvt.Globals[i].Goals[j].T12AndOrT34 = miss.Globals[i].Goals[j].T12AndOrT34;
-					for (int k = 0; k < 12; k++) xvt.Globals[i].Goals[j].GoalStrings[k / 3, k % 3] = miss.Globals[i].Goals[j].GoalStrings[k / 3, k % 3];
+					for (int k = 0; k < 12; k++) xvt.Globals[i].Goals[j].Triggers[k / 3].GoalStrings[k % 3] = miss.Globals[i].Goals[j].GoalStrings[k / 3, k % 3];
 					xvt.Globals[i].Goals[j].RawPoints = miss.Globals[i].Goals[j].RawPoints;
 					for (int h = 0; h < 4; h++)
 					{
-						try { xvt.Globals[i].Goals[j].Triggers[h] = (Xvt.Mission.Trigger)miss.Globals[i].Goals[j].Triggers[h]; }
+						try { xvt.Globals[i].Goals[j].Triggers[h].GoalTrigger = (Xvt.Mission.Trigger)miss.Globals[i].Goals[j].Triggers[h]; }
 						catch (Exception x) { throw new ArgumentException("Team[" + i + "] Goal[" + j + "] T[" + h + "]: " + x.Message, x); }
 					}
 				}

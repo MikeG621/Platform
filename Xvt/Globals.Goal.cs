@@ -1,13 +1,16 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2015 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.3
  */
 
 /* CHANGELOG
+ * v2.3, 150405
+ * [UPD] new subclass Trigger, GoalStringIndexer removed
+ * [NEW] Serializable
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -23,25 +26,18 @@ namespace Idmr.Platform.Xvt
 	public partial class Globals
 	{
 		/// <summary>Container for a single Global Goal</summary>
+		[Serializable]
 		public partial class Goal
 		{
-			Mission.Trigger[] _triggers = new Mission.Trigger[4];
-			string[,] _goalStrings = new string[4, 3];	// No PreventFailed, SecondaryIncomplete, SecondaryFailed
-			GoalStringIndexer _goalStringsIndexer;
+			Trigger[] _triggers = new Trigger[4];	// No PreventFailed, SecondaryIncomplete, SecondaryFailed
 			bool[] _andOrs = new bool[3];
 
 			/// <summary>Initializes a new Goal</summary>
 			/// <remarks>All <see cref="Triggers"/> set to <b>10</b>, "never (FALSE)". <see cref="AndOr"/> values set to <b>true</b>, "OR"</remarks>
 			public Goal()
 			{
-				for (int i = 0; i < 12; i++) _goalStrings[i / 3, i % 3] = "";
-				for (int i = 0; i < 4; i++)
-				{
-					_triggers[i] = new Mission.Trigger();
-					_triggers[i].Condition = 10;
-				}
+				for (int i = 0; i < 4; i++) _triggers[i] = new Trigger(this);
 				for (int i = 0; i < 3; i++) _andOrs[i] = true;
-				_goalStringsIndexer = new GoalStringIndexer(this);
 			}
 			
 			/// <summary>Raw value stored in file</summary>
@@ -77,12 +73,9 @@ namespace Idmr.Platform.Xvt
 				set { RawPoints = (sbyte)(value > 31750 ? 31750 : (value < -32000 ? -32000 : value) / 250); }
 			}
 			
-			/// <summary>Gets the array accessor for the GoalString values</summary>
-			public GoalStringIndexer GoalStrings { get { return _goalStringsIndexer; } }
-			
 			/// <summary>The Triggers that define the Goal</summary>
 			/// <remarks>Array length is 4</remarks>
-			public Mission.Trigger[] Triggers { get { return _triggers; } }
+			public Trigger[] Triggers { get { return _triggers; } }
 		}
 	}
 }
