@@ -500,7 +500,7 @@ and all can be given point values, stored as (Points / 25), yielding a range of
 In addition the Team can be set, as well as the ActiveSequence value, which is
 best described in a mission tutorial. NOTE: in AlliED there is a box for
 another number next to the "Use?" checkbox; that box points to the byte
-directly before the Paramter value, but every LA mission is just 00 in that
+directly before the Parameter value, but every LA mission is just 00 in that
 location.  For that reason I do not have it defined explicitly.
 
 The Team values lets you assign to which team the goals apply, and the Enabled

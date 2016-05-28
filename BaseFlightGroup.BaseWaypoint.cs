@@ -42,11 +42,16 @@ namespace Idmr.Platform
 			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public override short this[int index]
 			{
-				get { return _items[index]; }
+				get
+				{
+					if (index == 1) return (short)(_items[index] * -1);
+					else return _items[index];
+				}
 				set
 				{
 					if (index == 3 && value != 0) _items[index] = 1;
 					else if (Length == 5 && index == 4 && (value < 0 || value > 3)) return;
+					else if (index == 1) _items[index] = (short)(value * -1);
 					else _items[index] = value;
 				}
 			}
@@ -64,10 +69,11 @@ namespace Idmr.Platform
 				set { _items[0] = value; }
 			}
 			/// <summary>Gets or sets the stored Y value</summary>
+			/// <remarks>Is multipled by -1 during read/write to plot as positive-Y-Up in map and briefing.</remarks>
 			public short RawY
 			{
-				get { return _items[1]; }
-				set { _items[1] = value; }
+				get { return (short)(_items[1] * -1); }
+				set { _items[1] = (short)(value * -1); }
 			}
 			/// <summary>Gets or sets the stored Z value</summary>
 			public short RawZ
@@ -79,22 +85,22 @@ namespace Idmr.Platform
 			/// <remarks>Equals <see cref="RawX"/> divided by 160</remarks>
 			public double X
 			{
-				get { return (double)_items[0] / 160; }
-				set { _items[0] = (short)(value * 160); }
+				get { return (double)RawX / 160; }
+				set { RawX = (short)(value * 160); }
 			}
 			/// <summary>Gets or sets the Y value in kilometers</summary>
 			/// <remarks>Equals <see cref="RawY"/> divided by 160</remarks>
 			public double Y
 			{
-				get { return (double)_items[1] / 160; }
-				set { _items[1] = (short)(value * 160); }
+				get { return (double)RawY / 160; }
+				set { RawY = (short)(value * 160); }
 			}
 			/// <summary>Gets or sets the Z value in kilometers</summary>
 			/// <remarks>Equals <see cref="RawZ"/> divided by 160</remarks>
 			public double Z
 			{
-				get { return (double)_items[2] / 160; }
-				set { _items[2] = (short)(value * 160); }
+				get { return (double)RawZ / 160; }
+				set { RawZ = (short)(value * 160); }
 			}
 			#endregion public properties
 
