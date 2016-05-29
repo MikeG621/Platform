@@ -42,16 +42,11 @@ namespace Idmr.Platform
 			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public override short this[int index]
 			{
-				get
-				{
-					if (index == 1) return (short)(_items[index] * -1);
-					else return _items[index];
-				}
+				get { return _items[index]; }
 				set
 				{
 					if (index == 3 && value != 0) _items[index] = 1;
 					else if (Length == 5 && index == 4 && (value < 0 || value > 3)) return;
-					else if (index == 1) _items[index] = (short)(value * -1);
 					else _items[index] = value;
 				}
 			}
@@ -72,8 +67,8 @@ namespace Idmr.Platform
 			/// <remarks>Is multipled by -1 during read/write to plot as positive-Y-Up in map and briefing.</remarks>
 			public short RawY
 			{
-				get { return (short)(_items[1] * -1); }
-				set { _items[1] = (short)(value * -1); }
+				get { return _items[1]; }
+				set { _items[1] = value; }
 			}
 			/// <summary>Gets or sets the stored Z value</summary>
 			public short RawZ

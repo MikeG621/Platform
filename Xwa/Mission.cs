@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [FIX] Invert WP.Y at read/write
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0.1, 120814
@@ -312,7 +313,7 @@ namespace Idmr.Platform.Xwa
 					FlightGroups[i].Goals[j].Unknown15 = br.ReadBoolean();
 				}
 				#endregion
-				for (j=0;j<4;j++) for (int k=0;k<4;k++) FlightGroups[i].Waypoints[j][k] = br.ReadInt16();
+				for (j = 0; j < 4; j++) for (int k = 0; k < 4; k++) FlightGroups[i].Waypoints[j][k] = (short)(br.ReadInt16() * (k == 1 ? -1 : 1));
 				for (j=0;j<4;j++) FlightGroups[i].Waypoints[j].Region = br.ReadByte();
 				#region Options/other
 				stream.Read(buffer, 0, 0x1E);
@@ -751,8 +752,8 @@ namespace Idmr.Platform.Xwa
 					// SP1 0,0,0 check for backdrops
 					if (FlightGroups[i].CraftType == 0xB7 && FlightGroups[i].Waypoints[0].RawX == 0 && FlightGroups[i].Waypoints[0].RawY == 0 && FlightGroups[i].Waypoints[0].RawZ == 0)
 						FlightGroups[i].Waypoints[0].RawY = 10;
-					for (j=0;j<4;j++) for (int k=0;k<4;k++) bw.Write(FlightGroups[i].Waypoints[j][k]);
-					for (j=0;j<4;j++) fs.WriteByte(FlightGroups[i].Waypoints[j].Region);
+					for (j = 0; j < 4; j++) for (int k = 0; k < 4; k++) bw.Write((short)(FlightGroups[i].Waypoints[j][k] * (k == 1 ? -1 : 1)));
+					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].Waypoints[j].Region);
 					#region Options/other
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown16);
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown17);

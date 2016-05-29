@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [FIX] Invert WP.Y at read/write
  * v2.1, 141214
  * [UPD] change to MPL
  * [FIX] Team.EndOfMissionMessageColor load/save
@@ -236,7 +237,7 @@ namespace Idmr.Platform.Xvt
 				}
 				stream.Position++;
 				#endregion
-				for (j=0;j<4;j++) for (int k=0;k<22;k++) FlightGroups[i].Waypoints[k][j] = br.ReadInt16();
+				for (j = 0; j < 4; j++) for (int k = 0; k < 22; k++) FlightGroups[i].Waypoints[k][j] = (short)(br.ReadInt16() * (j == 1 ? -1 : 1));
 				#region Options/Other
 				FlightGroups[i].Unknowns.Unknown17 = br.ReadBoolean();
 				stream.Position++;
@@ -601,7 +602,7 @@ namespace Idmr.Platform.Xvt
 					}
 					fs.Position++;
 					#endregion
-					for (j=0;j<4;j++) for (int k=0;k<22;k++) bw.Write(FlightGroups[i].Waypoints[k][j]);
+					for (j = 0; j < 4; j++) for (int k = 0; k < 22; k++) bw.Write((short)(FlightGroups[i].Waypoints[k][j] * (j == 1 ? -1 : 1)));
 					#region Options/Other
 					bw.Write(FlightGroups[i].Unknowns.Unknown17);
 					fs.Position++;
