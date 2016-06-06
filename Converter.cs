@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.3
+ * Version: 2.3+
  */
 
 /* CHANGELOG
+ * [FIX] XWA to TIE player craft
  * v2.3, 150405
  * [UPD] XvT.Globals.Goal.Trigger implementation
  * v2.1, 141214
@@ -428,7 +429,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
 				tie.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
 				tie.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
-				tie.FlightGroups[i].PlayerCraft = miss.FlightGroups[i].PlayerCraft;
+				tie.FlightGroups[i].PlayerCraft = (byte)(miss.FlightGroups[i].PlayerCraft + (miss.FlightGroups[i].PlayerNumber == 1 ? 1 : 0));
 				tie.FlightGroups[i].Yaw = miss.FlightGroups[i].Yaw;
 				tie.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
 				tie.FlightGroups[i].Roll = miss.FlightGroups[i].Roll;
