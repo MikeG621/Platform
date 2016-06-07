@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 2.4
  */
 
 /* CHANGELOG
+ * v2.4, 160606
  * [FIX] Invert WP.Y at read/write
  * v2.1, 141214
  * [UPD] change to MPL

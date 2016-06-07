@@ -1,10 +1,10 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2015 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.3
+ * Version: 2.4
  */
 
 /* CHANGELOG
@@ -29,6 +29,7 @@ namespace Idmr.Platform.Xvt
 				string[] _strings = new string[3];
 
 				/// <summary>Initializes a new Trigger</summary>
+				/// <param name="parent">The <see cref="Goal"/> to which this object belongs.</param>
 				/// <remarks>Trigger set to <b>10</b>, "never (FALSE)".</remarks>
 				public Trigger(Goal parent)
 				{

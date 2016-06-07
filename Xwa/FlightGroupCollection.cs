@@ -1,10 +1,10 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.4
  */
 
 /* CHANGELOG
@@ -22,8 +22,8 @@ using System.Collections.Generic;
 namespace Idmr.Platform.Xwa
 {
 	/// <summary>Object to maintain mission FG list</summary>
-	/// <remarks><see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (100)</remarks>
-	public class FlightGroupCollection : Idmr.Common.ResizableCollection<FlightGroup>
+	/// <remarks><see cref="Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (100)</remarks>
+	public class FlightGroupCollection : Common.ResizableCollection<FlightGroup>
 	{
 		/// <summary>Creates a new Collection with one FlightGroup</summary>
 		public FlightGroupCollection()
@@ -35,7 +35,7 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>
 		/// <param name="quantity">Number of FlightGroups to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than <b>1</b> or greater than <see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/></exception>
+		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than <b>1</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
 		public FlightGroupCollection(int quantity)
 		{
 			_itemLimit = Mission.FlightGroupLimit;
@@ -92,7 +92,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Expands or contracts the Collection, populating as necessary</summary>
 		/// <param name="value">The new size of the Collection. Must be greater than <b>0</b>.</param>
 		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
-		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
+		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Common.FixedSizeCollection{T}/Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
 		/// <exception cref="ArgumentOutOfRangeException"><i>value</i> must be greater than 0.</exception>
 		/// <remarks>If the Collection expands, the new items will be a new <see cref="FlightGroup"/>. When truncating, items will be removed starting from the last index.</remarks>
 		public override void SetCount(int value, bool allowTruncate)

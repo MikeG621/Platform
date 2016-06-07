@@ -2,14 +2,19 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.3
-Date: 2015.04.05
+Version: 2.4
+Date: 2016.06.06
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
 
+v2.4 - 6 June 2016
+ - (Converter) Fixed XWA to TIE player's craft conversion
+ - (All) Inverted the Y axis on all waypoints during read/write so in-game map and editor appearance match, but editor is still "positive up"
+ - Fixed various references in comments
+ 
 v2.3 - 5 Apr 2015
  - (BaseTrigger) Added TriggerIndex enum
  - (XvT.Globals.Goal) set to Serializable
@@ -89,7 +94,7 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2014 Michael Gaisser
+Copyright © 2009-2016 Michael Gaisser
 This library file and related files are licensed under the Mozilla Public License
 v2.0 or later.  See MPL.txt for further details.
 

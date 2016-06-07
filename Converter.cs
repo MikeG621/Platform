@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.3+
+ * Version: 2.4
  */
 
 /* CHANGELOG
+ * v2.6, 160606
  * [FIX] XWA to TIE player craft
  * v2.3, 150405
  * [UPD] XvT.Globals.Goal.Trigger implementation

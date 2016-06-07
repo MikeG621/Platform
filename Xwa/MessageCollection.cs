@@ -1,10 +1,10 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.4
  */
 
 /* CHANGELOG
@@ -20,8 +20,8 @@ using System.Collections.Generic;
 namespace Idmr.Platform.Xwa
 {
 	/// <summary>Object to maintain mission in-flight messages</summary>
-	/// <remarks><see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.MessageLimit"/> (64)</remarks>
-	public class MessageCollection : Idmr.Common.ResizableCollection<Message>
+	/// <remarks><see cref="Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.MessageLimit"/> (64)</remarks>
+	public class MessageCollection : Common.ResizableCollection<Message>
 	{
 		/// <summary>Creates a new empty Collection</summary>
 		public MessageCollection()
@@ -32,7 +32,7 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Creates a new Collection with multiple initial Messages</summary>
 		/// <param name="quantity">Number of Messages to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than <b>0</b> or greater than <see cref="Idmr.Common.ResizableCollection{T}.ItemLimit"/></exception>
+		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than <b>0</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
 		public MessageCollection(int quantity)
 		{
 			_itemLimit = Mission.MessageLimit;
@@ -90,7 +90,7 @@ namespace Idmr.Platform.Xwa
 		}
 
 		/// <summary>Deletes the Message at the specified index</summary>
-		/// <remarks>If first and only Message is specified, executes <see cref="Clear()"/></remarks>
+		/// <remarks>If first and only Message is specified, executes <see cref="Common.ResizableCollection{T}.Clear()"/></remarks>
 		/// <param name="index">The index of the Message to be deleted</param>
 		/// <returns>The index of the next available Message if successfull, otherwise <b>-1</b></returns>
 		public int RemoveAt(int index)
@@ -109,7 +109,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Expands or contracts the Collection, populating as necessary</summary>
 		/// <param name="value">The new size of the Collection. Must not be negative.</param>
 		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
-		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
+		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Common.FixedSizeCollection{T}.Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
 		/// <exception cref="ArgumentOutOfRangeException"><i>value</i> must not be negative.</exception>
 		/// <remarks>If the Collection expands, the new items will be a blank <see cref="Message"/>. When truncating, items will be removed starting from the last index.</remarks>
 		public override void SetCount(int value, bool allowTruncate)
