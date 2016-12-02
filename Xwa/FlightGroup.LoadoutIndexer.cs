@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] Ion Pulse implemented [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -43,6 +44,8 @@ namespace Idmr.Platform.Xwa
 				AdvTorpedo,
 				/// <summary>MagPulse distruption warheads</summary>
 				MagPulse,
+				/// <summary>Ion Pulse warheads</summary>  
+				IonPulse,
 				/// <summary>All beams unavailable</summary>
 				NoBeam,
 				/// <summary>Tractor beam</summary>
@@ -62,53 +65,53 @@ namespace Idmr.Platform.Xwa
 			/// <param name="optLoadout">The loadout array</param>
 			public LoadoutIndexer(bool[] optLoadout) : base(optLoadout) { }
 			
-			/// <summary>Gets or sets the Role values</summary>
-			/// <param name="index">Indexes enumerated value, 0-15</param>
-			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br/>
+			/// <summary>Gets or sets the Options values</summary>
+			/// <param name="index">Indexes enumerated value, 0-16</param>
+			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes.<br/>
 			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
 			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
-			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
+			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value.</remarks>
 			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public override bool this[int index]
 			{
 				get { return _items[index]; }
 				set
 				{
-					if ((index == 0 || index == 8 || index == 12) && !value) return;
+					if ((index == 0 || index == 9 || index == 13) && !value) return;
 					_items[index] = value;
-					if (index == 0 && value) for (int i = 1; i < 8; i++) _items[i] = false;	// set NoWarheads, clear warheads
-					else if (index == 8 && value) for (int i = 9; i < 12; i++) _items[i] = false;	// set NoBeam, clear beams
-					else if (index == 12 && value) for (int i = 13; i < 15; i++) _items[i] = false;	// set NoCMs, clear CMs
-					else if (index < 8 && value) _items[0] = false;	// set a warhead, clear NoWarheads
-					else if (index < 12 && value) _items[8] = false;	// set a beam, clear NoBeam
-					else if (index < 15 && value) _items[12] = false;	// set a CM, clear NoCMs
-					else if (index < 8)
+					if (index == 0 && value) for (int i = 1; i < 9; i++) _items[i] = false;	// set NoWarheads, clear warheads
+					else if (index == 9 && value) for (int i = 10; i < 13; i++) _items[i] = false;	// set NoBeam, clear beams
+					else if (index == 13 && value) for (int i = 14; i < 16; i++) _items[i] = false;	// set NoCMs, clear CMs
+					else if (index < 9 && value) _items[0] = false;	// set a warhead, clear NoWarheads
+					else if (index < 13 && value) _items[9] = false;	// set a beam, clear NoBeam
+					else if (index < 16 && value) _items[13] = false;	// set a CM, clear NoCMs
+					else if (index < 9)
 					{
 						bool used = false;
-						for (int i = 1; i < 8; i++) used |= _items[i];
+						for (int i = 1; i < 9; i++) used |= _items[i];
 						if (!used) _items[0] = true;	// cleared last warhead, set NoWarheads
 					}
-					else if (index < 12)
+					else if (index < 13)
 					{
 						bool used = false;
-						for (int i = 9; i < 12; i++) used |= _items[i];
-						if (!used) _items[8] = true;	// cleared last beam, set NoBeam
+						for (int i = 10; i < 13; i++) used |= _items[i];
+						if (!used) _items[9] = true;	// cleared last beam, set NoBeam
 					}
 					else
 					{
 						bool used = false;
-						for (int i = 13; i < 15; i++) used |= _items[i];
-						if (!used) _items[12] = true;	// cleared last CM, set NoCMs
+						for (int i = 14; i < 16; i++) used |= _items[i];
+						if (!used) _items[13] = true;	// cleared last CM, set NoCMs
 					}
 				}
 			}
 			
-			/// <summary>Gets or sets the Role values</summary>
+			/// <summary>Gets or sets the Options values</summary>
 			/// <param name="index">Indexes enumerated value</param>
-			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br/>
+			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes.<br/>
 			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
 			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
-			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
+			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value.</remarks>
 			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public bool this[Indexes index]
 			{

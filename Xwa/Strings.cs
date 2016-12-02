@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] added Unks [JB]
+ * [UPD] Amounts [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -51,7 +53,8 @@ namespace Idmr.Platform.Xwa
 									"HYP to Region 2",
 									"HYP to Region 3",
 									"HYP to Region 4",
-									"Unknown"
+									"Unknown",
+									"Unknown"	//[JB] needed for 1B6M7FB
 								};
 		static string[] _radio = { "None",
 										"Team 1",
@@ -564,7 +567,7 @@ namespace Idmr.Platform.Xwa
 									"Veteran",
 									"Ace",
 									"Top Ace",
-									"Super Ace (invul)"
+									"Super Ace"
 								 };
 		static string[] _status = { "Normal",
 									"2x Warheads",
@@ -705,6 +708,9 @@ namespace Idmr.Platform.Xwa
 									"66%",
 									"33%",
 									"each craft",
+									"each special craft",
+									"???",
+									"???",
 									"???"
 								 };
 		static string[] _orders = { "Hold Steady",

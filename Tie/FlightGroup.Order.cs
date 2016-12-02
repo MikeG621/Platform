@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [FIX] hack _checkValues [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * [FIX] _checkValues reverts TargetType 0A to 00 (LA sloppiness, caused load fail on certain missions)
@@ -74,6 +75,7 @@ namespace Idmr.Platform.Tie
 				if (o.Target2Type == 10) o.Target2Type = o.Target2 = 0;
 				if (o.Target3Type == 10) o.Target3Type = o.Target3 = 0;
 				if (o.Target4Type == 10) o.Target4Type = o.Target4 = 0;
+				if (o.Target3Type == 3 && o.Target3 > 6) { o.Target3Type = 0; o.Target3 = 0; }; //[JB] Hack to fix TIE DOS B2M3IW.TIE
 				tempVar = o.Target1;
 				Mission.CheckTarget(o.Target1Type, ref tempVar, out msg);
 				o.Target1 = tempVar;

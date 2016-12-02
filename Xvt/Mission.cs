@@ -4,10 +4,18 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4
+ * Version: 2.4+
  */
 
 /* CHANGELOG
+ * [FIX] Enforced string encodings [JB]
+ * [FIX] Craft options [JB]
+ * [FIX] Message read length check [JB]
+ * [FIX] FG Goal Unks write [JB]
+ * [FIX] FG options writing [JB]
+ * [FIX] write Message.Color [JB]
+ * [FIX] Team write [JB]
+ * [UPD] Briefing Teams R/W [JB]
  * v2.4, 160606
  * [FIX] Invert WP.Y at read/write
  * v2.1, 141214
@@ -114,7 +122,7 @@ namespace Idmr.Platform.Xvt
 			MissionFile.Platform p = MissionFile.GetPlatform(stream);
 			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException(_invalidError);
 			IsBop = (p == MissionFile.Platform.BoP);
-			BinaryReader br = new BinaryReader(stream);
+			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.Default); //[JB] Added encoding. BoP\Train\8xrcb06 fails otherwise
 			int i, j;
 			stream.Position = 2;
 			short numFlightGroups = br.ReadInt16();
@@ -269,13 +277,13 @@ namespace Idmr.Platform.Xvt
 				for (j=8;j<12;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 4) FlightGroups[i].OptLoadout[x] = true;
+					if (x != 0 && x < 4) FlightGroups[i].OptLoadout[8 + x] = true;	//[JB] forgot the offset
 				}
 				stream.Position += 2;
 				for (j=12;j<15;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 3) FlightGroups[i].OptLoadout[x] = true;
+					if (x != 0 && x < 3) FlightGroups[i].OptLoadout[12 + x] = true; //[JB] forgot the offset
 				}
 				stream.Position++;
 				FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
@@ -299,20 +307,14 @@ namespace Idmr.Platform.Xvt
 					stream.Position += 2;
 					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');		// null-termed
 					Messages[i].Color = 0;
-					if (Messages[i].MessageString[0] == '1')
+					if (Messages[i].MessageString.Length > 0)  //[JB]
 					{
-						Messages[i].Color = 1;
-						Messages[i].MessageString = Messages[i].MessageString.Substring(1);
-					}
-					if (Messages[i].MessageString[0] == '2')
-					{
-						Messages[i].Color = 2;
-						Messages[i].MessageString = Messages[i].MessageString.Substring(1);
-					}
-					if (Messages[i].MessageString[0] == '3')
-					{
-						Messages[i].Color = 3;
-						Messages[i].MessageString = Messages[i].MessageString.Substring(1);
+						char c = Messages[i].MessageString[0];
+						if (c >= '1' && c <= '3')
+						{
+							Messages[i].Color = (byte)(c - '0');
+							Messages[i].MessageString = Messages[i].MessageString.Substring(1);
+						}
 					}
 					stream.Read(buffer, 0, 0x20);
 					for (j=0;j<10;j++) Messages[i].SentToTeam[j] = Convert.ToBoolean(buffer[j]);
@@ -399,8 +401,10 @@ namespace Idmr.Platform.Xvt
 					stream.Read(buffer, 0, 0x40);
 					Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x40 * j, 0x40);
 				}
-				stream.Read(buffer, 0, 0x2A);
-				Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x300, 0x2A);
+				stream.Read(buffer, 0, 0x20);
+				Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x300, 0x20);
+				stream.Read(buffer, 0, 0xA);
+				Buffer.BlockCopy(buffer, 0, Briefings[i].Team, 0, 0xA);
 				for (j=0;j<32;j++)
 				{
 					int k = br.ReadInt16();
@@ -460,7 +464,7 @@ namespace Idmr.Platform.Xvt
 			{
 				if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
-				BinaryWriter bw = new BinaryWriter(fs);
+				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.Default);	//[JB]
 				int i;
 				long p;
 				#region Platform
@@ -595,6 +599,7 @@ namespace Idmr.Platform.Xvt
 						bw.Write(FlightGroups[i].Goals[j].Unknown10);
 						bw.Write(FlightGroups[i].Goals[j].Unknown11);
 						bw.Write(FlightGroups[i].Goals[j].Unknown12);
+						fs.Position += 2;	//[JB]
 						fs.WriteByte(FlightGroups[i].Goals[j].Unknown13);
 						bw.Write(FlightGroups[i].Goals[j].Unknown14);
 						fs.Position++;
@@ -625,12 +630,20 @@ namespace Idmr.Platform.Xvt
 					bw.Write(FlightGroups[i].Unknowns.Unknown28);
 					bw.Write(FlightGroups[i].Unknowns.Unknown29);
 					fs.Position++;
-					for (j=1;j<8;j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.WriteByte(0);	// warheads
-					fs.Position++;	// only writing 7
-					for (j=1;j<4;j++) if (FlightGroups[i].OptLoadout[j+8]) bw.Write((byte)j); else fs.WriteByte(0);	// CMs
-					fs.Position += 3;	// only writing 3
-					for (j=1;j<3;j++) if (FlightGroups[i].OptLoadout[j+12]) bw.Write((byte)j); else fs.WriteByte(0);	// beam
-					fs.Position += 2;	// only writing 2
+					//[JB] The old code iterated through the array and wrote the values, but it didn't work properly.  
+					//The list of options must not contain any gaps of 00.  
+					byte[] optBuff = new byte[15]; //One array to store everything so we don't need to zero anything between use  
+					int oi = 0;
+					for (j = 1; j < 8; j++) if (FlightGroups[i].OptLoadout[j]) optBuff[oi++] = (byte)j;
+					bw.Write(optBuff, 0, 8);  //Warheads  
+					oi = 8;
+					for (j = 1; j < 4; j++) if (FlightGroups[i].OptLoadout[j + 8]) optBuff[oi++] = (byte)j;
+					bw.Write(optBuff, 8, 4);  //Beams  
+					fs.Position += 2; //Empty space  
+					oi = 12;
+					for (j = 1; j < 3; j++) if (FlightGroups[i].OptLoadout[j + 12]) optBuff[oi++] = (byte)j;
+					bw.Write(optBuff, 12, 3); //Countermeasures  
+					fs.Position++;    //Empty space 
 					fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
 					for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
 					for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfCraft);
@@ -644,6 +657,7 @@ namespace Idmr.Platform.Xvt
 				{
 					p = fs.Position;
 					bw.Write((short)i);
+					if (Messages[i].Color != 0) bw.Write((byte)(Messages[i].Color + 0x30));  //[JB] forgot color
 					bw.Write(Messages[i].MessageString.ToCharArray());
 					fs.WriteByte(0);
 					fs.Position = p + 0x42;
@@ -698,7 +712,7 @@ namespace Idmr.Platform.Xvt
 						if (Teams[i].EndOfMissionMessageColor[j] != 0) bw.Write(Convert.ToByte(Teams[i].EndOfMissionMessageColor[j] + 48));
 						bw.Write(Teams[i].EndOfMissionMessages[j].ToCharArray());
 						fs.WriteByte(0);
-						fs.Position = p + 0x24 + j*0x40;
+						fs.Position = p + 0x24 + (j + 1) * 0x40;	//[JB] was missing the +1
 					}
 					fs.Position = p + 0x1E7;
 				}
@@ -714,6 +728,7 @@ namespace Idmr.Platform.Xvt
 					byte[] briefBuffer = new byte[Briefings[i].Events.Length * 2];
 					Buffer.BlockCopy(Briefings[i].Events, 0, briefBuffer, 0, briefBuffer.Length);
 					bw.Write(briefBuffer);
+					for(int j=0;j<10;j++) bw.Write(Briefings[i].Team[j]);	//[JB]
 					for (int j=0;j<32;j++)
 					{
 						bw.Write((short)Briefings[i].BriefingTag[j].Length);
@@ -781,7 +796,7 @@ namespace Idmr.Platform.Xvt
 					fs.WriteByte(0);
 					fs.Position = p + 0x400;
 				}
-				bw.Write((short)0x2106);
+				bw.Write((short)0x2106);	//TODO: might need to remove this
 				fs.SetLength(fs.Position);
 				#endregion
 				fs.Close();
@@ -848,8 +863,8 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Value is <b>32</b></remarks>
 		public const int CraftLimit = 32;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is <b>46</b></remarks>
-		public const int FlightGroupLimit = 46;
+		/// <remarks>Value is <b>48</b></remarks>
+		public const int FlightGroupLimit = 48;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
 		/// <remarks>Value is <b>64</b></remarks>
 		public const int MessageLimit = 64;

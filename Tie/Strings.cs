@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] Added Decoy Beam [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -31,7 +32,8 @@ namespace Idmr.Platform.Tie
 							  };
 		static string[] _beam = { "None",
 								   "Tractor beam",
-								   "Jamming beam"
+								   "Jamming beam",
+								   "(Decoy Beam)"
 							   };
 		static string[] _craftType = { "None",
 										"X-Wing",

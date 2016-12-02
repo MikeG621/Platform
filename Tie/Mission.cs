@@ -4,10 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4
+ * Version: 2.4+
  */
 
 /* CHANGELOG
+ * [UPD] Enforced string encodings during read/write[JB]
+ * [FIX] Message loading length check [JB]
+ * [FIX] Global Goal loading [JB]
  * v2.4, 160606
  * [FIX] Invert WP.Y at read/write
  * v2.1, 141214
@@ -110,7 +113,7 @@ namespace Idmr.Platform.Tie
 		public void LoadFromStream(FileStream stream)
 		{
 			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.TIE) throw new InvalidDataException(_invalidError);
-			BinaryReader br = new BinaryReader(stream);
+			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.Default);   //[JB] Added encoding
 			int i;
 			stream.Position = 2;
 			short numFlightGroups = br.ReadInt16();
@@ -213,20 +216,14 @@ namespace Idmr.Platform.Tie
 					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
-					if (Messages[i].MessageString[0] == '1')
+					if (Messages[i].MessageString.Length > 0)  //[JB] Added length check, otherwise empty strings would crash the load process and make the mission unrecoverable to anything but hex editing.  
 					{
-						Messages[i].Color = 1;
-						Messages[i].MessageString = Messages[i].MessageString.Substring(1);
-					}
-					if (Messages[i].MessageString[0] == '2')
-					{
-						Messages[i].Color = 2;
-						Messages[i].MessageString = Messages[i].MessageString.Substring(1);
-					}
-					if (Messages[i].MessageString[0] == '3')
-					{
-						Messages[i].Color = 3;
-						Messages[i].MessageString = Messages[i].MessageString.Substring(1);
+						char c = Messages[i].MessageString[0];
+						if (c >= '1' && c <= '3')
+						{
+							Messages[i].Color = (byte)(c - '0');
+							Messages[i].MessageString = Messages[i].MessageString.Substring(1);
+						}
 					}
 					stream.Read(buffer, 0, 8);
 					Messages[i].Triggers[0] = new Trigger(buffer, 0);
@@ -244,7 +241,7 @@ namespace Idmr.Platform.Tie
 			{
 				stream.Read(buffer, 0, 8);
 				GlobalGoals.Goals[i].Triggers[0] = new Trigger(buffer, 0);
-				GlobalGoals.Goals[2].Triggers[1] = new Trigger(buffer, 4);
+				GlobalGoals.Goals[i].Triggers[1] = new Trigger(buffer, 4);
 				stream.Position += 0x11;
 				//for some reason, there's triggers with Var set with no Type
 				if (GlobalGoals.Goals[i].Triggers[0].VariableType == 0) GlobalGoals.Goals[i].Triggers[0].Variable = 0;
@@ -374,7 +371,7 @@ namespace Idmr.Platform.Tie
 
 				if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
-				BinaryWriter bw = new BinaryWriter(fs);
+				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.Default);	//[JB]
 				bw.Write((short)-1);
 				bw.Write((short)FlightGroups.Count);
 				bw.Write((short)Messages.Count);

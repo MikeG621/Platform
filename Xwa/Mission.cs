@@ -4,10 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4
+ * Version: 2.4+
  */
 
 /* CHANGELOG
+ * [FIX] Unk3 init to hex [JB]
+ * [UPD] enforce string encodings [JB]
+ * [FIX] FG Options [JB]
  * v2.4, 160606
  * [FIX] Invert WP.Y at read/write
  * v2.1, 141214
@@ -92,7 +95,7 @@ namespace Idmr.Platform.Xwa
 			Unknown1 = Unknown2 = true;
 			MissionType = HangarEnum.MonCalCruiser;
 			Logo = LogoEnum.None;
-			Unknown3 = 62;
+			Unknown3 = 0x62;
 		}
 
 		/// <summary>Creates a new mission from a file</summary>
@@ -144,7 +147,7 @@ namespace Idmr.Platform.Xwa
 		public void LoadFromStream(FileStream stream)
 		{
 			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.XWA) throw new InvalidDataException(_invalidError);
-			BinaryReader br = new BinaryReader(stream);
+			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.Default);
 			int i, j;
 			long p;
 			stream.Position = 2;
@@ -344,18 +347,18 @@ namespace Idmr.Platform.Xwa
 				for (j=0;j<8;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 8) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
+					if (x != 0 && x < 9) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
 				}
-				for (j=8;j<12;j++)
+				for (j=9;j<13;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[8] = false; }
+					if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[9 + x] = true; FlightGroups[i].OptLoadout[9] = false; }
 				}
 				stream.Position += 2;
-				for (j=12;j<15;j++)
+				for (j=13;j<16;j++)
 				{
 					byte x = br.ReadByte();
-					if (x != 0 && x < 3) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[12] = false; }
+					if (x != 0 && x < 3) { FlightGroups[i].OptLoadout[13 + x] = true; FlightGroups[i].OptLoadout[13] = false; }
 				}
 				stream.Position++;
 				FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
@@ -567,7 +570,7 @@ namespace Idmr.Platform.Xwa
 			{
 				File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
-				BinaryWriter bw = new BinaryWriter(fs);
+				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.Default);
 				int i;
 				long p;
 				#region Platform
@@ -783,19 +786,15 @@ namespace Idmr.Platform.Xwa
 					fs.WriteByte(FlightGroups[i].Status2);
 					fs.WriteByte(FlightGroups[i].GlobalUnit);
 					fs.Position++;
-					for (j=1;j<8;j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.Position++;	// warheads
-					fs.Position++;	// only writing 7
-					for (j=1;j<4;j++) if (FlightGroups[i].OptLoadout[j+8]) bw.Write((byte)j); else fs.Position++;	// CMs
+					for (j=1;j<9;j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.Position++;	// warheads
+					for (j=1;j<4;j++) if (FlightGroups[i].OptLoadout[j+9]) bw.Write((byte)j); else fs.Position++;	// CMs
 					fs.Position += 3;	// only writing 3
-					for (j=1;j<3;j++) if (FlightGroups[i].OptLoadout[j+12]) bw.Write((byte)j); else fs.Position++;	// beam
+					for (j=1;j<3;j++) if (FlightGroups[i].OptLoadout[j+13]) bw.Write((byte)j); else fs.Position++;	// beam
 					fs.Position += 2;	// only writing 2
 					fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
-					for (int k = 0; k < 10; k++)
-					{
-						fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
-						fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfCraft);
-						fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfWaves);
-					}
+					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
+					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfCraft);
+					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfWaves);
 					bw.Write(FlightGroups[i].PilotID.ToCharArray());
 					fs.Position = p + 0xE12;
 					fs.WriteByte(FlightGroups[i].Backdrop);
@@ -1060,7 +1059,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets or sets the Briefing image</summary>
 		public LogoEnum Logo { get; set; }
 		/// <summary>Unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x23B3, default is 62</remarks>
+		/// <remarks>Offset = 0x23B3, default is 0x62, related to Briefings?</remarks>
 		public byte Unknown3 { get; set; }
 		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x23B4</remarks>

@@ -1,7 +1,7 @@
 XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2011.08.11
+Updated: 2016.12.02
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -288,6 +288,7 @@ struct Briefing
 	0x004	SHORT	StartEvents
 	0x006	INT	EventsLength
 	0x00A	Event[]
+	0x32A	BOOL[10]	ViewedByTeam
 	0x334	Tag[32]
 		String[32]
 }
@@ -689,8 +690,8 @@ Status
 
 Warhead
 00	None
-01	Heavy Rocket
-02	Space Bomb
+01	Space Bomb
+02	Heavy Rocket
 03	Concussion Missile
 04	Torpedo
 05	Advanced Concussion Missile

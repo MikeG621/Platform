@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] Changed goal visibility due to teams [JB]
+ * [FIX] points casting [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -67,7 +69,7 @@ namespace Idmr.Platform.Xvt
 			public override string ToString()
 			{
 				string goal = "";
-				if (Condition != 0 && Condition != 10 && Enabled)
+				if (Condition != 0 && Condition != 10)
 				{
 					goal = Strings.Amount[Amount] + " of Flight Group ";
 					goal += (Argument == 0 ? "must" : (Argument == 1 ? "must NOT" : (Argument == 2 ? "BONUS must" : "BONUS must NOT")));
@@ -107,8 +109,8 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Equals <see cref="RawPoints"/> * 250, limited from <b>-32000</b> to <b>+31750</b></remarks>
 			public short Points
 			{
-				get { return (short)(_items[3] * 250); }
-				set { _items[3] = Convert.ToByte((value > 31750 ? 31750 : (value < -32000 ? -32000 : value)) / 250); }
+				get { return (short)((sbyte)_items[3] * 250); }
+				set { _items[3] = (byte)((value > 31750 ? 31750 : (value < -32000 ? -32000 : value)) / 250); }
 			}
 			/// <summary>Gets or sets if the Goal is active</summary>
 			public bool Enabled

@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [ADD] Ion Pulse
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -29,7 +30,7 @@ namespace Idmr.Platform.Xwa
 		bool[] _arrDepAndOr = new bool[4];
 		Order[,] _orders = new Order[4,4];
 		Goal[] _goals = new Goal[8];
-		bool[] _optLoadout = new bool[15];
+		bool[] _optLoadout = new bool[16];
 		OptionalCraft[] _optCraft = new OptionalCraft[10];
 		string _pilotID = "";
 		Waypoint[] _waypoints = new Waypoint[4];
@@ -75,8 +76,8 @@ namespace Idmr.Platform.Xwa
 			for (int i = 0; i < 16; i++) _orders[i / 4, i % 4] = new Order();
 			for (int i = 0; i < 8; i++) _goals[i] = new Goal();
 			_optLoadout[0] = true;
-			_optLoadout[8] = true;
-			_optLoadout[12] = true;
+			_optLoadout[9] = true;
+			_optLoadout[13] = true;
 			_waypoints[0].Enabled = true;
 			Unknowns.Unknown1 = 2;
 			_loadoutIndexer = new LoadoutIndexer(_optLoadout);

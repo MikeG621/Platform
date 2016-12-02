@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] ToString update [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -67,7 +68,7 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				string goal = "";
-				if (Condition != 0 && Condition != 10 && Enabled)
+				if (Condition != 0 && Condition != 10)
 				{
 					goal = Strings.Amount[Amount] + " of Flight Group ";
 					goal += (Argument == 0 ? "must" : (Argument == 1 ? "must NOT" : (Argument == 2 ? "BONUS must" : "BONUS must NOT")));

@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] Additional CraftWhen blanks [JB]
+ * [ADD] "each specail craft" [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -260,7 +262,7 @@ namespace Idmr.Platform.Xvt
 									"Veteran",
 									"Ace",
 									"Top Ace",
-									"Jedi (invul)"
+									"Jedi"
 								 };
 		static string[] _status = { "Normal",
 									"2x Warheads",
@@ -376,7 +378,8 @@ namespace Idmr.Platform.Xvt
 									"all but 1 of first wave",
 									"66%",
 									"33%",
-									"each craft"
+									"each craft",
+									"each special craft"
 								 };
 		static string[] _orders = { "Hold Steady",
 									"Go Home",
@@ -431,7 +434,17 @@ namespace Idmr.Platform.Xvt
 										"Player's craft",
 										"Non-player craft",
 										"",
-										"NOT Disabled"
+										"NOT Disabled",
+										"",
+	  									"",
+	  									"",
+										"",
+										"",
+										"",
+										"",
+	  									"",
+	  									"",
+	  									"" //[JB] Need to load file: Combat\8b02w09.tie
 									};
 		static string[] _abort = { "never",
 									"0% shields",
@@ -517,13 +530,13 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array is Length = 24</remarks>
 		public static string[] VariableType { get { return (string[])_triggerType.Clone(); } }
 		/// <summary>Gets of copy of the quantities of applicable conditions that must be met</summary>
-		/// <remarks>Array is Length = 19</remarks>
+		/// <remarks>Array is Length = 20</remarks>
 		public static string[] Amount { get { return (string[])_amount.Clone(); } }
 		/// <summary>Gets of copy of the FlightGroup orders</summary>
 		/// <remarks>Array is Length = 40</remarks>
 		public static string[] Orders { get { return (string[])_orders.Clone(); } }
 		/// <summary>Gets of copy of the craft behaviours to be used in triggers</summary>
-		/// <remarks>Array is Length = 13</remarks>
+		/// <remarks>Array is Length = 22</remarks>
 		public static string[] CraftWhen { get { return (string[])_craftWhen.Clone(); } }
 		/// <summary>Gets of copy of the individual craft abort conditions</summary>
 		/// <remarks>Array is Length = 10</remarks>

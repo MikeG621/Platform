@@ -22,7 +22,7 @@ using System.Collections.Generic;
 namespace Idmr.Platform.Xvt
 {
 	/// <summary>Object to maintain mission FG list</summary>
-	/// <remarks><see cref="Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (46)</remarks>
+	/// <remarks><see cref="Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (48)</remarks>
 	public class FlightGroupCollection : Common.ResizableCollection<FlightGroup>
 	{
 		/// <summary>Create a new Collection with one FlightGroup</summary>

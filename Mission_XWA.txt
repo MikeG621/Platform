@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2012.03.09
+Updated: 2016.12.02
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -998,6 +998,7 @@ Warhead
 05	Advanced Concussion Missile
 06	Advanced Torpedo
 07	Mag Pulse Torpedo
+08	Ion Pulse Torpedo
 
 Beam
 00	None
