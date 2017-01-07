@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4+
+ * Version: 2.5
  */
 
 /* CHANGELOG
+ * v2.5, 170107
  * [FIX] Enforced string encodings [JB]
  * [FIX] Craft options [JB]
  * [FIX] Message read length check [JB]

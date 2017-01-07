@@ -2,13 +2,38 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.4
-Date: 2016.06.06
+Version: 2.5
+Date: 2017.01.07
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
+
+v2.5 - 7 Jan 2017
+ -Lots of fixes and new features by Random Starfighter (JB)
+  -- (*.Mission) Enforced string encodings
+ -- (TIE.FlightGroup.Order) Hack for _checkValues added
+ -- (TIE.Mission) Added Message length check during load
+ -- (TIE.Mission) Fixed Global Goal loading
+ -- (TIE.Strings) Added Decoy Beam
+ -- (XvT.Briefing) Added Team functionality
+ -- (XvT.FlightGroup.Goal) Fixed points casts
+ -- (XvT.FlightGroup.Goal) Added Team visiblity
+ -- (XvT.Mission) Fixed craft options
+ -- (XvT.Mission) Added Message length check during load
+ -- (XvT.Mission) Fixed FG Unks
+ -- (XvT.Mission) Fixed Message Color writing
+ -- (XvT.Mission) Fixed Team writing
+ -- (XvT.Mission) Fixed Briefing Team read/write
+ -- (XvT.Strings) Added empty CraftWhen entries
+ -- (XvT.Strings) Added "each special craft" amount
+ -- (XWA.FlightGroup) Added Ion Pulse warhead
+ -- (XWA.FlightGroup.Goal) Updated ToString
+ -- (XWA.Mission) Fixed Unk3 initialization
+ -- (XWA.Mission) Fixed craft Options
+ -- (XWA.Strings) Added Unk Role values
+ -- (XWA.Strings) Added Unk Amount values
 
 v2.4 - 6 June 2016
  - (Converter) Fixed XWA to TIE player's craft conversion
