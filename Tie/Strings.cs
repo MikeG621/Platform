@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [FIX] Missing * from Medium Transport abbrv
+ * [NEW YOGEME #10] ability to replace craft list
  * v2.5, 170107
  * [UPD] Added Decoy Beam [JB]
  * v2.1, 141214
@@ -161,7 +163,7 @@ namespace Idmr.Platform.Tie
 										 "CARG",
 										 "CNVYR",
 										 "CTRNS",
-										 "MDTRN",
+										 "*MDTRN",
 										 "MUTR",
 										 "CORT",
 										 "*M/SC",
@@ -476,6 +478,22 @@ namespace Idmr.Platform.Tie
 										"Reverse High Vic"
 									};
 		#endregion
+
+		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays.</summary>
+		/// <param name="craftTypes">Array of new craft types.</param>
+		/// <param name="craftAbbrv">Array of new craft abbreviations.</param>
+		/// <exception cref="ArgumentException">The <see cref="Array.Length"/> of the arrays do match the originals.</exception>
+		/// <exception cref="ArgumentNullException">Either or both of the input arrays are <b>null</b>.</exception>
+		public static void OverrideShipList(string[] craftTypes, string[] craftAbbrv)
+		{
+			if (craftAbbrv == null || craftTypes == null)
+				throw new ArgumentNullException("At least one of the arrays is null, check for valid inputs.");
+			if (craftTypes.Length != _craftType.Length || craftAbbrv.Length != _craftAbbrv.Length)
+				throw new ArgumentException("New arrays must match original length.");
+			_craftType = craftTypes;
+			_craftAbbrv = craftAbbrv;
+		}
+
 		/// <summary>Gets a copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] IFF	{ get { return (string[])_iff.Clone(); } }

@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [NEW YOGEME #10] ability to replace craft list
  * v2.5, 170107
  * [UPD] added Unks [JB]
  * [UPD] Amounts [JB]
@@ -872,6 +873,22 @@ namespace Idmr.Platform.Xwa
 										"Unknown|# of loops|Direction|Meaningless"
 									};
 		#endregion
+
+		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays.</summary>
+		/// <param name="craftTypes">Array of new craft types.</param>
+		/// <param name="craftAbbrv">Array of new craft abbreviations.</param>
+		/// <exception cref="ArgumentException">The <see cref="Array.Length"/> of the arrays do match the originals.</exception>
+		/// <exception cref="ArgumentNullException">Either or both of the input arrays are <b>null</b>.</exception>
+		public static void OverrideShipList(string[] craftTypes, string[] craftAbbrv)
+		{
+			if (craftAbbrv == null || craftTypes == null)
+				throw new ArgumentNullException("At least one of the arrays is null, check for valid inputs.");
+			if (craftTypes.Length != _craftType.Length || craftAbbrv.Length != _craftAbbrv.Length)
+				throw new ArgumentException("New arrays must match original length.");
+			_craftType = craftTypes;
+			_craftAbbrv = craftAbbrv;
+		}
+
 		/// <summary>Gets a copy of the shadows to be applied to a backdrop</summary>
 		/// <remarks>Array is Length = 7</remarks>
 		public static string[] Shadow { get { return (string[])_shadow.Clone(); } }
