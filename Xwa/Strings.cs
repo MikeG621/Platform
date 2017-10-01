@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW YOGEME #10] ability to replace craft list
+ * [UPD] missing * in abbrvs
  * v2.5, 170107
  * [UPD] added Unks [JB]
  * [UPD] Amounts [JB]
@@ -455,7 +456,7 @@ namespace Idmr.Platform.Xwa
 										"Plt/F",
 										"Sup/F",
 										"Pnk/F",
-										"B/R",
+										"*B/R",
 										"Pry/F",
 										"*Xiz/F",
 										"FRS",
