@@ -2,38 +2,42 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.5
-Date: 2017.01.07
+Version: 2.6
+Date: 2017.10.15
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
 
+v2.6 - 15 Oct 2017
+ - (TIE.Strings) Added missing "*" from Med Trans
+ - (*.Strings) Added ability to replace craft list (YOGEME#10)
+
 v2.5 - 7 Jan 2017
- -Lots of fixes and new features by Random Starfighter (JB)
+ - Lots of fixes and new features by Random Starfighter (JB)
   -- (*.Mission) Enforced string encodings
- -- (TIE.FlightGroup.Order) Hack for _checkValues added
- -- (TIE.Mission) Added Message length check during load
- -- (TIE.Mission) Fixed Global Goal loading
- -- (TIE.Strings) Added Decoy Beam
- -- (XvT.Briefing) Added Team functionality
- -- (XvT.FlightGroup.Goal) Fixed points casts
- -- (XvT.FlightGroup.Goal) Added Team visiblity
- -- (XvT.Mission) Fixed craft options
- -- (XvT.Mission) Added Message length check during load
- -- (XvT.Mission) Fixed FG Unks
- -- (XvT.Mission) Fixed Message Color writing
- -- (XvT.Mission) Fixed Team writing
- -- (XvT.Mission) Fixed Briefing Team read/write
- -- (XvT.Strings) Added empty CraftWhen entries
- -- (XvT.Strings) Added "each special craft" amount
- -- (XWA.FlightGroup) Added Ion Pulse warhead
- -- (XWA.FlightGroup.Goal) Updated ToString
- -- (XWA.Mission) Fixed Unk3 initialization
- -- (XWA.Mission) Fixed craft Options
- -- (XWA.Strings) Added Unk Role values
- -- (XWA.Strings) Added Unk Amount values
+  -- (TIE.FlightGroup.Order) Hack for _checkValues added
+  -- (TIE.Mission) Added Message length check during load
+  -- (TIE.Mission) Fixed Global Goal loading
+  -- (TIE.Strings) Added Decoy Beam
+  -- (XvT.Briefing) Added Team functionality
+  -- (XvT.FlightGroup.Goal) Fixed points casts
+  -- (XvT.FlightGroup.Goal) Added Team visiblity
+  -- (XvT.Mission) Fixed craft options
+  -- (XvT.Mission) Added Message length check during load
+  -- (XvT.Mission) Fixed FG Unks
+  -- (XvT.Mission) Fixed Message Color writing
+  -- (XvT.Mission) Fixed Team writing
+  -- (XvT.Mission) Fixed Briefing Team read/write
+  -- (XvT.Strings) Added empty CraftWhen entries
+  -- (XvT.Strings) Added "each special craft" amount
+  -- (XWA.FlightGroup) Added Ion Pulse warhead
+  -- (XWA.FlightGroup.Goal) Updated ToString
+  -- (XWA.Mission) Fixed Unk3 initialization
+  -- (XWA.Mission) Fixed craft Options
+  -- (XWA.Strings) Added Unk Role values
+  -- (XWA.Strings) Added Unk Amount values
 
 v2.4 - 6 June 2016
  - (Converter) Fixed XWA to TIE player's craft conversion
@@ -119,7 +123,7 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2016 Michael Gaisser
+Copyright © 2009-2017 Michael Gaisser
 This library file and related files are licensed under the Mozilla Public License
 v2.0 or later.  See MPL.txt for further details.
 

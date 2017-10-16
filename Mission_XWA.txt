@@ -724,7 +724,7 @@ BriefingLogo
 07	Family
 08	Phantom Squadron	[will only see "Squadron", no logo]
 
-CraftRole
+Designation
 00	Command Ship
 01	Base
 02	Station
@@ -746,6 +746,7 @@ CraftRole
 12	HYP to Region 3
 13	HYP to Region 4
 14	Unknown
+15  Unknown
 
 CraftType
 00	None

@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 2.6
  */
 
 /* CHANGELOG
+ * v2.6, 151017
  * [FIX] Missing * from Medium Transport abbrv
  * [NEW YOGEME #10] ability to replace craft list
  * v2.5, 170107
