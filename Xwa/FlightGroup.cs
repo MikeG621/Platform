@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [ADD] backdrop-specific properties
  * v2.5, 170107
  * [ADD] Ion Pulse
  * v2.1, 141214
@@ -133,6 +134,35 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets or sets if craft is required to be player-controlled</summary>
 		/// <remarks>When <b>true</b>, craft with PlayerNumber set will not appear without a human player</remarks>
 		public bool ArriveOnlyIfHuman { get; set; }
+
+		/// <summary>Gets or sets the RGB values of the Backdrop</summary>
+		/// <remarks>Mapped to <see cref="BaseFlightGroup.Name"/>.</remarks>
+		public string LightRGB
+		{
+			get { return Name; }
+			set { Name = value; }
+		}
+		/// <summary>Gets or sets the Shadow value of the Backdrop.</summary>
+		/// <remarks>Mapped to <see cref="GlobalCargo"/>, does not have error-checking.</remarks>
+		public byte Shadow
+		{
+			get { return GlobalCargo; }
+			set { GlobalCargo = value; }
+		}
+		/// <summary>Gets or sets the numerical Brightness value of the Backdrop.</summary>
+		/// <remarks>Mapped to <see cref="BaseFlightGroup.Cargo"/>.</remarks>
+		public string Brightness
+		{
+			get { return Cargo; }
+			set { Cargo = value; }
+		}
+		/// <summary>Gets or sets the numerical Size of the Backdrop.</summary>
+		/// <remarks>Mapped to <see cref="BaseFlightGroup.SpecialCargo"/>.</remarks>
+		public string BackdropSize
+		{
+			get { return SpecialCargo; }
+			set { SpecialCargo = value; }
+		}
 		#endregion
 		#region arrdep
 		/// <summary>Returns <b>true</b> if the FlightGroup is created within 30 seconds of mission start</summary>
