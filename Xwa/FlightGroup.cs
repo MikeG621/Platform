@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 2.6.1
  */
 
 /* CHANGELOG
+ * v2.6.1, 171118
  * [ADD] backdrop-specific properties
  * v2.5, 170107
  * [ADD] Ion Pulse

@@ -2,13 +2,16 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.6
-Date: 2017.10.15
+Version: 2.6.1
+Date: 2017.11.18
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
+
+v2.6.1 - 18 Nov 2017
+ - (XWA.FLightGroup) Added some Backdrop-specific properties that alias the appropriate standard properties.
 
 v2.6 - 15 Oct 2017
  - (TIE.Strings) Added missing "*" from Med Trans
