@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [FIX YOGEME\#16] added missing Y inversion on Order Waypoints
  * v2.5, 170107
  * [FIX] Unk3 init to hex [JB]
  * [UPD] enforce string encodings [JB]
@@ -286,7 +287,7 @@ namespace Idmr.Platform.Xwa
 					stream.Read(buffer, 0, 0x14);
 					for (int h=0;h<0x13;h++) FlightGroups[i].Orders[j/4, j%4][h] = buffer[h];
 					for (int h=0;h<8;h++)
-						for (int k=0;k<4;k++) FlightGroups[i].Orders[j/4, j%4].Waypoints[h][k] = br.ReadInt16();
+						for (int k=0;k<4;k++) FlightGroups[i].Orders[j/4, j%4].Waypoints[h][k] = (short)(br.ReadInt16() * (k == 1 ? -1 : 1));
 					stream.Position += 0x1E;
 					FlightGroups[i].Orders[j/4, j%4].Unknown10 = br.ReadByte();
 					FlightGroups[i].Orders[j/4, j%4].Unknown11 = br.ReadBoolean();
@@ -723,7 +724,7 @@ namespace Idmr.Platform.Xwa
 						for (int h=0;h<0x13;h++) fs.WriteByte(FlightGroups[i].Orders[j/4, j%4][h]);
 						fs.Position++;
 						for (int h=0;h<8;h++)
-							for (int k=0;k<4;k++) bw.Write(FlightGroups[i].Orders[j/4, j%4].Waypoints[h][k]);
+							for (int k=0;k<4;k++) bw.Write((short)(FlightGroups[i].Orders[j/4, j%4].Waypoints[h][k] * (k == 1 ? -1 : 1)));
 						fs.Position += 0x1E;
 						fs.WriteByte(FlightGroups[i].Orders[j/4, j%4].Unknown10);
 						bw.Write(FlightGroups[i].Orders[j/4, j%4].Unknown11);
