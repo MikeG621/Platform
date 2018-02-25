@@ -2,13 +2,16 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.6.1
-Date: 2017.11.18
+Version: 2.6.2
+Date: 2018.02.24
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
+
+v2.6.2 - 24 Feb 2018
+ - (XWA.FlightGroup.Orders) Fixed the waypoint inversion
 
 v2.6.1 - 18 Nov 2017
  - (XWA.FLightGroup) Added some Backdrop-specific properties that alias the appropriate standard properties.
@@ -126,7 +129,7 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2017 Michael Gaisser
+Copyright © 2009-2018 Michael Gaisser
 This library file and related files are licensed under the Mozilla Public License
 v2.0 or later.  See MPL.txt for further details.
 

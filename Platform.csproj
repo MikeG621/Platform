@@ -120,7 +120,7 @@
     <None Include="Mission_TIE95.txt" />
     <None Include="Mission_XvT.txt" />
     <None Include="Mission_XWA.txt" />
-    <None Include="MPL.txt">
+    <None Include="License.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="Readme.txt">
