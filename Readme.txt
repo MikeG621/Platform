@@ -11,7 +11,7 @@ Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 Version History
 
 v2.6.2 - 24 Feb 2018
- - (XWA.FlightGroup.Orders) Fixed the waypoint inversion
+ - (XWA.FlightGroup.Orders) Fixed the waypoint inversion (YOGEME#16)
 
 v2.6.1 - 18 Nov 2017
  - (XWA.FLightGroup) Added some Backdrop-specific properties that alias the appropriate standard properties.
