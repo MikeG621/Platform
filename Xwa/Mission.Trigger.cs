@@ -118,22 +118,61 @@ namespace Idmr.Platform.Xwa
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
-						case 0xC:
+						case 9:
+							trig += "Rating " + Strings.Rating[Variable];
+							break;
+						case 10:
+							trig += "Craft with status: " + Strings.Status[Variable];
+							break;
+						case 11:
+							trig += "All";
+							break;
+						case 12:
 							trig += "TM:" + Variable;
 							break;
-						case 0xD:
+						case 13:
 							trig += "Player of GG " + Variable;
 							break;
-						case 0x15:
+						case 14:
+							trig += "After delay " + Variable;
+							break;
+						case 15:
+							trig += "Not FG:" + Variable;
+							break;
+						case 16:
+							trig += "Not ship type " + Strings.CraftType[Variable + 1];
+							break;
+						case 17:
+							trig += "Not ship classe " + Strings.ShipClass[Variable];
+							break;
+						case 18:
+							trig += "Not objects type " + Strings.ObjectType[Variable];
+							break;
+						case 19:
+							trig += "Not IFF " + Strings.IFF[Variable];
+							break;
+						case 20:
+							trig += "Not GG " + Variable;
+							break;
+						case 21:
 							trig += "Not TM:" + Variable;
 							break;
-						case 0x17:
+						case 22:
+							trig += "Not player of GG " + Variable;
+							break;
+						case 23:
 							trig += "Global Unit " + Variable;
 							break;
-						case 0x19:
+						case 24:
+							trig += "Not GLobal Unit " + Variable;
+							break;
+						case 25:
 							trig += "Global Cargo " + Variable;
 							break;
-						case 0x1B:
+						case 26:
+							trig += "Not Global Cargo " + Variable;
+							break;
+						case 27:
 							trig += "Message #" + Variable;
 							break;
 						default:
