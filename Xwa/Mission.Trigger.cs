@@ -131,7 +131,7 @@ namespace Idmr.Platform.Xwa
 							trig += "TM:" + Variable;
 							break;
 						case 13:
-							trig += "Player of GG " + Variable;
+							trig += "Player " + Variable;
 							break;
 						case 14:
 							trig += "After delay " + Variable;
@@ -143,7 +143,7 @@ namespace Idmr.Platform.Xwa
 							trig += "Not ship type " + Strings.CraftType[Variable + 1];
 							break;
 						case 17:
-							trig += "Not ship classe " + Strings.ShipClass[Variable];
+							trig += "Not ship class " + Strings.ShipClass[Variable];
 							break;
 						case 18:
 							trig += "Not objects type " + Strings.ObjectType[Variable];
@@ -158,7 +158,7 @@ namespace Idmr.Platform.Xwa
 							trig += "Not TM:" + Variable;
 							break;
 						case 22:
-							trig += "Not player of GG " + Variable;
+							trig += "Not player " + Variable;
 							break;
 						case 23:
 							trig += "Global Unit " + Variable;
