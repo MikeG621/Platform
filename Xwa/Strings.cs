@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6
+ * Version: 2.6+
  */
 
 /* CHANGELOG
+ * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.6, 151017
  * [NEW YOGEME #10] ability to replace craft list
  * [UPD] missing * in abbrvs
@@ -677,7 +678,7 @@ namespace Idmr.Platform.Xwa
 											"Craft with status",
 											"All",
 											"Team",
-											"Player of Global Group",
+											"Player",
 											"After delay",
 											"All Flight Groups except",
 											"All ship types except",
@@ -686,7 +687,7 @@ namespace Idmr.Platform.Xwa
 											"All IFFs except",
 											"All Global Groups except",
 											"All teams except",
-											"All player of GGs except",
+											"All players except",
 											"Global Unit",
 											"All Global Units except",
 											"Global Cargo",

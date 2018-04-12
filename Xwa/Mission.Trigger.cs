@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -95,7 +96,7 @@ namespace Idmr.Platform.Xwa
 					switch (VariableType)
 					{
 						case 1:
-							trig += "FG:" + Variable;
+							trig += "FG: " + Variable;
 							break;
 						case 2:
 							trig += "Ship type " + Strings.CraftType[Variable + 1];
@@ -128,25 +129,25 @@ namespace Idmr.Platform.Xwa
 							trig += "All";
 							break;
 						case 12:
-							trig += "TM:" + Variable;
+							trig += "TM: " + Variable;
 							break;
 						case 13:
-							trig += "Player of GG " + Variable;
+							trig += "Player " + Variable;
 							break;
 						case 14:
 							trig += "After delay " + Variable;
 							break;
 						case 15:
-							trig += "Not FG:" + Variable;
+							trig += "Not FG: " + Variable;
 							break;
 						case 16:
 							trig += "Not ship type " + Strings.CraftType[Variable + 1];
 							break;
 						case 17:
-							trig += "Not ship classe " + Strings.ShipClass[Variable];
+							trig += "Not ship class " + Strings.ShipClass[Variable];
 							break;
 						case 18:
-							trig += "Not objects type " + Strings.ObjectType[Variable];
+							trig += "Not object type " + Strings.ObjectType[Variable];
 							break;
 						case 19:
 							trig += "Not IFF " + Strings.IFF[Variable];
@@ -155,16 +156,16 @@ namespace Idmr.Platform.Xwa
 							trig += "Not GG " + Variable;
 							break;
 						case 21:
-							trig += "Not TM:" + Variable;
+							trig += "Not TM: " + Variable;
 							break;
 						case 22:
-							trig += "Not player of GG " + Variable;
+							trig += "Not player " + Variable;
 							break;
 						case 23:
 							trig += "Global Unit " + Variable;
 							break;
 						case 24:
-							trig += "Not GLobal Unit " + Variable;
+							trig += "Not Global Unit " + Variable;
 							break;
 						case 25:
 							trig += "Global Cargo " + Variable;

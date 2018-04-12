@@ -1158,17 +1158,24 @@ VariableType
 06	Order (enum)
 07	CraftWhen (enum)
 08	Global Group
+09	Rating
+0A	Craft with Status1
+0B	All
 0C	Team
 0D	Player of Global Group
-0F	All Flight Groups except?
-10	All Ship Types except?
-11	All Ship Categories except?
-12	All Object Categories except?
-13	All IFFs except?
-15	All Teams except?
+0E	Delay
+0F	All Flight Groups except
+10	All Craft Types except
+11	All Craft Categories except
+12	All Object Categories except
+13	All IFFs except
+14	All Global Groups except
+15	All Teams except
+16	All players except not in Global Group
 17	Global Unit
 18	All Global Units except?
-19	Global Cargo
+19	Craft with Global Cargo
+1A	Craft without Global Cargo
 1B	Message #
 
 CraftCategory
