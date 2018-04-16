@@ -17,7 +17,6 @@
  */
 
 using System;
-using System.IO;
 using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
@@ -96,7 +95,7 @@ namespace Idmr.Platform.Xwa
 					switch (VariableType)
 					{
 						case 1:
-							trig += "FG: " + Variable;
+							trig += "FG:" + Variable;
 							break;
 						case 2:
 							trig += "Ship type " + Strings.CraftType[Variable + 1];
@@ -129,49 +128,49 @@ namespace Idmr.Platform.Xwa
 							trig += "All";
 							break;
 						case 12:
-							trig += "TM: " + Variable;
+							trig += "TM:" + Variable;
 							break;
 						case 13:
-							trig += "Player " + Variable;
+							trig += "Player #" + Variable;
 							break;
 						case 14:
-							trig += "After delay " + Variable;
+							trig += "After " + (Variable * 5) + "s delay";
 							break;
 						case 15:
-							trig += "Not FG: " + Variable;
+							trig += "all except FG:" + Variable;
 							break;
 						case 16:
-							trig += "Not ship type " + Strings.CraftType[Variable + 1];
+							trig += "all except " + Strings.CraftType[Variable + 1] + "s";
 							break;
 						case 17:
-							trig += "Not ship class " + Strings.ShipClass[Variable];
+							trig += "all except " + Strings.ShipClass[Variable];
 							break;
 						case 18:
-							trig += "Not object type " + Strings.ObjectType[Variable];
+							trig += "all except " + Strings.ObjectType[Variable];
 							break;
 						case 19:
-							trig += "Not IFF " + Strings.IFF[Variable];
+							trig += "all except IFF " + Strings.IFF[Variable];
 							break;
 						case 20:
-							trig += "Not GG " + Variable;
+							trig += "all except GG " + Variable;
 							break;
 						case 21:
-							trig += "Not TM: " + Variable;
+							trig += "all except TM:" + Variable;
 							break;
 						case 22:
-							trig += "Not player " + Variable;
+							trig += "all except Player #" + Variable;
 							break;
 						case 23:
 							trig += "Global Unit " + Variable;
 							break;
 						case 24:
-							trig += "Not Global Unit " + Variable;
+							trig += "all except Global Unit " + Variable;
 							break;
 						case 25:
 							trig += "Global Cargo " + Variable;
 							break;
 						case 26:
-							trig += "Not Global Cargo " + Variable;
+							trig += "all except Global Cargo " + Variable;
 							break;
 						case 27:
 							trig += "Message #" + Variable;

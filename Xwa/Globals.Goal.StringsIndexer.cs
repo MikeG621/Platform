@@ -12,8 +12,6 @@
  * [UPD] change to MPL
  */
 
-using System;
-
 namespace Idmr.Platform.Xwa
 {
 	public partial class Globals
@@ -40,7 +38,7 @@ namespace Idmr.Platform.Xwa
 				public string this[int trigger, int state]
 				{
 					get { return _owner._strings[trigger, state]; }
-					set { _owner._strings[trigger, state] = Idmr.Common.StringFunctions.GetTrimmed(value, 63); }
+					set { _owner._strings[trigger, state] = Common.StringFunctions.GetTrimmed(value, 63); }
 				}
 				
 				/// <summary>Gets or sets the Trigger Status strings</summary>
@@ -51,7 +49,7 @@ namespace Idmr.Platform.Xwa
 				public string this[int trigger, GoalState state]
 				{
 					get { return _owner._strings[trigger, (int)state]; }
-					set { _owner._strings[trigger, (int)state] = Idmr.Common.StringFunctions.GetTrimmed(value, 63); }
+					set { _owner._strings[trigger, (int)state] = Common.StringFunctions.GetTrimmed(value, 63); }
 				}
 			}
 		}

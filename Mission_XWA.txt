@@ -1162,7 +1162,7 @@ VariableType
 0A	Craft with Status1
 0B	All
 0C	Team
-0D	Player of Global Group
+0D	Player
 0E	Delay
 0F	All Flight Groups except
 10	All Craft Types except
@@ -1171,7 +1171,7 @@ VariableType
 13	All IFFs except
 14	All Global Groups except
 15	All Teams except
-16	All players except not in Global Group
+16	All players except
 17	Global Unit
 18	All Global Units except?
 19	Craft with Global Cargo
