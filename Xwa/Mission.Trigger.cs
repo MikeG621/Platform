@@ -89,7 +89,7 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/ && VariableType != 14 /*Delay*/)
 				{
 					trig = Strings.Amount[Amount] + " of ";
 					switch (VariableType)
@@ -134,7 +134,8 @@ namespace Idmr.Platform.Xwa
 							trig += "Player #" + Variable;
 							break;
 						case 14:
-							trig += "After " + (Variable * 5) + "s delay";
+							int s = Variable * 5;
+							trig = "After " + (s / 60) + ":" + (s % 60) + " delay";
 							break;
 						case 15:
 							trig += "all except FG:" + Variable;
@@ -181,7 +182,8 @@ namespace Idmr.Platform.Xwa
 					}
 					trig += " must ";
 				}
-				trig += Strings.Trigger[Condition];
+				if (VariableType == 14) trig = "After " + (Variable / 12) + ":" + ((Variable * 5) % 60) + " delay";
+				else trig += Strings.Trigger[Condition];
 				if (trig.Contains("Region")) trig += " " + Parameter1;
 				return trig;
 			}

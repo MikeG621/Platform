@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [UPD] label for Escort Position
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.6, 151017
  * [NEW YOGEME #10] ability to replace craft list
@@ -819,7 +820,7 @@ namespace Idmr.Platform.Xwa
 										"Attacks targets (not for starships)|Component|Meaningless|Meaningless",
 										"Attacks escorts of targets|Meaningless|Meaningless|Meaningless",
 										"Attacks craft that attack targets, ignores boarding craft|Meaningless|Meaningless|Meaningless",
-										"Attacks craft that attack targets, including boarding craft|Meaningless|Attack Player|Meaningless",
+										"Attacks craft that attack targets, including boarding craft|Position|Attack Player|Meaningless",
 										"Attacks to disable.  Warheads used to lower shields|Meaningless|Meaningless|Meaningless",
 										"Boards targets (if stationary) to give cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to take cargo|Docking time|# of dockings|Meaningless",

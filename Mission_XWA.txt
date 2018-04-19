@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Site: http://idmr.empirereborn.net
-Updated: 2016.12.02
+Site: https://github.com/MikeG621
+Updated: 2018.04.18
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -469,6 +469,11 @@ Parameter values. Parameter is use for region-specific triggers, proximity
 triggers and a couple others. Parameter2 is used in few cases but adds just one
 more control to the trigger.
 
+Special note for VariableType 0xE (14), Delay. In this case, the Trigger takes
+the form "After Variable delay, then TRUE", where Variable is the number of
+seconds / 5. So a Variable value of 6 is 0:30. I believe this is counting from
+the mission timer, but more testing needs to be done.
+
 Orders, they're what make the world go 'round. Pick the Order from the list
 and go from there. The Throttle value has been simplified from XvT, in that it
 is evaluated as (Throttle% / 10). The Variables are controlled by the order
@@ -487,7 +492,7 @@ R1O3, R1O4, R2O1...
 
 Expanding upon XvT, XWA also has Skip triggers for every order. If this
 trigger fires the FG will immediately jump to the appropriate order. The array
-is ordered i the same manner as the Orders, going through each order in each
+is ordered in the same manner as the Orders, going through each order in each
 region.
 
 Goals are for that specific flight group. In XWA you have 8 for a given FG,
@@ -1239,6 +1244,7 @@ Order
 08	Attack Escorts
 09	Protect
 0A	Escort
+	Var1	Position (to be expanded on at a later date)
 	Var2	Attack Player (0/1)
 0B	Disable
 0C	Board and Give Cargo
