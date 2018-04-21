@@ -12,8 +12,6 @@
  * [UPD] change to MPL
  */
 
-using System;
-
 namespace Idmr.Platform.Xwa
 {
 	public partial class Globals

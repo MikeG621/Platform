@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6
+ * Version: 2.6+
  */
 
 /* CHANGELOG
+ * [UPD] label for Escort Position
+ * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.6, 151017
  * [NEW YOGEME #10] ability to replace craft list
  * [UPD] missing * in abbrvs
@@ -673,24 +675,24 @@ namespace Idmr.Platform.Xwa
 											"Ship orders",
 											"Craft when",
 											"Global Group",
-											"",
-											"",
-											"",
+											"Rating",
+											"Craft with status",
+											"All",
 											"Team",
-											"Player of Global Group",
-											"",
-											"",
-											"",
-											"",
-											"",
-											"",
-											"",
+											"Player #",
+											"After delay",
+											"All Flight Groups except",
+											"All ship types except",
+											"All ship classes except",
+											"All object types except",
+											"All IFFs except",
+											"All Global Groups except",
 											"All teams except",
-											"",
+											"All players except #",
 											"Global Unit",
-											"",
+											"All Global Units except",
 											"Global Cargo",
-											"",
+											"All Global Cargos except",
 											"Message #",
 									  };
 		static string[] _amount = { "100%",
@@ -818,7 +820,7 @@ namespace Idmr.Platform.Xwa
 										"Attacks targets (not for starships)|Component|Meaningless|Meaningless",
 										"Attacks escorts of targets|Meaningless|Meaningless|Meaningless",
 										"Attacks craft that attack targets, ignores boarding craft|Meaningless|Meaningless|Meaningless",
-										"Attacks craft that attack targets, including boarding craft|Meaningless|Attack Player|Meaningless",
+										"Attacks craft that attack targets, including boarding craft|Position|Attack Player|Meaningless",
 										"Attacks to disable.  Warheads used to lower shields|Meaningless|Meaningless|Meaningless",
 										"Boards targets (if stationary) to give cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to take cargo|Docking time|# of dockings|Meaningless",

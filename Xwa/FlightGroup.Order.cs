@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [ADD #1] TriggerType unknowns
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -99,49 +100,85 @@ namespace Idmr.Platform.Xwa
 					case 0:
 						break;
 					case 1:
-						s += "FG:" + target;
+						s = "FG:" + target;
 						break;
 					case 2:
-						s += Strings.CraftType[target + 1] + "s";
+						s = Strings.CraftType[target + 1] + "s";
 						break;
 					case 3:
-						s += Strings.ShipClass[target];
+						s = Strings.ShipClass[target];
 						break;
 					case 4:
-						s += Strings.ObjectType[target];
+						s = Strings.ObjectType[target];
 						break;
 					case 5:
-						s += Strings.IFF[target] + "s";
+						s = Strings.IFF[target] + "s";
 						break;
 					case 6:
-						s += "Craft with " + Strings.Orders[target] + " orders";
+						s = "Craft with " + Strings.Orders[target] + " orders";
 						break;
 					case 7:
-						s += "Craft when " + Strings.CraftWhen[target];
+						s = "Craft when " + Strings.CraftWhen[target];
 						break;
 					case 8:
-						s += "Global Group " + target;
+						s = "Global Group " + target;
 						break;
-					case 0xC:
-						s += "TM:" + target;
+					case 9:
+						s = "Rating " + Strings.Rating[target];
 						break;
-					case 0xD:
-						s += "Player of GG " + target;
+					case 10:
+						s = "Craft with status: " + Strings.Status[target];
 						break;
-					case 0x15:
-						s += "All Teams except TM:" + target;
+					case 11:
+						s = "All";
 						break;
-					case 0x17:
-						s += "Global Unit " + target;
+					case 12:
+						s = "TM:" + target;
 						break;
-					case 0x19:
-						s += "Global Cargo " + target;
+					case 13:
+						s = "Player #" + target;
 						break;
-					case 0x1B:
-						s += "Message #" + target;
+					case 15:
+						s = "Not FG:" + target;
+						break;
+					case 16:
+						s = "Not ship type " + Strings.CraftType[target + 1];
+						break;
+					case 17:
+						s = "Not ship class " + Strings.ShipClass[target];
+						break;
+					case 18:
+						s = "Not object type " + Strings.ObjectType[target];
+						break;
+					case 19:
+						s = "Not IFF " + Strings.IFF[target];
+						break;
+					case 20:
+						s = "Not GG " + target;
+						break;
+					case 21:
+						s = "All Teams except TM:" + target;
+						break;
+					case 22:
+						s = "Not player " + target;
+						break;
+					case 23:
+						s = "Global Unit " + target;
+						break;
+					case 24:
+						s = "Not Global Unit " + target;
+						break;
+					case 25:
+						s = "Global Cargo " + target;
+						break;
+					case 26:
+						s = "Not Global Cargo " + target;
+						break;
+					case 27:
+						s = "Message #" + target;
 						break;
 					default:
-						s += type + " " + target;
+						s = type + " " + target;
 						break;
 				}
 				return s;
@@ -154,7 +191,7 @@ namespace Idmr.Platform.Xwa
 			{
 				if (Command == 0) return "None";
 				string order = Strings.Orders[Command];
-				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
+				if ((Command >= 7 && Command <= 18) || (Command >= 23 && Command <= 27) || Command == 31 || Command == 32 || Command == 37)	//all orders where targets are important
 				{
 					string s = _orderTargetString(Target1, Target1Type);
 					string s2 = _orderTargetString(Target2, Target2Type);

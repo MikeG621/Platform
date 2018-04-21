@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -16,7 +17,6 @@
  */
 
 using System;
-using System.IO;
 using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
@@ -89,7 +89,7 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/ && VariableType != 14 /*Delay*/)
 				{
 					trig = Strings.Amount[Amount] + " of ";
 					switch (VariableType)
@@ -118,22 +118,59 @@ namespace Idmr.Platform.Xwa
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
-						case 0xC:
+						case 9:
+							trig += "Rating " + Strings.Rating[Variable];
+							break;
+						case 10:
+							trig += "Craft with status: " + Strings.Status[Variable];
+							break;
+						case 11:
+							trig += "All";
+							break;
+						case 12:
 							trig += "TM:" + Variable;
 							break;
-						case 0xD:
-							trig += "Player of GG " + Variable;
+						case 13:
+							trig += "Player #" + Variable;
 							break;
-						case 0x15:
-							trig += "Not TM:" + Variable;
+						//case 14: omitted, special case after the switch
+						case 15:
+							trig += "all except FG:" + Variable;
 							break;
-						case 0x17:
+						case 16:
+							trig += "all except " + Strings.CraftType[Variable + 1] + "s";
+							break;
+						case 17:
+							trig += "all except " + Strings.ShipClass[Variable];
+							break;
+						case 18:
+							trig += "all except " + Strings.ObjectType[Variable];
+							break;
+						case 19:
+							trig += "all except IFF " + Strings.IFF[Variable];
+							break;
+						case 20:
+							trig += "all except GG " + Variable;
+							break;
+						case 21:
+							trig += "all except TM:" + Variable;
+							break;
+						case 22:
+							trig += "all except Player #" + Variable;
+							break;
+						case 23:
 							trig += "Global Unit " + Variable;
 							break;
-						case 0x19:
+						case 24:
+							trig += "all except Global Unit " + Variable;
+							break;
+						case 25:
 							trig += "Global Cargo " + Variable;
 							break;
-						case 0x1B:
+						case 26:
+							trig += "all except Global Cargo " + Variable;
+							break;
+						case 27:
 							trig += "Message #" + Variable;
 							break;
 						default:
@@ -142,7 +179,8 @@ namespace Idmr.Platform.Xwa
 					}
 					trig += " must ";
 				}
-				trig += Strings.Trigger[Condition];
+				if (VariableType == 14) trig = "After " + (Variable / 12) + ":" + ((Variable * 5) % 60) + " delay";
+				else trig += Strings.Trigger[Condition];
 				if (trig.Contains("Region")) trig += " " + Parameter1;
 				return trig;
 			}
