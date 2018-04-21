@@ -133,10 +133,7 @@ namespace Idmr.Platform.Xwa
 						case 13:
 							trig += "Player #" + Variable;
 							break;
-						case 14:
-							int s = Variable * 5;
-							trig = "After " + (s / 60) + ":" + (s % 60) + " delay";
-							break;
+						//case 14: omitted, special case after the switch
 						case 15:
 							trig += "all except FG:" + Variable;
 							break;
