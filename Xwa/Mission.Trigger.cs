@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [ADD] Proximity in ToString
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.1, 141214
  * [UPD] change to MPL
@@ -91,7 +92,12 @@ namespace Idmr.Platform.Xwa
 				string trig = "";
 				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/ && VariableType != 14 /*Delay*/)
 				{
-					trig = Strings.Amount[Amount] + " of ";
+					if (Condition == 0x31 /*Prox*/ || Condition == 0x32 /*NOT Prox*/) trig = "Any of ";
+					else
+					{
+						if (Amount > Strings.Amount.Length) Amount = 0; //can occur switching away from high-distance prox triggers
+						trig = Strings.Amount[Amount] + " of ";
+					}
 					switch (VariableType)
 					{
 						case 1:
@@ -180,6 +186,15 @@ namespace Idmr.Platform.Xwa
 					trig += " must ";
 				}
 				if (VariableType == 14) trig = "After " + (Variable / 12) + ":" + ((Variable * 5) % 60) + " delay";
+				else if (Condition == 0x31 || Condition == 0x32)
+				{
+					trig += (Condition == 0x32 ? "NOT " : "") + "be within ";
+					double dist;
+					if (Amount == 0) dist = 0.05;
+					else if (Amount <= 10) dist = 0.1 * Amount;
+					else dist = Amount * 0.5 - 4;
+					trig += dist + " km of FG2:" + Parameter1;
+				}
 				else trig += Strings.Trigger[Condition];
 				if (trig.Contains("Region")) trig += " " + Parameter1;
 				return trig;

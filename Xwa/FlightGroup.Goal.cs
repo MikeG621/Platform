@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [NEW] Prox condition in ToString
  * [UPD] ToString update [JB]
  * v2.1, 141214
  * [UPD] change to MPL
@@ -70,10 +71,19 @@ namespace Idmr.Platform.Xwa
 				string goal = "";
 				if (Condition != 0 && Condition != 10)
 				{
-					goal = Strings.Amount[Amount] + " of Flight Group ";
+					goal = (Condition == 0x31 || Condition == 0x32 ? "Any" : Strings.Amount[Amount]) + " of Flight Group ";
 					goal += (Argument == 0 ? "must" : (Argument == 1 ? "must NOT" : (Argument == 2 ? "BONUS must" : "BONUS must NOT")));
-					goal += " " + Strings.Trigger[Condition];
-					if (Condition == 0x2F || Condition == 0x30) goal += " " + Parameter;
+					if (Condition == 0x31 || Condition == 0x32)
+					{
+						goal += (Condition == 0x32 ? " NOT" : "") + " be within ";
+						double dist;
+						if (Amount == 0) dist = 0.05;
+						else if (Amount <= 10) dist = 0.1 * Amount;
+						else dist = Amount * 0.5 - 4;
+						goal += dist + " km of FG2:" + Parameter;
+					}
+					else goal += " " + Strings.Trigger[Condition];
+					if (goal.Contains("Region")) goal += " " + Parameter;
 					goal += " (" + Points + " points)";
 				}
 				else goal = "None";

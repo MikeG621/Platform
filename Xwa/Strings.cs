@@ -930,7 +930,7 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Array is Length = 28</remarks>
 		public static string[] VariableType { get { return (string[])_triggerType.Clone(); } }
 		/// <summary>Gets a copy of the quantities of applicable conditions that must be met</summary>
-		/// <remarks>Array is Length = 20</remarks>
+		/// <remarks>Array is Length = 23</remarks>
 		public static string[] Amount { get { return (string[])_amount.Clone(); } }
 		/// <summary>Gets a copy of the FlightGroup orders</summary>
 		/// <remarks>Array is Length = 65</remarks>

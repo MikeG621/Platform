@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] just tweaked the Trigger declaration
  * v2.1, 141214
  * [UPD] change to MPL
  */
@@ -52,7 +53,7 @@ namespace Idmr.Platform.Xwa
 			public Goal()
 			{
 				for (int i = 0; i < 12; i++) _strings[i / 3, i % 3] = "";
-				for (int i = 0; i < 4; i++) { _triggers[i] = new Mission.Trigger(); _triggers[i].Condition = 10; }
+				for (int i = 0; i < 4; i++) _triggers[i] = new Mission.Trigger() { Condition = 10 };
 				for (int i = 0; i < 3; i++) _andOrs[i] = true;
 				_triggerStrings = new StringsIndexer(this);
 			}
