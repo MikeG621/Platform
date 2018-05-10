@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 2.7
  */
 
 /* CHANGELOG
+ * v2.7, 180509
  * [NEW] Prox condition in ToString
  * [UPD] ToString update [JB]
  * v2.1, 141214

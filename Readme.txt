@@ -2,19 +2,29 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.6.2
-Date: 2018.02.24
+Version: 2.7
+Date: 2018.05.09
 
 Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
 
 =========
 Version History
 
+v2.7 - 09 May 2018
+ - (XWA.FlightGroup.Goal) Proximity triggers include distance in ToString
+ - (XWA.FlightGoup.Orders) TriggerType unknowns filled in (#1)
+ - (XWA.Globals.Goal) Proximity triggers include distance in ToString
+ - (XWA.Mission.Trigger) Proximity triggers include distance in ToString
+ - (XWA.Mission.Trigger) TriggerType unknowns filled in (#1)
+ - (XWA.Mission) FlightGroupLimit was raised to 132 for the time being, this is post-SuperBackDrops install to prevent errors
+ - (XWA.Strings) TriggerType unknowns filled in (#1)
+ - (XWA.Strings) Escort order had "Meaningless" replaced with "Position"
+
 v2.6.2 - 24 Feb 2018
  - (XWA.FlightGroup.Orders) Fixed the waypoint inversion (YOGEME#16)
 
 v2.6.1 - 18 Nov 2017
- - (XWA.FLightGroup) Added some Backdrop-specific properties that alias the appropriate standard properties.
+ - (XWA.FlightGroup) Added some Backdrop-specific properties that alias the appropriate standard properties.
 
 v2.6 - 15 Oct 2017
  - (TIE.Strings) Added missing "*" from Med Trans

@@ -1,10 +1,10 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.7
  */
 
 /* CHANGELOG
@@ -34,7 +34,7 @@ namespace Idmr.Platform.Xwa
 				/// <remarks><i>value</i> is limited to 63 characters</remarks>
 				/// <param name="trigger">The Trigger index, 0-3</param>
 				/// <param name="state"><see cref="GoalState"/> index</param>
-				/// <exception cref="IndexOutOfRangeException">Invalid <i>trigger</i> or <i>state</i> value</exception>
+				/// <exception cref="System.IndexOutOfRangeException">Invalid <i>trigger</i> or <i>state</i> value</exception>
 				public string this[int trigger, int state]
 				{
 					get { return _owner._strings[trigger, state]; }
@@ -45,7 +45,7 @@ namespace Idmr.Platform.Xwa
 				/// <remarks><i>value</i> is limited to 63 characters</remarks>
 				/// <param name="trigger">The Trigger index, 0-3</param>
 				/// <param name="state"><see cref="GoalState"/> value</param>
-				/// <exception cref="IndexOutOfRangeException">Invalid <i>trigger</i> value</exception>
+				/// <exception cref="System.IndexOutOfRangeException">Invalid <i>trigger</i> value</exception>
 				public string this[int trigger, GoalState state]
 				{
 					get { return _owner._strings[trigger, (int)state]; }

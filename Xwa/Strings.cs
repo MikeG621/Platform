@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6+
+ * Version: 2.7
  */
 
 /* CHANGELOG
+ * v2.7, 180509
  * [UPD] label for Escort Position
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.6, 151017

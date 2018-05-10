@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6.2+
+ * Version: 2.7
  */
 
 /* CHANGELOG
+ * v2.7, 180509
  * [UPD] FlightgroupLimit changed to 132, this is post-SBD install
  * v2.6.2, 180224
  * [FIX YOGEME\#16] added missing Y inversion on Order Waypoints

@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 2.7
  */
 
 /* CHANGELOG
+ * v2.7, 180509
  * [ADD] Proximity in ToString
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
  * v2.1, 141214
