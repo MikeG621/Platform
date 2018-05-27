@@ -1,7 +1,7 @@
 XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2016.12.02
+Updated: 2017.05.27
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -66,7 +66,7 @@ GlobalGoal[10]
 Team[10]
 Briefing[8]
 STR(64)[NumFGs,8,3]	FGGoalStrings
-STR(64)[10,3,4,3]	GlobalGoalStrings
+GlobalGoalString[10]
 #if (PlatformID==12) (XvT)
 STR(1024)		MissionDescription
 #elseif (PlatformID==14) (BoP)
@@ -312,6 +312,11 @@ struct String
 	0x2	CHAR[Length]
 }
 
+struct GlobalGoalString (size 0x1500)
+{
+	0x0000	STR[64][3,4,3]	TriggerString
+}
+
 =====
 XvT Mission Detail
 
@@ -530,7 +535,7 @@ fixed size, and occurs once for each Flight Group.
 The array structure is 3 strings per goal, 8 goals per FG. Incomplete, Complete
 and Failed in that order.
 
--- GlobalGoalStrings --
+-- GlobalGoalString --
 
 For the most part, the same as FGGoalStrings. Define your own strings, this
 section is always here with a fixed size and repeats 10 times, once for each
@@ -538,10 +543,14 @@ team.
 
 The array structure here is 3 strings per Trigger, 4 Triggers per goal, 3 goals
 per Team. Strings are Incomplete, Complete and Failed in that order. Goals are
-Primary, Prevent and Secondary in that order.
+Primary, Prevent and Secondary in that order. So it starts with PrimT1Inc, then
+PrimT1Comp and PrimT1Fail before moving to PrimT2Inc, etc.
 
 Prevent Failed is always empty. Secondary Incomplete and Failed are always
 empty.
+
+There's a bunch of empty space, so even though the strings themselves take up
+0x900, there's another 0xC00 to skip over.
 
 -- MissionDescription --
 
