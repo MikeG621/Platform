@@ -136,8 +136,15 @@ namespace Idmr.Platform.Xwa
 				get { return _items[5]; }
 				set { _items[5] = value; }
 			}
+            /// <summary>Gets or sets the unknown</summary>
+            public byte Unknown42
+            {
+                get { return _items[13]; }
+                set { _items[13] = value; }
+            }
 			/// <summary>Gets or sets the additional Goal setting</summary>
-			public byte Parameter
+            /// <remarks>Shared as both an extra parameter for certain orders, or goal time limit for anything else.  Zero for no time limit.  Standard delay format used by Message and Order waiting times.</remarks>
+            public byte Parameter
 			{
 				get { return _items[14]; }
 				set { _items[14] = value; }

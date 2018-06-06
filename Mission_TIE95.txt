@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2011.08.04
+Updated: 2018.06.05
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -397,6 +397,17 @@ The Tag and String arrays are not fixed sizes. They have a minimum length of
 64 bytes, which is the case of every length being zero. If a Length is zero,
 then the CHAR[] is omitted. That's the real highlight right there.
 
+Technical note: The briefing caption strings allow certain character codes.
+0x00 for a newline, 0x02 to begin highlighting, 0x01 to end highlighting.  A
+single 0x00 will act as a newline, but two in a row [0x00 0x00] will be
+considered a null terminator.  The maximum space in game memory for a caption
+string is 160 (0xA0) bytes and that must include the double [0x00 0x00] null
+terminator.  Excess length strings, or an improperly terminated string that
+runs into another string may cause the game to crash.
+
+Attempting to render a text tag with a string character length >= 40 will crash
+the game.
+
 -- PreMissionQuestion --
 
 Similar to Tags and Strings, this has a dynamic size. Similarly, if Length is
@@ -406,6 +417,9 @@ Question. This is the line break that the application is searching for to
 seperate the substrings, not the usual 00. The first five questions belong to
 the Flight Officer, and the second five belong to the Secret Order Officer.
 The array has a minimum byte length of 0x14.
+
+Technical note: There are some character control codes, and also a length
+limit.  See technical notes in PostMissionQuestion.
 
 -- PostMissionQuestion --
 
@@ -428,10 +442,24 @@ use it for my write code. Can't hurt. That said, after the last Post question
 is done I really don't think TIE cares anymore, since I've put other values
 before the FF and I've never had troubles with running missions like that.
 
-There you have it, the TIE95 Mission file format. Enjoy :P
+Technical note: The total length of "data" for a mission question should not
+exceed 1024 (0x400) bytes.  Extending above this limit greatly increases
+chances of crashing the game when loading the briefing or debriefing.  This
+data includes the strings of both question and answer (and separator between
+them), plus space for a null terminator when loaded into game memory (the
+terminator is not present in the file itself).  For PostMissionQuestion data,
+the Condition and Type bytes both contribute toward this limit.  It is unknown
+if the two-byte Length field also contributes, but in testing it doesn't
+seem to be.
 
+Answer text allows the use of character control codes 0x02 to begin
+highlighting, 0x01 to end highlighting, or 0x0A for newline.
+
+There you have it, the TIE95 Mission file format. Enjoy :P
 =====
 List Definitions
+NOTE: If used as a VariableType for a trigger or order, the list is zero-based
+beginning with X-wing instead of None.
 
 CraftType
 00	None
@@ -519,7 +547,7 @@ CraftType
 52	Unused
 53	Nav Buoy A
 54	Nav Buoy B
-55	Unused
+55	Asteroid Field
 56	Asteroid Field
 57	Planet
 
@@ -527,7 +555,7 @@ Status
 00	None
 01	2X Warheads
 02	1/2 Warheads
-03	Disabled
+03	No Shields
 04	1/2 Shields
 05	No Lasers
 06	No Hyperdrive
@@ -552,12 +580,12 @@ Beam
 02	Jamming Beam
 
 GroupAI
-00	Rookie (None)
-01	Novice
+00	Novice (None)
+01	Officer
 02	Veteran
-03	Officer
-04	Ace
-05	Top Ace (Invincible)
+03	Ace
+04	Top Ace
+05	Jedi (Invincible)
 
 Markings
 00	Red (TIE - None)
@@ -673,10 +701,19 @@ GoalAmount
 AbortTrigger
 00	None
 01	0% Shields
-02	Systems 75% (fighters and transports only)
+02	Systems 75% (fighters and transports only)*
 03	Out of warheads
 04	50% Hull
 05	Attacked
+
+* Technical note: The system percent isn't used, but is only an estimate.
+This actually triggers when the cannon subsystem has been disabled with ions
+(mag pulse doesn't count).  Ion shots work by knocking out individual subsystem
+components in sequence (out of 10 possible subsystems that can be equipped),
+and cannons are about the third subsystem to go.  Ships that do not have
+forward cannons (typically anything that isn't a fighter or transport) don't
+possess a cannon subsystem, therefore starships will abort instantly if given
+this trigger.
 
 Order
 00	Hold Station
@@ -688,7 +725,7 @@ Order
 04	Rendezvous
 	Var1	Number of Dockings
 05	Disabled
-	Var1	Number of Dockings
+	Var1	Meaningless?        [does not appear to be Number of Dockings]
 06	Await Boarding
 	Var1	Number of Dockings
 07	Attack
@@ -754,6 +791,8 @@ CraftWhen
 02	Boarded
 03	Defence
 04	Disabled
+05	Attacked
+06	Any hull damage
 07	Special craft
 08	Non-special craft
 09	Player's craft

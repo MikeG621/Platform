@@ -98,10 +98,49 @@ namespace Idmr.Platform.Tie
 		public string ToString(bool verbose)
 		{
 			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
+            if (EditorCraftNumber > 0) //[JB] Added numbering information.
+                longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
 			if (!verbose) return longName;
-			return IFF + " - " + GlobalGroup + " - " + (PlayerCraft != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName;
+
+            //[JB] Added difficulty tag, by feature request.
+            string ret = IFF + " - " + GlobalGroup + " - " + (PlayerCraft != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName;
+            if (Difficulty >= 1 && Difficulty <= 6)
+                ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+
+            return ret;
 		}
 		
+        /// <summary>Changes all Flight Group indexes during a FG Move or Delete operation.</summary>
+        /// <remarks>Should not be called directly unless part of a larger FG Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
+        /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+        /// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+        /// <returns>Returns true if anything was changed.</returns>
+        public bool TransformFGReferences(int srcIndex, int dstIndex)
+        {
+            bool change = false;
+            bool delete = false;
+            byte dst = (byte)dstIndex;
+            if (dstIndex < 0)
+            {
+                dst = 0;
+                delete = true;
+            }
+
+            //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
+            if (ArrivalCraft1 == srcIndex) { ArrivalCraft1 = dst; change = true; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete == true) { ArrivalCraft1--; change = true; }
+            if (ArrivalCraft2 == srcIndex) { ArrivalCraft2 = dst; change = true; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { ArrivalCraft2--; change = true; }
+            if (DepartureCraft1 == srcIndex) { DepartureCraft1 = dst; change = true; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete == true) { DepartureCraft1--; change = true; }
+            if (DepartureCraft2 == srcIndex) { DepartureCraft2 = dst; change = true; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { DepartureCraft2--; change = true; }
+            for (int i = 0; i < ArrDepTriggers.Length; i++)
+            {
+                Mission.Trigger adt = ArrDepTriggers[i];
+                change |= adt.TransformFGReferences(srcIndex, dstIndex, (i < 2));  //[0] and [1] are are arrival.  Set those to true.
+            }
+            foreach (FlightGroup.Order order in Orders)
+                change |= order.TransformFGReferences(srcIndex, dstIndex);
+            return change;
+        }
+
 		/// <summary>Gets or sets the Pilot name, used as short note</summary>
 		/// <remarks>Restricted to 12 characters</remarks>
 		public string Pilot
@@ -109,7 +148,7 @@ namespace Idmr.Platform.Tie
 			get { return _pilot; }
 			set { _pilot = StringFunctions.GetTrimmed(value, _stringLength); }
 		}
-		/// <summary>Gets or sets if the FlightGroup responds to player's orders</summary>
+        /// <summary>Gets or sets if the FlightGroup responds to player's orders</summary>
 		public bool FollowsOrders { get; set; }
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for blank Arrival triggers and a delay of 30 seconds or less</remarks>
@@ -130,7 +169,12 @@ namespace Idmr.Platform.Tie
 		/// <summary>Gets the Waypoint array used to determine starting location and AI pathing</summary>
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes</remarks>
 		public Waypoint[] Waypoints { get { return _waypoints; } }
-		
+
+        /// <summary>If enabled, Flight Groups that die in campaign mode will not appear in later missions.  Formerly Unknown9</summary>
+        public byte PermaDeathEnabled { get; set; }
+        /// <summary>If enabled, Flight Groups matching this ID that have died in previous missions will not appear.  Formerly Unknown10</summary>
+        public byte PermaDeathID { get; set; }
+
 		/// <summary>Container for unknown values</summary>
 		[Serializable] public struct UnknownValues
 		{
@@ -141,15 +185,11 @@ namespace Idmr.Platform.Tie
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0041, in Craft section</remarks>
 			public byte Unknown5 { get; set; }
-			
-			/// <summary>Unknown value</summary>
-			/// <remarks>Offset 0x0046, in Craft section</remarks>
-			public bool Unknown9 { get; set; }
-			
-			/// <summary>Unknown value</summary>
-			/// <remarks>Offset 0x0047, in Craft section</remarks>
-			public byte Unknown10 { get; set; }
-			
+
+			// Unknown9 is campaign perma-death flag.  Offset 0x0046, in Craft section.
+
+			// Unknown10 is campaign perma-death ID.  Offset 0x0047, in Craft section.
+            
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0048, in Craft section, Reserved(0)</remarks>
 			public byte Unknown11 { get; set; }
@@ -193,32 +233,28 @@ namespace Idmr.Platform.Tie
 				{
 					if (index == 0) return Unknown1;
 					else if (index == 1) return Unknown5;
-					else if (index == 2) return Convert.ToByte(Unknown9);
-					else if (index == 3) return Unknown10;
-					else if (index == 4) return Unknown11;
-					else if (index == 5) return Unknown12;
-					else if (index == 6) return Unknown15;
-					else if (index == 7) return Unknown16;
-					else if (index == 8) return Unknown17;
-					else if (index == 9) return Convert.ToByte(Unknown19);
-					else if (index == 10) return Unknown20;
-					else if (index == 11) return Convert.ToByte(Unknown21);
-					else throw new ArgumentOutOfRangeException("index must be 0-11", "index");
+					else if (index == 2) return Unknown11;
+					else if (index == 3) return Unknown12;
+					else if (index == 4) return Unknown15;
+					else if (index == 5) return Unknown16;
+					else if (index == 6) return Unknown17;
+					else if (index == 7) return Convert.ToByte(Unknown19);
+					else if (index == 8) return Unknown20;
+					else if (index == 9) return Convert.ToByte(Unknown21);
+					else throw new ArgumentOutOfRangeException("index must be 0-9", "index");
 				}
 				set
 				{
 					if (index == 0) Unknown1 = value;
 					else if (index == 1) Unknown5 = value;
-					else if (index == 2) Unknown9 = Convert.ToBoolean(value);
-					else if (index == 3) Unknown10 = value;
-					else if (index == 4) Unknown11 = value;
-					else if (index == 5) Unknown12 = value;
-					else if (index == 6) Unknown15 = value;
-					else if (index == 7) Unknown16 = value;
-					else if (index == 8) Unknown17 = value;
-					else if (index == 9) Unknown19 = Convert.ToBoolean(value);
-					else if (index == 10) Unknown20 = value;
-					else if (index == 11) Unknown21 = Convert.ToBoolean(value);
+					else if (index == 2) Unknown11 = value;
+					else if (index == 3) Unknown12 = value;
+					else if (index == 4) Unknown15 = value;
+					else if (index == 5) Unknown16 = value;
+					else if (index == 6) Unknown17 = value;
+					else if (index == 7) Unknown19 = Convert.ToBoolean(value);
+					else if (index == 8) Unknown20 = value;
+					else if (index == 9) Unknown21 = Convert.ToBoolean(value);
 				}
 			}
 		}

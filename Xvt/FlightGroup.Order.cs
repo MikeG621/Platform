@@ -135,6 +135,9 @@ namespace Idmr.Platform.Xvt
 					case 0xC:
 						s += "TM:" + target;
 						break;
+					case 0x13:
+						s += "All IFFs except " + Strings.IFF[target];  //[JB] Previously unknown order.
+						break;
 					case 0x15:
 						s += "All Teams except TM:" + target;
 						break;

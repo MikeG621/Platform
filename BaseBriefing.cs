@@ -141,7 +141,7 @@ namespace Idmr.Platform
 		public short Unknown1 { get; set; }
 
 		/// <summary>Gets the array that contains the number of parameters per event type</summary>
-		public EventParameters EventParameterCount { get { return _eventParameters; } }
+		virtual public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
 
 		/// <summary>Object to maintain a read-only array</summary>
 		public class EventParameters
@@ -157,5 +157,64 @@ namespace Idmr.Platform
 			/// <param name="eventType">The briefing event</param>
 			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
 		}
-	}
+
+
+        //These virtual functions can be overridden for X-wing
+        public virtual bool IsEndEvent(int evt)
+        {
+            return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
+        }
+        public virtual bool IsFGTag(int evt)
+        {
+            return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
+        }
+        public virtual void TransformFGReferences(int fgIndex, int newIndex)
+        {
+            bool deleteCommand = false;
+            if (newIndex < 0)
+                deleteCommand = true;
+
+            int p = 0, advance = 0;
+            int paramCount = 0;
+            while (p < EventsLength)
+            {
+                int evt = Events[p + 1];
+                if (IsEndEvent(evt))
+                    break;
+
+                advance = 2 + EventParameterCount(evt);
+                if (IsFGTag(evt))
+                {
+                    if (Events[p + 2] == fgIndex)
+                    {
+                        if (deleteCommand == false)
+                        {
+                            Events[p + 2] = (short)newIndex;
+                        }
+                        else
+                        {
+                            int len = EventsLength; //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
+                            paramCount = 2 + EventParameterCount(evt);
+                            for (int i = p; i < len - paramCount; i++)
+                                Events[i] = Events[i + paramCount];  //Drop everything down
+                            for (int i = len - paramCount; i < len; i++)
+                                Events[i] = 0;  //Erase the final space
+                            advance = 0;
+                        }
+                    }
+                    else if (Events[p + 2] > fgIndex && deleteCommand == true)
+                    {
+                        Events[p + 2]--;
+                    }
+                }
+                p += advance;
+            }
+        }
+        public virtual void SwapFGReferences(int srcIndex, int dstIndex)
+        {
+            TransformFGReferences(dstIndex, 255);
+            TransformFGReferences(srcIndex, dstIndex);
+            TransformFGReferences(255, srcIndex);
+        }
+    }
 }

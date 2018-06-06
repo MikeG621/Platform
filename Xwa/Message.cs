@@ -82,15 +82,15 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets or sets the editor note typically used to signify the FlightGroup index of the speaker</summary>
 		/// <remarks>Defaults to <b>zero</b>, there appears to be no game mechanic or consequence for using this value</remarks>
 		public byte OriginatingFG { get; set; }	// TODO: test this in-game for highlighting
-		/// <summary>Gets or sets the seconds after trigger is fired</summary>
-		/// <remarks>Default is <b>zero</b>. Can be combined with <see cref="DelayMinutes"/></remarks>
-		public byte DelaySeconds { get; set; }
-		/// <summary>Gets or sets the minutes after trigger is fired</summary>
-		/// <remarks>Default is <b>zero</b>. Can be combined with <see cref="DelaySeconds"/></remarks>
-		public byte DelayMinutes { get; set; }
+		/// <summary>Gets or sets the delay after trigger is fired.</summary>
+		/// <remarks>Default is <b>zero</b>. Unlike TIE and XvT, it contains unusual formatting and isn't in increments of 5 seconds.  Use <see cref="Mission.GetDelaySeconds"/> to convert the delay into total seconds.</remarks>
+		public byte Delay { get; set; }
+        /// <summary>Unknown value.  Formerlay DelayMinutes, but that was incorrect.</summary>
+        /// <remarks>Offset 0x8D</remarks>
+        public byte Unknown2 { get; set; }
 		/// <summary>Unknown value</summary>
 		/// <remarks>Offset 0xA0</remarks>
-		public bool Unknown2 { get; set; }
+		public bool Unknown3 { get; set; }
 		/// <summary>Gets or sets the editor note</summary>
 		/// <remarks>Value is restricted to 63 characters</remarks>
 		public string Note
@@ -98,5 +98,5 @@ namespace Idmr.Platform.Xwa
 			get { return _note; }
 			set { _note = StringFunctions.GetTrimmed(value, 0x53); }
 		}
-	}
+    }
 }

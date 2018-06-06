@@ -28,6 +28,17 @@ namespace Idmr.Platform.Xvt
 	public abstract class Strings : BaseStrings
 	{
 		#region array declarations
+        static readonly public string TeamPrefixes = "1234AFH";
+        static string[] _roleTeams = { "Role Disabled",
+                                        "Team 1", 
+                                        "Team 2", 
+                                        "Team 3", 
+                                        "Team 4", 
+                                        "All Teams", 
+                                        "This Craft's Team", 
+                                        "All Other Teams", 
+                                    };
+
 		static string[] _roles = { "None",
 									"Base",
 									"Command Ship",
@@ -36,7 +47,7 @@ namespace Idmr.Platform.Xvt
 									"Mission Critical Craft",
 									"Primary Target",
 									"Reload Craft",
-									"Resource Center",
+									"Research Facility",  //[JB] Changed to correct string.
 									"Secondary Target",
 									"Station",
 									"Strike Craft",
@@ -70,9 +81,36 @@ namespace Idmr.Platform.Xvt
 		static string[] _beam = { "None",
 									"Tractor beam",
 									"Jamming beam",
-									"Decoy Beam"
+									"Decoy beam",
+									"(Energy beam)"
 							   };
-		static string[] _craftType = { "None",
+
+        static string[] _difficulty = { "All",
+										"Easy",
+										"Medium",
+										"Hard",
+										"Greater than Easy",
+										"Less than Hard",
+										"Never",
+                                        "Never",  //[JB] XvTED has these values, which some custom missions use.
+										"Easy",
+										"Medium",
+										"Hard",
+									 };
+        static string[] _difficultyAbbrv = { "",
+										"E",
+										"M",
+										"H",
+										">E",
+										"<H",
+										"X",
+                                        "X",
+                                        "E",
+                                        "M",
+                                        "H"
+									 };
+        
+        static string[] _craftType = { "None",
 										"X-Wing",
 										"Y-Wing",
 										"A-Wing",
@@ -171,7 +209,7 @@ namespace Idmr.Platform.Xvt
 										"Y-W",
 										"A-W",
 										"B-W",
-										"TIE",
+										"T/F",
 										"T/I",
 										"T/B",
 										"T/A",
@@ -260,7 +298,7 @@ namespace Idmr.Platform.Xvt
 										"REPYD",
 										"M/SC"
 									 };
-		static string[] _rating = { "Rookie",
+		static string[] _rating = { "Novice",
 									"Officer",
 									"Veteran",
 									"Ace",
@@ -270,7 +308,7 @@ namespace Idmr.Platform.Xvt
 		static string[] _status = { "Normal",
 									"2x Warheads",
 									"1/2 Warheads",
-									"Disabled",
+									"No Shields",         //[JB] Was "Disabled", confirmed actual effect
 									"1/2 Shields",
 									"No Lasers",
 									"No Hyperdrive",
@@ -291,13 +329,13 @@ namespace Idmr.Platform.Xvt
 									"Infinite Warheads"
 								 };
 		static string[] _trigger = { "always (TRUE)",
-										"be created",
+										"have arrived",
 										"be destroyed",
 										"be attacked",
 										"be captured",
 										"be inspected",
-										"be boarded",
-										"be docked",
+										"finish being boarded",    //[JB] was "be boarded"
+										"finish docking",          //[JB] was "be docked"
 										"be disabled",
 										"have survived (exist)",
 										"none (FALSE)",
@@ -320,10 +358,10 @@ namespace Idmr.Platform.Xvt
 										"NOT be disabled",
 										"NOT be picked up",
 										"be destroyed, not inspected",
-										"be docked with",
-										"NOT be docked with",
-										"begin boarding",
-										"NOT begin boarding",
+										"begin being boarded",       //[JB] was "be docked with"
+										"NOT being boarded",
+										"begin docking",            //[JB] was "begin boarding"
+										"NOT begin docking",
 										"have 50% shields",
 										"have 25% shields",
 										"have 75% hull",
@@ -357,11 +395,12 @@ namespace Idmr.Platform.Xvt
 											"",
 											"",
 											"",
-											"",
+											"All IFFs except",  //[JB] Previously unknown order.  See Y-W disable orders in Train\8xc01bxy.tie
 											"",
 											"All teams except",
 											"",
-											"Global Unit"
+											"Global Unit",
+                                            ""                  //[JB] Used in Combat\8b02w05.tie, FG #14 X-W Gold, Go Home target (garbage value?)
 									  };
 		static string[] _amount = { "100%",
 									"75%",
@@ -431,7 +470,7 @@ namespace Idmr.Platform.Xvt
 										"",
 										"Disabled",
 										"Attacked",
-										"0% shields?",
+										"Any hull damage",  //[JB] was "0% shields?", confirmed actual effect
 										"Special craft",
 										"Non-special craft",
 										"Player's craft",
@@ -465,7 +504,7 @@ namespace Idmr.Platform.Xvt
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless",
 										"Fly to Rendezvous point and await docking. Ignores targets, returns fire|# of dockings|Meaningless",
-										"Disabled|Meaningless|Meaningless",
+										"Disabled. Can't be boarded unless it has a docking count.|# of dockings|Meaningless",  //[JB] Added extra description and changed Var1, was Meaningless.
 										"Disabled, awaiting boarding|# of dockings|Meaningless",
 										"Attacks targets (not for starships)|Component?|Meaningless",
 										"Attacks escorts of targets|Meaningless|Meaningless",
@@ -477,7 +516,7 @@ namespace Idmr.Platform.Xvt
 										"Boards targets (if stationary) to exchange cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to capture|Dockings time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time (x5 sec)|# of dockings",
-										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|Meaningless",
+										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|# of dockings",  //[JB] Changed var2, was Meaningless.
 										"Drops off designated Flight Group (disregards targets)|Deploy time? (x5 sec)|Flight Group #",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
@@ -501,7 +540,7 @@ namespace Idmr.Platform.Xvt
 										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless",
 										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless"
 									};
-		#endregion
+        #endregion
 
 		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays.</summary>
 		/// <param name="craftTypes">Array of new craft types.</param>
@@ -518,7 +557,16 @@ namespace Idmr.Platform.Xvt
 			_craftAbbrv = craftAbbrv;
 		}
 
-		/// <summary>Gets of copy of the craft roles used for specialized in-flight messages</summary>
+        /// <summary>Gets a copy of Arrival difficulty settings</summary>
+        /// <remarks>Array has a Length of 10</remarks>
+        new public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
+        /// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
+        /// <remarks>Array has a Length of 10</remarks>
+        new public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
+        /// <summary>Gets a copy of the default team name entries that craft roles can be applied to.</summary>
+        /// <remarks>Array is Length = 8</remarks>
+        public static string[] RoleTeams { get { return (string[])_roleTeams.Clone(); } }
+        /// <summary>Gets of copy of the craft roles used for specialized in-flight messages</summary>
 		/// <remarks>Array is Length = 13</remarks>
 		public static string[] Roles { get { return (string[])_roles.Clone(); } }
 		/// <summary>Gets of copy of the radio channels the craft uses</summary>
@@ -528,7 +576,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] IFF { get { return (string[])_iff.Clone(); } }
 		/// <summary>Gets of copy of the beam weapons for craft use</summary>
-		/// <remarks>Array is Length = 4</remarks>
+		/// <remarks>Array is Length = 5</remarks>
 		public static string[] Beam { get { return (string[])_beam.Clone(); } }
 		/// <summary>Gets of copy of the long name for ship type</summary>
 		/// <remarks>Array is Length = 93</remarks>
@@ -546,7 +594,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array is Length = 47</remarks>
 		public static string[] Trigger { get { return (string[])_trigger.Clone(); } }
 		/// <summary>Gets of copy of the category that the Trigger Parameter belongs to</summary>
-		/// <remarks>Array is Length = 24</remarks>
+		/// <remarks>Array is Length = 25</remarks>
 		public static string[] VariableType { get { return (string[])_triggerType.Clone(); } }
 		/// <summary>Gets of copy of the quantities of applicable conditions that must be met</summary>
 		/// <remarks>Array is Length = 20</remarks>

@@ -33,7 +33,7 @@ namespace Idmr.Platform.Xwa
 		bool[] _arrDepAndOr = new bool[4];
 		Order[,] _orders = new Order[4,4];
 		Goal[] _goals = new Goal[8];
-		bool[] _optLoadout = new bool[16];
+		bool[] _optLoadout = new bool[18]; //[JB] Added Energy Beam and Cluster Mine
 		OptionalCraft[] _optCraft = new OptionalCraft[10];
 		string _pilotID = "";
 		Waypoint[] _waypoints = new Waypoint[4];
@@ -79,11 +79,13 @@ namespace Idmr.Platform.Xwa
 			for (int i = 0; i < 16; i++) _orders[i / 4, i % 4] = new Order();
 			for (int i = 0; i < 8; i++) _goals[i] = new Goal();
 			_optLoadout[0] = true;
-			_optLoadout[9] = true;
-			_optLoadout[13] = true;
+            _optLoadout[9] = true;  //[JB] Adjusted these indexes for added Ion Pulse, Energy Beam, Cluster Mine
+			_optLoadout[14] = true;
 			_waypoints[0].Enabled = true;
 			Unknowns.Unknown1 = 2;
 			_loadoutIndexer = new LoadoutIndexer(_optLoadout);
+            EnableDesignation1 = 255; //[JB] Set to disabled
+            EnableDesignation2 = 255;
 		}
 
 		/// <summary>Gets a string representation of the FlightGroup</summary>
@@ -99,15 +101,86 @@ namespace Idmr.Platform.Xwa
 		public string ToString(bool verbose)
 		{
 			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-			if (!verbose) return longName;
-			return (Team+1) + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "");
+            if (EditorCraftNumber > 0) //[JB] Added numbering information.
+                longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+            if (!verbose) return longName;
+
+            //[JB] Added player position and difficulty tags, by feature request.
+            string plr = "";
+            if (PlayerNumber > 0 || ArriveOnlyIfHuman == true)
+            {
+                if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
+                if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
+                if (plr.Length > 0) plr = " [" + plr + "]";
+            }
+            string ret = (Team + 1) + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
+            if (Difficulty >= 1 && Difficulty <= 6)
+                ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+
+            return ret;
 		}
+        /// <summary>Changes all Flight Group indexes, to be used during a FG Swap (Move) or Delete operation.</summary>
+        /// <remarks>FG references may exist in other mission properties, ensure those properties are adjusted too.</remarks>
+        /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+        /// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+        /// <returns>True if something was changed.</returns>
+        public bool TransformFGReferences(int srcIndex, int dstIndex)
+        {
+            bool change = false;
+            bool delete = false;
+            byte dst = (byte)dstIndex;
+            if (dstIndex < 0)
+            {
+                dst = 0;
+                delete = true;
+            }
+
+            //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
+            if (ArrivalCraft1 == srcIndex) { change = true; ArrivalCraft1 = dst; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete == true) { change = true; ArrivalCraft1--; }
+            if (ArrivalCraft2 == srcIndex) { change = true; ArrivalCraft2 = dst; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { change = true; ArrivalCraft2--; }
+            if (DepartureCraft1 == srcIndex) { change = true; DepartureCraft1 = dst; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete == true) { change = true; DepartureCraft1--; }
+            if (DepartureCraft2 == srcIndex) { change = true; DepartureCraft2 = dst; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { change = true; DepartureCraft2--; }
+            for (int i = 0; i < ArrDepTriggers.Length; i++)
+            {
+                Mission.Trigger adt = ArrDepTriggers[i];
+                change |= adt.TransformFGReferences(srcIndex, dstIndex, true);  //First 2 are arrival.  Set those to true.
+            }
+
+            //Skip triggers are part of the Order in XWA, don't need to handle them here.
+
+            foreach (FlightGroup.Order order in Orders)
+                change |= order.TransformFGReferences(srcIndex, dstIndex);
+            return change;
+        }
+        /// <summary>Changes all Message indexes, to be used during a Message Swap (Move) or Delete operation.</summary>
+        /// <remarks>Same concept as for Flight Groups.  Triggers may depend on Message indexes, and this function helps ensure indexes are not broken.</remarks>
+        /// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
+        /// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+        /// <returns>True if something was changed.</returns>
+        public bool TransformMessageReferences(int srcIndex, int dstIndex)
+        {
+            bool change = false;
+
+            for (int i = 0; i < ArrDepTriggers.Length; i++)
+            {
+                Mission.Trigger adt = ArrDepTriggers[i];
+                change |= adt.TransformMessageRef(srcIndex, dstIndex);
+            }
+
+            foreach(FlightGroup.Order order in Orders)
+            {
+                foreach(Mission.Trigger trig in order.SkipTriggers)
+                    change |= trig.TransformMessageRef(srcIndex, dstIndex);
+            }
+
+            return change;
+        }
 		
 		#region craft
-		/// <summary>Determines if <see cref="Designation1"/> is used</summary>
-		public bool EnableDesignation1 { get; set; }
-		/// <summary>Determines if <see cref="Designation2"/> is used</summary>
-		public bool EnableDesignation2 { get; set; }
+		/// <summary>Determines if <see cref="Designation1"/> is used, and which teams it applies to.</summary>
+		public byte EnableDesignation1 { get; set; }   //[JB] Changed designations from bool to byte, since it usually stores teams.
+        /// <summary>Determines if <see cref="Designation2"/> is used, and which teams it applies to.</summary>
+		public byte EnableDesignation2 { get; set; }
 		/// <summary>Primary craft role, such as Command Ship or Strike Craft. Also used for Hyper Buoys</summary>
 		public byte Designation1 { get; set; }
 		/// <summary>Secondary craft role, such as Command Ship or Strike Craft. Also used for Hyper Buoys</summary>

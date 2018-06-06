@@ -25,8 +25,12 @@ namespace Idmr.Platform.Xvt
 		public BriefingCollection()
 		{
 			_items = new List<Briefing>(8);
-			for (int i = 0; i < _items.Capacity; i++) _items.Add(new Briefing());
-		}
+			for (int i = 0; i < _items.Capacity; i++)
+            {
+                _items.Add(new Briefing());
+                _items[i].Team[i] = true;  //[JB] Initialize teams with their own separate briefing.
+            }
+        }
 
 		/// <summary>Resets selected Briefing to defaults</summary>
 		/// <param name="index">Briefing index</param>

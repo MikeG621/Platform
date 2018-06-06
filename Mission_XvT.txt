@@ -1,7 +1,7 @@
 XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2016.12.02
+Updated: 2018.06.05
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -142,10 +142,10 @@ struct FlightGroup (size 0x562)
 	0x098	BYTE	Unknown5
 	0x09A	BYTE	ArrivalMothership
 	0x09B	BYTE	ArriveViaMothership
-	0x09C	BYTE	AlternateArrivalMothership
-	0x09D	BYTE	AlternateArriveViaMothership
-	0x09E	BYTE	DepartureMothership
-	0x09F	BYTE	DepartViaMothership
+	0x09C	BYTE	DepartureMothership
+	0x09D	BYTE	DepartViaMothership
+	0x09E	BYTE	AlternateArrivalMothership
+	0x09F	BYTE	AlternateArriveViaMothership
 	0x0A0	BYTE	AlternateDepartureMothership
 	0x0A1	BYTE	AlternatDepartViaMothership
 	0x0A2	Order[4]
@@ -155,9 +155,9 @@ struct FlightGroup (size 0x562)
 	0x466	Waypt[4]
 	0x516	BOOL	Unknown17
 	0x518	BOOL	Unknown18
-	0x520	BOOL	Unknown19
-	0x521	BYTE	Unknown20
-	0x522	BYTE	Unknown21
+	0x520	BOOL	PreventCraftNumbering
+	0x521	BYTE	DepartureClockMinutes
+	0x522	BYTE	DepartureClockSeconds
 	0x523	BYTE	Countermeasures
 	0x524	BYTE	CraftExplosionTime
 	0x525	BYTE	Status2 (enum)
@@ -231,7 +231,7 @@ struct GoalFG (size 0x4E)
 	0x0B	BYTE	Unknown13
 	0x0C	BOOL	Unknown14
 	0x0D	BYTE	Reserved (0)			Unknown15
-	0x0E	BYTE	Unknown16
+	0x0E	BYTE	TimeLimit				Seconds * 5
 }
 
 struct Waypt (size 0x2C)
@@ -436,11 +436,21 @@ needs to pay attention to it or not and is boolean, although it does occupy a
 SHORT. If more than one StartPoint is enabled, the application will pick one to
 use. Note that there are 8 different briefing WPs you can use, one for each.
 
-Now here is where the bulk of the new material has been placed. Starting off
-with the Countermeasures, this is a very short list of
+Now here is where the bulk of the new material has been placed.
+PreventCraftNumbering is a bool.  If enabled, multiple craft in a wave (or global
+unit) will not have craft numbering.  (For example, Alpha instead of Alpha 1,
+Alpha 2, etc.)
+
+DepartureClockMinutes and DepartureClockSeconds are previously unknown values
+that appear to control an absolute departure time based on the total elapsed
+time from the start of the mission, rather than the trigger activation.
+If the time has been met or exceeded, the flight group will withdraw.
+
+Countermeasures, this is a very short list of
 00	None
 01	Chaff
 02	Flare
+03  Cluster Mine (unused/extra type, behaves like a flare)
 
 CraftExplosionTime acts strangely, and I haven't pinned it down exactly yet.
 It does affect how long it takes for a dying craft to dissappear, but seems to
@@ -520,6 +530,9 @@ array up to and including the EndBriefing command.
 The Tag and String arrays are not fixed sizes. They have a minimum length of
 64 bytes, which is the case of every length being zero. If a Length is zero,
 then the CHAR[] is omitted. That's the real highlight right there.
+
+Technical note: Attempting to render a text tag with a string character
+length >= 40 will crash the game.
 
 -- FGGoalStrings --
 
@@ -668,7 +681,7 @@ Status
 00	None
 01	2X Warheads
 02	1/2 Warheads
-03	Disabled
+03	No Shields
 04	1/2 Shields
 05	No Lasers
 06	No Hyperdrive
@@ -697,12 +710,14 @@ Warhead
 05	Advanced Concussion Missile
 06	Advanced Torpedo
 07	Mag Pulse Torpedo
+08	Ion Torpedo  (extra/unknown, looks like mag pulse yet impacts like advanced missile)
 
 Beam
 00	None
 01	Tractor Beam
 02	Jamming Beam
 03	Decoy Beam
+04	Energy Beam  (extra/unknown, appears to do nothing)
 
 GroupAI
 00	Rookie (None)
@@ -781,6 +796,7 @@ ArrivalDifficulty
 03	Hard
 04	Medium, Hard
 05	Easy, Medium
+06	Never
 
 Condition
 00	Always (true)
@@ -902,7 +918,7 @@ Order
 04	Rendezvous
 	Var1	Number of Dockings
 05	Disabled
-	Var1	Number of Dockings
+	Var1	Number of Dockings			[Seems to be XvT only that docking # required for boarding]
 06	Await Boarding
 	Var1	Number of Dockings
 07	Attack
@@ -928,6 +944,7 @@ Order
 	Var2	Number of Dockings
 11	Pick up
 	Var1	Docking Time (seconds / 5)
+	Var2	Number of Dockings
 12	Drop off
 	Var1	Deploy Time?
 	Var2	Flight Group
@@ -968,7 +985,7 @@ CraftWhen
 02	Boarded
 04	Disabled
 05	Attacked
-06	0% Shields?
+06	Any hull damage
 07	Special craft
 08	Non-special craft
 09	Player's craft

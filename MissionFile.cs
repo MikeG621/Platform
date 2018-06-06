@@ -32,7 +32,9 @@ namespace Idmr.Platform
 		
 		/// <summary>Types of mission files</summary>
 		public enum Platform : byte {
-			/// <summary>TIE Fighter Win95 Collector's Edition</summary>
+            /// <summary>X-wing Win95 Collector's Edition</summary>
+            Xwing,
+            /// <summary>TIE Fighter Win95 Collector's Edition</summary>
 			TIE,
 			/// <summary>X-wing v. TIE Fighter</summary>
 			XvT,
@@ -62,10 +64,11 @@ namespace Idmr.Platform
 		/// <returns>Enumerated Platform</returns>
 		public static Platform GetPlatform(FileStream stream)
 		{
-			if (!stream.Name.ToLower().EndsWith(".tie")) return Platform.Invalid;
+			if (!stream.Name.ToLower().EndsWith(".tie") && !stream.Name.ToLower().EndsWith(".xwi")) return Platform.Invalid;  //[JB] Need to be able to load .xwi files.
 			stream.Position = 0;
 			short p = new BinaryReader(stream).ReadInt16();
 			if (p == -1) return Platform.TIE;
+			else if (p == 0x2) return Platform.Xwing;
 			else if (p == 0xC) return Platform.XvT;
 			else if (p == 0xE) return Platform.BoP;
 			else if (p == 0x12) return Platform.XWA;
@@ -77,7 +80,12 @@ namespace Idmr.Platform
 		public string MissionPath
 		{
 			get { return _missionPath; }
-			set { _missionPath = value + (!value.ToLower().EndsWith(_extension) ? _extension : ""); }
+			set
+			{
+				_missionPath = value;  //[JB] Modified.  Assumes TIE, but also checks for XWI in path name.
+				if (!value.ToLower().EndsWith(".xwi") && !value.ToLower().EndsWith(_extension))
+					_missionPath += _extension;
+			}
 		}
 		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to <b>"NewMission.tie"</b></remarks>

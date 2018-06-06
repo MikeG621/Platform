@@ -160,9 +160,9 @@ namespace Idmr.Platform.Xvt
 				get { return Convert.ToBoolean(_items[12]); }
 				set { _items[12] = Convert.ToByte(value); }
 			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x0E</remarks>
-			public byte Unknown16
+			/// <summary>Time limit</summary>
+			/// <remarks>Time limit that goal must be finished within (seconds*5).  Previously Unknown16. Goal offset 0x0E</remarks>
+			public byte TimeLimit
 			{
 				get { return _items[14]; }
 				set { _items[14] = value; }

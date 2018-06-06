@@ -105,80 +105,80 @@ namespace Idmr.Platform.Xwa
 							trig += "FG:" + Variable;
 							break;
 						case 2:
-							trig += "Ship type " + Strings.CraftType[Variable + 1];
+							trig += "Ship type " + Strings.SafeString(Strings.CraftType, Variable + 1);
 							break;
 						case 3:
-							trig += "Ship class " + Strings.ShipClass[Variable];
+							trig += "Ship class " + Strings.SafeString(Strings.ShipClass, Variable);
 							break;
 						case 4:
-							trig += "Object type " + Strings.ObjectType[Variable];
+							trig += "Object type " + Strings.SafeString(Strings.ObjectType, Variable);
 							break;
 						case 5:
-							trig += "IFF " + Strings.IFF[Variable];
+							trig += "IFF " + Strings.SafeString(Strings.IFF, Variable);
 							break;
 						case 6:
-							trig += "Ship orders " + Strings.Orders[Variable];
+							trig += "Ship orders " + Strings.SafeString(Strings.Orders, Variable);
 							break;
 						case 7:
-							trig += "Craft When " + Strings.CraftWhen[Variable];
+							trig += "Craft When " + Strings.SafeString(Strings.CraftWhen, Variable);
 							break;
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
-						case 9:
-							trig += "Rating " + Strings.Rating[Variable];
-							break;
-						case 10:
-							trig += "Craft with status: " + Strings.Status[Variable];
-							break;
-						case 11:
-							trig += "All";
-							break;
-						case 12:
-							trig += "TM:" + Variable;
-							break;
-						case 13:
-							trig += "Player #" + Variable;
-							break;
-						//case 14: omitted, special case after the switch
-						case 15:
-							trig += "all except FG:" + Variable;
-							break;
-						case 16:
-							trig += "all except " + Strings.CraftType[Variable + 1] + "s";
-							break;
-						case 17:
-							trig += "all except " + Strings.ShipClass[Variable];
-							break;
-						case 18:
-							trig += "all except " + Strings.ObjectType[Variable];
-							break;
-						case 19:
-							trig += "all except IFF " + Strings.IFF[Variable];
-							break;
-						case 20:
-							trig += "all except GG " + Variable;
-							break;
-						case 21:
-							trig += "all except TM:" + Variable;
-							break;
-						case 22:
-							trig += "all except Player #" + Variable;
-							break;
-						case 23:
-							trig += "Global Unit " + Variable;
-							break;
-						case 24:
-							trig += "all except Global Unit " + Variable;
-							break;
-						case 25:
-							trig += "Global Cargo " + Variable;
-							break;
-						case 26:
-							trig += "all except Global Cargo " + Variable;
-							break;
-						case 27:
-							trig += "Message #" + Variable;
+                        case 9:
+                            trig += "Rating " + Strings.SafeString(Strings.Rating, Variable);
+                            break;
+                        case 10:
+                            trig += "Craft with status: " + Strings.SafeString(Strings.Status, Variable);
+                            break;
+                        case 11:
+                            trig += "All";
+                            break;
+                        case 12:
+                            trig += "TM:" + Variable;
+                            break;
+                        case 13:
+                            trig += "Player #" + Variable;
+                            break;
+                        //case 14: omitted, special case after the switch
+                        case 15:
+                            trig += "all except FG:" + Variable;
+                            break;
+                        case 16:
+                            trig += "all except " + Strings.SafeString(Strings.CraftType, Variable + 1) + "s";
+                            break;
+                        case 17:
+                            trig += "all except " + Strings.SafeString(Strings.ShipClass, Variable);
+                            break;
+                        case 18:
+                            trig += "all except " + Strings.SafeString(Strings.ObjectType, Variable);
+                            break;
+                        case 19:
+                            trig += "all except IFF " + Strings.SafeString(Strings.IFF, Variable);
+                            break;
+                        case 20:
+                            trig += "all except GG " + Variable;
+                            break;
+                        case 21:
+                            trig += "all except TM:" + Variable;
+                            break;
+                        case 22:
+                            trig += "all except Player #" + Variable;
+                            break;
+                        case 23:
+                            trig += "Global Unit " + Variable;
+                            break;
+                        case 24:
+                            trig += "all except Global Unit " + Variable;
+                            break;
+                        case 25:
+                            trig += "Global Cargo " + Variable;
+                            break;
+                        case 26:
+                            trig += "all except Global Cargo " + Variable;
+                            break;
+                        case 27:
+							trig += "Message #" + (Variable + 1);  //[JB] One-based for display purposes.
 							break;
 						default:
 							trig += VariableType + " " + Variable;
@@ -186,7 +186,7 @@ namespace Idmr.Platform.Xwa
 					}
 					trig += " must ";
 				}
-				if (VariableType == 14) trig = "After " + (Variable / 12) + ":" + ((Variable * 5) % 60) + " delay";
+				if (VariableType == 14) trig = "After " + String.Format("{0}:{1:00}", Variable * 5 / 60, Variable * 5 % 60) + " delay";
 				else if (Condition == 0x31 || Condition == 0x32)
 				{
 					trig += (Condition == 0x32 ? "NOT " : "") + "be within ";
@@ -235,6 +235,93 @@ namespace Idmr.Platform.Xwa
 				get { return _items[5]; }
 				set { _items[5] = value; }
 			}
-		}
+
+            /// <summary>This allows checking XWA's new properties.</summary>
+            /// <remarks>Extension for BaseTrigger to process additional properties found only in XWA</remarks>
+            protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
+            {
+                bool change = false;
+                if ((Parameter1 == 5 + srcIndex) || (Parameter1 == srcIndex && Parameter1 == 255)) //255 is used as temp while swapping.  Ensure if we're swapping temp back to normal.
+                {
+                    change = true;
+                    Parameter1 = (byte)dstIndex;
+                    if (Parameter1 != 255)  //Don't modify if temp
+                        Parameter1 += 5;    //Add the offset back in.
+                    if (delete) Parameter1 = 0;
+                }
+                else if (Parameter1 > 5 + srcIndex && delete == true)
+                {
+                    change = true;
+                    Parameter1--;
+                }
+
+                if (VariableType == 15 && Variable == srcIndex)
+                {
+                    change = true;
+                    Variable = (byte)dstIndex;
+                    if (delete)
+                    {
+                        Amount = 0;
+                        VariableType = 0;
+                        Variable = 0;
+                        Condition = (byte)(delCond ? 0 : 10); //this will expand the bool true/false into the condition true/false
+                    }
+                }
+                else if (VariableType == 15 && Variable > srcIndex && delete == true)
+                {
+                    change = true;
+                    Variable--;  //If deleting, decrement FG index to maintain
+                }
+                
+                return change;
+            }
+
+            /// <summary>Helper function that changes Message indexes during a Move (index swap) operation.</summary>
+            /// <remarks>Should not be called directly unless part of a larger Message Move operation.  Message references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
+            public bool SwapMessageReferences(int srcIndex, int dstIndex)
+            {
+                bool change = false;
+                change |= TransformMessageRef(dstIndex, 255);
+                change |= TransformMessageRef(srcIndex, dstIndex);
+                change |= TransformMessageRef(255, srcIndex);
+                return change;
+            }
+
+            /// <summary>Helper function that changes Message indexes during a Message Move or Delete operation.</summary>
+            /// <remarks>Should not be called directly unless part of a larger Message Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
+            /// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
+            /// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+            public bool TransformMessageRef(int srcIndex, int dstIndex)
+            {
+                if (VariableType != 27) return false;  //Must be a message trigger.
+
+                bool change = false;
+                bool delete = false;
+                if (dstIndex < 0)
+                {
+                    dstIndex = 0;
+                    delete = true;
+                }
+                else if (dstIndex > 255) throw new Exception("TransformMessageRef: dstIndex out of range.");
+
+                if (delete)
+                {
+                    if (Variable == srcIndex)
+                    {
+                        change = true; Amount = 0; Condition = 0; VariableType = 0; Variable = 0;
+                    }
+                    else if (Variable > srcIndex) { change = true; Variable--; }
+                }
+                else
+                {
+                    if (Variable == (byte)srcIndex)
+                    {
+                        change = true;
+                        Variable = (byte)dstIndex;
+                    }
+                }
+                return change;
+            }
+        }
 	}
 }

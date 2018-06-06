@@ -40,9 +40,11 @@ namespace Idmr.Platform.Xvt
 				AdvMissile,
 				/// <summary>Advanced Torpedo warheads</summary>
 				AdvTorpedo,
-				/// <summary>MagPulse distruption warheads</summary>
+				/// <summary>MagPulse disruption warheads</summary>
 				MagPulse,
-				/// <summary>All beams unavailable</summary>
+                /// <summary>Ion Pulse warheads</summary>  
+                IonPulse,
+                /// <summary>All beams unavailable</summary>
 				NoBeam,
 				/// <summary>Tractor beam</summary>
 				TractorBeam,
@@ -50,12 +52,16 @@ namespace Idmr.Platform.Xvt
 				JammingBeam,
 				/// <summary>Decoy beam</summary>
 				DecoyBeam,
-				/// <summary>All countermeasures unavailable</summary>
+                /// <summary>Energy beam</summary>
+                EnergyBeam,
+                /// <summary>All countermeasures unavailable</summary>
 				NoCountermeasures,
 				/// <summary>Chaff countermeasures</summary>
 				Chaff,
 				/// <summary>Flare countermeasures</summary>
-				Flare
+				Flare,
+				/// <summary>Cluster Mine countermeasures</summary>
+				ClusterMine
 			}
 			
 			/// <summary>Initializes the indexer</summary>
@@ -73,35 +79,35 @@ namespace Idmr.Platform.Xvt
 			{
 				get { return _items[index]; }
 				set
-				{
-					if ((index == 0 || index == 8 || index == 12) && !value) return;
-					_items[index] = value;
-					if (index == 0 && value) for (int i = 1; i < 8; i++) _items[i] = false;	// set NoWarheads, clear warheads
-					else if (index == 8 && value) for (int i = 9; i < 12; i++) _items[i] = false;	// set NoBeam, clear beams
-					else if (index == 12 && value) for (int i = 13; i < 15; i++) _items[i] = false;	// set NoCMs, clear CMs
-					else if (index < 8 && value) _items[0] = false;	// set a warhead, clear NoWarheads
-					else if (index < 12 && value) _items[8] = false;	// set a beam, clear NoBeam
-					else if (index < 15 && value) _items[12] = false;	// set a CM, clear NoCMs
-					else if (index < 8)
-					{
-						bool used = false;
-						for (int i = 1; i < 8; i++) used |= _items[i];
-						if (!used) _items[0] = true;	// cleared last warhead, set NoWarheads
-					}
-					else if (index < 12)
-					{
-						bool used = false;
-						for (int i = 9; i < 12; i++) used |= _items[i];
-						if (!used) _items[8] = true;	// cleared last beam, set NoBeam
-					}
-					else
-					{
-						bool used = false;
-						for (int i = 13; i < 15; i++) used |= _items[i];
-						if (!used) _items[12] = true;	// cleared last CM, set NoCMs
-					}
-				}
-			}
+                {
+                    if ((index == 0 || index == 9 || index == 14) && !value) return;
+                    _items[index] = value;
+                    if (index == 0 && value) for (int i = 1; i < 9; i++) _items[i] = false;	// set NoWarheads, clear warheads
+                    else if (index == 9 && value) for (int i = 10; i < 14; i++) _items[i] = false;	// set NoBeam, clear beams
+                    else if (index == 14 && value) for (int i = 15; i < 18; i++) _items[i] = false;	// set NoCMs, clear CMs
+                    else if (index < 9 && value) _items[0] = false;	// set a warhead, clear NoWarheads
+                    else if (index < 14 && value) _items[9] = false;	// set a beam, clear NoBeam
+                    else if (index < 18 && value) _items[14] = false;	// set a CM, clear NoCMs
+                    else if (index < 9)
+                    {
+                        bool used = false;
+                        for (int i = 1; i < 9; i++) used |= _items[i];
+                        if (!used) _items[0] = true;	// cleared last warhead, set NoWarheads
+                    }
+                    else if (index < 14)
+                    {
+                        bool used = false;
+                        for (int i = 10; i < 14; i++) used |= _items[i];
+                        if (!used) _items[9] = true;	// cleared last beam, set NoBeam
+                    }
+                    else
+                    {
+                        bool used = false;
+                        for (int i = 15; i < 18; i++) used |= _items[i];
+                        if (!used) _items[14] = true;	// cleared last CM, set NoCMs
+                    }
+                }
+            }
 			
 			/// <summary>Gets or sets the Loadout values</summary>
 			/// <param name="index">LoadoutIndex enumerated value</param>
