@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [UPD] added Energy Beam and Cluster Mine [JB]
  * [UPD] Ion Pulse implemented [JB]
  * v2.1, 141214
  * [UPD] change to MPL

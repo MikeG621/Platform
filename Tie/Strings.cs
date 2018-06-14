@@ -1,13 +1,19 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6
+ * Version: 2.6+
  */
 
 /* CHANGELOG
+ * [UPD] changed TIE to T/F [JB]
+ * [UPD] updated Ratings [JB]
+ * [UPD] changed Disabled status to No Shields [JB]
+ * [UPD] changed a couple Trigger definitions [JB]
+ * [NEW] added missing CraftWhen [JB]
+ * [UPD] updated order descriptions [JB]
  * v2.6, 151017
  * [FIX] Missing * from Medium Transport abbrv
  * [NEW YOGEME #10] ability to replace craft list
@@ -247,7 +253,7 @@ namespace Idmr.Platform.Tie
 									 "Invincible"
 								 };
 		static string[] _trigger = { "always (TRUE)",
-									  "have arrived",
+									  "have arrived",				//[JB] was "be created"
 									  "be destroyed",
 									  "be attacked",
 									  "be captured",

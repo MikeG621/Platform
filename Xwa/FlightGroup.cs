@@ -4,10 +4,14 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6.1
+ * Version: 2.6.1+
  */
 
 /* CHANGELOG
+ * [UPD] Energy Beam and Cluster Mine added [JB]
+ * [UPD] disable Designations on init [JB]
+ * [UPD] added info to ToString() [JB]
+ * [NEW] helper functions for dete/swap FGs [JB]
  * v2.6.1, 171118
  * [ADD] backdrop-specific properties
  * v2.5, 170107
@@ -79,7 +83,7 @@ namespace Idmr.Platform.Xwa
 			for (int i = 0; i < 16; i++) _orders[i / 4, i % 4] = new Order();
 			for (int i = 0; i < 8; i++) _goals[i] = new Goal();
 			_optLoadout[0] = true;
-            _optLoadout[9] = true;  //[JB] Adjusted these indexes for added Ion Pulse, Energy Beam, Cluster Mine
+            _optLoadout[9] = true;  //[JB] Adjusted these indexes for added Energy Beam, Cluster Mine
 			_optLoadout[14] = true;
 			_waypoints[0].Enabled = true;
 			Unknowns.Unknown1 = 2;
@@ -92,10 +96,12 @@ namespace Idmr.Platform.Xwa
 		/// <returns>Short representation of the FlightGroup as <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b></returns>
 		public override string ToString() { return ToString(false); }
 		/// <summary>Gets a string representation of the FlightGroup</summary>
-		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b><br/>
-		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup"/> -
-		/// IsPlayer <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
-		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/> (<see cref="GlobalUnit"/>)"</b></remarks>
+		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
+		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (<see cref="EditorCraftNumber"/>)"</b><br/><br/>
+		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - (IsPlayer * indicator)
+		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/> 
+		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;) ((<see cref="GlobalUnit"/>))
+		/// ([(Plr: <see cref="PlayerNumber"/>) ("hu" if <see cref="ArriveOnlyIfHuman"/>)])"</b></remarks>
 		/// <param name="verbose">When <b>true</b> returns long form</param>
 		/// <returns>Representation of the FlightGroup</returns>
 		public string ToString(bool verbose)

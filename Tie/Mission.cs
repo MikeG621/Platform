@@ -1,13 +1,19 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [UPD] updated string encodings [JB]
+ * [NEW] EndOfMissionMessageColor [JB]
+ * [UPD] PermaDeath (Unk9 and 10) [JB]
+ * [FIX] Encoding highlight brackets in briefing questions [JB]
+ * [FIX] fs null check to prevent exception during save [JB]
+ * [NEW] DeleteFG(), SwapFG() [JB]
  * v2.5, 170107
  * [UPD] Enforced string encodings during read/write[JB]
  * [FIX] Message loading length check [JB]

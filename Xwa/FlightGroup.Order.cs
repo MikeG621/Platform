@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [UPD] now init to TRUE [JB]
+ * [UPD] case 14 added [JB]
+ * [UPD] Strings calls swapped to SafeString [JB]
+ * [NEW] helper functions for swap/delete FG or Message [JB]
+ * [NEW] helper functions for Skips [JB]
  * v2.7, 180509
  * [ADD #1] TriggerType unknowns
  * v2.1, 141214
@@ -88,8 +93,8 @@ namespace Idmr.Platform.Xwa
 				_skipTriggers[0] = new Mission.Trigger();
 				_skipTriggers[1] = new Mission.Trigger();
                 //[JB] This modified code is redundant since everything is initialized to zero by default.
-				_skipTriggers[0].Condition = 0;  //[JB] For some reason these must be set to always(TRUE) for the orders to function properly in game, otherwise it will skip over orders and behave unexpectedly.
-				_skipTriggers[1].Condition = 0;  
+				//_skipTriggers[0].Condition = 0;  //[JB] For some reason these must be set to always(TRUE) for the orders to function properly in game, otherwise it will skip over orders and behave unexpectedly.
+				//_skipTriggers[1].Condition = 0;  
 				SkipT1AndOrT2 = false;  //[JB] Set to AND
 			}
 			#endregion constructors

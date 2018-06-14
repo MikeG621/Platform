@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [UPD] Moved Team init to BriefingCollection [JB]
  * v2.5, 170107
  * [ADD] Team functionality [JB]
  * v2.1, 141214

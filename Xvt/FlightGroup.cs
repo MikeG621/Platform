@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] added Ion Pulse, Energy Beam, Cluster Mine [JB]
+ * [UPD] changed default Skip triggers to True [JB]
+ * [UPD] added info to to ToString() [JB]
+ * [NEW] helper functions for move/delete FG [JB]
+ * [NEW] PreventCraftNumbering, DepartureClockMinutes, DepartureClockSeconds, formerly Unk 19, 20, 21 [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -135,10 +140,12 @@ namespace Idmr.Platform.Xvt
 		/// <returns>Short representation of the FlightGroup as <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b></returns>
 		public override string ToString() { return ToString(false); }
 		/// <summary>Gets a string representation of the FlightGroup</summary>
-		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b><br/>
-		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - IsPlayer
-		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
-		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/> (<see cref="GlobalUnit"/>)"</b></remarks>
+		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
+		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;)"</b><br/><br/>
+		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - (IsPlayer * indicator)
+		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/> 
+		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;) ((<see cref="GlobalUnit"/>))
+		/// ([(Plr: <see cref="PlayerNumber"/>) ("hu" if <see cref="ArriveOnlyIfHuman"/>)])"</b></remarks>
 		/// <param name="verbose">When <b>true</b> returns long form</param>
 		/// <returns>Representation of the FlightGroup</returns>
 		public string ToString(bool verbose)
@@ -150,11 +157,11 @@ namespace Idmr.Platform.Xvt
 
 			//[JB] Added player position and difficulty tags, by feature request.
             string plr = "";
-            if (PlayerNumber > 0 || ArriveOnlyIfHuman == true)
+            if (PlayerNumber > 0 || ArriveOnlyIfHuman)
             {
                 if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
                 if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
-                if (plr.Length > 0) plr = " [" + plr + "]";
+                plr = " [" + plr + "]";
             }
             string ret = Team + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
             if(Difficulty >= 1 && Difficulty < Strings.DifficultyAbbrv.Length)

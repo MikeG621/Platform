@@ -4,10 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [NEW] RoleTeams [JB]
+ * [UPD] more Radio players, numbered unused Officers, Energy Beam, various renames [JB]
+ * [UPD] order docking updates [JB]
  * v2.7, 180509
  * [UPD] label for Escort Position
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)

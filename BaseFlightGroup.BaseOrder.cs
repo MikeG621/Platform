@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [NEW] helper functions for FG move/delete [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -118,9 +119,12 @@ namespace Idmr.Platform
             #region public methods
             /// <summary>Transforms an Order that targets a specific Flight Group index.</summary>
             /// <remarks>If <b>dstIndex</b> is negative, it will delete the Order.  If the Order is deleted, it will reset the trigger condition to either TRUE or FALSE depending on the state of <b>delCond</b>.</remarks>
+			/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+			/// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
             /// <returns>Returns true if anything was changed.</returns>
             public bool TransformFGReferences(int srcIndex, int dstIndex)
             {
+				//TODO: see about chaning params to byte
                 bool change = TransformFGReferencesExtended(srcIndex, dstIndex);
 
                 byte dst = (byte)dstIndex;
@@ -132,10 +136,10 @@ namespace Idmr.Platform
                 } 
 
                 //[JB] This looks ugly but it's compact.  If we match, change target (or delete by nullifying Target and Type).  If we don't match, check if deleting and decrement indexes if necessary.
-                if (Target1Type == 1 && Target1 == srcIndex) { change = true; Target1 = dst; if (delete) Target1Type = 0; } else if (Target1Type == 1 && Target1 > srcIndex && delete == true) { change = true; Target1--; }
-                if (Target2Type == 1 && Target2 == srcIndex) { change = true; Target2 = dst; if (delete) Target2Type = 0; } else if (Target2Type == 1 && Target2 > srcIndex && delete == true) { change = true; Target2--; }
-                if (Target3Type == 1 && Target3 == srcIndex) { change = true; Target3 = dst; if (delete) Target3Type = 0; } else if (Target3Type == 1 && Target3 > srcIndex && delete == true) { change = true; Target3--; }
-                if (Target4Type == 1 && Target4 == srcIndex) { change = true; Target4 = dst; if (delete) Target4Type = 0; } else if (Target4Type == 1 && Target4 > srcIndex && delete == true) { change = true; Target4--; }
+                if (Target1Type == 1 && Target1 == srcIndex) { change = true; Target1 = dst; if (delete) Target1Type = 0; } else if (Target1Type == 1 && Target1 > srcIndex && delete) { change = true; Target1--; }
+                if (Target2Type == 1 && Target2 == srcIndex) { change = true; Target2 = dst; if (delete) Target2Type = 0; } else if (Target2Type == 1 && Target2 > srcIndex && delete) { change = true; Target2--; }
+                if (Target3Type == 1 && Target3 == srcIndex) { change = true; Target3 = dst; if (delete) Target3Type = 0; } else if (Target3Type == 1 && Target3 > srcIndex && delete) { change = true; Target3--; }
+                if (Target4Type == 1 && Target4 == srcIndex) { change = true; Target4 = dst; if (delete) Target4Type = 0; } else if (Target4Type == 1 && Target4 > srcIndex && delete) { change = true; Target4--; }
 
                 if (Command == 0x12) //The "Drop Off" Order targets a Flight Group number.
                 {
@@ -147,7 +151,7 @@ namespace Idmr.Platform
                             Variable2++;      //Increment so it's one-based.
                         if (delete) Variable2 = 0;
                     }
-                    else if (Variable2 > 1 + srcIndex && delete == true)
+                    else if (Variable2 > 1 + srcIndex && delete)
                     {
                         change = true;
                         Variable2--;

@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6
+ * Version: 2.6+
  */
 
 /* CHANGELOG
+ * [NEW] RoleTeams [JB]
+ * [UPD] Roles, "Resource Center" to "Research Facility" [JB]
+ * [UPD] added Energy Beam [JB]
+ * [NEW] Difficulty and DifficultyAbbrv [JB]
+ * [UPD] some things renamed, some filled in throughout [JB]
  * v2.6, 151017
  * [NEW YOGEME #10] ability to replace craft list
  * v2.5, 170107

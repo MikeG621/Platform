@@ -4,10 +4,18 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [UPD] changed string encoding [JB]
+ * [UPD] appropriate updates to read/write due to format update [JB]
+ * [UPD] mission strings changed to TrimEnd on read [JB]
+ * [UPD] moved signature to end of description string [JB]
+ * [FIX] added null check to fs.Close [JB]
+ * [NEW] helper functions for delete/swap FG/Mess [JB]
+ * [NEW] GetDelaySeconds [JB]
+ * [UPD] FlightGroupLimit increased to 192 [JB]
  * v2.7, 180509
  * [UPD] FlightgroupLimit changed to 132, this is post-SBD install
  * v2.6.2, 180224

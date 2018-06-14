@@ -8,6 +8,9 @@
  */
 
 /* CHANGELOG
+ * [UPD] added EditorCraftNumber and Difficulty to ToString() [JB]
+ * [NEW] helper functions for move/delete FG [JB]
+ * [NEW] Campaign perma-death, formerly Unk9 and Unk10 [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0.1, 120814
@@ -90,9 +93,11 @@ namespace Idmr.Platform.Tie
 		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b></returns>
 		public override string ToString() { return ToString(false); }
 		/// <summary>Gets a string representation of the FlightGroup</summary>
-		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/></b><br/>Long form is <b>"<see cref="BaseFlightGroup.IFF"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see>
-		/// - IsPlayer <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
-		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b></remarks>
+		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
+		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;)"</b><br/><br/>
+		/// Long form is <b>"<see cref="BaseFlightGroup.IFF"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see>
+		/// - (IsPlayer * indicator) <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/> 
+		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;) ([<see cref="Strings.Difficulty.Abbrv"/>])"</b></b></remarks>
 		/// <param name="verbose">When <b>true</b> returns long form</param>
 		/// <returns>Representation of the FlightGroup</returns>
 		public string ToString(bool verbose)
@@ -127,10 +132,10 @@ namespace Idmr.Platform.Tie
             }
 
             //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-            if (ArrivalCraft1 == srcIndex) { ArrivalCraft1 = dst; change = true; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete == true) { ArrivalCraft1--; change = true; }
-            if (ArrivalCraft2 == srcIndex) { ArrivalCraft2 = dst; change = true; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { ArrivalCraft2--; change = true; }
-            if (DepartureCraft1 == srcIndex) { DepartureCraft1 = dst; change = true; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete == true) { DepartureCraft1--; change = true; }
-            if (DepartureCraft2 == srcIndex) { DepartureCraft2 = dst; change = true; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { DepartureCraft2--; change = true; }
+            if (ArrivalCraft1 == srcIndex) { ArrivalCraft1 = dst; change = true; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete) { ArrivalCraft1--; change = true; }
+            if (ArrivalCraft2 == srcIndex) { ArrivalCraft2 = dst; change = true; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete) { ArrivalCraft2--; change = true; }
+            if (DepartureCraft1 == srcIndex) { DepartureCraft1 = dst; change = true; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete) { DepartureCraft1--; change = true; }
+            if (DepartureCraft2 == srcIndex) { DepartureCraft2 = dst; change = true; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete) { DepartureCraft2--; change = true; }
             for (int i = 0; i < ArrDepTriggers.Length; i++)
             {
                 Mission.Trigger adt = ArrDepTriggers[i];
@@ -171,7 +176,7 @@ namespace Idmr.Platform.Tie
 		public Waypoint[] Waypoints { get { return _waypoints; } }
 
         /// <summary>If enabled, Flight Groups that die in campaign mode will not appear in later missions.  Formerly Unknown9</summary>
-        public byte PermaDeathEnabled { get; set; }
+        public byte PermaDeathEnabled { get; set; }	//TODO: I think this is really bool, need to get MOA running to check
         /// <summary>If enabled, Flight Groups matching this ID that have died in previous missions will not appear.  Formerly Unknown10</summary>
         public byte PermaDeathID { get; set; }
 
@@ -225,7 +230,7 @@ namespace Idmr.Platform.Tie
 			public bool Unknown21 { get; set; }
 
 			/// <summary>Array form of the Unknowns</summary>
-			/// <param name="index">Valid indexes are 0-11</param>
+			/// <param name="index">Valid indexes are 0-9</param>
 			/// <exception cref="ArgumentOutOfRangeException">Invalid <i>index</i> value</exception>
 			public byte this[int index]
 			{

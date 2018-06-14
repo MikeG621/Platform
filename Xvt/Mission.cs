@@ -4,10 +4,18 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [UPD] Renamed MissionType.MPMelee [JB]
+ * [UPD] updated string encodings [JB]
+ * [FIX] Departure and Arrival2 R/W [JB]
+ * [UPD] Appropriate R/W updates for format updates [JB]
+ * [FIX] Misison Succ/Fail/Desc load changed to TrimEnd [JB]
+ * [FIX] signature moved to within MissionDescription instead of "outside" format [JB]
+ * [FIX] null check on fs.CLose() [JB]
+ * [NEW] Delete/swap FG helper functions [JB]
  * v2.5, 170107
  * [FIX] Enforced string encodings [JB]
  * [FIX] Craft options [JB]

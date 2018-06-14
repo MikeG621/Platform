@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.3
+ * Version: 2.3+
  */
 
 /* CHANGELOG
+ * [NEW] helper functions for FG move/delete [JB]
  * v2.3, 150405
  * [NEW] Added TriggerIndex enum
  * v2.2, 150205
@@ -74,9 +75,11 @@ namespace Idmr.Platform
         /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
         /// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
         /// <param name="delCond">Ignored unless FG is deleted.  If True, condition is set to ALWAYS (true) otherwise NEVER (false).</param>
+		/// <exception cref="ArgumentOutOfRangeException"><i>dstIndex</i> is greater than <b>255</b>.</exception>
         /// <returns>Returns true if anything was changed.</returns>
         public bool TransformFGReferences(int srcIndex, int dstIndex, bool delCond)
         {
+			//TODO: see about converting indexes to byte
             bool change = false;
             bool delete = false;
             if (dstIndex < 0)
@@ -84,16 +87,16 @@ namespace Idmr.Platform
                 dstIndex = 0;
                 delete = true;
             }
-            else if (dstIndex > 255) throw new Exception("TransformFGRef: dstIndex out of range.");
+            else if (dstIndex > 255) throw new ArgumentOutOfRangeException("TransformFGRef: dstIndex out of range.");
 
             change |= TransformFGReferencesExtended(srcIndex, dstIndex, delete, delCond);
 
             //In TIE/XvT/XWA, VariableType==1 is targeting a specific Flight Group.  Condition==0 is TRUE, Condition==10 is FALSE.
-			if(VariableType == 1 && Variable == srcIndex)
+			if (VariableType == 1 && Variable == srcIndex)
 			{
                 change = true;
                 Variable = (byte)dstIndex;
-                if(delete)
+                if (delete)
                 {
 				    Amount = 0;
 				    VariableType = 0;
@@ -101,7 +104,7 @@ namespace Idmr.Platform
                     Condition = (byte)(delCond ? 0 : 10); //this will expand the bool true/false into the condition true/false
                 }
 			}
-            else if (VariableType == 1 && Variable > srcIndex && delete == true)
+            else if (VariableType == 1 && Variable > srcIndex && delete)
             {
                 change = true;
                 Variable--;  //If deleting, decrement FG index to maintain

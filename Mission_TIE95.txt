@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: http://idmr.empirereborn.net
-Updated: 2018.06.05
+Updated: 2018.06.06
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -110,8 +110,8 @@ struct FlightGroup (size 0x124)
 	0x043	BYTE	Yaw				Unknown6
 	0x044	BYTE	Pitch				Unknown7
 	0x045	BYTE	Roll				Unknown8
-	0x046	BOOL	Unknown9
-	0x047	BYTE	Unknown10
+	0x046	BOOL	PermaDeathEnabled		Unknown9
+	0x047	BYTE	PermaDeathID			Unknown10
 	0x048	BYTE	Reserved (0)			Unknown11
 	0x049	BYTE	ArrivalDifficulty (enum)
 	0x04A	Trigger	Arrival1

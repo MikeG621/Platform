@@ -858,6 +858,7 @@ VariableType
 07	CraftWhen (enum)
 08	Global Group
 0C	Team
+13	All IFFs except
 15	All Teams except
 17	Global Unit
 

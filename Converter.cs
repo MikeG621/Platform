@@ -1,13 +1,18 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4
+ * Version: 2.4+
  */
 
 /* CHANGELOG
+ * [UPD] capped TIE AI [JB]
+ * [FIX] TIE PlayerCraft [JB]
+ * [FIX] loop error in TIE Briefing.Events [JB]
+ * [FIX] Message.Delay from XWA [JB]
+ * [NEW] XWing upgrade conversions with various helper functions [JB]
  * v2.6, 160606
  * [FIX] XWA to TIE player craft
  * v2.3, 150405
@@ -35,6 +40,7 @@ namespace Idmr.Platform
 		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers and orders will update.<br/>
 		/// FG.Radio is not converted, since TIE behaviour is different<br/>
 		/// Maximum FG.Formation value of 12 allowed<br/>
+		/// AI level capped at Top Ace<br/>
 		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br/>
 		/// Maximum Abort index of 5<br/>
 		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
@@ -157,22 +163,20 @@ namespace Idmr.Platform
 			for (int i = 0; i < tie.Briefing.BriefingString.Length; i++) tie.Briefing.BriefingString[i] = miss.Briefings[0].BriefingString[i];
 			tie.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
 			tie.Briefing.Length = (short)(miss.Briefings[0].Length * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-			//for (int i = 0; i < tie.Briefing.Events.Length; i += 2)
-            int p = 0; //[JB] Fixed the loop, was a for() but the incrementing at the end of the loop was corrupting the position.
-            while(p < tie.Briefing.Events.Length)
+			for (int i = 0; i < tie.Briefing.Events.Length; )
 			{
-				short time = miss.Briefings[0].Events[p];
-				short evnt = miss.Briefings[0].Events[p + 1];
-				tie.Briefing.Events[p + 1] = evnt;
+				short time = miss.Briefings[0].Events[i];
+				short evnt = miss.Briefings[0].Events[i + 1];
+				tie.Briefing.Events[i + 1] = evnt;
 				if (time == 9999 && evnt == 0x22)
 				{
-					tie.Briefing.Events[p] = time;
+					tie.Briefing.Events[i] = time;
 					break;
 				}
-				tie.Briefing.Events[p] = (short)(time * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-				p += 2;
-				for (int j = 0; j < tie.Briefing.EventParameterCount(evnt); j++, p++)
-					tie.Briefing.Events[p] = miss.Briefings[0].Events[p];
+				tie.Briefing.Events[i] = (short)(time * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
+				i += 2;
+				for (int j = 0; j < tie.Briefing.EventParameterCount(evnt); j++, i++)
+					tie.Briefing.Events[i] = miss.Briefings[0].Events[i];
 			}
 			#endregion Briefing
 			#region Globals
@@ -390,6 +394,7 @@ namespace Idmr.Platform
 		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br/>
 		/// FG.Radio is not converted, since TIE behaviour is different<br/>
 		/// Maximum FG.Formation value of 12 allowed<br/>
+		/// AI level capped at Top Ace<br/>
 		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br/>
 		/// Maximum Abort index of 5<br/>
 		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
@@ -683,7 +688,7 @@ namespace Idmr.Platform
                     status = 0;  //In X-wing this is for No Warheads, but in TIE it double's warheads.  Take away warheads instead.
                     tie.FlightGroups[i].Missile = 0;
                 }
-                tie.FlightGroups[i].Status1 = status;  //Get the actual status, just in case it's a Y-wing turned B-wing.
+                tie.FlightGroups[i].Status1 = status;
                 if (tie.FlightGroups[i].Status1 >= 5) tie.FlightGroups[i].Status1 = 0; //Replace unknown/unused with default status.
 
                 tie.FlightGroups[i].IFF = miss.FlightGroups[i].GetTIEIFF();

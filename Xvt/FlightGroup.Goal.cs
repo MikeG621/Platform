@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [NEW] TimeLimit, formerly Unk16 [JB]
  * v2.5, 170107
  * [UPD] Changed goal visibility due to teams [JB]
  * [FIX] points casting [JB]

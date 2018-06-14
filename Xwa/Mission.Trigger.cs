@@ -8,6 +8,9 @@
  */
 
 /* CHANGELOG
+ * [UPD] added SafeString calls [JB]
+ * [FIX] delay calculation [JB]
+ * [NEW] helper functions for delete/swap FG/Mess [JB]
  * v2.7, 180509
  * [ADD] Proximity in ToString
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
