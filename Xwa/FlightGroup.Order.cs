@@ -339,7 +339,7 @@ namespace Idmr.Platform.Xwa
             /// <remarks>Same concept as for Flight Groups.  Triggers may depend on Message indexes, and this function helps ensure indexes are not broken.</remarks>
             /// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
             /// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-            /// <returns>True if something was changed.</returns>
+            /// <returns><b>true</b> if something was changed.</returns>
             public bool TransformMessageReferences(int srcIndex, int dstIndex)
             {
                 //[JB] I have no idea if message #s are actually used in Order triggers, but since I'm trying to keep any kind of indexes from being corrupted by move/delete operations, I thought I might as well do this too, just to be safe.
@@ -359,6 +359,10 @@ namespace Idmr.Platform.Xwa
 
                 return change;
             }
+			/// <summary>Change references</summary>
+			/// <param name="srcIndex">First index</param>
+			/// <param name="dstIndex">Second index</param>
+			/// <returns><b>true</b> if anything is changed.</returns>
             public bool SwapMessageReferences(int srcIndex, int dstIndex)
             {
                 bool change = false;

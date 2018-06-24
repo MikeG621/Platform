@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
-using System;
+/* CHANGELOG
+* created [JB]
+*/
 
 namespace Idmr.Platform.Xwing
 {
@@ -344,11 +346,13 @@ namespace Idmr.Platform.Xwing
                                              "9   (100%)",
                                              "10   (0%)"
                                           };
+		#endregion
 
-        public static readonly string BriefingPageHintTitle = ">MISSION COMPLETION HINTS";
-        public static readonly string BriefingPageHintCaption = "$>STRATEGY AND TACTICS$>FOR COMPLETING THIS MISSION$>ARE AVAILABLE.$$$>DO NOT READ THIS IF YOU WISH TO$>DISCOVER THESE FOR YOURSELF!$$$>CLICK ON THE BLACK PAGE NUMBER$>BOX TO SEE THE HINT(S).";
+		/// <summary>Title used for briefing hint pages</summary>
+		public static readonly string BriefingPageHintTitle = ">MISSION COMPLETION HINTS";
+		/// <summary>Caption used for briefing hint pages</summary>
+		public static readonly string BriefingPageHintCaption = "$>STRATEGY AND TACTICS$>FOR COMPLETING THIS MISSION$>ARE AVAILABLE.$$$>DO NOT READ THIS IF YOU WISH TO$>DISCOVER THESE FOR YOURSELF!$$$>CLICK ON THE BLACK PAGE NUMBER$>BOX TO SEE THE HINT(S).";
 
-        #endregion
 		/// <summary>Gets a copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 5</remarks>
 		public static string[] IFF	{ get { return (string[])_iff.Clone(); } }
@@ -371,7 +375,7 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>Array is Length = 21</remarks>
 		public static string[] Status { get { return (string[])_status.Clone(); } }
 		/// <summary>Gets a copy of the Conditions required to complete trigger</summary>
-		/// <remarks>Array is Length = 25</remarks>
+		/// <remarks>Array is Length = 7</remarks>
 		public static string[] Trigger { get { return (string[])_trigger.Clone(); } }
 		/// <summary>Gets a copy of the quantities of applicable conditions that must be met for FlightGroup Goals</summary>
 		/// <remarks>Array is Length = 5</remarks>
@@ -404,11 +408,6 @@ namespace Idmr.Platform.Xwing
         /// <remarks>Array is Length = 12</remarks>
         public static string[] PlatformBitField { get { return (string[])_platformBitfield.Clone(); } }
 
-        /*
-        /// <summary>Gets a copy of the briefing page types</summary>
-        /// <remarks>Array is Length = 2</remarks>
-        public static string[] BriefingPageType { get { return (string[])_briefingPageType.Clone(); } }
-         * */
         /// <summary>Gets a copy of the briefing UI element names</summary>
         /// <remarks>Array is Length = 5</remarks>
         public static string[] BriefingUIElement { get { return (string[])_briefingUIElement.Clone(); } }

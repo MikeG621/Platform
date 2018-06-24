@@ -1,4 +1,17 @@
-﻿using System;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.chm
+ * Version: 2.5+
+ */
+
+/* CHANGELOG
+* created [JB]
+*/
+
+using System;
 using System.Collections.Generic;
 
 namespace Idmr.Platform.Xwing
@@ -162,7 +175,7 @@ namespace Idmr.Platform.Xwing
 			/// <summary>End of briefing marker</summary>
 			EndBriefing = 41
 		};
-        private Dictionary<EventType, string> EventTypeStringMap = new Dictionary<EventType, string> {
+        private Dictionary<EventType, string> _eventTypeStringMap = new Dictionary<EventType, string> {
             {EventType.None, "None"},
             {EventType.WaitForClick, "Wait For Click"},
             {EventType.ClearText, "Clear Text"},
@@ -184,19 +197,22 @@ namespace Idmr.Platform.Xwing
             {EventType.EndBriefing, "End Briefing"}
         };
 
-		/// <summary>Returns the string name of a particular Event Type.</summary>
+		/// <summary>Returns the string name of a particular <see cref="EventType"/>.</summary>
+		/// <param name="eventCommand">The event</param>
+		/// <returns>The event type, otherwise <b>"Unknown (<i>eventCommand</i>)"</b>.</returns>
         public string GetEventTypeAsString(EventType eventCommand)
         {
-            if(EventTypeStringMap.ContainsKey(eventCommand))
-                return EventTypeStringMap[eventCommand];
+            if(_eventTypeStringMap.ContainsKey(eventCommand))
+                return _eventTypeStringMap[eventCommand];
             return "Unknown(" + eventCommand + ")";
         }
-		/// <summary>Returns a list of strings from the possible Event Types, excluding the first entry (None).</summary>
-        public string[] GetUsableEventTypeStrings()
+		/// <summary>Gets the possible <see cref="EventType">EventTypes</see>, excluding the first entry (None).</summary>
+		/// <returns>An array of the possible values.</returns>
+		public string[] GetUsableEventTypeStrings()
         {
-            string[] ret = new string[EventTypeStringMap.Count - 1];
+            string[] ret = new string[_eventTypeStringMap.Count - 1];
             int pos = -1;
-            foreach(KeyValuePair<EventType, string> dat in EventTypeStringMap)
+            foreach(KeyValuePair<EventType, string> dat in _eventTypeStringMap)
             {
                 if (pos == -1)
                 {
@@ -207,9 +223,12 @@ namespace Idmr.Platform.Xwing
             }
             return ret;
         }
+		/// <summary>Gets the index from the string value of the <see cref="EventType"/></summary>
+		/// <param name="name">The event's string value.</param>
+		/// <returns>The raw index value.</returns>
         public int GetEventTypeByName(string name)
         {
-            foreach (KeyValuePair<EventType, string> dat in EventTypeStringMap)
+            foreach (KeyValuePair<EventType, string> dat in _eventTypeStringMap)
                 if (dat.Value == name)
                     return (int)dat.Key;
             return (int)EventType.None;
@@ -224,6 +243,8 @@ namespace Idmr.Platform.Xwing
         }
 
         /// <summary>Enumerates a list of caption strings found in a briefing page.</summary>
+		/// <param name="page">The index of <see cref="pages"/></param>
+		/// <param name="captionText">The collection of captions</param>
         /// <remarks>This is a helper function for use in converting missions.</remarks>
         public void GetCaptionText(int page, out List<string> captionText)
         {
@@ -237,16 +258,18 @@ namespace Idmr.Platform.Xwing
             {
                 short[] xwevt = ReadBriefingEvent(page, rpos);
                 rpos += xwevt.Length;
-                if (xwevt[1] == (short)Xwing.Briefing.EventType.CaptionText)
+                if (xwevt[1] == (short)EventType.CaptionText)
                     captionText.Add(BriefingString[xwevt[2]]);
-                else if (xwevt[1] == 0 || xwevt[1] == (short)Xwing.Briefing.EventType.EndBriefing)
+                else if (xwevt[1] == 0 || xwevt[1] == (short)EventType.EndBriefing)
                     break;
             }
         }
 
-        /// <summary>Determines if the given caption text is a potential hint page.</summary>
-        /// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
-        public bool ContainsHintText(string captionText)
+		/// <summary>Determines if the given caption text is a potential hint page.</summary>
+		/// <param name="captionText">The text to check</param>
+		/// <returns><b>true</b> if <i>captionText</i> contains ">STRATEGY AND TACTICS".</returns>
+		/// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
+		public bool ContainsHintText(string captionText)
         {
             return (captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0);
         }
@@ -289,7 +312,7 @@ namespace Idmr.Platform.Xwing
 			//byte convertCommand = EventMap(eventCommand);
  			//if(convertCommand == 1) return 0;
 			//if(convertCommand == 2) return 2;
-			return (int)EventParameterCount(eventCommand);
+			return EventParameterCount(eventCommand);
 		}
 
         /// <summary>The number of parameters per event type</summary>
@@ -340,6 +363,9 @@ namespace Idmr.Platform.Xwing
 			}
 		}
 
+		/// <summary>Re-initialize <see cref="BaseBriefing.BriefingTag"/> to the given size.</summary>
+		/// <param name="count">The new size, max <b>32</b></param>
+		/// <remarks>All tags initialized as empty.</remarks>
 		public void ResizeTagList(int count)
 		{
 			if(count < 32) count = 32;
@@ -347,6 +373,9 @@ namespace Idmr.Platform.Xwing
 			for(int i = 0; i < count; i++)
 				_briefingTags[i] = "";
 		}
+		/// <summary>Re-initialize <see cref="BaseBriefing.BriefingString"/> to the given size.</summary>
+		/// <param name="count">The new size, max <b>32</b></param>
+		/// <remarks>All strings initialized as empty.</remarks>
 		public void ResizeStringList(int count)
 		{
 			if(count < 32) count = 32;
@@ -355,24 +384,13 @@ namespace Idmr.Platform.Xwing
 				_briefingStrings[i] = "";
 		}
 
-        new public short EventsLength
+		/// <summary>DO NOT USE. Will always throw an exception</summary>
+		/// <exception cref="InvalidOperationException">Throws on any get attempt.</exception>
+		new public short EventsLength
         {
             get
             {
-                throw new Exception("Warning! EventsLength is not used for X-wing briefings. If you see this message, please file a bug report.");
-                /*
-                int p = 0;
-                int evt = 0;
-                while (p < _events.Length)
-                {
-                    evt = Events[p + 1];
-                    if (evt == (int)EventType.EndBriefing) { p += 2; break; }
-                    else if (evt == (int)EventType.None) { break; }
-
-                    p += 2 + EventParameterCount(evt);
-                }
-                return (short)p;
-                 * */
+                throw new InvalidOperationException("Warning! EventsLength is not used for X-wing briefings. If you see this message, please file a bug report.");
             }
         }
 
@@ -496,6 +514,8 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Reads an briefing event and returns an array with all the information for that event.</summary>
+		/// <param name="page">The index in <see cref="pages"/></param>
+		/// <param name="rawOffset">The offset within <see cref="BriefingPage.Events"/></param>
 		/// <remarks>The returned array contains exactly as many shorts as used by the event: time, event command, and variable length parameter field.</remarks>
         /// <returns>A short[] array of equal size to the exact resulting command length.</returns>
 		public short[] ReadBriefingEvent(int page, int rawOffset)
@@ -517,11 +537,11 @@ namespace Idmr.Platform.Xwing
         /// XvT and XWA viewports are larger than XWING95 and TIE95.  Zoom Map event parameters may need to be scaled.
         /// XWA Move Map event parameters may need to be scaled.</remarks>
         /// <returns>A short[] array of equal size to the exact resulting command length.</returns>
-		public short[] TranslateBriefingEvent(short[] XwingEvent)
+		public short[] TranslateBriefingEvent(short[] xwingEvent)
 		{
 			short rpos = 0, wpos = 0;
-			short evtTime = XwingEvent[rpos++];
-			short evtCommand = XwingEvent[rpos++];
+			short evtTime = xwingEvent[rpos++];
+			short evtCommand = xwingEvent[rpos++];
 			short tieCommand = 0;
 			short xwParams = 0;
 			short tieParams = 0;
@@ -537,15 +557,15 @@ namespace Idmr.Platform.Xwing
 			if(xwParams == tieParams)
 			{
 				for(int i = 0; i < xwParams; i++)
-					retEvent[wpos++] = XwingEvent[rpos++];
+					retEvent[wpos++] = xwingEvent[rpos++];
 			}
 			else
 			{
                 if (evtCommand >= (int)EventType.TextTag1 && evtCommand <= (int)EventType.TextTag4)
                 {
-                    retEvent[wpos++] = XwingEvent[rpos++];  //tagId
-                    retEvent[wpos++] = XwingEvent[rpos++];  //x
-                    retEvent[wpos++] = XwingEvent[rpos++];  //y
+                    retEvent[wpos++] = xwingEvent[rpos++];  //tagId
+                    retEvent[wpos++] = xwingEvent[rpos++];  //x
+                    retEvent[wpos++] = xwingEvent[rpos++];  //y
                     retEvent[wpos++] = 0;                   //color (placeholder).  Acceptable values are platform-dependent and should be set in the converting function.
                 }
                 else throw new Exception("Unhandled instruction");

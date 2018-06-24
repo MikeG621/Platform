@@ -105,8 +105,8 @@ namespace Idmr.Platform.Tie
 		#region public methods
 		/// <summary>Loads a mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
-		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
+		/// <exception cref="FileNotFoundException"><i>filePath</i> does not exist</exception>
+		/// <exception cref="InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -117,18 +117,18 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Loads a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="System.IO.InvalidDataException"><i>stream</i> is not a valid TIE mission file</exception>
+		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid TIE mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
-			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.TIE) throw new InvalidDataException(_invalidError);
+			if (GetPlatform(stream) != Platform.TIE) throw new InvalidDataException(_invalidError);
             BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
 			int i;
 			stream.Position = 2;
 			short numFlightGroups = br.ReadInt16();
 			short numMessages = br.ReadInt16();
 			stream.Position = 0xA;
-			try { OfficersPresent = (Mission.BriefingOfficers)br.ReadByte(); }
-			catch { OfficersPresent = Mission.BriefingOfficers.Both; }
+			try { OfficersPresent = (BriefingOfficers)br.ReadByte(); }
+			catch { OfficersPresent = BriefingOfficers.Both; }
 			stream.Position = 0xD;
 			CapturedOnEjection = br.ReadBoolean();
 			stream.Position = 0x18;
@@ -140,7 +140,7 @@ namespace Idmr.Platform.Tie
                     char c = EndOfMissionMessages[i][0];
                     if (c == '1' || c == '2' || c == '3')
                     {
-                        EndOfMissionMessageColor[i] = Byte.Parse(c.ToString());
+                        EndOfMissionMessageColor[i] = byte.Parse(c.ToString());
                         EndOfMissionMessages[i] = EndOfMissionMessages[i].Substring(1);
                     }
                 }
@@ -382,7 +382,7 @@ namespace Idmr.Platform.Tie
 		}
 
 		/// <summary>Saves the mission to <see cref="MissionFile.MissionPath"/></summary>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			FileStream fs = null;
@@ -666,7 +666,7 @@ namespace Idmr.Platform.Tie
 			if (errorMessage != "") errorMessage += " (" + variable + ")";
 		}
 
-		/// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes./summary>
+		/// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
 		/// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
         public int DeleteFG(int fgIndex)
         {

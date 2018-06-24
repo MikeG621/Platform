@@ -1,37 +1,26 @@
-﻿using System;
-using Idmr.Common;
+﻿/*
+ * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the MPL v2.0 or later
+ * 
+ * Full notice in ../help/Idmr.Platform.chm
+ * Version: 2.5+
+ */
+
+/* CHANGELOG
+* created [JB]
+*/
+
+using System;
 
 namespace Idmr.Platform.Xwing
 {
 	/// <summary>Object for individual FlightGroups</summary>
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
-        new public short SpecialCargoCraft;
-
-		public short ArrivalDelay = 0;
-		public short ArrivalEvent = 0;
-		public short ArrivalFG = 0;
-		public short Mothership = 0;
-		public short ArrivalHyperspace = 0;
-		public short DepartureHyperspace = 0;
-		public short DockTimeThrottle = 0;
-		public short Objective = 0;
-		public short ObjectType = 0;
-		public short Order = 0;
-		public short ObjFormObjective = 0;
-		public short TargetPrimary = 0;
-		public short TargetSecondary = 0;
 		Waypoint[] _waypoints = new Waypoint[15];
 		
-		/// <summary>Indexes for <see cref="ArrDepTriggers"/></summary>
-		public enum ArrDepTriggerIndex : byte {
-			/// <summary>First arrival trigger</summary>
-			Arrival1,
-			/// <summary>Second arrival trigger</summary>
-			Arrival2,
-			/// <summary>Departure trigger</summary>
-			Departure
-		}
+		//TODO: these indexes are wrong
 		/// <summary>Indexes for <see cref="Waypoints"/></summary>
 		public enum WaypointIndex : byte
 		{
@@ -86,6 +75,7 @@ namespace Idmr.Platform.Xwing
 			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
 		}
 
+		#region functions
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b></returns>
 		public override string ToString() { return ToString(false); }
@@ -104,12 +94,6 @@ namespace Idmr.Platform.Xwing
 				int index = ObjectType - 17;
 				if (index < 0) index = 0;
 				longName = "{" + Strings.ObjectType[index] + "} " + Name;
-                /*
-                if (!IsTrainingPlatform())
-                {
-                    if (index >= 1 && index <= 4)
-                        waves = NumberOfCraft + "x" + NumberOfCraft;
-                }*/
 			}
 			else
 			{
@@ -130,6 +114,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Gets the actual IFF code as it would appear in game.</summary>
 		/// <remarks>X-wing is unique in the series in that it has a default IFF code which translates into a different IFF in-game depending on CraftType</remarks>
+		/// <returns>The defined IFF or an IFF based on <see cref="BaseFlightGroup.CraftType"/></returns>
 		public byte GetActualIFF()
 		{
             if(IFF > 0) return IFF;
@@ -144,6 +129,7 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Returns a TIE95 compatible IFF code.</summary>
+		/// <returns>The IFF code adjusted for later platforms</returns>
         public byte GetTIEIFF()
         {
             byte iff = GetActualIFF();
@@ -151,10 +137,9 @@ namespace Idmr.Platform.Xwing
             return 3;  //Purple
         }
 
-        /// <summary>Checks an XWING95 CraftType and adjusts to TIE95 if necessary</summary>
-        /// <param name="craftType">The XWING95 craft index to check</param>
-        /// <returns>Resultant CraftType index, or <b>255</b> if invalid</returns>
-        public int GetTIECraftType()
+		/// <summary>Gets the TIE95 equivalent of <see cref="ObjectType"/> or <see cref="BaseFlightGroup.CraftType"/> as appropriate.</summary>
+		/// <returns>Resultant <see cref="BaseFlightGroup.CraftType"/> index, or <b>255</b> if invalid</returns>
+		public int GetTIECraftType()
         {
             if (ObjectType > 0)
             {
@@ -192,17 +177,11 @@ namespace Idmr.Platform.Xwing
                 case 16: return 0x35;  // ISD
                 case 17: return 0x08;  // T/A
             }
-            return 0;
+            return 0;	//TODO: should this return 0 or 255?
         }		
 
-		//Arrival delay is encoded strangely
-		//If delay <= 20, it's raw minutes
-		//If delay > 20, minutes are every 20 units, and the remainder between determines seconds (6 seconds per unit)
-		//Examples:
-		//  Delay=5   is 5 minutes, 0 seconds
-		//  Delay=21  is 0 minutes, 6 seconds
-		//  Delay=42  is 1 minute, 12 seconds
-		//  Delay=63  is 2 minutes, 18 seconds, etc.	
+		/// <summary>Gets the calculated minutes from the raw <see cref="ArrivalDelay"/> value.</summary>
+		/// <returns>The minutes portion of the delay.</returns>
 		public int GetArrivalMinutes()
 		{
 			if(ArrivalDelay > 20)
@@ -210,6 +189,8 @@ namespace Idmr.Platform.Xwing
 
 			return ArrivalDelay;
 		}
+		/// <summary>Gets the calculated seconds from the raw <see cref="ArrivalDelay"/> value.</summary>
+		/// <returns>The seconds portion of the delay.</returns>
 		public int GetArrivalSeconds()
 		{
 			if(ArrivalDelay > 20)
@@ -217,17 +198,25 @@ namespace Idmr.Platform.Xwing
 
 			return 0;
 		}
-		public int CreateArrivalDelay(int minutes, int seconds)
+		/// <summary>Generate the appropriate value to be used in <see cref="ArrivalDelay"/>.</summary>
+		/// <param name="minutes">The minutes value</param>
+		/// <param name="seconds">The seconds value</param>
+		/// <returns>The calculated delay value</returns>
+		public short CreateArrivalDelay(int minutes, int seconds)
 		{
+			//TODO: need to place limits on the inputs to prevent OutOfRange
 			int delay = 0;
 			if(seconds == 0 && minutes <= 20)
 				delay = minutes;
 			else
 				delay = (20 + (minutes * 10) + (seconds / 6));
-			return delay;
+			return (short)delay;
 		}
 
      	/// <summary>Changes all matching references to a FG index.</summary>
+		/// <param name="srcIndex">The original FG index</param>
+		/// <param name="dstIndex">The new FG index</param>
+		/// <returns><b>true</b> if any changes are made</returns>
         public bool ReplaceFGReference(int srcIndex, int dstIndex)
         {
             bool change = false;
@@ -239,23 +228,33 @@ namespace Idmr.Platform.Xwing
             return change;
         }
 
-        /// <summary>Returns whether this Flight Group is a Flight Group or an Object Group.</summary>
+        /// <summary>Gets if this craft is a FlightGroup or not.</summary>
+		/// <returns><b>true</b> when <see cref="ObjectType"/> is zero</returns>
         public bool IsFlightGroup()
         {
             return (ObjectType == 0);
         }
+		/// <summary>Gets if this craft is a Object or not.</summary>
+		/// <returns><b>true</b> when <see cref="ObjectType"/> is non-zero</returns>
         public bool IsObjectGroup()
         {
             return !IsFlightGroup();
         }
+		/// <summary>Gets if this craft is one of the Training Platform Objects.</summary>
+		/// <returns><b>true</b> if <see cref="ObjectType"/> is Training Platform 1 through 12.</returns>
         public bool IsTrainingPlatform()
         {
             return (ObjectType >= 58 && ObjectType <= 69);
         }
+		/// <summary>Gets if this craft is the first Training Platform Object</summary>
+		/// <returns><b>true</b> if <see cref="ObjectType"/> is Training Platform 1.</returns>
         public bool IsStartingGate()
         {
             return (ObjectType == 58);
         }
+		/// <summary>Gets an array for the Training Platform's gun layout as stored in <see cref="BaseFlightGroup.Formation"/></summary>
+		/// <returns>An arry where each value of <b>true</b> denotes a gun that is present</returns>
+		/// <remarks>Array length is 6</remarks>
         public bool[] PlatformBitfieldUnpack()
         {
             bool[] ret = new bool[6];
@@ -273,8 +272,12 @@ namespace Idmr.Platform.Xwing
             }
             return ret;
         }
-        public int PlatformBitfieldPack(bool[] arr)
+		/// <summary>Creates the raw value for the Training Platform's gun layout to be stored in <see cref="BaseFlightGroup.Formation"/></summary>
+		/// <param name="arr">An arry where each value of <b>true</b> denotes a gun that is present</param>
+		/// <returns>The new value for <see cref="BaseFlightGroup.Formation"/></returns>
+		public int PlatformBitfieldPack(bool[] arr)
         {
+			//TODO: needs error checking to prevent exceptions or corruption
             Formation = 0;
             int platIndex = ObjectType - 58;  //Translate object so that Training Platform 1 is index[0];
             if (platIndex >= 1 && platIndex < 12)  //Index[0] doesn't have any guns.
@@ -284,11 +287,60 @@ namespace Idmr.Platform.Xwing
                 {
                     int gunIndex = mapChar[i] - '1';
                     if (gunIndex >= 0 && gunIndex < 6)
-                        Formation += (byte)(Convert.ToInt32(arr[gunIndex]) << i);
+                        Formation += (byte)(Convert.ToByte(arr[gunIndex]) << i);
                 }
             }
             return Formation;
         }
+		#endregion functions
+
+		#region properties
+		/// <summary>Gets or sets the Special Craft number</summary>
+		/// <remarks>Redefined as <i>short</i>, no index processing</remarks>
+		new public short SpecialCargoCraft { get; set; }
+
+		/// <summary>Gets or sets the raw delay value</summary>
+		/// <remarks>Arrival delay is encoded strangely. If delay &lt;= 20, it's just minutes.
+		/// If delay &gt; 20, minutes are every 20 units, and the remainder between determines seconds (6 seconds per unit)<br/>
+		/// Examples:<br/>
+		///  Delay=5   is 5 minutes, 0 seconds<br/>
+		///  Delay=21  is 0 minutes, 6 seconds<br/>
+		///  Delay=42  is 1 minute, 12 seconds<br/>
+		///  Delay=63  is 2 minutes, 18 seconds, etc.</remarks>
+		public short ArrivalDelay { get; set; }
+		/// <summary>Gets or sets the Arrival Trigger</summary>
+		/// <remarks>Values are per <see cref="Strings.Trigger"/></remarks>
+		public short ArrivalEvent { get; set; } //TODO: should really be renamed
+		/// <summary>Gets or sets the Arrival Trigger target</summary>
+		/// <remarks>Use <b>-1</b> for "None"</remarks>
+		public short ArrivalFG { get; set; }	//TODO: should really be renamed
+		/// <summary>Gets or sets the FG's arrival/departure ship.</summary>
+		/// <remarks>Use <b>-1</b> for "None"</remarks>
+		public short Mothership { get; set; }
+		/// <summary>Gets or sets the arrival method</summary>
+		/// <remarks>Use <b>01</b> for "Hyperspace", <b>00</b> "for Mothership".</remarks>
+		public short ArrivalHyperspace { get; set; }
+		/// <summary>Gets or sets the departure method</summary>
+		/// <remarks>Use <b>01</b> for "Hyperspace", <b>00</b> "for Mothership".</remarks>
+		public short DepartureHyperspace { get; set; }
+		/// <summary>Gets or sets the order's parameter</summary>
+		/// <remarks>For docking orders, this is "Docking Time" in minutes, otherwise it's "Throttle" for patrol/circle orders.</remarks>
+		public short DockTimeThrottle { get; set; }	//TODO: should be renamed
+		/// <summary>Gets or sets the FG Goal</summary>
+		public short Objective { get; set; }	//TODO: rename
+		/// <summary>Gets or sets the craft's Object type</summary>
+		public short ObjectType { get; set; }
+		/// <summary>Gets or sets the FG's primary order</summary>
+		public short Order { get; set; }
+
+		//public short ObjFormObjective { get; set; } //looks like this isn't used, read into Formation isntead
+
+		/// <summary>Gets or sets the first target FG</summary>
+		/// <remarks>Use <b>-1</b> for "None".</remarks>
+		public short TargetPrimary { get; set; }
+		/// <summary>Gets or sets the second target FG</summary>
+		/// <remarks>Use <b>-1</b> for "None".</remarks>
+		public short TargetSecondary { get; set; }
 		/// <summary>Gets or sets if the FlightGroup responds to player's orders</summary>
 		public bool FollowsOrders { get; set; }
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
@@ -309,5 +361,6 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets the Waypoint array used to determine starting location and AI pathing</summary>
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes</remarks>
 		public Waypoint[] Waypoints { get { return _waypoints; } }
+		#endregion properties
 	}
 }

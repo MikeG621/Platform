@@ -1,11 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2016 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4
+ * Version: 2.5+
  */
+
+/* CHANGELOG
+* created [JB]
+*/
 
 using System;
 using System.Collections.Generic;
@@ -122,21 +126,30 @@ namespace Idmr.Platform.Xwing
                     return i;
             return -1;
         }
-        public int GetLastOfFlightGroup()
+		/// <summary>Retrieves the index of the last FlightGroup.</summary>
+		/// /// <remarks>Flight Groups and Object Groups are distinct in-game, but are stored in the same list for editing purposes.  Some editing functions like FG re-arrangement must take care not to mix them so that Flight Group indexes and Object Group indexes don't mix.</remarks>
+		/// <returns>Returns an index, or -1 if not found.</returns>
+		public int GetLastOfFlightGroup()
         {
             for (int i = Count - 1; i >= 0; i--)
                 if (_items[i].IsFlightGroup())
                     return i;
             return -1;
         }
-        public int GetFirstOfObjectGroup()
+		/// <summary>Retrieves the index of the first Object</summary>
+		/// <remarks>Flight Groups and Object Groups are distinct in-game, but are stored in the same list for editing purposes.  Some editing functions like FG re-arrangement must take care not to mix them so that Flight Group indexes and Object Group indexes don't mix.</remarks>
+		/// <returns>Returns an index, or -1 if not found.</returns>
+		public int GetFirstOfObjectGroup()
         {
             for (int i = 0; i < Count; i++)
                 if (!_items[i].IsFlightGroup())
                     return i;
             return -1;
         }
-        public int GetLastOfObjectGroup()
+		/// <summary>Retrives the index of the last Object.</summary>
+		/// <remarks>Flight Groups and Object Groups are distinct in-game, but are stored in the same list for editing purposes.  Some editing functions like FG re-arrangement must take care not to mix them so that Flight Group indexes and Object Group indexes don't mix.</remarks>
+		/// <returns>Returns an index, or -1 if not found.</returns>
+		public int GetLastOfObjectGroup()
         {
             for (int i = Count - 1; i >= 0; i--)
                 if (!_items[i].IsFlightGroup())
@@ -173,6 +186,8 @@ namespace Idmr.Platform.Xwing
 
         /// <summary>Swaps two FlightGroup objects.</summary>
         /// <remarks>Indexes are NOT verified.</remarks>
+		/// <param name="srcIndex">First FG index</param>
+		/// <param name="dstIndex">Second FG index</param>
         public void Swap(int srcIndex, int dstIndex)
         {
             foreach (var fg in _items)
@@ -191,6 +206,8 @@ namespace Idmr.Platform.Xwing
             }
         }
 
+		/// <summary>Removes all references to the FlightGroup</summary>
+		/// <param name="index">FG index</param>
         public void NullifyReferences(int index)
         {
             foreach(var fg in _items)
@@ -198,6 +215,7 @@ namespace Idmr.Platform.Xwing
         }
 
         /// <summary>Helper function to erase all references and make corrective adjustments to array indexes in preparation for a graceful delete.</summary>
+		/// <param name="index">The FG index to be removed</param>
         public void DropElementsAbove(int index)
         {
             for (int i = 0; i < Count; i++)

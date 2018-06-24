@@ -160,16 +160,23 @@ namespace Idmr.Platform
 			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
 		}
 
-
-        //These virtual functions can be overridden for X-wing
+		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
+		/// <param name="evt">The event index</param>
+		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
         public virtual bool IsEndEvent(int evt)
         {
             return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
         }
+		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
+		/// <param name="evt">The event index</param>
+		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag8"/>.</returns>
         public virtual bool IsFGTag(int evt)
         {
             return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
         }
+		/// <summary>Adjust FG references as necessary.</summary>
+		/// <param name="fgIndex">Original index</param>
+		/// <param name="newIndex">Replacement index</param>
         public virtual void TransformFGReferences(int fgIndex, int newIndex)
         {
             bool deleteCommand = false;
@@ -212,6 +219,10 @@ namespace Idmr.Platform
                 p += advance;
             }
         }
+		/// <summary>Swap FG indexes</summary>
+		/// <param name="srcIndex">First index</param>
+		/// <param name="dstIndex">Second index</param>
+		/// <remarks>Calls <see cref="TransformFGReferences(int, int)"/> with an interim value.</remarks>
         public virtual void SwapFGReferences(int srcIndex, int dstIndex)
         {
             TransformFGReferences(dstIndex, 255);

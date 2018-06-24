@@ -115,11 +115,18 @@
     <Compile Include="Xwa\Team.EomMessageNoteIndexer.cs" />
     <Compile Include="Xwa\Team.VoiceIDIndexer.cs" />
     <Compile Include="Xwa\TeamCollection.cs" />
+    <Compile Include="Xwing\Briefing.cs" />
+    <Compile Include="Xwing\FlightGroup.cs" />
+    <Compile Include="Xwing\FlightGroup.Waypoint.cs" />
+    <Compile Include="Xwing\FlightGroupCollection.cs" />
+    <Compile Include="Xwing\Mission.cs" />
+    <Compile Include="Xwing\Strings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Mission_TIE95.txt" />
     <None Include="Mission_XvT.txt" />
     <None Include="Mission_XWA.txt" />
+    <None Include="Mission_XWING95.txt" />
     <None Include="License.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

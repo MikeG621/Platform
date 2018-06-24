@@ -1,16 +1,19 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
+
+/* CHANGELOG
+* created [JB]
+*/
 
 using System;
 using System.IO;
 using Idmr.Common;
-using System.Windows.Forms;
 
 namespace Idmr.Platform.Xwing
 {
@@ -54,12 +57,12 @@ namespace Idmr.Platform.Xwing
             Briefing = new Briefing();
 		}
 		#endregion constructors
-		
+
 		#region public methods
 		/// <summary>Loads a mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
-		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
+		/// <exception cref="FileNotFoundException"><i>filePath</i> does not exist</exception>
+		/// <exception cref="InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -76,10 +79,10 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Loads a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="System.IO.InvalidDataException"><i>stream</i> is not a valid X-wing mission file</exception>
+		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid X-wing mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
-			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.Xwing) throw new InvalidDataException(_invalidError);
+			if (GetPlatform(stream) != Platform.Xwing) throw new InvalidDataException(_invalidError);
             BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
 			int i;
             //Position 0 = PlatformID (2 bytes)
@@ -118,7 +121,7 @@ namespace Idmr.Platform.Xwing
 				#endregion
 
 				//Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)
-				for (j = 0; j < 4; j++) for (int k = 0; k < 7; k++) FlightGroups[i].Waypoints[k][j] = (short)(br.ReadInt16() /* (j == 1 ? -1 : 1) */ );
+				for (j = 0; j < 4; j++) for (int k = 0; k < 7; k++) FlightGroups[i].Waypoints[k][j] = (br.ReadInt16() /* (j == 1 ? -1 : 1) */ );
 
 				//More craft info
 				FlightGroups[i].Formation = (byte)br.ReadInt16();
@@ -158,7 +161,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Loads a mission briefing (.BRF) file from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission briefing file</param>
-		/// <exception cref="System.IO.InvalidDataException"><i>stream</i> is not a valid X-wing mission briefing file</exception>
+		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid X-wing mission briefing file</exception>
 		public void LoadBriefingFromStream(FileStream stream)
 		{
             BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
@@ -293,7 +296,7 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Saves the mission to <see cref="MissionFile.MissionPath"/></summary>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			FileStream fs = null;
@@ -305,10 +308,10 @@ namespace Idmr.Platform.Xwing
                 BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
 				
 				bw.Write((short)0x2);  //Platform
-				bw.Write((short)TimeLimitMinutes);
-				bw.Write((short)EndEvent);
-				bw.Write((short)Unknown1);
-				bw.Write((short)Location);
+				bw.Write(TimeLimitMinutes);
+				bw.Write(EndEvent);
+				bw.Write(Unknown1);
+				bw.Write(Location);
 				for (int i=0;i<3;i++)
 				{
 					long p = fs.Position;
@@ -357,19 +360,19 @@ namespace Idmr.Platform.Xwing
 					#endregion
 
                     //Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)
-					for (int j = 0; j < 4; j++) for (int k = 0; k < 7; k++) bw.Write((short)(FlightGroups[i].Waypoints[k][j] /** (j == 1 ? -1 : 1))*/));
+					for (int j = 0; j < 4; j++) for (int k = 0; k < 7; k++) bw.Write((short)(FlightGroups[i].Waypoints[k][j] /* * (j == 1 ? -1 : 1))*/));
 
 					//More craft info
 					bw.Write((short)FlightGroups[i].Formation);
 					bw.Write((short)FlightGroups[i].PlayerCraft);
 					bw.Write((short)FlightGroups[i].AI);
-					bw.Write((short)FlightGroups[i].Order);
-					bw.Write((short)FlightGroups[i].DockTimeThrottle);
+					bw.Write(FlightGroups[i].Order);
+					bw.Write(FlightGroups[i].DockTimeThrottle);
 					bw.Write((short)FlightGroups[i].Markings);
 					bw.Write((short)FlightGroups[i].Markings);  //Was Unknown1. Another color value. Official missions always have the same color.
-					bw.Write((short)FlightGroups[i].Objective);
-					bw.Write((short)FlightGroups[i].TargetPrimary);
-					bw.Write((short)FlightGroups[i].TargetSecondary);
+					bw.Write(FlightGroups[i].Objective);
+					bw.Write(FlightGroups[i].TargetPrimary);
+					bw.Write(FlightGroups[i].TargetSecondary);
 				}
 				// OBJECT GROUPS
 				for (int i=0;i<FlightGroups.Count;i++)
@@ -384,19 +387,19 @@ namespace Idmr.Platform.Xwing
 					fs.Position = p + 0x20;
 					bw.Write(FlightGroups[i].SpecialCargo.ToCharArray());
 					fs.Position = p + 0x30;
-					bw.Write((short)FlightGroups[i].SpecialCargoCraft);
+					bw.Write(FlightGroups[i].SpecialCargoCraft);
 
-					bw.Write((short)FlightGroups[i].ObjectType);
+					bw.Write(FlightGroups[i].ObjectType);
 					bw.Write((short)FlightGroups[i].IFF);
 					//The format begins to deviate here
 					bw.Write((short)FlightGroups[i].Formation);
 					bw.Write((short)FlightGroups[i].NumberOfCraft);
-					bw.Write((short)FlightGroups[i].Waypoints[0][0]);
-					bw.Write((short)FlightGroups[i].Waypoints[0][1]);
-					bw.Write((short)FlightGroups[i].Waypoints[0][2]);
-					bw.Write((short)FlightGroups[i].Yaw);
-					bw.Write((short)FlightGroups[i].Pitch);
-					bw.Write((short)FlightGroups[i].Roll);
+					bw.Write(FlightGroups[i].Waypoints[0][0]);
+					bw.Write(FlightGroups[i].Waypoints[0][1]);
+					bw.Write(FlightGroups[i].Waypoints[0][2]);
+					bw.Write(FlightGroups[i].Yaw);
+					bw.Write(FlightGroups[i].Pitch);
+					bw.Write(FlightGroups[i].Roll);
 				}
 				#endregion
 				fs.SetLength(fs.Position);
@@ -404,7 +407,7 @@ namespace Idmr.Platform.Xwing
 			}
 			catch
 			{
-                if(fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
+                if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
 				throw;
 			}
 
@@ -416,12 +419,12 @@ namespace Idmr.Platform.Xwing
                 int extPos = MissionPath.LastIndexOf('.');
                 if (extPos >= 0 && extPos < MissionPath.Length - 1)
                 {
-                    upper = Char.IsUpper(MissionPath[extPos + 1]);  //Detect case from the first character of the extension.
+                    upper = char.IsUpper(MissionPath[extPos + 1]);  //Detect case from the first character of the extension.
                     brf = brf.Remove(extPos + 1);                   //Strip extension so a new one can be added.
                 }
                 else
                 {
-                    upper = Char.IsUpper(MissionPath[MissionPath.Length - 1]);   //If for some reason the file has no extension, detect from the last character of the name.
+                    upper = char.IsUpper(MissionPath[MissionPath.Length - 1]);   //If for some reason the file has no extension, detect from the last character of the name.
                     brf += ".";
                 }  
                 brf += upper ? "BRF" : "brf";
@@ -432,7 +435,7 @@ namespace Idmr.Platform.Xwing
 
                 bw.Write((short)2);   //Version
                 bw.Write((short)FlightGroupsBriefing.Count);
-                bw.Write((short)Briefing.MaxCoordSet);  //Coordinate count;
+                bw.Write(Briefing.MaxCoordSet);  //Coordinate count;
                 long p = 0;
                 int wp = 0;
                 for (int i = 0; i < Briefing.MaxCoordSet; i++)  //Coordinate count
@@ -461,7 +464,7 @@ namespace Idmr.Platform.Xwing
                     if (FlightGroupsBriefing[i].IsFlightGroup())
                         bw.Write((short)FlightGroupsBriefing[i].CraftType);
                     else
-                        bw.Write((short)FlightGroupsBriefing[i].ObjectType);
+                        bw.Write(FlightGroupsBriefing[i].ObjectType);
 
                     bw.Write((short)FlightGroupsBriefing[i].IFF);
                     bw.Write((short)FlightGroupsBriefing[i].NumberOfCraft);
@@ -475,10 +478,10 @@ namespace Idmr.Platform.Xwing
                     bw.Write(FlightGroupsBriefing[i].SpecialCargo.ToCharArray());
                     fs.Position = p + 0x30;
 
-                    bw.Write((short)FlightGroupsBriefing[i].SpecialCargoCraft);
-                    bw.Write((short)FlightGroupsBriefing[i].Pitch);
-                    bw.Write((short)FlightGroupsBriefing[i].Yaw);
-                    bw.Write((short)FlightGroupsBriefing[i].Roll);
+                    bw.Write(FlightGroupsBriefing[i].SpecialCargoCraft);
+                    bw.Write(FlightGroupsBriefing[i].Pitch);
+                    bw.Write(FlightGroupsBriefing[i].Yaw);
+                    bw.Write(FlightGroupsBriefing[i].Roll);
                 }
 
                 #region WindowUISettings
@@ -503,10 +506,10 @@ namespace Idmr.Platform.Xwing
                 for (int i = 0; i < Briefing.pages.Count; i++)
                 {
                     BriefingPage pg = Briefing.GetBriefingPage(i);
-                    bw.Write((short)pg.Length);
-                    bw.Write((short)pg.EventsLength);
-                    bw.Write((short)pg.CoordSet);
-                    bw.Write((short)pg.PageType);
+                    bw.Write(pg.Length);
+                    bw.Write(pg.EventsLength);
+                    bw.Write(pg.CoordSet);
+                    bw.Write(pg.PageType);
 
                     byte[] briefBuffer = new byte[pg.EventsLength * 2];
                     Buffer.BlockCopy(pg.Events, 0, briefBuffer, 0, briefBuffer.Length);
@@ -514,10 +517,10 @@ namespace Idmr.Platform.Xwing
                 }
                 #endregion Pages
 
-                bw.Write((short)TimeLimitMinutes);
-                bw.Write((short)EndEvent);
-                bw.Write((short)Unknown1);
-                bw.Write((short)Briefing.MissionLocation);
+                bw.Write(TimeLimitMinutes);
+                bw.Write(EndEvent);
+                bw.Write(Unknown1);
+                bw.Write(Briefing.MissionLocation);
 
                 p = fs.Position;
                 for(int i = 0; i < 3; i++)
@@ -681,10 +684,18 @@ namespace Idmr.Platform.Xwing
 		#endregion public methods
 		
 		#region public properties
-		public int TimeLimitMinutes = 0;
-		public int EndEvent = 0;
-		public int Unknown1 = 0;
-		public int Location = 0;
+		/// <summary>Gets or sets the allowed mission duration</summary>
+		public short TimeLimitMinutes = 0;
+		/// <summary>Gets or sets the event that occurs when the player dies and Death Star outcomes</summary>
+		/// <remarks>For player destruction, <b>00</b> is Rescued and <b>01</b> is Captured.<br/>
+		/// For Death Star outcomes, <b>01</b> is Clear Laser Tower, and <b>05</b> is Hit Exhaust Port.</remarks>
+		public short EndEvent = 0;
+		/// <summary>Unknown value</summary>
+		/// <remarks>Always appears to be zero</remarks>
+		public short Unknown1 = 0;
+		/// <summary>Gets or sets where the mission takes place</summary>
+		/// <remarks>Value is <b>00</b> for normal space missions, <b>01</b> for the Death Star surface</remarks>
+		public short Location = 0;
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
 		public Indexer<string> EndOfMissionMessages { get { return _endOfMissionIndexer; } }
 		

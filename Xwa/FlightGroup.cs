@@ -97,10 +97,10 @@ namespace Idmr.Platform.Xwa
 		public override string ToString() { return ToString(false); }
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
-		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (<see cref="EditorCraftNumber"/>)"</b><br/><br/>
+		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (<see cref="BaseFlightGroup.EditorCraftNumber"/>)"</b><br/><br/>
 		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - (IsPlayer * indicator)
 		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/> 
-		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;) ((<see cref="GlobalUnit"/>))
+		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;) ((<see cref="GlobalUnit"/>))
 		/// ([(Plr: <see cref="PlayerNumber"/>) ("hu" if <see cref="ArriveOnlyIfHuman"/>)])"</b></remarks>
 		/// <param name="verbose">When <b>true</b> returns long form</param>
 		/// <returns>Representation of the FlightGroup</returns>

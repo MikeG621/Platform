@@ -1054,7 +1054,7 @@ namespace Idmr.Platform.Xwa
 			Save();
 		}
 
-        /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes./summary>
+        /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
         /// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
         /// <returns>Index of the next available Flight Group.</returns>
         public int DeleteFG(int fgIndex)
@@ -1110,7 +1110,7 @@ namespace Idmr.Platform.Xwa
             return true;
         }
 
-        /// <summary>Deletes a Message, performing all necessary cleanup to avoid broken indexes./summary>
+        /// <summary>Deletes a Message, performing all necessary cleanup to avoid broken indexes.</summary>
         /// <remarks>Iterates throughout all members which may reference Message indexes.</remarks>
         /// <returns>Index of the next available Message.</returns>
         public int DeleteMessage(int msgIndex)

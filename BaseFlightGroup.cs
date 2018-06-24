@@ -209,13 +209,14 @@ namespace Idmr.Platform
 		/// <summary>Gets or sets the secondary method of departure</summary>
 		/// <remarks>When <b>true</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>false</b></remarks>
 		public bool DepartureMethod2 { get; set; }
+		#endregion
 
 		/// <summary>Gets or sets the descriptive craft number.</summary>
 		/// <remarks>This is used to help tell multiple Flight Groups apart when they have multiple names.  It is specific to YOGEME and not part of the file format.</remarks>
-        public int EditorCraftNumber { get; set; }
+		public int EditorCraftNumber { get; set; }
         /// <summary>Gets or sets whether the actual numbering (including craft per wave) is listed or just duplicate names.</summary>
         /// <remarks>This will be TRUE for XvT and XWA style Global Unit numbering, FALSE for TIE and X-wing or if XvT/XWA's GU numbering is disabled.  It is specific to YOGEME and not part of the file format.</remarks>
         public bool EditorCraftExplicit { get; set; }
-        #endregion
+        
 	}
 }

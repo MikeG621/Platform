@@ -94,10 +94,10 @@ namespace Idmr.Platform.Tie
 		public override string ToString() { return ToString(false); }
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
-		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;)"</b><br/><br/>
+		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;)"</b><br/><br/>
 		/// Long form is <b>"<see cref="BaseFlightGroup.IFF"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see>
 		/// - (IsPlayer * indicator) <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/> 
-		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="EditorCraftNumber"/>&gt;) ([<see cref="Strings.Difficulty.Abbrv"/>])"</b></b></remarks>
+		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;) ([<see cref="BaseStrings.DifficultyAbbrv"/>])"</b></remarks>
 		/// <param name="verbose">When <b>true</b> returns long form</param>
 		/// <returns>Representation of the FlightGroup</returns>
 		public string ToString(bool verbose)
@@ -110,7 +110,7 @@ namespace Idmr.Platform.Tie
             //[JB] Added difficulty tag, by feature request.
             string ret = IFF + " - " + GlobalGroup + " - " + (PlayerCraft != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName;
             if (Difficulty >= 1 && Difficulty <= 6)
-                ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+                ret += " [" + BaseStrings.DifficultyAbbrv[Difficulty] + "]";
 
             return ret;
 		}

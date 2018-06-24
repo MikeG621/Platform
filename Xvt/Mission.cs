@@ -874,7 +874,7 @@ namespace Idmr.Platform.Xvt
 			if (errorMessage != "") errorMessage += " (" + variable + ")";
 		}
 
-        /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes./summary>
+        /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
         /// <remarks>Propagates throughout all members which contain Flight Group indexes.</remarks>
         /// <returns>Index of the next available Flight Group.</returns>
         public int DeleteFG(int fgIndex)

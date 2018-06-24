@@ -53,7 +53,7 @@ namespace Idmr.Platform
 		/// Filename will end in "_TIE.tie"</remarks>
 		/// <param name="miss">XvT/BoP mission to convert</param>
 		/// <returns>Downgraded mission</returns>
-		/// <exception cref="System.ArgumentException">Properties incompatable with TIE95 were detected in <i>miss</i></exception>
+		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <i>miss</i></exception>
 		public static Tie.Mission XvtBopToTie(Xvt.Mission miss)
 		{
 			Tie.Mission tie = new Tie.Mission();
@@ -1023,8 +1023,9 @@ namespace Idmr.Platform
         /// Briefing text tags do not have colors.  Converted to yellow since it's the closest match to light blue.<br/>
         /// Filename will end in "_xvt.tie"</remarks>
         /// <param name="miss">XWING95 mission to convert</param>
+		/// <param name="bop">If the mission is to be XvT or BoP</param>
         /// <returns>Upgraded mission</returns>
-        /// <exception cref="System.ArgumentException">Properties incompatable with TIE95 were detected in <i>miss</i></exception>
+        /// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <i>miss</i></exception>
         public static Xvt.Mission XwingToXvtBop(Xwing.Mission miss, bool bop)
         {
             Xvt.Mission xvt = new Xvt.Mission();
@@ -1526,7 +1527,7 @@ namespace Idmr.Platform
         /// Filename will end in "_xvt.tie"</remarks>
         /// <param name="miss">XWING95 mission to convert</param>
         /// <returns>Upgraded mission</returns>
-        /// <exception cref="System.ArgumentException">Properties incompatable with TIE95 were detected in <i>miss</i></exception>
+        /// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <i>miss</i></exception>
         public static Xwa.Mission XwingToXwa(Xwing.Mission miss)
         {
             Xwa.Mission xwa = new Xwa.Mission();

@@ -33,7 +33,6 @@ namespace Idmr.Platform.Xvt
 	public abstract class Strings : BaseStrings
 	{
 		#region array declarations
-        static readonly public string TeamPrefixes = "1234AFH";
         static string[] _roleTeams = { "Role Disabled",
                                         "Team 1", 
                                         "Team 2", 
@@ -562,9 +561,12 @@ namespace Idmr.Platform.Xvt
 			_craftAbbrv = craftAbbrv;
 		}
 
-        /// <summary>Gets a copy of Arrival difficulty settings</summary>
-        /// <remarks>Array has a Length of 10</remarks>
-        new public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
+		/// <summary>String containing all possible team prefixes</summary>
+		static readonly public string TeamPrefixes = "1234AFH"; //TODO: is this not used?
+
+		/// <summary>Gets a copy of Arrival difficulty settings</summary>
+		/// <remarks>Array has a Length of 10</remarks>
+		new public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
         /// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
         /// <remarks>Array has a Length of 10</remarks>
         new public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
