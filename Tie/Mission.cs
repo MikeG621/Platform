@@ -727,7 +727,6 @@ namespace Idmr.Platform.Tie
 		public Indexer<bool> IffHostile { get { return _iffHostileIndexer; } }
 
         /// <summary>Gets or sets the color of the specified EoM Message</summary>
-        /// <remarks>Use the <see cref="MessageIndex"/> enumeration for array indexes</remarks>
         public byte[] EndOfMissionMessageColor { get { return _endOfMissionMessageColor; } }
         /// <summary>Gets the array accessor for the EoM Messages</summary>
 		public Indexer<string> EndOfMissionMessages { get { return _endOfMissionIndexer; } }

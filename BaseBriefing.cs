@@ -142,23 +142,11 @@ namespace Idmr.Platform
 		/// <remarks>Briefing offset 0x02, between Length and StartLength</remarks>
 		public short Unknown1 { get; set; }
 
-		/// <summary>Gets the array that contains the number of parameters per event type</summary>
+		/// <summary>Gets the number of parameters for the specified event type</summary>
+		/// <param name="eventType">The briefing event</param>
+		/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+		/// <returns>The number of parameters</returns>
 		virtual public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
-
-		/// <summary>Object to maintain a read-only array</summary>
-		public class EventParameters
-		{
-			byte[] _counts = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
-			
-			/// <summary>Gets a parameter count</summary>
-			/// <param name="eventType">The briefing event</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
-			public byte this[int eventType] { get { return _counts[eventType]; } }
-			
-			/// <summary>Gets a parameter count</summary>
-			/// <param name="eventType">The briefing event</param>
-			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
-		}
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index</param>
@@ -229,5 +217,20 @@ namespace Idmr.Platform
             TransformFGReferences(srcIndex, dstIndex);
             TransformFGReferences(255, srcIndex);
         }
-    }
+
+		/// <summary>Object to maintain a read-only array</summary>
+		public class EventParameters
+		{
+			byte[] _counts = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
+
+			/// <summary>Gets a parameter count</summary>
+			/// <param name="eventType">The briefing event</param>
+			/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+			public byte this[int eventType] { get { return _counts[eventType]; } }
+
+			/// <summary>Gets a parameter count</summary>
+			/// <param name="eventType">The briefing event</param>
+			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
+		}
+	}
 }
