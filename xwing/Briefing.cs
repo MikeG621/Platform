@@ -1,6 +1,7 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -8,8 +9,8 @@
  */
 
 /* CHANGELOG
-* created [JB]
-*/
+ * [NEW] created [JB]
+ */
 
 //TODO: throughout, check access and redo capitalization as required
 
