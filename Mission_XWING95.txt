@@ -545,12 +545,15 @@ much, if at all.
 List Definitions
 
 EndEvent
-00	Rescued
-01	Captured/Clear Laser Tower
+00	Capture Possible
+01	Rescued/Clear Laser Tower
 02	--
 03	--
 04	--
 05	Hit Exhaust Port
+
+* Note: Old mission editors have incorrect values for Capture/Rescue.
+Capture has a proximity mechanism between friend and foe, results may vary.
 
 Location
 00	Deep Space

@@ -320,8 +320,8 @@ namespace Idmr.Platform.Xwing
 										"Death Star Surface"
 									};
 
-		static string[] _endEvents = {"Rescued",
-									"Captured/Clear Laser Tower",
+		static string[] _endEvents = {"Capture Possible",
+									"Rescued/Clear Laser Tower",
 									"2",
 									"3",
 									"4",
