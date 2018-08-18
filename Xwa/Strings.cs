@@ -11,6 +11,8 @@
  * [NEW] RoleTeams [JB]
  * [UPD] more Radio players, numbered unused Officers, Energy Beam, various renames [JB]
  * [UPD] order docking updates [JB]
+ * [UPD] "at least 1" amounts changed to "any"
+ * [UPD] removed ? from "be delivered"
  * v2.7, 180509
  * [UPD] label for Escort Position
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
@@ -689,7 +691,7 @@ namespace Idmr.Platform.Xwa
 										"Unknown",
 										"defect to",
 										"be in convoy",
-										"be delivered?",
+										"be delivered",
 										"Unknown",
 										"be shown (message)",
 										"be identified",
@@ -729,7 +731,7 @@ namespace Idmr.Platform.Xwa
 									"75%",
 									"50%",
 									"25%",
-									"at least 1 of",
+									"any of",
 									"all but 1 of",
 									"all special craft in",
 									"all non-special craft in",
@@ -739,7 +741,7 @@ namespace Idmr.Platform.Xwa
 									"75% of first wave",
 									"50% of first wave",
 									"25% of first wave",
-									"at least 1 of first wave",
+									"any of first wave",
 									"all but 1 of first wave",
 									"66%",
 									"33%",

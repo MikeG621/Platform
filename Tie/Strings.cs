@@ -14,6 +14,7 @@
  * [UPD] changed a couple Trigger definitions [JB]
  * [NEW] added missing CraftWhen [JB]
  * [UPD] updated order descriptions [JB]
+ * [UPD] "at least 1" amounts changed to "any"
  * v2.6, 151017
  * [FIX] Missing * from Medium Transport abbrv
  * [NEW YOGEME #10] ability to replace craft list
@@ -293,7 +294,7 @@ namespace Idmr.Platform.Tie
 									 "75%",
 									 "50%",
 									 "25%",
-									 "at least 1 of",
+									 "any of",
 									 "all but 1 of",
 									 "all special craft in",
 									 "all non-special craft in",
@@ -303,7 +304,7 @@ namespace Idmr.Platform.Tie
 									 "75% of first wave",
 									 "50% of first wave",
 									 "25% of first wave",
-									 "at least 1 of first wave",
+									 "any of first wave",
 									 "all but 1 of first wave"
 								 };
 		static string[] _goalAmount = { "100%",

@@ -10,6 +10,7 @@
 
 /* CHANGELOG
  * [NEW] created [JB]
+ * [UPD] "at least 1" amount changed to "any"
  */
 
 namespace Idmr.Platform.Xwing
@@ -191,7 +192,7 @@ namespace Idmr.Platform.Xwing
 
 		static string[] _goalAmount = { "100%",  //[JB] Remove?
 									  "50%",
-									  "at least 1 of",
+									  "any of",
 									  "all but 1 of",
 									  "all special craft in"
 								  };
