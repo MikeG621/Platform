@@ -12,6 +12,8 @@
  * [NEW] EndOfMissionMessageColor [JB]
  * [UPD] PermaDeath (Unk9 and 10) [JB]
  * [FIX] Encoding highlight brackets in briefing questions [JB]
+ * [FIX] added char(160) check during Officer read
+ * [UPD] cleaned up Officer saving
  * [FIX] fs null check to prevent exception during save [JB]
  * [NEW] DeleteFG(), SwapFG() [JB]
  * v2.5, 170107
@@ -337,7 +339,7 @@ namespace Idmr.Platform.Tie
 				j = br.ReadInt16();	//also got rid of saving here, calc'ing on the fly
 				if (j == 3)
 				{
-					stream.Position += 3;	// goddamn TFW-isms
+					stream.Position += 3;	// stupid TFW-isms
 					continue;
 				}
 				if (j == 0) continue;
@@ -368,6 +370,7 @@ namespace Idmr.Platform.Tie
 						case 10:
 							BriefingQuestions.PostMissAnswers[i] += "\r\n";
 							break;
+						case 160:
 						case 255:
 							k = j;
 							break;
@@ -550,9 +553,6 @@ namespace Idmr.Platform.Tie
 					int j;
 					string str_q = BriefingQuestions.PreMissQuestions[i];
 					string str_a = BriefingQuestions.PreMissAnswers[i];
-					str_q = str_q.Replace("\r", "");
-					str_q = str_q.Replace(']', Convert.ToChar(1));
-					str_q = str_q.Replace('[', Convert.ToChar(2));
 					str_a = str_a.Replace("\r", "");
 					str_a = str_a.Replace(']', Convert.ToChar(1));
 					str_a = str_a.Replace('[', Convert.ToChar(2));
@@ -563,27 +563,19 @@ namespace Idmr.Platform.Tie
 						continue;	//if it doesn't exist, don't even bother with the rest of this
 					}
 					j++;	//takes into account the q/a spacer
-					long p = fs.Position;
-					fs.Position += 2;
+					bw.Write((short)j);
 					bw.Write(str_q.ToCharArray());
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
-					long p2 = fs.Position;
-					fs.Position = p;
-					bw.Write((short)j);		//calc length on the fly
-					fs.Position = p2;
 				}
 				for (int i=0;i<10;i++)
 				{
 					int j;
 					string str_q = BriefingQuestions.PostMissQuestions[i];
 					string str_a = BriefingQuestions.PostMissAnswers[i];
-                    str_q = str_q.Replace("\r", "");
-                    str_q = str_q.Replace(']', Convert.ToChar(1));  //[JB] Debrief questions use the same highlight scheme.  Added character conversions.
-                    str_q = str_q.Replace('[', Convert.ToChar(2));
                     str_a = str_a.Replace("\r", "");
-                    str_a = str_a.Replace(']', Convert.ToChar(1));
-                    str_a = str_a.Replace('[', Convert.ToChar(2));
+                    str_a = str_a.Replace(']', Convert.ToChar(1));  //[JB] Debrief questions use the same highlight scheme.  Added character conversions.
+					str_a = str_a.Replace('[', Convert.ToChar(2));
                     j = str_q.Length + str_a.Length;
 					if (j == 0)
 					{
@@ -592,15 +584,12 @@ namespace Idmr.Platform.Tie
 					}
 					j += 3;
 					long p = fs.Position;
-					fs.Position += 2;
+					bw.Write((short)j);
 					fs.WriteByte(BriefingQuestions.PostTrigger[i]);
 					fs.WriteByte(BriefingQuestions.PostTrigType[i]);
 					bw.Write(str_q.ToCharArray());
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
-					fs.Position = p;
-					bw.Write((short)j);		//calc length on the fly
-					fs.Position += j;
 				}
 				#endregion
 				bw.Write((short)0x2106); fs.WriteByte(0xFF);
