@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [UPD] now init to TRUE [JB]
+ * [UPD] case 14 added [JB]
+ * [UPD] Strings calls swapped to SafeString [JB]
+ * [NEW] helper functions for swap/delete FG or Message [JB]
+ * [NEW] helper functions for Skips [JB]
  * v2.7, 180509
  * [ADD #1] TriggerType unknowns
  * v2.1, 141214
@@ -87,9 +92,10 @@ namespace Idmr.Platform.Xwa
 				for (int i = 0; i < 8; i++) _waypoints[i] = new Waypoint();
 				_skipTriggers[0] = new Mission.Trigger();
 				_skipTriggers[1] = new Mission.Trigger();
-				_skipTriggers[0].Condition = 10;
-				_skipTriggers[1].Condition = 10;
-				SkipT1AndOrT2 = true;
+                //[JB] This modified code is redundant since everything is initialized to zero by default.
+				//_skipTriggers[0].Condition = 0;  //[JB] For some reason these must be set to always(TRUE) for the orders to function properly in game, otherwise it will skip over orders and behave unexpectedly.
+				//_skipTriggers[1].Condition = 0;  
+				SkipT1AndOrT2 = false;  //[JB] Set to AND
 			}
 			#endregion constructors
 
@@ -104,84 +110,87 @@ namespace Idmr.Platform.Xwa
 						s = "FG:" + target;
 						break;
 					case 2:
-						s = Strings.CraftType[target + 1] + "s";
+						s = Strings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 3:
-						s = Strings.ShipClass[target];
+						s = Strings.SafeString(Strings.ShipClass, target);
 						break;
 					case 4:
-						s = Strings.ObjectType[target];
+						s = Strings.SafeString(Strings.ObjectType, target);
 						break;
 					case 5:
-						s = Strings.IFF[target] + "s";
+						s = Strings.SafeString(Strings.IFF, target) + "s";
 						break;
 					case 6:
-						s = "Craft with " + Strings.Orders[target] + " orders";
+						s = "Craft with " + Strings.SafeString(Strings.Orders, target) + " orders";
 						break;
 					case 7:
-						s = "Craft when " + Strings.CraftWhen[target];
+						s = "Craft when " + Strings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
 						s = "Global Group " + target;
 						break;
-					case 9:
-						s = "Rating " + Strings.Rating[target];
-						break;
-					case 10:
-						s = "Craft with status: " + Strings.Status[target];
-						break;
-					case 11:
-						s = "All";
-						break;
-					case 12:
-						s = "TM:" + target;
-						break;
-					case 13:
-						s = "Player #" + target;
-						break;
-					case 15:
-						s = "Not FG:" + target;
-						break;
-					case 16:
-						s = "Not ship type " + Strings.CraftType[target + 1];
-						break;
-					case 17:
-						s = "Not ship class " + Strings.ShipClass[target];
-						break;
-					case 18:
-						s = "Not object type " + Strings.ObjectType[target];
-						break;
-					case 19:
-						s = "Not IFF " + Strings.IFF[target];
-						break;
-					case 20:
-						s = "Not GG " + target;
-						break;
-					case 21:
-						s = "All Teams except TM:" + target;
-						break;
-					case 22:
-						s = "Not player " + target;
-						break;
-					case 23:
-						s = "Global Unit " + target;
-						break;
-					case 24:
-						s = "Not Global Unit " + target;
-						break;
-					case 25:
-						s = "Global Cargo " + target;
-						break;
-					case 26:
-						s = "Not Global Cargo " + target;
-						break;
-					case 27:
-						s = "Message #" + target;
-						break;
-					default:
-						s = type + " " + target;
-						break;
-				}
+                    case 9:
+                        s = "Rating " + Strings.SafeString(Strings.Rating, target);
+                        break;
+                    case 10:
+                        s = "Craft with status: " + Strings.SafeString(Strings.Status, target);
+                        break;
+                    case 11:
+                        s = "All";
+                        break;
+                    case 12:
+                        s = "TM:" + target;
+                        break;
+                    case 13:
+                        s = "Player #" + target;
+                        break;
+                    case 14:
+                        s = "before time " + String.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
+                        break;
+                    case 15:
+                        s = "Not FG:" + target;
+                        break;
+                    case 16:
+                        s = "Not ship type " + Strings.SafeString(Strings.CraftType, target + 1);
+                        break;
+                    case 17:
+                        s = "Not ship class " + Strings.SafeString(Strings.ShipClass, target);
+                        break;
+                    case 18:
+                        s = "Not object type " + Strings.SafeString(Strings.ObjectType, target);
+                        break;
+                    case 19:
+                        s = "Not IFF " + Strings.SafeString(Strings.IFF, target);
+                        break;
+                    case 20:
+                        s = "Not GG " + target;
+                        break;
+                    case 21:
+                        s = "All Teams except TM:" + target;
+                        break;
+                    case 22:
+                        s = "Not player " + target;
+                        break;
+                    case 23:
+                        s = "Global Unit " + target;
+                        break;
+                    case 24:
+                        s = "Not Global Unit " + target;
+                        break;
+                    case 25:
+                        s = "Global Cargo " + target;
+                        break;
+                    case 26:
+                        s = "Not Global Cargo " + target;
+                        break;
+                    case 27:
+                        s = "Message #" + (target + 1);  //[JB] Now one-based for consistency with other message displays
+                        break;
+                    default:
+                        s = type + " " + target;
+                        break;
+   					}
 				return s;
 			}
 
@@ -302,6 +311,93 @@ namespace Idmr.Platform.Xwa
 			/// <remarks>Array is length 2</remarks>
 			public Mission.Trigger[] SkipTriggers { get { return _skipTriggers; } }
 			#endregion public properties
-		}
+
+            /// <summary>XWA stores skip triggers along with the orders.</summary>
+            protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex)
+            {
+                bool change = false;
+
+                byte dst = (byte)dstIndex;
+                bool delete = false;
+                if (dstIndex < 0)
+                {
+                    dst = 0;
+                    delete = true;
+                } 
+                //All FGs except
+                if (Target1Type == 15 && Target1 == srcIndex) { change = true; Target1 = dst; if (delete) Target1Type = 0; } else if (Target1Type == 15 && Target1 > srcIndex && delete == true) { change = true; Target1--; }
+                if (Target2Type == 15 && Target2 == srcIndex) { change = true; Target2 = dst; if (delete) Target2Type = 0; } else if (Target2Type == 15 && Target2 > srcIndex && delete == true) { change = true; Target2--; }
+                if (Target3Type == 15 && Target3 == srcIndex) { change = true; Target3 = dst; if (delete) Target3Type = 0; } else if (Target3Type == 15 && Target3 > srcIndex && delete == true) { change = true; Target3--; }
+                if (Target4Type == 15 && Target4 == srcIndex) { change = true; Target4 = dst; if (delete) Target4Type = 0; } else if (Target4Type == 15 && Target4 > srcIndex && delete == true) { change = true; Target4--; }
+
+                foreach (Mission.Trigger trig in SkipTriggers)
+                    change |= trig.TransformFGReferences(srcIndex, dstIndex, true);
+                return change;
+            }
+
+            /// <summary>Changes all Message indexes, to be used during a Message Swap (Move) or Delete operation.</summary>
+            /// <remarks>Same concept as for Flight Groups.  Triggers may depend on Message indexes, and this function helps ensure indexes are not broken.</remarks>
+            /// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
+            /// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+            /// <returns><b>true</b> if something was changed.</returns>
+            public bool TransformMessageReferences(int srcIndex, int dstIndex)
+            {
+                //[JB] I have no idea if message #s are actually used in Order triggers, but since I'm trying to keep any kind of indexes from being corrupted by move/delete operations, I thought I might as well do this too, just to be safe.
+                bool change = false;
+                bool delete = false;
+                if (dstIndex < 0)
+                {
+                    dstIndex = 0;
+                    delete = true;
+                }
+                else if (dstIndex > 255) throw new Exception("TransformMessagesReferences: dstIndex out of range.");
+
+                if (Target1Type == 27 && Target1 == srcIndex) { change = true; Target1 = (byte)dstIndex; if (delete) { Target1Type = 0; } } else if (Target1Type == 27 && Target1 > srcIndex && delete == true) { change = true; Target1--; }
+                if (Target2Type == 27 && Target2 == srcIndex) { change = true; Target2 = (byte)dstIndex; if (delete) { Target2Type = 0; } } else if (Target2Type == 27 && Target2 > srcIndex && delete == true) { change = true; Target2--; }
+                if (Target3Type == 27 && Target3 == srcIndex) { change = true; Target3 = (byte)dstIndex; if (delete) { Target3Type = 0; } } else if (Target3Type == 27 && Target3 > srcIndex && delete == true) { change = true; Target3--; }
+                if (Target4Type == 27 && Target4 == srcIndex) { change = true; Target4 = (byte)dstIndex; if (delete) { Target4Type = 0; } } else if (Target4Type == 27 && Target4 > srcIndex && delete == true) { change = true; Target4--; }
+
+                return change;
+            }
+			/// <summary>Change references</summary>
+			/// <param name="srcIndex">First index</param>
+			/// <param name="dstIndex">Second index</param>
+			/// <returns><b>true</b> if anything is changed.</returns>
+            public bool SwapMessageReferences(int srcIndex, int dstIndex)
+            {
+                bool change = false;
+                change |= TransformMessageReferences(dstIndex, 255);
+                change |= TransformMessageReferences(srcIndex, dstIndex);
+                change |= TransformMessageReferences(255, srcIndex);
+                return change;
+            }
+
+			/// <summary>Returns TRUE if the Skip Trigger is potentially used.</summary>
+			/// <remarks>Null triggers (Condition, VariableType, Variable, Amount all zero) are usually ignored by the game.</remarks>
+            public bool isSkipTriggerActive()
+            {
+                bool active = false;
+                foreach(Mission.Trigger trig in SkipTriggers)
+                {
+                    bool test = (trig.Condition != 0 || trig.VariableType != 0 || trig.Variable != 0 || trig.Amount != 0);
+                    active |= test;
+                }
+                return active;
+            }
+
+			/// <summary>Returns TRUE if the Skip Trigger is in a state that will never fire.</summary>
+			/// <remarks>Checks to make sure a trigger does not use a FALSE condition paired (AND) with True.</remarks>
+            public bool isSkipTriggerBroken()
+            {
+                return ((SkipTriggers[0].Condition == 10 || SkipTriggers[1].Condition == 10) && SkipT1AndOrT2 == false);
+            }
+
+			/// <summary>Returns TRUE if the Order is used.</summary>
+			/// <remarks>An order will not be processed AT ALL if both Skip Triggers are set to FALSE.</remarks>
+            public bool isOrderUsed()
+            {
+                return (SkipTriggers[0].Condition == 10 && SkipTriggers[1].Condition == 10);
+            }
+        }
 	}
 }

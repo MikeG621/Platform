@@ -4,10 +4,14 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] reworded >Easy [JB]
+ * [NEW] DifficultyAbbrv [JB]
+ * [FIX] remarks for Warheads count [JB]
+ * [NEW] SafeString() [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * [NEW] Warheads.(Ion Pulse)
@@ -40,11 +44,19 @@ namespace Idmr.Platform
 										"Easy",
 										"Medium",
 										"Hard",
-										"Better than Easy",
+										"Greater than Easy",
 										"Less than Hard",
 										"Never",
 									 };
-		static string[] _formation = { "Vic",
+        static string[] _difficultyAbbrv = { "",
+										"E",
+										"M",
+										"H",
+										">E",
+										"<H",
+										"X",
+									 };
+        static string[] _formation = { "Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",
@@ -98,7 +110,10 @@ namespace Idmr.Platform
 		/// <summary>Gets a copy of Arrival difficulty settings</summary>
 		/// <remarks>Array has a Length of 7</remarks>
 		public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
-		/// <summary>Gets a copy of FlightGroup formations</summary>
+        /// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
+        /// <remarks>Array has a Length of 7</remarks>
+        public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
+        /// <summary>Gets a copy of FlightGroup formations</summary>
 		/// <remarks>Array has a Length of 34</remarks>
 		public static string[] Formation { get { return (string[])_formation.Clone(); } }
 		/// <summary>Gets a copy of Trigger Types for solid objects</summary>
@@ -108,7 +123,18 @@ namespace Idmr.Platform
 		/// <remarks>Array has a Length of 7</remarks>
 		public static string[] ShipClass { get { return (string[])_shipClass.Clone(); } }
 		/// <summary>Gets a copy of Warhead types for FlightGroup usage</summary>
-		/// <remarks>Array has a Length of 8</remarks>
+		/// <remarks>Array has a Length of 9</remarks>
 		public static string[] Warheads { get { return (string[])_warheads.Clone(); } }
-	}
+
+        /// <summary>Checks whether an index into a given string array is valid before accessing that element.</summary>
+        /// <remarks>Avoids exceptions when requesting strings of associated values.</remarks>
+        /// <returns>A string from the index, or a string indicating an unknown value.</returns>
+		public static string SafeString(string[] array, int index)
+		{
+            if(array == null) return "Invalid Array";
+			if(index < 0 || index >= array.Length)
+				return "Unknown:" + index;
+			return array[index];
+		}    
+    }
 }

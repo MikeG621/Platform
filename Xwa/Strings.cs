@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [NEW] RoleTeams [JB]
+ * [UPD] more Radio players, numbered unused Officers, Energy Beam, various renames [JB]
+ * [UPD] order docking updates [JB]
+ * [UPD] "at least 1" amounts changed to "any"
+ * [UPD] removed ? from "be delivered"
  * v2.7, 180509
  * [UPD] label for Escort Position
  * [ADD #1] TriggerType unknowns (via JeremyAnsel)
@@ -40,6 +45,23 @@ namespace Idmr.Platform.Xwa
 											  "Left Half",
 											  "Left 3/4"
 										  };
+        static string[] _roleTeams = { "Role Disabled",
+                                       "Team 1",
+                                       "Team 2",
+                                       "Team 3",
+                                       "Team 4",
+                                       "Team 5",
+                                       "Team 6",
+                                       "Team 7",
+                                       "Team 8",
+                                       "Team 9",
+                                       "Team 10",
+                                       "All 'Enemy' teams",
+                                       "All 'Friendly' teams",
+                                       "Unknown 13",
+                                       "Unknown 14"
+                                    };
+
 		static string[] _roles = { "Command Ship",
 									"Base",
 									"Station",
@@ -50,7 +72,7 @@ namespace Idmr.Platform.Xwa
 									"Primary Target",
 									"Secondary Target",
 									"Tertiary Target",
-									"Resource Center",
+									"Research Facility",  //[JB] Changed to correct string.
 									"Facility",
 									"HYP from Region 1",
 									"HYP from Region 2",
@@ -79,16 +101,24 @@ namespace Idmr.Platform.Xwa
 										"Player 5",
 										"Player 6",
 										"Player 7",
-										"Player 8"
+										"Player 8",
+                                        "Player 9",   //[JB] Added up to Player 16
+                                        "Player 10",
+                                        "Player 11",
+                                        "Player 12",
+                                        "Player 13",
+                                        "Player 14",
+                                        "Player 15",
+                                        "Player 16",
 									};
 		static string[] _officer = { "Devers",
 										"Kupalo",
 										"Zaletta",
-										"",
-										"",
-										"",
-										"",
-										"",
+										"3",
+										"4",
+										"5",
+										"6",
+										"7",
 										"Emkay"
 									};
 		static string[] _iff = { "Rebel",
@@ -101,7 +131,8 @@ namespace Idmr.Platform.Xwa
 		static string[] _beam = { "None",
 									"Tractor beam",
 									"Jamming beam",
-									"Decoy Beam"
+									"Decoy beam",
+                                    "(Energy beam)"
 							   };
 		static string[] _craftType = { "None",
 										"X-Wing",
@@ -138,7 +169,7 @@ namespace Idmr.Platform.Xwa
 										"Bulk Freighter",
 										"Cargo Ferry",
 										"Modular Conveyor",
-										"*Container Transport",
+										"Container Transport",
 										"Medium Transport",
 										"Murrian Transport",
 										"Corellian Transport",
@@ -147,8 +178,8 @@ namespace Idmr.Platform.Xwa
 										"Modified Corvette",
 										"Nebulon-B Frigate",
 										"Modified Frigate",
-										"*C-3 Passenger Liner",
-										"*Carrack Cruiser",
+										"C-3 Passenger Liner",
+										"Carrack Cruiser",
 										"Strike Cruiser",
 										"Escort Carrier",
 										"Dreadnaught",
@@ -216,7 +247,7 @@ namespace Idmr.Platform.Xwa
 										"YT-2000",
 										"YT-2400",
 										"Suprosa",
-										"Skipray Blasboat",
+										"Skipray Blastboat",
 										"T/e mk1",
 										"T/e mk2",
 										"T/e mk3",
@@ -227,7 +258,7 @@ namespace Idmr.Platform.Xwa
 										"Planetary Fighter",
 										"Supa Fighter",
 										"Pinook Fighter",
-										"*Booster Pack",
+										"Booster Pack",   //[JB] Removed asterisk, it will properly appear in missions.
 										"Preybird Fighter",
 										"*StarViper",
 										"Firespray",
@@ -278,9 +309,9 @@ namespace Idmr.Platform.Xwa
 										"*Cargo Tanker 4",
 										"*Cargo Tanker 5",
 										"Escape Pod 2",
-										"*Rebel Pilot",
-										"*Imperial Pilot",
-										"*Civilian Pilot",
+										"Rebel Pilot",  //[JB] Removed asterisks, pilots will properly appear in missions.
+										"Imperial Pilot",
+										"Civilian Pilot",
 										"Space Trooper",
 										"Zero-G Utility Suit",
 										"Emkay",
@@ -341,7 +372,7 @@ namespace Idmr.Platform.Xwa
 										"Y-W",
 										"A-W",
 										"B-W",
-										"TIE",
+										"T/F",
 										"T/I",
 										"T/B",
 										"T/A",
@@ -371,7 +402,7 @@ namespace Idmr.Platform.Xwa
 										"FRT",
 										"CARG",
 										"CNVYR",
-										"*CTRNS",
+										"CTRNS",
 										"MTRNS",
 										"MUTR",
 										"CORT",
@@ -380,8 +411,8 @@ namespace Idmr.Platform.Xwa
 										"M/CRV",
 										"FRG",
 										"M/FRG",
-										"*LINER",
-										"*CRCK",
+										"LINER",
+										"CRCK",
 										"STRKC",
 										"ESC",
 										"DREAD",
@@ -460,7 +491,7 @@ namespace Idmr.Platform.Xwa
 										"Plt/F",
 										"Sup/F",
 										"Pnk/F",
-										"*B/R",
+										"B/R",
 										"Pry/F",
 										"*Xiz/F",
 										"FRS",
@@ -511,9 +542,9 @@ namespace Idmr.Platform.Xwa
 										"*CT4",
 										"*CT5",
 										"E-POD/2",
-										"*Reb Pilot",
-										"*Imp Pilot",
-										"*Civ Pilot",
+										"Reb Pilot",
+										"Imp Pilot",
+										"Civ Pilot",
 										"ZG/S",
 										"ZG/U",
 										"MK-09",
@@ -579,7 +610,7 @@ namespace Idmr.Platform.Xwa
 		static string[] _status = { "Normal",
 									"2x Warheads",
 									"1/2 Warheads",
-									"Disabled",
+									"No Shields",
 									"1/2 Shields",
 									"No Lasers",
 									"No Hyperdrive",
@@ -607,13 +638,13 @@ namespace Idmr.Platform.Xwa
 									"Limited Targetability"
 								 };
 		static string[] _trigger = { "always (TRUE)",
-										"be created",
+										"have arrived",
 										"be destroyed",
 										"be attacked",
 										"be captured",
 										"be inspected",
-										"be boarded",
-										"be docked",
+										"finish being boarded",    //[JB] was "be boarded"
+										"finish docking",          //[JB] was "be docked"
 										"be disabled",
 										"exist",
 										"none (FALSE)",
@@ -636,10 +667,10 @@ namespace Idmr.Platform.Xwa
 										"NOT be disabled",
 										"NOT be picked up",
 										"be destroyed, not inspected",
-										"be docked with",
-										"NOT be docked with",
-										"begin boarding",
-										"NOT begin boarding",
+										"begin being boarded",       //[JB] was "be docked with"
+										"NOT being boarded",
+										"begin docking",            //[JB] was "begin boarding"
+										"NOT begin docking",
 										"have 50% shields",
 										"have 25% shields",
 										"have 75% hull",
@@ -660,7 +691,7 @@ namespace Idmr.Platform.Xwa
 										"Unknown",
 										"defect to",
 										"be in convoy",
-										"be delivered?",
+										"be delivered",
 										"Unknown",
 										"be shown (message)",
 										"be identified",
@@ -700,7 +731,7 @@ namespace Idmr.Platform.Xwa
 									"75%",
 									"50%",
 									"25%",
-									"at least 1 of",
+									"any of",
 									"all but 1 of",
 									"all special craft in",
 									"all non-special craft in",
@@ -710,7 +741,7 @@ namespace Idmr.Platform.Xwa
 									"75% of first wave",
 									"50% of first wave",
 									"25% of first wave",
-									"at least 1 of first wave",
+									"any of first wave",
 									"all but 1 of first wave",
 									"66%",
 									"33%",
@@ -792,7 +823,7 @@ namespace Idmr.Platform.Xwa
 										"",
 										"Disabled",
 										"Attacked",
-										"0% shields?",
+										"Any hull damage",  //[JB] was "0% shields?", confirmed actual effect
 										"Special craft",
 										"Non-special craft",
 										"Player's craft",
@@ -828,7 +859,7 @@ namespace Idmr.Platform.Xwa
 										"Boards targets (if stationary) to exchange cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to capture|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time|# of dockings|Meaningless",
-										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time|Meaningless|Meaningless",
+										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time|# of dockings|Meaningless",  //[JB] Changed Var2, was Meaningless
 										"Drops off designated Flight Group (disregards targets)|Deploy time|Flight Group #|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time|Meaningless|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time|Meaningless|Meaningless",
@@ -897,11 +928,14 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets a copy of the shadows to be applied to a backdrop</summary>
 		/// <remarks>Array is Length = 7</remarks>
 		public static string[] Shadow { get { return (string[])_shadow.Clone(); } }
-		/// <summary>Gets a copy of the craft roles used for specialized in-flight messages</summary>
-		/// <remarks>Array is Length = 21</remarks>
+        /// <summary>Gets a copy of the default team name entries that craft roles can be applied to.</summary>
+        /// <remarks>Array is Length = 15</remarks>
+        public static string[] RoleTeams { get { return (string[])_roleTeams.Clone(); } }
+        /// <summary>Gets a copy of the craft roles used for specialized in-flight messages</summary>
+		/// <remarks>Array is Length = 22</remarks>
 		public static string[] Roles { get { return (string[])_roles.Clone(); } }
 		/// <summary>Gets a copy of the radio channels the craft uses</summary>
-		/// <remarks>Array is length = 17</remarks>
+		/// <remarks>Array is length = 25</remarks>
 		public static string[] Radio { get { return (string[])_radio.Clone(); } }
 		/// <summary>Gets a copy of the voices of the mission control officer</summary>
 		/// <remarks>Array is Length = 9</remarks>
@@ -910,7 +944,7 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] IFF { get { return (string[])_iff.Clone(); } }
 		/// <summary>Gets a copy of the beam weapons for craft use</summary>
-		/// <remarks>Array is Length = 4</remarks>
+		/// <remarks>Array is Length = 5</remarks>
 		public static string[] Beam { get { return (string[])_beam.Clone(); } }
 		/// <summary>Gets a copy of the long names for ship type</summary>
 		/// <remarks>Array is Length = 232</remarks>

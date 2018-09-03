@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] added Ion Pulse, Energy Beam, Cluster Mine [JB]
+ * [UPD] changed default Skip triggers to True [JB]
+ * [UPD] added info to to ToString() [JB]
+ * [NEW] helper functions for move/delete FG [JB]
+ * [NEW] PreventCraftNumbering, DepartureClockMinutes, DepartureClockSeconds, formerly Unk 19, 20, 21 [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -30,7 +35,7 @@ namespace Idmr.Platform.Xvt
 		Order[] _orders = new Order[4];
 		Mission.Trigger[] _skipToOrder4Trigger = new Mission.Trigger[2];
 		Goal[] _goals = new Goal[8];
-		bool[] _optLoad = new bool[15];
+		bool[] _optLoad = new bool[18];  //[JB] Added Ion Pulse, Energy Beam, Cluster Mine
 		OptionalCraft[] _optCraft = new OptionalCraft[10];
 		Waypoint[] _waypoints = new Waypoint[22];
 		Indexer<string> _rolesIndexer;
@@ -120,12 +125,12 @@ namespace Idmr.Platform.Xvt
 			for (int i = 0; i < _orders.Length; i++) _orders[i] = new Order();
 			for (int i = 0; i < _roles.Length; i++) _roles[i] = "";
 			for (int i = 0; i < _arrDepTriggers.Length; i++) _arrDepTriggers[i] = new Mission.Trigger();
-			for (int i = 0; i < _skipToOrder4Trigger.Length; i++) { _skipToOrder4Trigger[i] = new Mission.Trigger(); _skipToOrder4Trigger[i].Condition = 10; }
+			for (int i = 0; i < _skipToOrder4Trigger.Length; i++) { _skipToOrder4Trigger[i] = new Mission.Trigger(); }  //[JB] Removed setting skip trigger condition to False by default. LEC missions use True for empty conditions.
 			for (int i = 0; i < _goals.Length; i++) _goals[i] = new Goal();
-			_optLoad[0] = true;
-			_optLoad[8] = true;
-			_optLoad[12] = true;
-			for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
+            _optLoad[0] = true;
+            _optLoad[9] = true;  //[JB] Adjusted these indexes for added Ion Pulse, Energy Beam, Cluster Mine
+            _optLoad[14] = true;
+            for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
 			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
 			_rolesIndexer = new Indexer<string>(_roles, 4);
 			_loadoutIndexer = new LoadoutIndexer(_optLoad);
@@ -135,20 +140,73 @@ namespace Idmr.Platform.Xvt
 		/// <returns>Short representation of the FlightGroup as <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b></returns>
 		public override string ToString() { return ToString(false); }
 		/// <summary>Gets a string representation of the FlightGroup</summary>
-		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b><br/>
-		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - IsPlayer
-		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
-		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/> (<see cref="GlobalUnit"/>)"</b></remarks>
+		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
+		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;)"</b><br/><br/>
+		/// Long form is <b>"<see cref="Team"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see> - (IsPlayer * indicator)
+		/// <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/> 
+		/// <see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;) ((<see cref="GlobalUnit"/>))
+		/// ([(Plr: <see cref="PlayerNumber"/>) ("hu" if <see cref="ArriveOnlyIfHuman"/>)])"</b></remarks>
 		/// <param name="verbose">When <b>true</b> returns long form</param>
 		/// <returns>Representation of the FlightGroup</returns>
 		public string ToString(bool verbose)
 		{
 			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-			if (!verbose) return longName;
-			return Team + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "");
+            if (EditorCraftNumber > 0) //[JB] Added numbering information.
+                longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+            if (!verbose) return longName;
+
+			//[JB] Added player position and difficulty tags, by feature request.
+            string plr = "";
+            if (PlayerNumber > 0 || ArriveOnlyIfHuman)
+            {
+                if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
+                if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
+                plr = " [" + plr + "]";
+            }
+            string ret = Team + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
+            if(Difficulty >= 1 && Difficulty < Strings.DifficultyAbbrv.Length)
+                ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+
+            return ret;
 		}
-		
-		#region craft
+
+        /// <summary>Changes all Flight Group indexes, to be used during a FG Swap (Move) or Delete operation.</summary>
+        /// <remarks>FG references may exist in other mission properties, ensure those properties are adjusted too.</remarks>
+        /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+        /// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+        /// <returns>True if something was changed.</returns>
+        public bool TransformFGReferences(int srcIndex, int dstIndex)
+        {
+            bool change = false;
+            bool delete = false;
+            byte dst = (byte)dstIndex;
+            if (dstIndex < 0)
+            {
+                dst = 0;
+                delete = true;
+            }
+
+            //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
+            if (ArrivalCraft1 == srcIndex) { change = true; ArrivalCraft1 = dst; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete == true) { change = true; ArrivalCraft1--; }
+            if (ArrivalCraft2 == srcIndex) { change = true; ArrivalCraft2 = dst; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { change = true; ArrivalCraft2--; }
+            if (DepartureCraft1 == srcIndex) { change = true; DepartureCraft1 = dst; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete == true) { change = true; DepartureCraft1--; }
+            if (DepartureCraft2 == srcIndex) { change = true; DepartureCraft2 = dst; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { change = true; DepartureCraft2--; }
+            for (int i = 0; i < ArrDepTriggers.Length; i++)
+            {
+                Mission.Trigger adt = ArrDepTriggers[i];
+                change |= adt.TransformFGReferences(srcIndex, dstIndex, true);  //First 2 are arrival.  Set those to true.
+            }
+            foreach(Mission.Trigger trig in SkipToOrder4Trigger)
+                change |= trig.TransformFGReferences(srcIndex, dstIndex, true);
+
+            foreach (FlightGroup.Order order in Orders)
+                change |= order.TransformFGReferences(srcIndex, dstIndex);
+
+            return change;
+        }
+
+     
+        #region craft
 		/// <summary>Gets the craft roles, such as Command Ship or Strike Craft</summary>
 		/// <remarks>This value has been seen as an AI string with unknown results. Restricted to 4 characters.</remarks>
 		public Indexer<string> Roles { get { return _rolesIndexer; } }
@@ -204,8 +262,14 @@ namespace Idmr.Platform.Xvt
 		public byte Status2 { get; set; }
 		/// <summary>The additional grouping assignment, can share craft numbering</summary>
 		public byte GlobalUnit { get; set; }
-		
-		/// <summary>Gets the array of alternate weapons the player can select</summary>
+        /// <summary>Prevents craft numbering (if multiple craft in each wave) from appearing in the CMD.</summary>
+        public bool PreventCraftNumbering { get; set; }
+        /// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in minutes.  Formerly Unknown20 at Offset 0x0521.</summary>
+        public byte DepartureClockMinutes { get; set; }
+        /// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in seconds.  Formerly Unknown21 at Offset 0x0522.</summary>
+        public byte DepartureClockSeconds { get; set; }
+
+        /// <summary>Gets the array of alternate weapons the player can select</summary>
 		/// <remarks>Use <see cref="LoadoutIndexer.Indexes"/> for indexes</remarks>
 		public LoadoutIndexer OptLoadout { get { return _loadoutIndexer; } }
 		/// <summary>Gets the array of alternate craft types the player can select</summary>
@@ -260,17 +324,17 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Offset 0x0518, in Unknowns/Options section</remarks>
 			public bool Unknown18 { get; set; }
 			
-			/// <summary>Unknown value</summary>
-			/// <remarks>Offset 0x0520, in Unknowns/Options section</remarks>
-			public bool Unknown19 { get; set; }
-			
-			/// <summary>Unknown value</summary>
-			/// <remarks>Offset 0x0521, in Unknowns/Options section</remarks>
-			public byte Unknown20 { get; set; }
-			
-			/// <summary>Unknown value</summary>
-			/// <remarks>Offset 0x0522, in Unknowns/Options section</remarks>
-			public byte Unknown21 { get; set; }
+			// <summary>Previously Unknown value</summary>
+            // <remarks>Offset 0x0520, in Unknowns/Options section.  See PreventCraftNumbering.</remarks>
+			//public bool Unknown19 { get; set; }
+
+            // <summary>Previously Unknown value</summary>
+            // <remarks>Offset 0x0521, in Unknowns/Options section.  See DepClockMinutes.</remarks>
+			//public byte Unknown20 { get; set; }
+
+            // <summary>Previously Unknown value</summary>
+            // <remarks>Offset 0x0522, in Unknowns/Options section.  See DepClockSeconds.</remarks>
+			//public byte Unknown21 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0527, in Unknowns/Options section</remarks>

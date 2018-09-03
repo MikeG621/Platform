@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] EventParameterCount changed to function, made virtual [JB]
+ * [NEW] virtual helper functions [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0.1, 120814
@@ -140,19 +142,92 @@ namespace Idmr.Platform
 		/// <remarks>Briefing offset 0x02, between Length and StartLength</remarks>
 		public short Unknown1 { get; set; }
 
-		/// <summary>Gets the array that contains the number of parameters per event type</summary>
-		public EventParameters EventParameterCount { get { return _eventParameters; } }
+		/// <summary>Gets the number of parameters for the specified event type</summary>
+		/// <param name="eventType">The briefing event</param>
+		/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+		/// <returns>The number of parameters</returns>
+		virtual public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
+
+		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
+		/// <param name="evt">The event index</param>
+		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
+        public virtual bool IsEndEvent(int evt)
+        {
+            return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
+        }
+		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
+		/// <param name="evt">The event index</param>
+		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag8"/>.</returns>
+        public virtual bool IsFGTag(int evt)
+        {
+            return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
+        }
+		/// <summary>Adjust FG references as necessary.</summary>
+		/// <param name="fgIndex">Original index</param>
+		/// <param name="newIndex">Replacement index</param>
+        public virtual void TransformFGReferences(int fgIndex, int newIndex)
+        {
+            bool deleteCommand = false;
+            if (newIndex < 0)
+                deleteCommand = true;
+
+            int p = 0, advance = 0;
+            int paramCount = 0;
+            while (p < EventsLength)
+            {
+                int evt = Events[p + 1];
+                if (IsEndEvent(evt))
+                    break;
+
+                advance = 2 + EventParameterCount(evt);
+                if (IsFGTag(evt))
+                {
+                    if (Events[p + 2] == fgIndex)
+                    {
+                        if (deleteCommand == false)
+                        {
+                            Events[p + 2] = (short)newIndex;
+                        }
+                        else
+                        {
+                            int len = EventsLength; //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
+                            paramCount = 2 + EventParameterCount(evt);
+                            for (int i = p; i < len - paramCount; i++)
+                                Events[i] = Events[i + paramCount];  //Drop everything down
+                            for (int i = len - paramCount; i < len; i++)
+                                Events[i] = 0;  //Erase the final space
+                            advance = 0;
+                        }
+                    }
+                    else if (Events[p + 2] > fgIndex && deleteCommand == true)
+                    {
+                        Events[p + 2]--;
+                    }
+                }
+                p += advance;
+            }
+        }
+		/// <summary>Swap FG indexes</summary>
+		/// <param name="srcIndex">First index</param>
+		/// <param name="dstIndex">Second index</param>
+		/// <remarks>Calls <see cref="TransformFGReferences(int, int)"/> with an interim value.</remarks>
+        public virtual void SwapFGReferences(int srcIndex, int dstIndex)
+        {
+            TransformFGReferences(dstIndex, 255);
+            TransformFGReferences(srcIndex, dstIndex);
+            TransformFGReferences(255, srcIndex);
+        }
 
 		/// <summary>Object to maintain a read-only array</summary>
 		public class EventParameters
 		{
 			byte[] _counts = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
-			
+
 			/// <summary>Gets a parameter count</summary>
 			/// <param name="eventType">The briefing event</param>
 			/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
 			public byte this[int eventType] { get { return _counts[eventType]; } }
-			
+
 			/// <summary>Gets a parameter count</summary>
 			/// <param name="eventType">The briefing event</param>
 			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }

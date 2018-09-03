@@ -4,10 +4,18 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [UPD] Renamed MissionType.MPMelee [JB]
+ * [UPD] updated string encodings [JB]
+ * [FIX] Departure and Arrival2 R/W [JB]
+ * [UPD] Appropriate R/W updates for format updates [JB]
+ * [FIX] Misison Succ/Fail/Desc load changed to TrimEnd [JB]
+ * [FIX] signature moved to within MissionDescription instead of "outside" format [JB]
+ * [FIX] null check on fs.CLose() [JB]
+ * [NEW] Delete/swap FG helper functions [JB]
  * v2.5, 170107
  * [FIX] Enforced string encodings [JB]
  * [FIX] Craft options [JB]
@@ -58,10 +66,10 @@ namespace Idmr.Platform.Xvt
 			Unknown,
 			/// <summary>Melee (Skirmish) mission</summary>
 			Melee,
-			/// <summary>Multiplayer combat mission</summary>
+			/// <summary>Multiplayer training/campaign mission</summary>
 			MPTraining,
-			/// <summary>Multiplayer Melee (Skirmish) mission</summary>
-			MPMelee
+			/// <summary>Multi-team combat engagement mission</summary>
+			MPCombat        //[JB] Changed from MPMelee since this is used for combat engagements. Also modified summaries above.
 		}
 
 		#region constructors
@@ -123,8 +131,8 @@ namespace Idmr.Platform.Xvt
 			MissionFile.Platform p = MissionFile.GetPlatform(stream);
 			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException(_invalidError);
 			IsBop = (p == MissionFile.Platform.BoP);
-			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.Default); //[JB] Added encoding. BoP\Train\8xrcb06 fails otherwise
-			int i, j;
+            BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
+            int i, j;
 			stream.Position = 2;
 			short numFlightGroups = br.ReadInt16();
 			short numMessages = br.ReadInt16();
@@ -216,10 +224,10 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].Unknowns.Unknown5 = buffer[0x2B];
 				FlightGroups[i].ArrivalCraft1 = buffer[0x2D];
 				FlightGroups[i].ArrivalMethod1 = Convert.ToBoolean(buffer[0x2E]);	// false = hyper, true = mothership
-				FlightGroups[i].ArrivalCraft2 = buffer[0x2F];
-				FlightGroups[i].ArrivalMethod2 = Convert.ToBoolean(buffer[0x30]);
-				FlightGroups[i].DepartureCraft1 = buffer[0x31];
-				FlightGroups[i].DepartureMethod1 = Convert.ToBoolean(buffer[0x32]);
+                FlightGroups[i].DepartureCraft1 = buffer[0x2F];       //[JB] Fixed byte order.
+                FlightGroups[i].DepartureMethod1 = Convert.ToBoolean(buffer[0x30]);
+                FlightGroups[i].ArrivalCraft2 = buffer[0x31];
+				FlightGroups[i].ArrivalMethod2 = Convert.ToBoolean(buffer[0x32]);
 				FlightGroups[i].DepartureCraft2 = buffer[0x33];
 				FlightGroups[i].DepartureMethod2 = Convert.ToBoolean(buffer[0x34]);
 				#endregion
@@ -254,9 +262,9 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].Unknowns.Unknown18 = br.ReadBoolean();
 				stream.Position += 7;
 				stream.Read(buffer, 0, 0xF);
-				FlightGroups[i].Unknowns.Unknown19 = Convert.ToBoolean(buffer[0]);
-				FlightGroups[i].Unknowns.Unknown20 = buffer[1];
-				FlightGroups[i].Unknowns.Unknown21 = buffer[2];
+                FlightGroups[i].PreventCraftNumbering = Convert.ToBoolean(buffer[0]);  //[JB] Filled unknowns.  Unknowns.Unknown19
+                FlightGroups[i].DepartureClockMinutes = buffer[1];  //Unknowns.Unknown20
+                FlightGroups[i].DepartureClockSeconds = buffer[2];  //Unknowns.Unknown21
 				FlightGroups[i].Countermeasures = buffer[3];
 				FlightGroups[i].ExplosionTime = buffer[4];
 				FlightGroups[i].Status2 = buffer[5];
@@ -270,23 +278,24 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].Unknowns.Unknown28 = Convert.ToBoolean(buffer[0xD]);
 				FlightGroups[i].Unknowns.Unknown29 = Convert.ToBoolean(buffer[0xE]);
 				stream.Position++;
-				for (j=0;j<8;j++)
-				{
-					byte x = br.ReadByte();
-					if (x != 0 && x < 8) FlightGroups[i].OptLoadout[x] = true;
-				}
-				for (j=8;j<12;j++)
-				{
-					byte x = br.ReadByte();
-					if (x != 0 && x < 4) FlightGroups[i].OptLoadout[8 + x] = true;	//[JB] forgot the offset
-				}
-				stream.Position += 2;
-				for (j=12;j<15;j++)
-				{
-					byte x = br.ReadByte();
-					if (x != 0 && x < 3) FlightGroups[i].OptLoadout[12 + x] = true; //[JB] forgot the offset
-				}
-				stream.Position++;
+                //[JB] Revised loading optional weapons to support Ion Pulse, Energy Beam, Cluster Mine.
+                for (j = 0; j < 8; j++)  //Warhead section, 8 bytes total.
+                {
+                    byte x = br.ReadByte();
+                    if (x != 0 && x < 9) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
+                }
+                for (j = 0; j < 4; j++)  //Beam section, 6 bytes total (reading only 4)
+                {
+                    byte x = br.ReadByte();
+                    if (x != 0 && x < 5) { FlightGroups[i].OptLoadout[9 + x] = true; FlightGroups[i].OptLoadout[9] = false; }
+                }
+                stream.Position += 2;    //skip extra beams
+                for (j = 0; j < 3; j++)  //Countermeasure section, 4 bytes total (reading only 3)
+                {
+                    byte x = br.ReadByte();
+                    if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[14 + x] = true; FlightGroups[i].OptLoadout[14] = false; }
+                }
+                stream.Position++;       //skip extra countermeasure
 				FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
 				stream.Read(buffer, 0, 0x1E);
 				for (int k=0;k<10;k++)
@@ -308,7 +317,7 @@ namespace Idmr.Platform.Xvt
 					stream.Position += 2;
 					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');		// null-termed
 					Messages[i].Color = 0;
-					if (Messages[i].MessageString.Length > 0)  //[JB]
+                    if (Messages[i].MessageString.Length > 0)
 					{
 						char c = Messages[i].MessageString[0];
 						if (c >= '1' && c <= '3')
@@ -447,11 +456,11 @@ namespace Idmr.Platform.Xvt
 			#region Debriefs
 			if (IsBop)
 			{
-				_missionSuccessful = new string(br.ReadChars(0x1000)).Trim('\0');
-				_missionFailed = new string(br.ReadChars(0x1000)).Trim('\0');
-				_missionDescription = new string(br.ReadChars(0x1000)).Trim('\0');
+                _missionSuccessful = new string(br.ReadChars(0x1000)).TrimEnd('\0');
+                _missionFailed = new string(br.ReadChars(0x1000)).TrimEnd('\0');
+				_missionDescription = new string(br.ReadChars(0x1000)).TrimEnd('\0');  //[JB] Only trim from end, because trimming from the start might return YOGEME's signature embedded into the end of the description, or any leftover garbage data that is normally ignored by a null terminator.
 			}
-			else _missionDescription = new string(br.ReadChars(0x400)).Trim('\0');
+			else _missionDescription = new string(br.ReadChars(0x400)).TrimEnd('\0');
 			#endregion
 			MissionPath = stream.Name;
 		}
@@ -465,8 +474,8 @@ namespace Idmr.Platform.Xvt
 			{
 				if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
-				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.Default);	//[JB]
-				int i;
+                BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
+                int i;
 				long p;
 				#region Platform
 				if (IsBop) bw.Write((short)14);
@@ -568,10 +577,10 @@ namespace Idmr.Platform.Xvt
 					fs.Position++;
 					fs.WriteByte(FlightGroups[i].ArrivalCraft1);
 					bw.Write(FlightGroups[i].ArrivalMethod1);
-					fs.WriteByte(FlightGroups[i].ArrivalCraft2);
+                    fs.WriteByte(FlightGroups[i].DepartureCraft1);
+                    bw.Write(FlightGroups[i].DepartureMethod1);
+                    fs.WriteByte(FlightGroups[i].ArrivalCraft2);
 					bw.Write(FlightGroups[i].ArrivalMethod2);
-					fs.WriteByte(FlightGroups[i].DepartureCraft1);
-					bw.Write(FlightGroups[i].DepartureMethod1);
 					fs.WriteByte(FlightGroups[i].DepartureCraft2);
 					bw.Write(FlightGroups[i].DepartureMethod2);
 					#endregion
@@ -604,7 +613,7 @@ namespace Idmr.Platform.Xvt
 						fs.WriteByte(FlightGroups[i].Goals[j].Unknown13);
 						bw.Write(FlightGroups[i].Goals[j].Unknown14);
 						fs.Position++;
-						fs.WriteByte(FlightGroups[i].Goals[j].Unknown16);
+						fs.WriteByte(FlightGroups[i].Goals[j].TimeLimit);  //[JB] Previously Unknown16
 						fs.Position = p + 0x243 + (j*0x4E);
 					}
 					fs.Position++;
@@ -615,9 +624,9 @@ namespace Idmr.Platform.Xvt
 					fs.Position++;
 					bw.Write(FlightGroups[i].Unknowns.Unknown18);
 					fs.Position += 7;
-					bw.Write(FlightGroups[i].Unknowns.Unknown19);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown20);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown21);
+                    bw.Write(FlightGroups[i].PreventCraftNumbering);   //[JB] Filled unknowns.  Unknowns.Unknown19
+                    fs.WriteByte(FlightGroups[i].DepartureClockMinutes);  //Unknowns.Unknown20
+                    fs.WriteByte(FlightGroups[i].DepartureClockSeconds);  //Unknowns.Unknown21
 					fs.WriteByte(FlightGroups[i].Countermeasures);
 					fs.WriteByte(FlightGroups[i].ExplosionTime);
 					fs.WriteByte(FlightGroups[i].Status2);
@@ -633,17 +642,17 @@ namespace Idmr.Platform.Xvt
 					fs.Position++;
 					//[JB] The old code iterated through the array and wrote the values, but it didn't work properly.  
 					//The list of options must not contain any gaps of 00.  
-					byte[] optBuff = new byte[15]; //One array to store everything so we don't need to zero anything between use  
+					byte[] optBuff = new byte[18]; //One array to store everything so we don't need to zero anything between use  
 					int oi = 0;
-					for (j = 1; j < 8; j++) if (FlightGroups[i].OptLoadout[j]) optBuff[oi++] = (byte)j;
+					for (j = 1; j < 9; j++) if (FlightGroups[i].OptLoadout[j]) optBuff[oi++] = (byte)j;
 					bw.Write(optBuff, 0, 8);  //Warheads  
-					oi = 8;
-					for (j = 1; j < 4; j++) if (FlightGroups[i].OptLoadout[j + 8]) optBuff[oi++] = (byte)j;
-					bw.Write(optBuff, 8, 4);  //Beams  
+					oi = 9;
+					for (j = 1; j < 5; j++) if (FlightGroups[i].OptLoadout[j + 9]) optBuff[oi++] = (byte)j;
+					bw.Write(optBuff, 9, 4);  //Beams  
 					fs.Position += 2; //Empty space  
-					oi = 12;
-					for (j = 1; j < 3; j++) if (FlightGroups[i].OptLoadout[j + 12]) optBuff[oi++] = (byte)j;
-					bw.Write(optBuff, 12, 3); //Countermeasures  
+					oi = 14;
+					for (j = 1; j < 4; j++) if (FlightGroups[i].OptLoadout[j + 14]) optBuff[oi++] = (byte)j;
+					bw.Write(optBuff, 14, 3); //Countermeasures  
 					fs.Position++;    //Empty space 
 					fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
 					for (int k=0;k<10;k++) fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
@@ -797,14 +806,21 @@ namespace Idmr.Platform.Xvt
 					fs.WriteByte(0);
 					fs.Position = p + 0x400;
 				}
-				bw.Write((short)0x2106);	//TODO: might need to remove this
+
+				//[JB] Embed YOGEME signature into the empty description space (appending bytes would disrupt the text in game).  The description must have room for 3 bytes (null terminater for the briefing text, then the 2 byte signature)
+				if((IsBop && _missionDescription.Length < 0x1000 - 3) || (!IsBop && _missionDescription.Length < 0x400 - 3))
+				{
+					fs.Position -= 2;
+					bw.Write((short)0x2106);
+				}
+
 				fs.SetLength(fs.Position);
 				#endregion
 				fs.Close();
 			}
 			catch
 			{
-				fs.Close();
+                if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
 				throw;
 			}
 		}
@@ -857,7 +873,66 @@ namespace Idmr.Platform.Xvt
 			// can't check GU
 			if (errorMessage != "") errorMessage += " (" + variable + ")";
 		}
-		#endregion public methods
+
+        /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
+        /// <remarks>Propagates throughout all members which contain Flight Group indexes.</remarks>
+        /// <returns>Index of the next available Flight Group.</returns>
+        public int DeleteFG(int fgIndex)
+        {
+            if (fgIndex < 0 || fgIndex >= FlightGroups.Count)
+                return 0;  //If for some reason this is out of range, don't do anything and return selection to first item.
+
+            foreach (Globals global in Globals)
+                foreach (Globals.Goal goal in global.Goals)
+                    foreach (Globals.Goal.Trigger trig in goal.Triggers)
+                        trig.GoalTrigger.TransformFGReferences(fgIndex, -1, false);
+
+            foreach (Message msg in Messages)
+                foreach (Mission.Trigger trig in msg.Triggers)
+                    trig.TransformFGReferences(fgIndex, -1, true);
+
+            foreach (Briefing b in Briefings)
+                b.TransformFGReferences(fgIndex, -1);
+
+            foreach(FlightGroup fg in FlightGroups)
+                fg.TransformFGReferences(fgIndex, -1);
+
+            return FlightGroups.RemoveAt(fgIndex);  //This handles all the cleanup within the FlightGroupCollection itself.
+        }
+
+        /// <summary>Swaps two FlightGroups.</summary>
+        /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
+        /// <returns>Returns true if an adjustment was performed, false if index validation failed.</returns>
+        public bool SwapFG(int srcIndex, int dstIndex)
+        {
+            if ((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;
+
+            foreach (Globals global in Globals)
+                foreach (Globals.Goal goal in global.Goals)
+                    foreach (Globals.Goal.Trigger trig in goal.Triggers)
+                        trig.GoalTrigger.SwapFGReferences(srcIndex, dstIndex);
+
+            foreach (Message msg in Messages)
+                foreach (Mission.Trigger trig in msg.Triggers)
+                    trig.SwapFGReferences(srcIndex, dstIndex);
+
+            foreach(Briefing b in Briefings)
+                b.SwapFGReferences(srcIndex, dstIndex);
+
+            foreach (FlightGroup fg in FlightGroups)
+            {
+                fg.TransformFGReferences(dstIndex, 255);
+                fg.TransformFGReferences(srcIndex, dstIndex);
+                fg.TransformFGReferences(255, srcIndex);
+            }
+            FlightGroup temp = FlightGroups[srcIndex];
+            FlightGroups[srcIndex] = FlightGroups[dstIndex];
+            FlightGroups[dstIndex] = temp;
+
+            return true;
+        }
+
+        #endregion public methods
 
 		#region public properties
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>

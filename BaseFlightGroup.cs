@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [NEW] EditorCraftNumber [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -209,5 +210,13 @@ namespace Idmr.Platform
 		/// <remarks>When <b>true</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>false</b></remarks>
 		public bool DepartureMethod2 { get; set; }
 		#endregion
+
+		/// <summary>Gets or sets the descriptive craft number.</summary>
+		/// <remarks>This is used to help tell multiple Flight Groups apart when they have multiple names.  It is specific to YOGEME and not part of the file format.</remarks>
+		public int EditorCraftNumber { get; set; }
+        /// <summary>Gets or sets whether the actual numbering (including craft per wave) is listed or just duplicate names.</summary>
+        /// <remarks>This will be TRUE for XvT and XWA style Global Unit numbering, FALSE for TIE and X-wing or if XvT/XWA's GU numbering is disabled.  It is specific to YOGEME and not part of the file format.</remarks>
+        public bool EditorCraftExplicit { get; set; }
+        
 	}
 }

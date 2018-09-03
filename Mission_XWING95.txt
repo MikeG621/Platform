@@ -1,0 +1,810 @@
+﻿XWING Mission File
+Author: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
+Original Template: Michael Gaisser (mjgaisser@gmail.com)
+Site: http://idmr.empirereborn.net
+Updated: 2018.05.18
+=====
+
+This is a definition for the XWING mission file (XWI) and briefing file (BRF)
+formats.
+
+Acknowledgments:
+
+QuantumG
+For providing public documentation of the XWI format.
+http://www.quantumg.net/xwing_format.php
+
+X-Wing Virtual Machine (XWVM) development team
+For providing documentation of the BRF format.
+http://www.moddb.com/mods/xwvm
+
+=====
+XWING95 Mission Overview
+
+Mission files are found in the \MISSION and \CLASSIC directories.  Depending on
+whether new missions or classic missions are selected in X-wing's options menu,
+it will load the mission from one of those directories.
+
+Every mission is composed of two files: the mission file (.XWI extension) and
+briefing file (.BRF extension).  Only the mission file is required to play
+missions.  If the briefing file is missing, the mission will still function
+correctly, but the briefing will be empty.
+
+=====
+XWING95 Mission Structure
+
+The following values are used through this and all of my file definitions
+unless otherwise specified:
+NAME	LENGTH	DESC
+----	------	----
+BOOL	1	0=false, 1=true
+BYTE	1	unsigned 8-bit
+SBYTE	1	signed 8-bit, [-128, +127]
+CHAR	1	ASCII character
+SHORT	2	signed Int16
+INT	4	signed Int32
+STR(*)	*	null-terminated string, * is a decimal number
+
+NOTE: Any byte locations that are between defined values and are not explicitly
+defined are deemed as Reserved(0), and have only been found to have zero
+values. Unknown bytes that have non-zero values have been called out in the
+structure. Rest assured you have everything here to piece together a mission
+file from scratch, but please note offsets if creating read/write procedures.
+
+--  XWI FILE FORMAT
+FileHeader
+FlightGroup[NumFGs]
+ObjectGroup[NumOGs]
+--
+
+struct FileHeader (size 0xCE)
+{
+	0x000	SHORT	PlatformID (2)
+	0x002	SHORT	TimeLimitMinutes
+	0x004	SHORT	EndEvent (enum)
+	0x006	SHORT	Unknown1
+	0x008	SHORT	Location (enum)
+	0x00A	CHAR[64][3]	EndOfMissionMessages
+	0x0CA	SHORT	NumFGs
+	0x0CC	SHORT	NumOGs
+}
+
+struct FlightGroup (size 0x94)
+{
+	0x000	CHAR[16] Name
+	0x010	CHAR[16] Cargo
+	0x020	CHAR[16] SpecialCargo
+	0x030	SHORT	SpecialCargoCraft
+	0x032	SHORT	CraftType (enum)
+	0x034	SHORT	IFF (enum)
+	0x036	SHORT	Status (enum) (unusual formatting)
+	0x038	SHORT	NumberOfCraft
+	0x03A	SHORT	NumberOfWaves
+	0x03C	SHORT	ArrivalEvent (enum)
+	0x03E	SHORT	ArrivalDelay (unusual formatting)
+	0x040	SHORT	ArrivalFG (-1 for none)
+	0x042	SHORT	Mothership (-1 for none)
+	0x044	SHORT	ArrivalHyperspace
+	0x046	SHORT	DepartureHyperspace
+	0x048	SHORT[7] Waypoint (X)
+	0x056	SHORT[7] Waypoint (Y)
+	0x064	SHORT[7] Waypoint (Z)
+	0x072	SHORT[7] Waypoint (Enabled)
+	0x080	SHORT	Formation (enum)
+	0x082	SHORT	PlayerCraft
+	0x084	SHORT	AISkill (enum)
+	0x086	SHORT	Order (enum)
+	0x088	SHORT	OrderValue (dock time or throttle)
+	0x08A	SHORT	Markings (enum)
+	0x08C	SHORT	Markings (enum)
+	0x08E	SHORT	Objective (enum)
+	0x090	SHORT	TargetPrimary (-1 for none)
+	0x092	SHORT	TargetSecondary (-1 for none)
+}
+
+struct ObjectGroup (size 0x46)
+{
+	0x000	CHAR[16] Name (ignored?)
+	0x010	CHAR[16] Cargo (ignored?)
+	0x020	CHAR[16] SpecialCargo (ignored?)
+	0x030	SHORT	SpecialCargoCraft (ignored?)
+	0x032	SHORT	CraftType (enum)
+	0x034	SHORT	IFF (enum)
+	0x036	SHORT	ObjectFormation (enum) or values (unusual formatting)
+	0x038	SHORT	NumberOfCraft or values (unusual formatting)
+	0x03A	SHORT	X
+	0x03C	SHORT	Y
+	0x03E	SHORT	Z
+	0x040	SHORT	Yaw
+	0x042	SHORT	Pitch
+	0x044	SHORT	Roll
+}
+
+
+--  BRF FILE FORMAT
+BriefingHeader
+CoordinateSet
+IconSet
+WindowUISettings
+Pages
+MissionHeader
+IconExtraData
+Tags
+Strings
+--
+
+
+struct BriefingHeader (size 0x6)
+{
+	0x00	SHORT	PlatformID (2)
+	0x02	SHORT	IconCount
+	0x04	SHORT	CoordinateCount
+}
+
+CoordinateSet
+{
+	foreach(CoordinateCount)
+	{
+		foreach(IconSet)  (size 0x6)
+		{
+			0x00	SHORT	X
+			0x02	SHORT	Y
+			0x04	SHORT	Z
+		}
+	}
+}
+
+IconSet
+{
+	foreach(IconCount)   (size 0x40)
+	{
+		0x000	SHORT	CraftType
+		0x002	SHORT	IFF
+		0x004	SHORT	NumberOfCraft
+		0x006	SHORT	NumberOfWaves
+		0x008	CHAR[16] Name
+		0x018	CHAR[16] Cargo
+		0x028	CHAR[16] SpecialCargo
+		0x038	SHORT	SpecialCargoCraft
+		0x03A	SHORT	Pitch
+		0x03C	SHORT	Yaw
+		0x03E	SHORT	Roll
+	}
+}
+
+WindowUISettings
+{
+	0x00	SHORT SettingsCount    (usually 2, but not always)
+	foreach(SettingsCount)
+	{
+		ViewportSetting[5]
+	}
+}
+
+ViewportSetting (size 0xA)
+{
+	0x00	SHORT	Top
+	0x02	SHORT	Left
+	0x04	SHORT	Bottom
+	0x06	SHORT	Right
+	0x08	SHORT	Visible (boolean)
+}
+
+Pages
+{
+	0x00	SHORT	PageCount
+	foreach(PageCount)
+	{
+		0x00	SHORT	Duration (ticks)
+		0x02	SHORT	EventsLength
+		0x04	SHORT	CoordinateSet
+		0x06	SHORT	PageType
+		0x08	SHORT[]	Events[EventsLength]
+	}
+}
+
+struct MissionHeader (size 0xC8)
+{
+	0x00	SHORT	TimeLimitMinutes
+	0x02	SHORT	EndEvent (enum)
+	0x04	SHORT	Unknown1
+	0x06	SHORT	Location (enum)
+	0x08	CHAR[64][3]	EndOfMissionMessages
+}
+
+IconExtraData
+{
+	foreach(IconCount) (size 0x5A)
+	{
+		BYTE[90]	Data	(possibly shorts)
+	}
+}
+
+struct Tag
+{
+	0x0	SHORT	Length
+	0x2	CHAR[Length]
+}
+
+struct String
+{
+	0x0	SHORT	Length
+	0x2	CHAR[Length] String
+		BYTE[Length] Highlight
+}
+
+=====
+XWING95 Mission Detail
+
+Hopefully I named the variables descriptive enough for you that you can figure
+out what they mean, but I'm going to delve into each section anyway. Section 5
+and on will require a bit of explaining anyway. Supplementary definitions and
+lists follow after the detail.
+
+-- FileHeader --
+
+The first SHORT is a marker used to identify the mission file as belonging to
+XWING95. Other platforms have different markers in this place, but it is
+unknown whether the application actually checks this value to determine if the
+file is valid or not.
+
+TimeLimitMinutes is the time limit, in minutes.  Pilot Proving Ground courses
+do not use this value.
+
+EndEvent (enum) determines what happens when the player dies, and determines
+the end trigger for Death Star Surface missions.
+
+Unknown1 seems to always be zero.
+
+Location (enum) determines whether mission is in deep space, or Death Star
+Surface.
+
+EndOfMissionMessages
+Three messages that are displayed in sequence when the mission is complete.
+
+NumFGs, NumOGs
+Number of Flight Groups and Object Groups, respectively.  XWING distinguishes
+between normal craft and objects.  Objects include mines, probes, satellites,
+and backdrops.
+
+-- FlightGroup --
+
+Name, Cargo
+These strings appear in the CMD when the craft is selected.
+
+SpecialCargo, SpecialCargoCraft
+A single craft in a Flight Group may have cargo that is unique to the rest.
+SpecialCargoCraft is zero based.  The first craft in the FG is 0, second is 1,
+etc.  To prevent SpecialCargo from being used, SpecialCargoCraft must be a
+value outside the number of craft in a FG.  -1 works, or for example a value of
+1 if the FG only has a single craft per wave.
+
+CraftType (enum)
+Determines which craft.  There is a special case for B-wings.  The B-wing does
+not actually have its own CraftType ID, instead it is a Y-wing with a special
+status applied.  YOGEME abstracts this away, allowing the user to select B-wing
+from the craft list.
+
+IFF (enum)
+Determines which IFF the craft will appear as.  XWING is unique in the series
+in that it has a "Default" IFF (value=0).  Upon mission load, the craft will be
+transformed into its actual IFF depending on CraftType:
+
+X-W, Y-W/B-W, A-W, CRS, FRG        -> Rebel (Green)
+T/F, T/I, T/B, GUN, TRN, STD, T/A  -> Imperial (Red)
+SHU, TUG, CON, FRT, CRV            -> Neutral (Blue)
+
+Neutral craft are typically ignored as mission targets unless FGs are
+explicitly ordered to target them.
+
+Status (enum)
+Determines modifiers to the craft.  There is a special case for Y-wings.  If
+the status is 10 (decimal) or higher, the FG is interpreted as a B-wing
+CraftType instead.  The status list repeats in the same order.  For example, a
+Y-Wing with a status of 1 has no warheads, but with a status of 11 becomes a
+B-Wing with no warheads.
+Note: If a player craft is given a status of half shields, their shield system
+will be considered disabled and inoperative.
+
+NumberOfCraft, NumberOfWaves
+Determines how many craft are in each wave, and the number of waves.
+NumberOfWaves is zero-indexed, so the number stored is actually the number of
+additional waves after the inital starting group.
+
+ArrivalEvent (enum)
+The arrival event trigger that must be satisfied before a craft will arrive in
+the mission.  Typically only at least one craft from a FG must satisfy the
+condition.  In the case of "must be destroyed" the rest of the wave(s) must
+come and go.
+
+ArrivalDelay
+Determines how much time after ArrivalEvent is triggered before the craft will
+arrive in the mission.  This value is encoded in an unusual format:
+If ArrivalDelay <= 20, the value is interpreted as minutes.
+If ArrivalDelay > 20, subtract 20.  The minutes is encoded as a multiple of 10.
+The "ones" digit encodes the seconds, each increment translating into 6 seconds.
+
+Examples:
+A value of 5 means 5 minutes, 0 seconds.
+A value of 21 means 0 minutes, 6 seconds.
+A value of 30 means 1 minute.
+A value of 32 means 1 minute, 12 seconds.
+
+ArrivalFG
+Part of the arrival trigger, determines which FG must satisfy the conditions.
+Zero based.  -1 for none.
+
+Mothership
+Determines the FG to arrive or depart from.  Zero based.  -1 for none.
+
+ArrivalHyperspace, DepartureHyperspace
+These values will be 1 if allowed to use hyperspace, or 0 to use Mothership.
+Captured fighters and transports will use the Mothership of the boarding
+vessel.  Starships will enter hyperspace.
+
+Waypoint X, Y, Z, Enabled
+There are 7 waypoints.  All seven X coordinates are loaded first, then all Y,
+all Z, then all Enabled values.
+
+The values are expressed as (Coordinate * 160), such that a value of 0x50 is
+0.50km, 0xA0 is 1.00km, etc. The Enable value just tells the game if it needs
+to pay attention to it or not and is boolean, although it does occupy a SHORT.
+
+Note: Some orders will only function properly if their waypoints are set.
+Note: If more than one StartPoint is enabled, the game will randomly select
+which StartPoint to use.  In some cases it will randomize start points EVEN IF
+the StartPoint is disabled (maybe this is only for historical missions, it
+hasn't been extensively tested).
+
+The seven waypoints, in order are:
+Start 1
+Waypoint 1
+Waypoint 2
+Waypoint 3
+Start 2
+Start 3
+Hyperspace
+
+Unlike other platforms, there is no Briefing waypoint.  Instead, it is stored
+in the briefing (BRF) file as a Coordinate Set.
+
+Formation (enum)
+Determines the flight formation, if there are multiple craft in the wave.
+
+PlayerCraft determines which slot the player craft appears in.  0 for none, 1
+for the first craft, 2 for the second, etc.  If multiple FGs have a PlayerCraft
+set, the last assigned FG will be the actual group the player flies.
+
+AISkill (enum) determines the AI skill level.  Higher skill levels shoot
+faster, have a longer firing distance, wait for better warhead locks, and are
+faster to adjust their aim and positioning.
+
+Order (enum), OrderValue, TargetPrimary, TargetSecondary
+These collectively define the mission orders.  OrderValue is a special case.
+For boarding orders, it is interpreted as the docking time (in minutes)
+required to complete the operation.  For all other orders, it is usually
+interpreted as a throttle value.  Different orders will obey throttle in
+different ways.  It is typically obeyed when patrolling or flying waypoints.
+Primary and Secondary target FGs can be -1 for none.  Since having only two
+targets is quite restrictive, most orders will "autotarget" certain craft types
+in addition to their specific targets.  Autotargeting is based on opposite IFF
+(Imperials attack Rebels, and vice versa).  Neutrals are ignored.
+
+Markings
+Indicates the colored markings used on certain fighters.  There are two values
+in the XWI file.  It is unknown if the second marking is used at all.  In all
+LEC missions, both markings are always equal.
+
+Objective (enum)
+Determines the mission goal of the flight group.
+
+-- ObjectGroup --
+
+Name, Cargo, SpecialCargo, SpecialCargoCraft
+Identical to the FlightGroup data, but does not appear to have any relevance in
+the mission.
+
+CraftType (enum)
+Same as FlightGroup, but should be limited to the object subset of CraftTypes.
+Note: The existence of Training Platforms may crash the game if used in
+missions outside of the Pilot Proving Ground.
+
+IFF (enum)
+Does not seem to have any relevance.  Objects are not color coded by IFF,
+always appearing as white in game.  Mines are always hostile no matter what.
+
+ObjectFormation (enum)
+Holds various parameter values depending on object types.
+For mines, this determines the formation.  Bits 1 (0x1) and 2 (0x2) will
+produce a value of 0 to 3.
+For destructible objects such as mines, satellites, probes, and nav buoy, the
+mission goal is encoded in bits 3 (0x4) and 4 (0x8).  If neither bit is set,
+there is no goal.  If Bit 3 (0x4) is set, the object must be destroyed.  If
+Bit 4 (0x8) is set, the object must survive/be protected.
+For training platform gates in the Pilot Proving Ground, this value is a
+bitfield.  Bits 1 through 6 will indicate which guns are present on the
+platform.  A value of 0x3F indicates all 6 guns are present.  The bits map to
+different gun emplacements depending on which training platform is used.
+A special exception for the first training platform (CraftType=58 (0x3A)),
+which does not have guns.  Instead this value determines the SECONDS on the
+mission clock.
+
+NumberOfCraft 
+Holds various parameter values depending on object types.
+For mines, this determines how wide the minefield is.  Minefields are always a
+square formation, centered over their starting point.  For example, a value of
+3 will create a 3x3 grid of mines.
+Determines the number of asteroids for asteroid objects.
+All other objects appear to be limited to just one.
+For Training Platforms with guns, a value of 2 or higher indicates the guns are
+active and hostile.  Otherwise they will be visible, but inactive.
+A special exception for the first training platform (CraftType=58 (0x3A)),
+which does not have guns.  Instead this value determines the MINUTES on the
+mission clock.
+
+Yaw, Pitch and Roll values only work for Space Objects (mines, buoys, etc). The
+following description differs from previous editors, so bear with me.
+LucasArts, in their infinite wisdom, had the flight engine automatically add a
+-90° (nose down) Pitch angle to Objects.
+
+-- Briefing --
+
+The briefing is a self-contained separate file (.BRF section).  As the name
+implies, it only seems to affect the briefing.  It contains much redundant
+information, duplicate fields that are present in the XWI file such as mission
+header, FlightGroup, and ObjectGroup information, etc.  Despite having all that
+information, it does not appear to impact the actual mission.  Nor does depend
+on, or use any information from the XWI file.
+
+The BRF file structure is heavily dynamic, as nearly every section is variable
+length.
+
+There is a short header defining how many CoordinateSet and IconSet are
+present.
+
+CoordinateSet are essentially waypoints.  Typical LEC missions have two
+CoordinateSet, the first a duplicate of the XWI starting point, and the second
+for the briefing map.  Waypoint units are identical to craft waypoints
+(160 = 1 km).
+Note: The starting point's Y axis is usually inverted from the XWI's Y axis.
+
+IconSet holds the craft information for the icons displayed on the briefing
+map.  This section shares much similarity to the FlightGroup and ObjectGroup in
+the XWI file, but exists independently of them.  These can be considered as
+Briefing-only FlightGroups.  They are sometimes identical to the XWI file, but
+there is no guarantee.  The number of FlightGroups may differ between the XWI
+and BRF files, as well as their ordering.
+Note: While the XWI file does not have a CraftType for the B-Wing (Y-Wing with
+a special status) the BRF file DOES have a specific icon for the B-Wing.
+
+WindowUISettings is a unique section to the XWING briefing which determines the
+coordinate viewports of each element on screen.  There are five elements:
+Title text, caption text, Unused1, Unused2, and briefing map, in that order.
+Each element has five SHORTs.  Four defining the rectangle coordinates of the
+top, left, bottom, and right edges.  The final SHORT is a boolean that
+determines whether the element is visible.
+
+Unlike other platforms, the briefing is divided into Pages.  Each page is
+either a "Map page" to render a briefing map, or a "Text page" to render text.
+
+Note: The page is actually a WindowUISettings index that determines whether
+the page renders map or text viewports, but the format described applies to
+the convention commonly seen in LEC's own files.
+
+The command listing itself I'll leave for the list definition, that'll also
+have the variable listing as well. The first value is the duration of the
+briefing itself in ticks.  XWING uses 0x8 ticks per second.
+
+Each Event is marked by the briefing time (in ticks) and the EventType,
+followed by 0-3 additional variables.  These variables are to be omitted if
+they are not used for a given command.  Unlike other platforms, the events list
+usually isn't terminated by an EndBriefing command.  Instead use EventsLength
+to get the actual length.
+
+EventsLength is the total number of SHORTs occupied in the Events array up to
+and including the EndBriefing command, if present.
+
+Following the briefing pages is the MissionHeader which contains redundant
+header information from the XWI file.  Most notable is the Location property
+indicating the Death Star Surface, which produces a different map background in
+the briefing.
+
+Then there is IconExtraData, which contains more redundant XWI information.
+This does not appear to be used, and can be filled with zeroes.
+
+The Tag and String arrays are not fixed sizes.  They have a minimum length of
+64 bytes, which is the case of every length being zero.  If a Length is zero,
+then the CHAR[] is omitted.  The Strings section is a special case.  For each
+CHAR[] string, there is a BYTE[] array of equal length to the string.  This
+array stores the highlight information of each character within the string:
+1 for highlighting, 0 for none.
+
+Each String should not exceed 1024 (0x400) bytes of total length.  Strings may
+contain certain control codes which produce formatting effects in game.
+These are:
+'$'   Line break.
+'\0'  (null terminator) Line break.  Recommended to use '$' instead.
+\0\0  (two null terminators) guaranteed to end the string in game.
+0x02  Begins highlighting.  Recommended to use the BYTE[] array instead.
+0x01  Ends highlighting.
+'>'   If the first character on a line, creates yellow center-alignment text.
+
+XWING automatically generates word-wrapping.  The control codes 0x02, 0x01,
+and '>' will highlight only until the end of the current line.
+
+The BRF file does not require that strings contain null terminators.  However,
+the actual size of the string should at least 2 bytes less than the maximum
+(therefore 1022 bytes) so that the game's memory can accommodate at least two
+null terminators and properly render the text without memory overflow issues.
+
+The 0x02 and 0x01 highlighting codes were standard practice in TIE Fighter, but
+they appear to work in X-wing as well.  LEC BRF files don't appear to use them
+much, if at all.
+
+=====
+List Definitions
+
+EndEvent
+00	Capture Possible
+01	Rescued/Clear Laser Tower
+02	--
+03	--
+04	--
+05	Hit Exhaust Port
+
+* Note: Old mission editors have incorrect values for Capture/Rescue.
+Capture has a proximity mechanism between friend and foe, results may vary.
+
+Location
+00	Deep Space
+01	Death Star Surface
+
+CraftType
+00	None
+01	X-Wing
+02	Y-Wing     (or B-wing if Status is >= 10 (0xA))
+03	A-Wing
+04	TIE Fighter
+05	TIE Interceptor
+06	TIE Bomber
+07	Assault Gunboat
+08	Transport
+09	Shuttle
+0A	Tug
+0B	Container
+0C	Freighter
+0D	Calamari Cruiser
+0E	Nebulon-B Frigate
+0F	Corellian Corvette
+10	Star Destroyer
+11	TIE Advanced
+12	Mine1	(all mines have identical behavior)
+13	Mine2
+14	Mine3
+15	Mine4
+16	Satellite
+17	Nav Buoy
+18	Probe
+19	B-wing icon  (BRF file only)
+1A	Asteroid1
+1B	Asteroid2
+1C	Asteroid3
+1D	Asteroid4
+1E	Asteroid5
+1F	Asteroid6
+20	Asteroid7
+21	Asteroid8
+22	Rock World	(backdrops)
+23	Gray Ring World
+24	Gray World
+25	Brown World
+26	Gray World II
+27	Planet & Moon
+28	Gray Crescent
+29	Orange Crescent 1
+2A	Orange Crescent 2
+2B	Orange Crescent 3
+2C	Orange Crescent 4
+2D	Orange Crescent 5
+2E	Orange Crescent 6
+2F	Orange Crescent 7
+30	Orange Crescent 8
+31	Death Star
+32	---
+33	---
+34	---
+35	---
+36	---
+37	---
+38	---
+39	---
+3A	*Training Platform 1
+3B	*Training Platform 2
+3C	*Training Platform 3
+3D	*Training Platform 4
+3E	*Training Platform 5
+3F	*Training Platform 6
+40	*Training Platform 7
+41	*Training Platform 8
+42	*Training Platform 9
+43	*Training Platform 10
+44	*Training Platform 11
+45	*Training Platform 12
+
+Additional IDs appear to be duplicates of training platforms.
+
+IFF
+00	Default
+01	Rebel
+02	Imperial
+03	Neutral (Blue)
+04	Neutral (also Blue)
+
+Status
+00	None
+01	No Warheads
+02	1/2 Warheads
+03	No Shields
+04	1/2 Shields
+05	
+06
+07
+08
+09
+0A	Y-wing to B-wing.  Normal status.
+0B	  No warheads
+0C	  1/2 Warheads
+0D	  No Shields
+0E	  1/2 Shields
+
+GroupAI
+00	Novice (None)
+01	Officer
+02	Veteran
+03	Ace
+04	Top Ace
+
+Markings
+00	Red (TIE - None)
+01	Gold (TIE - Red)
+02	Blue (TIE - Gold)
+03	Green (TIE - Blue)
+
+Formation
+00	Vic
+01	Finger Four
+02	Line Astern
+03	Line Abreast
+04	Echelon Right
+05	Echelon Left
+06	Double Astern
+07	Diamond
+08	Stacked
+09	Spread
+0A	Hi-Lo
+0B	Spiral
+
+ObjectFormation   (Only for mines)
+00	Flat
+01	Edge
+02	Broadside
+03	Scattered	(May be buggy)
+
+ArrivalEvent
+00	Always (true)
+01	Arrived
+02	Destroyed
+03	Attacked
+04	Captured
+05	Identified
+06	Disabled
+
+Note: At least one craft must satisfy the Arrival condition.  With the
+exception of Destroyed, which requires at least one destroyed and for the rest
+to come and go.
+
+Objective (Mission Goal)
+00	None
+01	100% be Destroyed
+02	100% must Complete Mission
+03	100% be Captured
+04	100% be Boarded
+05	special craft Destroyed
+06	special craft Complete Mission
+07	special craft Captured
+08	special craft Boarded
+09	50% Destroyed
+0A	50% Complete Mission
+0B	50% Captured
+0C	50% Boarded
+0D	100% identified
+0E	special craft identified
+0F	50% identified
+10	Arrive
+
+Order
+00	Hold Steady
+01	Go Home
+02	Circle and Ignore
+03	Fly Once and Ignore
+04	Circle and Evade
+05	Fly Once and Evade
+06	Close Escort
+07	Loose Escort
+08	Attack Escorts
+09	Attack Pri and Sec targets
+0A	Attack enemies (Fighter, TRN, SHU)
+0B	Rendezvous
+0C	Disabled
+0D	Board to Give cargo
+0E	Board to Take cargo
+0F	Board to Exchange cargo
+10	Board to Capture
+11	Board to Destroy
+12	Disable Pri and Sec targets
+13	Disable all (Fighter, TRN, SHU)
+14	Attack Transports
+15	Attack Freighters (and CRV)
+16	Attack Starships
+17	Disable Transports
+18	Disable Freighters (and CRV)
+19	Disable Starships
+1A	SS Hold Position
+1B	SS Fly Dance
+1C	SS Circle
+1D	SS Await Return
+1E	SS Await Launch
+1F	SS Await Boarding
+20	Wait for Arrival of (Pri/Sec)
+
+EventType
+00	None
+01	Wait For Click    (deprecated? doesn't seem to have any effect)
+0A	Clear Text (both Title and Caption)
+0B	Title Text
+	Var1	String#
+0C	Caption Text
+	Var1	String#
+0E	Caption Text 2    (deprecated? normally 0x0C is used instead)
+	Var1	String#
+0F	Move Map
+	Var1	X
+	Var2	Y
+10	Zoom Map
+	Var1	X
+	Var2	Y
+15	Clear FG Tags
+16	FG Tag 1
+	Var1	Icon#
+17	FG Tag 2
+	Var1	Icon#
+18	FG Tag 3
+	Var1	Icon#
+19	FG Tag 4
+	Var1	Icon#
+1A	Clear Text Tags
+1B	Text Tag 1
+	Var1	Tag#
+	Var2	X
+	Var3	Y
+1C	Text Tag 2
+	Var1	Tag#
+	Var2	X
+	Var3	Y
+1D	Text Tag 3
+	Var1	Tag#
+	Var2	X
+	Var3	Y
+1E	Text Tag 4
+	Var1	Tag#
+	Var2	X
+	Var3	Y
+29	End Briefing
+
+Notes:
+String# and Tag# are zero-based indexes into the Strings and Tags.
+Icon# is a zero-based index into the BRF icon (FlightGroup) list.
+
+=====
+This documentation is distributed under the GNU Free Documentation License
+version 1.3 or later

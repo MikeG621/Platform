@@ -4,10 +4,18 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [UPD] changed string encoding [JB]
+ * [UPD] appropriate updates to read/write due to format update [JB]
+ * [UPD] mission strings changed to TrimEnd on read [JB]
+ * [UPD] moved signature to end of description string [JB]
+ * [FIX] added null check to fs.Close [JB]
+ * [NEW] helper functions for delete/swap FG/Mess [JB]
+ * [NEW] GetDelaySeconds [JB]
+ * [UPD] FlightGroupLimit increased to 192 [JB]
  * v2.7, 180509
  * [UPD] FlightgroupLimit changed to 132, this is post-SBD install
  * v2.6.2, 180224
@@ -152,7 +160,7 @@ namespace Idmr.Platform.Xwa
 		public void LoadFromStream(FileStream stream)
 		{
 			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.XWA) throw new InvalidDataException(_invalidError);
-			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.Default);
+            BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
 			int i, j;
 			long p;
 			stream.Position = 2;
@@ -201,8 +209,8 @@ namespace Idmr.Platform.Xwa
 				#region Craft
 				FlightGroups[i].Name = new string(br.ReadChars(0x14)).Trim('\0');
 				stream.Read(buffer, 0, 7);
-				FlightGroups[i].EnableDesignation1 = !Convert.ToBoolean(buffer[0]);		// 0=yes, 255=true
-				FlightGroups[i].EnableDesignation2 = !Convert.ToBoolean(buffer[1]);
+				FlightGroups[i].EnableDesignation1 = buffer[0]; //[JB] Changed bool to byte since it handles multiple values.
+				FlightGroups[i].EnableDesignation2 = buffer[1];
 				FlightGroups[i].Designation1 = buffer[2];
 				FlightGroups[i].Designation2 = buffer[3];
 				FlightGroups[i].Unknowns.Unknown1 = buffer[4];
@@ -250,8 +258,8 @@ namespace Idmr.Platform.Xwa
 				#endregion
 				#region Arr/Dep
 				stream.Read(buffer, 0, 0x3C);
-				FlightGroups[i].Difficulty = buffer[0];
-				FlightGroups[i].Unknowns.Unknown5 = buffer[1];
+                FlightGroups[i].Unknowns.Unknown5 = buffer[0];  //[JB] Swapped with difficulty, now in correct position.
+                FlightGroups[i].Difficulty = buffer[1];
 				for (j=0;j<6;j++)
 				{
 					FlightGroups[i].ArrDepTriggers[0][j] = buffer[2+j];	// Arr1...
@@ -276,10 +284,10 @@ namespace Idmr.Platform.Xwa
 				stream.Read(buffer, 0, 8);
 				FlightGroups[i].ArrivalCraft1 = buffer[0];
 				FlightGroups[i].ArrivalMethod1 = Convert.ToBoolean(buffer[1]);
-				FlightGroups[i].ArrivalCraft2 = buffer[2];
-				FlightGroups[i].ArrivalMethod2 = Convert.ToBoolean(buffer[3]);
-				FlightGroups[i].DepartureCraft1 = buffer[4];
-				FlightGroups[i].DepartureMethod1 = Convert.ToBoolean(buffer[5]);
+                FlightGroups[i].DepartureCraft1 = buffer[2];   //[JB] Fixed this section
+                FlightGroups[i].DepartureMethod1 = Convert.ToBoolean(buffer[3]);
+                FlightGroups[i].ArrivalCraft2 = buffer[4];
+				FlightGroups[i].ArrivalMethod2 = Convert.ToBoolean(buffer[5]);
 				FlightGroups[i].DepartureCraft2 = buffer[6];
 				FlightGroups[i].DepartureMethod2 = Convert.ToBoolean(buffer[7]);
 				#endregion
@@ -310,7 +318,7 @@ namespace Idmr.Platform.Xwa
 						FlightGroups[i].Orders[j/4, j%4].SkipTriggers[1][h] = buffer[h+6];
 					}
 					FlightGroups[i].Orders[j/4, j%4].SkipT1AndOrT2 = Convert.ToBoolean(buffer[0xE]);
-				}
+                }
 				#endregion
 				#region Goals
 				for (j=0;j<8;j++)
@@ -349,24 +357,26 @@ namespace Idmr.Platform.Xwa
 				FlightGroups[i].ExplosionTime = buffer[0x1A];
 				FlightGroups[i].Status2 = buffer[0x1B];
 				FlightGroups[i].GlobalUnit = buffer[0x1C];
-				for (j=0;j<8;j++)
-				{
-					byte x = br.ReadByte();
-					if (x != 0 && x < 9) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
-				}
-				for (j=9;j<13;j++)
-				{
-					byte x = br.ReadByte();
-					if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[9 + x] = true; FlightGroups[i].OptLoadout[9] = false; }
-				}
-				stream.Position += 2;
-				for (j=13;j<16;j++)
-				{
-					byte x = br.ReadByte();
-					if (x != 0 && x < 3) { FlightGroups[i].OptLoadout[13 + x] = true; FlightGroups[i].OptLoadout[13] = false; }
-				}
-				stream.Position++;
-				FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
+
+                //[JB] Revised loading optional weapons to support Ion Pulse, Energy Beam, Cluster Mine.
+                for (j = 0; j < 8; j++)  //Warhead section, 8 bytes total.
+                {
+                    byte x = br.ReadByte();
+                    if (x != 0 && x < 9) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
+                }
+                for (j = 0; j < 4; j++)  //Beam section, 6 bytes total (reading only 4)
+                {
+                    byte x = br.ReadByte();
+                    if (x != 0 && x < 5) { FlightGroups[i].OptLoadout[9 + x] = true; FlightGroups[i].OptLoadout[9] = false; }
+                }
+                stream.Position += 2;    //skip extra beams
+                for (j = 0; j < 3; j++)  //Countermeasure section, 4 bytes total (reading only 3)
+                {
+                    byte x = br.ReadByte();
+                    if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[14 + x] = true; FlightGroups[i].OptLoadout[14] = false; }
+                }
+                stream.Position++;       //skip extra countermeasure
+                FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
 				stream.Read(buffer, 0, 0x1E);
 				for (int k = 0; k < 10; k++)
 				{
@@ -416,17 +426,18 @@ namespace Idmr.Platform.Xwa
 					Messages[i].OriginatingFG = br.ReadByte();
 					stream.Position += 7;
 					stream.Read(buffer, 0, 0x16);
-					Messages[i].DelaySeconds = buffer[0];
-					Messages[i].DelayMinutes = buffer[1];
+					Messages[i].Delay = buffer[0];
+                    Messages[i].TrigAndOr[2] = Convert.ToBoolean(buffer[1]);
 					Messages[i].Color = buffer[2];
-					Messages[i].TrigAndOr[2] = Convert.ToBoolean(buffer[3]);
-					for (j=0;j<6;j++)
+                    Messages[i].Unknown2 = buffer[3];
+
+                    for (j=0;j<6;j++)
 					{
 						Messages[i].Triggers[4][j] = buffer[4+j];	// CancelT1...
 						Messages[i].Triggers[5][j] = buffer[0xA+j];
 					}
 					Messages[i].TrigAndOr[3] = Convert.ToBoolean(buffer[0x12]);
-					Messages[i].Unknown2 = Convert.ToBoolean(buffer[0x14]);
+					Messages[i].Unknown3 = Convert.ToBoolean(buffer[0x14]);
 				}
 			}
 			else Messages.Clear();
@@ -560,9 +571,9 @@ namespace Idmr.Platform.Xwa
 						FlightGroups[i].Orders[j/4, j%4].CustomText = new string(br.ReadChars(0x40)).Trim('\0');
 					}
 			#endregion
-			_missionSuccessful = new string(br.ReadChars(0x1000)).Trim('\0');
-			_missionFailed = new string(br.ReadChars(0x1000)).Trim('\0');
-			_missionDescription = new string(br.ReadChars(0x1000)).Trim('\0');
+            _missionSuccessful = new string(br.ReadChars(0x1000)).TrimEnd('\0');
+            _missionFailed = new string(br.ReadChars(0x1000)).TrimEnd('\0');
+            _missionDescription = new string(br.ReadChars(0x1000)).TrimEnd('\0');    //[JB] Only trim from end, because trimming from the start might return YOGEME's signature embedded into the end of the description, or any leftover garbage data that is normally ignored by a null terminator.
 			MissionPath = stream.Name;
 		}
 
@@ -575,7 +586,7 @@ namespace Idmr.Platform.Xwa
 			{
 				File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
-				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.Default);
+                BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
 				int i;
 				long p;
 				#region Platform
@@ -639,8 +650,8 @@ namespace Idmr.Platform.Xwa
 					#region Craft
 					bw.Write(FlightGroups[i].Name.ToCharArray());
 					fs.Position = p + 0x14;
-					bw.Write((byte)(FlightGroups[i].EnableDesignation1 ? 0 : 255));
-					bw.Write((byte)(FlightGroups[i].EnableDesignation2 ? 0 : 255));
+                    bw.Write(FlightGroups[i].EnableDesignation1);   //[JB]Changed bool to byte
+					bw.Write(FlightGroups[i].EnableDesignation2);
 					fs.WriteByte(FlightGroups[i].Designation1);
 					fs.WriteByte(FlightGroups[i].Designation2);
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown1);
@@ -685,8 +696,8 @@ namespace Idmr.Platform.Xwa
 					fs.Position++;
 					#endregion
 					#region Arr/Dep
-					fs.WriteByte(FlightGroups[i].Difficulty);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown5);
+                    fs.WriteByte(FlightGroups[i].Unknowns.Unknown5);  //[JB] Swapped with difficulty, now in correct position
+                    fs.WriteByte(FlightGroups[i].Difficulty);
 					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[0][j]);
 					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[1][j]);
 					fs.Position += 2;
@@ -714,10 +725,10 @@ namespace Idmr.Platform.Xwa
 					fs.Position++;
 					fs.WriteByte(FlightGroups[i].ArrivalCraft1);
 					bw.Write(FlightGroups[i].ArrivalMethod1);
-					fs.WriteByte(FlightGroups[i].ArrivalCraft2);
+                    fs.WriteByte(FlightGroups[i].DepartureCraft1); //[JB] Fixed order
+                    bw.Write(FlightGroups[i].DepartureMethod1);
+                    fs.WriteByte(FlightGroups[i].ArrivalCraft2);
 					bw.Write(FlightGroups[i].ArrivalMethod2);
-					fs.WriteByte(FlightGroups[i].DepartureCraft1);
-					bw.Write(FlightGroups[i].DepartureMethod1);
 					fs.WriteByte(FlightGroups[i].DepartureCraft2);
 					bw.Write(FlightGroups[i].DepartureMethod2);
 					#endregion
@@ -751,7 +762,8 @@ namespace Idmr.Platform.Xwa
 					for (j=0;j<8;j++)
 					{
 						for (int k=0;k<6;k++) fs.WriteByte(FlightGroups[i].Goals[j][k]);
-						fs.Position += 8;
+						fs.Position += 7;  //Was 8
+                        fs.WriteByte(FlightGroups[i].Goals[j].Unknown42);  //[JB] Added unknown.
 						fs.WriteByte(FlightGroups[i].Goals[j].Parameter);
 						fs.WriteByte(FlightGroups[i].Goals[j].ActiveSequence);
 						fs.Position += 0x3F;
@@ -791,12 +803,14 @@ namespace Idmr.Platform.Xwa
 					fs.WriteByte(FlightGroups[i].Status2);
 					fs.WriteByte(FlightGroups[i].GlobalUnit);
 					fs.Position++;
-					for (j=1;j<9;j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.Position++;	// warheads
-					for (j=1;j<4;j++) if (FlightGroups[i].OptLoadout[j+9]) bw.Write((byte)j); else fs.Position++;	// CMs
-					fs.Position += 3;	// only writing 3
-					for (j=1;j<3;j++) if (FlightGroups[i].OptLoadout[j+13]) bw.Write((byte)j); else fs.Position++;	// beam
-					fs.Position += 2;	// only writing 2
-					fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
+
+                    for (j=1;j<9;j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.Position++;	// warheads
+					for (j=1;j<5;j++) if (FlightGroups[i].OptLoadout[j+9]) bw.Write((byte)j); else fs.Position++;	// CMs
+					fs.Position += 2;	// only writing 4, 2 bytes remain 
+					for (j=1;j<4;j++) if (FlightGroups[i].OptLoadout[j+14]) bw.Write((byte)j); else fs.Position++;	// beam
+					fs.Position += 1;	// only writing 3, 1 byte remains
+
+                    fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
 					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
 					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfCraft);
 					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfWaves);
@@ -839,16 +853,16 @@ namespace Idmr.Platform.Xwa
 					fs.Position = p + 0x84;
 					fs.WriteByte(Messages[i].OriginatingFG);
 					fs.Position += 7;
-					fs.WriteByte(Messages[i].DelaySeconds);
-					fs.WriteByte(Messages[i].DelayMinutes);
+					fs.WriteByte(Messages[i].Delay);
+                    bw.Write(Messages[i].TrigAndOr[2]);
 					fs.WriteByte(Messages[i].Color);
-					bw.Write(Messages[i].TrigAndOr[2]);
+                    fs.WriteByte(Messages[i].Unknown2);
 					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[4][j]);
 					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[5][j]);
 					fs.Position += 2;
 					bw.Write(Messages[i].TrigAndOr[3]);
 					fs.Position++;
-					bw.Write(Messages[i].Unknown2);
+					bw.Write(Messages[i].Unknown3);
 					fs.Position++;
 				}
 				#endregion
@@ -1013,13 +1027,20 @@ namespace Idmr.Platform.Xwa
 				p = fs.Position;
 				bw.Write(_missionDescription.ToCharArray());
 				fs.Position = p + 0x1000;
-				bw.Write((short)0x2106);
+				
+				//[JB] Embed YOGEME signature into the empty description space (appending bytes would disrupt the text in game).  The description must have room for 3 bytes (null terminater for the briefing text, then the 2 byte signature)
+				if(_missionDescription.Length < 0x1000 - 3)
+				{
+					fs.Position -= 2;
+					bw.Write((short)0x2106);
+				}
+
 				fs.SetLength(fs.Position);
 				fs.Close();
 			}
 			catch
 			{
-				fs.Close();
+                if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
 				throw;
 			}
 		}
@@ -1032,15 +1053,155 @@ namespace Idmr.Platform.Xwa
 			MissionPath = filePath;
 			Save();
 		}
-		#endregion public methods
+
+        /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
+        /// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
+        /// <returns>Index of the next available Flight Group.</returns>
+        public int DeleteFG(int fgIndex)
+        {
+            if (fgIndex < 0 || fgIndex >= FlightGroups.Count) return 0;  //If out of range, do nothing and return selection to first item.
+
+            foreach (Globals global in Globals)
+                foreach (Globals.Goal goal in global.Goals)
+                    foreach (Mission.Trigger trig in goal.Triggers)
+                        trig.TransformFGReferences(fgIndex, -1, false);
+
+            foreach (Message msg in Messages)
+                foreach (Mission.Trigger trig in msg.Triggers)
+                    trig.TransformFGReferences(fgIndex, -1, true);
+
+            //XWA Briefing does not use FG indexes.
+
+            //Skip triggers are processed by the Orders, which are processed by the FlightGroup.
+            foreach (FlightGroup fg in FlightGroups)
+                fg.TransformFGReferences(fgIndex, -1);
+
+            return FlightGroups.RemoveAt(fgIndex);
+        }
+
+        /// <summary>Swaps two FlightGroups, used to move FGs up or down in the list.</summary>
+        /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
+        /// <returns>Returns true if an adjustment was performed, false if index validation failed.</returns>
+        public bool SwapFG(int srcIndex, int dstIndex)
+        {
+            if ((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;
+
+            foreach (Globals global in Globals)
+                foreach (Globals.Goal goal in global.Goals)
+                    foreach (Mission.Trigger trig in goal.Triggers)
+                        trig.SwapFGReferences(srcIndex, dstIndex);
+
+            foreach (Message msg in Messages)
+                foreach (Mission.Trigger trig in msg.Triggers)
+                    trig.SwapFGReferences(srcIndex, dstIndex);
+
+            foreach (Briefing b in Briefings)
+                b.SwapFGReferences(srcIndex, dstIndex);
+
+            foreach (FlightGroup fg in FlightGroups)
+            {
+                fg.TransformFGReferences(dstIndex, 255);
+                fg.TransformFGReferences(srcIndex, dstIndex);
+                fg.TransformFGReferences(255, srcIndex);
+            }
+            FlightGroup temp = FlightGroups[srcIndex];
+            FlightGroups[srcIndex] = FlightGroups[dstIndex];
+            FlightGroups[dstIndex] = temp;
+            return true;
+        }
+
+        /// <summary>Deletes a Message, performing all necessary cleanup to avoid broken indexes.</summary>
+        /// <remarks>Iterates throughout all members which may reference Message indexes.</remarks>
+        /// <returns>Index of the next available Message.</returns>
+        public int DeleteMessage(int msgIndex)
+        {
+            if (msgIndex < 0 || msgIndex >= Messages.Count) return 0;  //If out of range, do nothing and return selection to first item.
+
+            foreach (Message msg in Messages)
+                foreach (Mission.Trigger trig in msg.Triggers)
+                    trig.TransformMessageRef(msgIndex, -1);
+
+            foreach (FlightGroup fg in FlightGroups)
+            {
+                foreach (Mission.Trigger trig in fg.ArrDepTriggers)
+                    trig.TransformMessageRef(msgIndex, -1);
+
+                foreach (FlightGroup.Order order in fg.Orders)
+                {
+                    order.TransformMessageReferences(msgIndex, -1);
+                    foreach (Mission.Trigger trig in order.SkipTriggers)
+                        trig.TransformMessageRef(msgIndex, -1);
+                }
+            }
+
+            foreach (Globals global in Globals)
+                foreach (Globals.Goal goal in global.Goals)
+                    foreach (Mission.Trigger trig in goal.Triggers)
+                        trig.TransformMessageRef(msgIndex, -1);
+            
+            return Messages.RemoveAt(msgIndex);
+        }
+
+        /// <summary>Swaps two Messages, used to move Messages up or down in the list.</summary>
+        /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
+        /// <returns>Returns true if an adjustment was performed, false if any index or bounds errors occurred.</returns>
+        public bool SwapMessage(int srcIndex, int dstIndex)
+        {
+            if ((srcIndex < 0 || srcIndex >= Messages.Count) || (dstIndex < 0 || dstIndex >= Messages.Count) || (srcIndex == dstIndex)) return false;
+
+            foreach (Message msg in Messages)
+                foreach (Mission.Trigger trig in msg.Triggers)
+                    trig.SwapMessageReferences(srcIndex, dstIndex);
+
+            foreach (FlightGroup fg in FlightGroups)
+            {
+                foreach (Mission.Trigger trig in fg.ArrDepTriggers)
+                    trig.SwapMessageReferences(srcIndex, dstIndex);
+
+                foreach (FlightGroup.Order order in fg.Orders)
+                {
+                    order.SwapMessageReferences(srcIndex, dstIndex);
+                    foreach (Mission.Trigger trig in order.SkipTriggers)
+                        trig.SwapMessageReferences(srcIndex, dstIndex);
+                }
+            }
+
+            foreach (Globals global in Globals)
+                foreach (Globals.Goal goal in global.Goals)
+                    foreach (Mission.Trigger trig in goal.Triggers)
+                        trig.SwapMessageReferences(srcIndex, dstIndex);
+
+            Message temp = Messages[srcIndex];
+            Messages[srcIndex] = Messages[dstIndex];
+            Messages[dstIndex] = temp;
+
+            return true;
+        }
+
+        /// <summary>Converts a raw time delay into number of seconds.</summary>
+        /// <param name="value">The raw value of the time delay.</param>
+        /// <remarks>The raw value is used to encode both minutes and seconds.  Maximum range of delay times is 0:00 to 24:50</remarks>
+        /// <returns>Number of seconds.</returns>
+        public int GetDelaySeconds(byte value)
+        {
+            int sec = value;                     //XWA calculates wait times different than XvT.
+            if (value > 20)
+                sec = 20 + ((value - 20) * 5);   //5 seconds per increment
+            if (value > 196)
+                sec += (value - 196) * 5;        //Above 196 (15:00) it's 10 seconds per increment.  Since we already calculated 5 seconds above, add 5 seconds extra.
+
+            return sec;
+        }
+        
+        #endregion public methods
 
 		#region public properties
 		/// <summary>Maximum number of craft that can exist at one time in a single region</summary>
 		/// <remarks>Value is <b>96</b></remarks>
 		public const int CraftLimit = 96;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is <b>132</b></remarks>
-		public const int FlightGroupLimit = 132;
+		/// <remarks>Value is <b>192</b></remarks>
+		public const int FlightGroupLimit = 192;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
 		/// <remarks>Value is <b>64</b></remarks>
 		public const int MessageLimit = 64;

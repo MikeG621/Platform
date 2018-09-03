@@ -1,13 +1,20 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6
+ * Version: 2.6+
  */
 
 /* CHANGELOG
+ * [UPD] changed TIE to T/F [JB]
+ * [UPD] updated Ratings [JB]
+ * [UPD] changed Disabled status to No Shields [JB]
+ * [UPD] changed a couple Trigger definitions [JB]
+ * [NEW] added missing CraftWhen [JB]
+ * [UPD] updated order descriptions [JB]
+ * [UPD] "at least 1" amounts changed to "any"
  * v2.6, 151017
  * [FIX] Missing * from Medium Transport abbrv
  * [NEW YOGEME #10] ability to replace craft list
@@ -133,7 +140,7 @@ namespace Idmr.Platform.Tie
 										 "Y-W",
 										 "A-W",
 										 "B-W",
-										 "TIE",
+										 "T/F",
 										 "T/I",
 										 "T/B",
 										 "T/A",
@@ -217,17 +224,17 @@ namespace Idmr.Platform.Tie
 										 "Asteroid",
 										 "Planet"
 									 };
-		static string[] _rating = { "Rookie",
-									 "Novice",
-									 "Veteran",
+        static string[] _rating = { "Novice",    //[JB] Fixed to mirror names in HD1W.TIE
 									 "Officer",
+									 "Veteran",
 									 "Ace",
-									 "Top Ace (invul)"
+									 "Top Ace",
+									 "Jedi (invul)"
 								 };
-		static string[] _status = { "Normal",
+        static string[] _status = { "Normal",
 									 "2x Warheads",
 									 "1/2 Warheads",
-									 "Disabled",
+									 "No Shields",   //[JB] Wasn't Disabled
 									 "1/2 Shields",
 									 "No Lasers",
 									 "No Hyperdrive",
@@ -247,13 +254,13 @@ namespace Idmr.Platform.Tie
 									 "Invincible"
 								 };
 		static string[] _trigger = { "always (TRUE)",
-									  "be created",
+									  "have arrived",				//[JB] was "be created"
 									  "be destroyed",
 									  "be attacked",
 									  "be captured",
 									  "be inspected",
-									  "be boarded",
-									  "be docked",
+									  "finish being boarded",       //[JB] was "be boarded", updated to be more intuitive
+									  "finish docking",             //[JB] was "be docked"
 									  "be disabled",
 									  "have survived (exist)",
 									  "none (FALSE)",
@@ -287,7 +294,7 @@ namespace Idmr.Platform.Tie
 									 "75%",
 									 "50%",
 									 "25%",
-									 "at least 1 of",
+									 "any of",
 									 "all but 1 of",
 									 "all special craft in",
 									 "all non-special craft in",
@@ -297,7 +304,7 @@ namespace Idmr.Platform.Tie
 									 "75% of first wave",
 									 "50% of first wave",
 									 "25% of first wave",
-									 "at least 1 of first wave",
+									 "any of first wave",
 									 "all but 1 of first wave"
 								 };
 		static string[] _goalAmount = { "100%",
@@ -352,20 +359,20 @@ namespace Idmr.Platform.Tie
 										"Boarded",
 										"Defending",
 										"Disabled",
-										"",
-										"",
+										"Attacked",  //[JB] Added this, and the next.  Taken from XvT list but confirmed in TIE.
+										"Any hull damage",
 										"Special craft",
 										"Non-special craft",
 										"Player's craft",
 										"Non-player craft",
 										""
 									};
-		static string[] _misc = { "Rookie craft",
-								   "Novice craft",
+		static string[] _misc = { "Novice craft",
 								   "Officer craft",
 								   "Veteran craft",
 								   "Ace craft",
 								   "Top Ace craft",
+								   "Jedi craft",
 								   "Stationary craft",
 								   "Craft returning to base",
 								   "Non-evading craft",
@@ -438,9 +445,9 @@ namespace Idmr.Platform.Tie
 										"Boards targets (if stationary) to give cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to take cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to exchange cargo|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to capture|Dockings time (x5 sec)|# of dockings",
+										"Boards targets (if stationary) to capture|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time (x5 sec)|# of dockings",
-										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|Meaningless",
+										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|# of dockings",   //[JB] Changed Var2, was Meaningless.
 										"Drops off designated Flight Group (disregards targets)|Deploy time? (x5 sec)|Flight Group #",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",

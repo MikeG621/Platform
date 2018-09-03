@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 2.7+
  */
 
 /* CHANGELOG
+ * [NEW] Unknown 43 [JB]
+ * [UPD] added remarks for Parameter [JB]
  * v2.7, 180509
  * [NEW] Prox condition in ToString
  * [UPD] ToString update [JB]
@@ -136,8 +138,15 @@ namespace Idmr.Platform.Xwa
 				get { return _items[5]; }
 				set { _items[5] = value; }
 			}
+            /// <summary>Gets or sets the unknown</summary>
+            public byte Unknown42
+            {
+                get { return _items[13]; }
+                set { _items[13] = value; }
+            }
 			/// <summary>Gets or sets the additional Goal setting</summary>
-			public byte Parameter
+            /// <remarks>Shared as both an extra parameter for certain orders, or goal time limit for anything else.  Zero for no time limit.  Standard delay format used by Message and Order waiting times.</remarks>
+            public byte Parameter
 			{
 				get { return _items[14]; }
 				set { _items[14] = value; }

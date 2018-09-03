@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [UPD] Moved Team init to BriefingCollection [JB]
  * v2.5, 170107
  * [ADD] Team functionality [JB]
  * v2.1, 141214
@@ -52,7 +53,7 @@ namespace Idmr.Platform.Xvt
 			_events[7] = 0x30;
 			_events[8] = 9999;
 			_events[9] = (short)EventType.EndBriefing;
-			_team[0] = true;
+            //[JB] Moved team visibility to BriefingCollection to fix a bug where the team[0] would see "every" briefing (the last team to be flagged?)
 		}
 
 		/// <summary>Gets or sets the unknown setting</summary>

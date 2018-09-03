@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] Team inits better [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  */
@@ -25,8 +26,12 @@ namespace Idmr.Platform.Xvt
 		public BriefingCollection()
 		{
 			_items = new List<Briefing>(8);
-			for (int i = 0; i < _items.Capacity; i++) _items.Add(new Briefing());
-		}
+			for (int i = 0; i < _items.Capacity; i++)
+            {
+                _items.Add(new Briefing());
+                _items[i].Team[i] = true;  //[JB] Initialize teams with their own separate briefing.
+            }
+        }
 
 		/// <summary>Resets selected Briefing to defaults</summary>
 		/// <param name="index">Briefing index</param>

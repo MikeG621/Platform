@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [UPD] added Energy Beam and Cluster Mine [JB]
  * [UPD] Ion Pulse implemented [JB]
  * v2.1, 141214
  * [UPD] change to MPL
@@ -54,12 +55,16 @@ namespace Idmr.Platform.Xwa
 				JammingBeam,
 				/// <summary>Decoy beam</summary>
 				DecoyBeam,
-				/// <summary>All countermeasures unavailable</summary>
+                /// <summary>Energy beam</summary>
+                EnergyBeam,
+                /// <summary>All countermeasures unavailable</summary>
 				NoCountermeasures,
 				/// <summary>Chaff countermeasures</summary>
 				Chaff,
 				/// <summary>Flare countermeasures</summary>
-				Flare
+				Flare,
+				/// <summary>Cluster Mine countermeasures</summary>
+				ClusterMine
 			}			
 			/// <summary>Initializes the indexer</summary>
 			/// <param name="optLoadout">The loadout array</param>
@@ -77,31 +82,31 @@ namespace Idmr.Platform.Xwa
 				get { return _items[index]; }
 				set
 				{
-					if ((index == 0 || index == 9 || index == 13) && !value) return;
+					if ((index == 0 || index == 9 || index == 14) && !value) return;
 					_items[index] = value;
 					if (index == 0 && value) for (int i = 1; i < 9; i++) _items[i] = false;	// set NoWarheads, clear warheads
-					else if (index == 9 && value) for (int i = 10; i < 13; i++) _items[i] = false;	// set NoBeam, clear beams
-					else if (index == 13 && value) for (int i = 14; i < 16; i++) _items[i] = false;	// set NoCMs, clear CMs
+					else if (index == 9 && value) for (int i = 10; i < 14; i++) _items[i] = false;	// set NoBeam, clear beams
+					else if (index == 14 && value) for (int i = 15; i < 18; i++) _items[i] = false;	// set NoCMs, clear CMs
 					else if (index < 9 && value) _items[0] = false;	// set a warhead, clear NoWarheads
-					else if (index < 13 && value) _items[9] = false;	// set a beam, clear NoBeam
-					else if (index < 16 && value) _items[13] = false;	// set a CM, clear NoCMs
+					else if (index < 14 && value) _items[9] = false;	// set a beam, clear NoBeam
+					else if (index < 18 && value) _items[14] = false;	// set a CM, clear NoCMs
 					else if (index < 9)
 					{
 						bool used = false;
 						for (int i = 1; i < 9; i++) used |= _items[i];
 						if (!used) _items[0] = true;	// cleared last warhead, set NoWarheads
 					}
-					else if (index < 13)
+					else if (index < 14)
 					{
 						bool used = false;
-						for (int i = 10; i < 13; i++) used |= _items[i];
+						for (int i = 10; i < 14; i++) used |= _items[i];
 						if (!used) _items[9] = true;	// cleared last beam, set NoBeam
 					}
 					else
 					{
 						bool used = false;
-						for (int i = 14; i < 16; i++) used |= _items[i];
-						if (!used) _items[13] = true;	// cleared last CM, set NoCMs
+						for (int i = 15; i < 18; i++) used |= _items[i];
+						if (!used) _items[14] = true;	// cleared last CM, set NoCMs
 					}
 				}
 			}
