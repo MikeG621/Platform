@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2015 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW5-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.3+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [NEW] helper functions for FG move/delete [JB]
  * v2.3, 150405
  * [NEW] Added TriggerIndex enum
@@ -111,8 +112,13 @@ namespace Idmr.Platform
             }
             return change;
         }
-        /// <summary>This allows overrides to check additional properties without needing to override the base function.</summary>
-        protected virtual bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
+		/// <summary>This allows overrides to check additional properties without needing to override the base function.</summary>
+		/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+		/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or zero or above to Move.</param>
+		/// <param name="delete">Whether or not to delete the FG</param>
+		/// <param name="delCond">Ignored unless FG is deleted.  If True, condition is set to ALWAYS (true) otherwise NEVER (false).</param>
+		/// <returns>Always returns <b>false</b></returns>
+		protected virtual bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
         {
             return false;  /* do nothing */
         }

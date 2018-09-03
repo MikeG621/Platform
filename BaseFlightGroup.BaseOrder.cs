@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [NEW] helper functions for FG move/delete [JB]
  * v2.1, 141214
  * [UPD] change to MPL
@@ -118,10 +119,10 @@ namespace Idmr.Platform
 
             #region public methods
             /// <summary>Transforms an Order that targets a specific Flight Group index.</summary>
-            /// <remarks>If <b>dstIndex</b> is negative, it will delete the Order.  If the Order is deleted, it will reset the trigger condition to either TRUE or FALSE depending on the state of <b>delCond</b>.</remarks>
+            /// <remarks>If <paramref name="dstIndex"/> is negative, it will delete the Order.  If the Order is deleted, it will reset the trigger condition to either TRUE or FALSE depending on the state of <b>delCond</b>.</remarks>
 			/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
-			/// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-            /// <returns>Returns true if anything was changed.</returns>
+			/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or zero or above to Move.</param>
+            /// <returns>Returns <b>true</b> if anything was changed.</returns>
             public bool TransformFGReferences(int srcIndex, int dstIndex)
             {
 				//TODO: see about chaning params to byte
@@ -160,8 +161,9 @@ namespace Idmr.Platform
                 return change;
             }
             /// <summary>This stub function allows overrides to check and modify additional properties without needing to override the base function.</summary>
-            /// <remarks>Same parameters as TransformFGRef.</remarks>
-            /// <returns>Returns true if anything was changed.</returns>
+            /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+			/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or zero or above to Move.</param>
+            /// <returns>Always returns <b>false</b>.</returns>
             protected virtual bool TransformFGReferencesExtended(int srcIndex, int dstIndex)
             {
                 return false;  /* do nothing */

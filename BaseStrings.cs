@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [UPD] reworded >Easy [JB]
  * [NEW] DifficultyAbbrv [JB]
  * [FIX] remarks for Warheads count [JB]
@@ -127,6 +128,8 @@ namespace Idmr.Platform
 		public static string[] Warheads { get { return (string[])_warheads.Clone(); } }
 
         /// <summary>Checks whether an index into a given string array is valid before accessing that element.</summary>
+		/// <param name="array">The strings to pull from</param>
+		/// <param name="index">The desired entry</param>
         /// <remarks>Avoids exceptions when requesting strings of associated values.</remarks>
         /// <returns>A string from the index, or a string indicating an unknown value.</returns>
 		public static string SafeString(string[] array, int index)

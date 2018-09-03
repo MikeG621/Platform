@@ -2,17 +2,74 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 2.7
-Date: 2018.05.09
+Version: 3.0
+Date: 2018.09.03
 
-Library for editing LucasArts *.TIE mission files for TIE95, XvT and XWA
+Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v3.0 - 03 Sep 2018
+ - Lots of fixes, tweaks and new features by Random Starfighter (JB)
+ -- Xwing95 platform support
+ -- helper functions throughout for FG/Message move/delete
+ -- (All) EditorCraftNumber and DifficultyAbbrv support
+ -- (BaseBriefing) EventParamterCount now a virtual function
+ -- (BaseBriefing) virtual helper functions added
+ -- (BaseStrings) some rewording
+ -- (BaseStrings) SafeString function
+ -- (Converter) capped TIE AI level
+ -- (Converter) fixed errors in TIE PlayerCraft, TIE Briefing.Events, XWA MessageDelay
+ -- (*.FlightGroup) ToString() updated
+ -- (*.Mission) updated string encodings
+ -- (*.Mission) fixed a null exception during fs.Close()
+ -- (*.Strings) some rewording
+ -- (Tie.FlightGroup) added Campaign perma-death, formerly Unk9 and Unk10
+ -- (Tie.Mission) added EndOfMissionColor
+ -- (Tie.Mission) fixed read/write of highlighting in officer questions
+ -- (Tie.Strings) added missing CraftWhen values
+ -- (Xvt.Briefing) removed team initialization
+ -- (Xvt.BriefingCollection) improved team initialization
+ -- (Xvt.FlightGroup) added Energy Beam, Ion Pulse, Cluster Mine
+ -- (Xvt FlightGroup) added PreventCraftNumbering, DepartureClockMinutes, DepartureClockSeconds, formerly Unk 19, 20, 21
+ -- (Xvt.FlightGroup) Skip trigger default to TRUE
+ -- (Xvt.FlightGroup.Goal) TimeLimit, formerly Unk16
+ -- (Xvt.FlightGroup.LoadoutIndexer) added IonPulse, EnergyBeam and ClusterMine
+ -- (Xvt.FlightGroup.Order) added "All IFFs except" target type
+ -- (Xvt.Mission) Renamed MissionType.MPMelee
+ -- (Xvt.Mission) fixed Departure and Arrival2 R/W, other R/W corrections to match format updates
+ -- (Xvt.Mission) Mission Succ/Fail/Desc load changed to TrimEnd
+ -- (Xvt.Mission) YOGEME signature moved to within MissionDescription instead of "outside" format
+ -- (Xvt.Strings) added RoleTeams, Difficulty and DIfficultyAbbrv arrays, EnergyBeam value
+ -- (Xwa.Briefing) removed team initialization
+ -- (Xwa.BriefingCollection) improved team initialization
+ -- (Xwa.FlightGroup) added Energy Beam, Cluster Mine
+ -- (Xwa.FlightGroup) Designations are disabled by default
+ -- (Xwa.FlightGroup.Goal) Unk43 added
+ -- (Xwa.FlightGroup.LoadoutIndexer) Energy Beam, Ion Pulse, Cluster Mine added/implemented
+ -- (Xwa.FlightGroup.Order) now default to TRUE
+ -- (Xwa.FlightGroup.Order) time trigger added
+ -- (Xwa.FlightGroup.Order) SafeString() implemented
+ -- (Xwa.FlightGroup.Order) helper functions for Skip triggers
+ -- (Xwa.Message) updated to Delay
+ -- (Xwa.Mission) R/W corrections to match format updates
+ -- (Xwa.Mission) mission strings changed to TrimEnd on read
+ -- (Xwa.Mission) YOGEME signature moved to within MissionDescription instead of "outside" format
+ -- (Xwa.Mission) added GetDelaySeconds()
+ -- (Xwa.Mission) FlightGroupLimit increased to 192
+ -- (Xwa.Mission.Trigger) SafeString() implemented
+ -- (Xwa.Mission>Trigger) delay calculation fixed
+ -- (Xwa.Strings) RoleTeams added
+ -- (Xwa.Strings) order docking text updated
+ - (*.Strings) "at least 1" changed to "any"
+ - (Tie.Mission) additional cleanup of officer question read/write
+ - (Xwa.Strings) removed "?" from "be delievered"
+ 
+
 v2.7 - 09 May 2018
  - (XWA.FlightGroup.Goal) Proximity triggers include distance in ToString
- - (XWA.FlightGoup.Orders) TriggerType unknowns filled in (#1)
+ - (XWA.FlightGroup.Orders) TriggerType unknowns filled in (#1)
  - (XWA.Globals.Goal) Proximity triggers include distance in ToString
  - (XWA.Mission.Trigger) Proximity triggers include distance in ToString
  - (XWA.Mission.Trigger) TriggerType unknowns filled in (#1)

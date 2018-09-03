@@ -1,6 +1,6 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Site: http://idmr.empirereborn.net
+Site: https://github.com/MikeG621
 Updated: 2018.06.06
 =====
 

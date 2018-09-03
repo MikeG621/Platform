@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [UPD] capped TIE AI [JB]
  * [FIX] TIE PlayerCraft [JB]
  * [FIX] loop error in TIE Briefing.Events [JB]

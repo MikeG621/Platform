@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [UPD] Added Xwing support [JB]
  * v2.1, 141214
  * [UPD] change to MPL
@@ -15,7 +16,6 @@
  * - class made abstract
  */
 
-using System;
 using System.IO;
 
 namespace Idmr.Platform

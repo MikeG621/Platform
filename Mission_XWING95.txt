@@ -1,7 +1,7 @@
 ﻿XWING Mission File
 Author: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Original Template: Michael Gaisser (mjgaisser@gmail.com)
-Site: http://idmr.empirereborn.net
+Site: https://github.com/MikeG621
 Updated: 2018.05.18
 =====
 
