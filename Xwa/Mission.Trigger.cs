@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180903
  * [UPD] added SafeString calls [JB]
  * [FIX] delay calculation [JB]
  * [NEW] helper functions for delete/swap FG/Mess [JB]
@@ -240,6 +241,11 @@ namespace Idmr.Platform.Xwa
 			}
 
             /// <summary>This allows checking XWA's new properties.</summary>
+			/// <param name="srcIndex">The original FG index location</param>
+			/// <param name="dstIndex">The new FG index location</param>
+			/// <param name="delete">Whether or not to delete the FG</param>
+			/// <param name="delCond">The condition to reset references to after a delete operation</param>
+			/// <returns><b>true</b> on a successful change</returns>
             /// <remarks>Extension for BaseTrigger to process additional properties found only in XWA</remarks>
             protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
             {
@@ -280,6 +286,9 @@ namespace Idmr.Platform.Xwa
             }
 
             /// <summary>Helper function that changes Message indexes during a Move (index swap) operation.</summary>
+			/// <param name="srcIndex">The original Message index location</param>
+			/// <param name="dstIndex">The new Message index location</param>
+			/// <returns><b>true</b> on successful change</returns>
             /// <remarks>Should not be called directly unless part of a larger Message Move operation.  Message references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
             public bool SwapMessageReferences(int srcIndex, int dstIndex)
             {
@@ -290,11 +299,12 @@ namespace Idmr.Platform.Xwa
                 return change;
             }
 
-            /// <summary>Helper function that changes Message indexes during a Message Move or Delete operation.</summary>
-            /// <remarks>Should not be called directly unless part of a larger Message Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
-            /// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
-            /// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-            public bool TransformMessageRef(int srcIndex, int dstIndex)
+			/// <summary>Helper function that changes Message indexes during a Message Move or Delete operation.</summary>
+			/// <remarks>Should not be called directly unless part of a larger Message Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
+			/// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
+			/// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+			/// <returns><b>true</b> on a successful change</returns>
+			public bool TransformMessageRef(int srcIndex, int dstIndex)
             {
                 if (VariableType != 27) return false;  //Must be a message trigger.
 

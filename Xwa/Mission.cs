@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180903
  * [UPD] changed string encoding [JB]
  * [UPD] appropriate updates to read/write due to format update [JB]
  * [UPD] mission strings changed to TrimEnd on read [JB]
@@ -1055,6 +1056,7 @@ namespace Idmr.Platform.Xwa
 		}
 
         /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
+		/// <param name="fgIndex">The FG index to remove</param>
         /// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
         /// <returns>Index of the next available Flight Group.</returns>
         public int DeleteFG(int fgIndex)
@@ -1080,6 +1082,8 @@ namespace Idmr.Platform.Xwa
         }
 
         /// <summary>Swaps two FlightGroups, used to move FGs up or down in the list.</summary>
+		/// <param name="srcIndex">The original FG index location</param>
+		/// <param name="dstIndex">The new FG index location</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
         /// <returns>Returns true if an adjustment was performed, false if index validation failed.</returns>
         public bool SwapFG(int srcIndex, int dstIndex)
@@ -1111,6 +1115,7 @@ namespace Idmr.Platform.Xwa
         }
 
         /// <summary>Deletes a Message, performing all necessary cleanup to avoid broken indexes.</summary>
+		/// <param name="msgIndex">The Message index to remove</param>
         /// <remarks>Iterates throughout all members which may reference Message indexes.</remarks>
         /// <returns>Index of the next available Message.</returns>
         public int DeleteMessage(int msgIndex)
@@ -1143,6 +1148,8 @@ namespace Idmr.Platform.Xwa
         }
 
         /// <summary>Swaps two Messages, used to move Messages up or down in the list.</summary>
+		/// <param name="srcIndex">The original Message index location</param>
+		/// <param name="dstIndex">The new Message index location</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
         /// <returns>Returns true if an adjustment was performed, false if any index or bounds errors occurred.</returns>
         public bool SwapMessage(int srcIndex, int dstIndex)

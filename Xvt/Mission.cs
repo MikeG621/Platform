@@ -1,20 +1,21 @@
 /*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180903
  * [UPD] Renamed MissionType.MPMelee [JB]
  * [UPD] updated string encodings [JB]
  * [FIX] Departure and Arrival2 R/W [JB]
  * [UPD] Appropriate R/W updates for format updates [JB]
- * [FIX] Misison Succ/Fail/Desc load changed to TrimEnd [JB]
+ * [FIX] Mission Succ/Fail/Desc load changed to TrimEnd [JB]
  * [FIX] signature moved to within MissionDescription instead of "outside" format [JB]
- * [FIX] null check on fs.CLose() [JB]
+ * [FIX] null check on fs.Close() [JB]
  * [NEW] Delete/swap FG helper functions [JB]
  * v2.5, 170107
  * [FIX] Enforced string encodings [JB]
@@ -875,6 +876,7 @@ namespace Idmr.Platform.Xvt
 		}
 
         /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
+		/// <param name="fgIndex">The FG index to remove</param>
         /// <remarks>Propagates throughout all members which contain Flight Group indexes.</remarks>
         /// <returns>Index of the next available Flight Group.</returns>
         public int DeleteFG(int fgIndex)
@@ -901,8 +903,10 @@ namespace Idmr.Platform.Xvt
         }
 
         /// <summary>Swaps two FlightGroups.</summary>
+		/// <param name="srcIndex">The original FG index</param>
+		/// <param name="dstIndex">The new FG index</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
-        /// <returns>Returns true if an adjustment was performed, false if index validation failed.</returns>
+        /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if index validation failed.</returns>
         public bool SwapFG(int srcIndex, int dstIndex)
         {
             if ((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;

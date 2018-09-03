@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.6+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180903
  * [NEW] RoleTeams [JB]
  * [UPD] Roles, "Resource Center" to "Research Facility" [JB]
  * [UPD] added Energy Beam [JB]
@@ -563,7 +564,7 @@ namespace Idmr.Platform.Xvt
 		}
 
 		/// <summary>String containing all possible team prefixes</summary>
-		static readonly public string TeamPrefixes = "1234AFH"; //TODO: is this not used?
+		static readonly public string TeamPrefixes = "1234AFH";
 
 		/// <summary>Gets a copy of Arrival difficulty settings</summary>
 		/// <remarks>Array has a Length of 10</remarks>

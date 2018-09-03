@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.7+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180903
  * [UPD] now init to TRUE [JB]
  * [UPD] case 14 added [JB]
  * [UPD] Strings calls swapped to SafeString [JB]
@@ -312,7 +313,10 @@ namespace Idmr.Platform.Xwa
 			public Mission.Trigger[] SkipTriggers { get { return _skipTriggers; } }
 			#endregion public properties
 
-            /// <summary>XWA stores skip triggers along with the orders.</summary>
+            /// <summary>Helper function that updates FG indexes during move/delete operations.</summary>
+			/// <param name="srcIndex">The original FG index</param>
+			/// <param name="dstIndex">The new FG index</param>
+			/// <returns><b>true</b> on successful change</returns>
             protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex)
             {
                 bool change = false;
@@ -372,9 +376,10 @@ namespace Idmr.Platform.Xwa
                 return change;
             }
 
-			/// <summary>Returns TRUE if the Skip Trigger is potentially used.</summary>
+			/// <summary>Checks if the Skip Trigger is potentially used.</summary>
+			/// <returns><b>true</b> if the Skip trigger can be used</returns>
 			/// <remarks>Null triggers (Condition, VariableType, Variable, Amount all zero) are usually ignored by the game.</remarks>
-            public bool isSkipTriggerActive()
+            public bool IsSkipTriggerActive()
             {
                 bool active = false;
                 foreach(Mission.Trigger trig in SkipTriggers)
@@ -385,16 +390,18 @@ namespace Idmr.Platform.Xwa
                 return active;
             }
 
-			/// <summary>Returns TRUE if the Skip Trigger is in a state that will never fire.</summary>
+			/// <summary>Checks if the Skip Trigger is in a state that will never fire.</summary>
+			/// <returns><b>true</b> if the Skip is impossible</returns>
 			/// <remarks>Checks to make sure a trigger does not use a FALSE condition paired (AND) with True.</remarks>
-            public bool isSkipTriggerBroken()
+            public bool IsSkipTriggerBroken()
             {
                 return ((SkipTriggers[0].Condition == 10 || SkipTriggers[1].Condition == 10) && SkipT1AndOrT2 == false);
             }
 
-			/// <summary>Returns TRUE if the Order is used.</summary>
-			/// <remarks>An order will not be processed AT ALL if both Skip Triggers are set to FALSE.</remarks>
-            public bool isOrderUsed()
+			/// <summary>Check if the Order is used.</summary>
+			/// <returns><b>true</b> if the Order is used</returns>
+			/// <remarks>An order will not be processed AT ALL if both Skip Triggers are set to <b>false</b>.</remarks>
+            public bool IsOrderUsed()
             {
                 return (SkipTriggers[0].Condition == 10 && SkipTriggers[1].Condition == 10);
             }

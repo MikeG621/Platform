@@ -1,10 +1,10 @@
 /*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 3.0
  */
 
 /* CHANGELOG
@@ -656,8 +656,10 @@ namespace Idmr.Platform.Tie
 		}
 
 		/// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
+		/// <param name="fgIndex">The FG index to delete</param>
+		/// <returns>The index of the next available FlightGroup if successfull, otherwise <b>-1</b></returns>
 		/// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
-        public int DeleteFG(int fgIndex)
+		public int DeleteFG(int fgIndex)
         {
             if (fgIndex < 0 || fgIndex >= FlightGroups.Count)
                 return 0;  //If for some reason this is out of range, don't do anything and return selection to first item.
@@ -679,8 +681,10 @@ namespace Idmr.Platform.Tie
         }
 
         /// <summary>Swaps two FlightGroups.</summary>
+		/// <param name="srcIndex">The original index</param>
+		/// <param name="dstIndex">The new index</param>
         /// <remarks>Automatically performs bounds checking and adjusts all references in the mission to prevent breaking any indexes for triggers, orders, etc.</remarks>
-        /// <returns>Returns true if an adjustment was performed, false if index validation failed.</returns>
+        /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if index validation failed.</returns>
         public bool SwapFG(int srcIndex, int dstIndex)
         {
             if((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;

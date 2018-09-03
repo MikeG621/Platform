@@ -1,14 +1,15 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [NEW] created [JB]
  */
 
@@ -24,7 +25,9 @@ namespace Idmr.Platform.Xwing
     public class Briefing : BaseBriefing
 	{
 		//TODO: check access
+		/// <summary>Collection of Briefing pages</summary>
         public List<BriefingPage> pages;
+		/// <summary>Collection of window settings </summary>
         public List<BriefingUIPage> windowSettings;
 
 		/// <summary>Known briefing event types unique to XWING</summary>
@@ -107,6 +110,7 @@ namespace Idmr.Platform.Xwing
 		//PARAMS: Event parameter count in X-wing
 		//-- Credits to the XWVM team for providing documentation of these events.
 		//TODO: see if this needs to be const, maybe [][] or [,]
+		/// <summary>Array to convert X-wing and TIE Briefing events</summary>
 		public short[] EventMapper = {  //19 events, 4 columns each
 		// DISP  XWID  TIEID  PARAMS       NOTES
 			 0,    0,    0,   0,
@@ -333,6 +337,7 @@ namespace Idmr.Platform.Xwing
 			return retEvent;
 		}
 		/// <summary>Takes an event from ReadBriefingEvent and translates it into a TIE95 compatible format, adjusting event IDs and parameter count as necessary.</summary>
+		/// <param name="xwingEvent">The original Xwing events</param>
 		/// <remarks>TextTag Color is a placeholder and may need to be modified by the calling platform.
         /// XvT and XWA viewports are larger than XWING95 and TIE95.  Zoom Map event parameters may need to be scaled.
         /// XWA Move Map event parameters may need to be scaled.</remarks>
@@ -723,7 +728,8 @@ namespace Idmr.Platform.Xwing
 	[Serializable]
 	public class BriefingPage
 	{
-		public short[] _events; //TODO: check access
+		/// <summary>The raw events</summary>
+		internal short[] _events;
 
 		/// <summary>Initalizes a new object</summary>
 		/// <remarks><see cref="Events"/> is initalized to a length of 0x190</remarks>

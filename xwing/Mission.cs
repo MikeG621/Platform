@@ -1,14 +1,15 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 3.0
  */
 
 /* CHANGELOG
+ * v3.0, 180309
  * [NEW] created [JB]
  */
 
@@ -589,30 +590,31 @@ namespace Idmr.Platform.Xwing
 		}
 		
 		/// <summary>Attempts to retrieve the XWI flightgroup from the given BRF flightgroup.</summary>
+		/// <param name="BrfIndex">The FG index within the Briefing</param>
         /// <remarks>In order to convert briefings from X-wing to other platforms, it must grab the necessary coordinate set waypoints.  However, the briefing has its own set of flightgroups.  While the list is usually a match of the XWI, the BRF file-format specs do not guarantee this.  The lists may not be the same size, or items at the same index.</remarks>
-		/// <returns>Resultant XWI Flight Group index, or -1 if not found</returns>
-        public int GetMatchingXWIFlightGroup(int BRFindex)
+		/// <returns>Resultant XWI Flight Group index, or <b>-1</b> if not found</returns>
+        public int GetMatchingXWIFlightGroup(int BrfIndex)
         {
-            if(BRFindex < 0 || BRFindex >= FlightGroupsBriefing.Count) return -1;
+            if(BrfIndex < 0 || BrfIndex >= FlightGroupsBriefing.Count) return -1;
 
-            FlightGroup bfg = FlightGroupsBriefing[BRFindex];
+            FlightGroup bfg = FlightGroupsBriefing[BrfIndex];
             FlightGroup fg = null;
             //If the lists are the same size, check to see if the slots are equal.
             if (FlightGroupsBriefing.Count == FlightGroups.Count)
             {
-                fg = FlightGroups[BRFindex];
+                fg = FlightGroups[BrfIndex];
                 if(bfg.Name == fg.Name)
                 {
                     if (bfg.IsObjectGroup())
                     {
                         if(bfg.ObjectType == 25 && fg.CraftType == 2 && fg.Status1 >= 10)  //Compare B-W icon and B-W craft 
-                            return BRFindex;
+                            return BrfIndex;
 
-                        if(bfg.ObjectType == FlightGroups[BRFindex].ObjectType)  //Normal object
-                            return BRFindex;
+                        if(bfg.ObjectType == FlightGroups[BrfIndex].ObjectType)  //Normal object
+                            return BrfIndex;
                     }
                     else if(bfg.CraftType == fg.CraftType)
-                        return BRFindex;
+                        return BrfIndex;
                 }
             }
 
