@@ -221,6 +221,7 @@ namespace Idmr.Platform.Xwing
                 FlightGroupsBriefing[i].Cargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargoCraft = br.ReadInt16();
+				//TODO: THESE NEED TO CONVERT TO DEGREES
                 FlightGroupsBriefing[i].Pitch = br.ReadInt16();
                 FlightGroupsBriefing[i].Yaw = br.ReadInt16();
                 FlightGroupsBriefing[i].Roll = br.ReadInt16();
@@ -399,6 +400,7 @@ namespace Idmr.Platform.Xwing
 					bw.Write(FlightGroups[i].Waypoints[0][0]);
 					bw.Write(FlightGroups[i].Waypoints[0][1]);
 					bw.Write(FlightGroups[i].Waypoints[0][2]);
+					//TODO: Convert back to RAW
 					bw.Write(FlightGroups[i].Yaw);
 					bw.Write(FlightGroups[i].Pitch);
 					bw.Write(FlightGroups[i].Roll);
@@ -481,6 +483,7 @@ namespace Idmr.Platform.Xwing
                     fs.Position = p + 0x30;
 
                     bw.Write(FlightGroupsBriefing[i].SpecialCargoCraft);
+					// TODO: Convert back to RAW
                     bw.Write(FlightGroupsBriefing[i].Pitch);
                     bw.Write(FlightGroupsBriefing[i].Yaw);
                     bw.Write(FlightGroupsBriefing[i].Roll);
