@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0.1
  */
 
 /* CHANGELOG
+ * v3.0.1, 180919
+ * [FIX] Pitch value check during write
  * v3.0, 180903
  * [UPD] Renamed MissionType.MPMelee [JB]
  * [UPD] updated string encodings [JB]
@@ -547,7 +549,7 @@ namespace Idmr.Platform.Xvt
 					bw.Write(FlightGroups[i].ArriveOnlyIfHuman);
 					fs.WriteByte(FlightGroups[i].PlayerCraft);
 					fs.WriteByte((byte)(FlightGroups[i].Yaw * 0x100 / 360));
-					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 64 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
+					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
 					fs.WriteByte((byte)(FlightGroups[i].Roll * 0x100 / 360));
 					fs.Position = p + 0x6D;
 					#endregion

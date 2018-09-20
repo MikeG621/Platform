@@ -5,11 +5,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0.1
  */
 
 /* CHANGELOG
- * v3.0, 180309
+ * v3.0.1, 180919
+ * [FIX] Object angle degress conversion
+ * v3.0, 180903
  * [NEW] created [JB]
  */
 
@@ -154,9 +156,10 @@ namespace Idmr.Platform.Xwing
 				FlightGroups[i].Waypoints[0][0] = br.ReadInt16();
 				FlightGroups[i].Waypoints[0][1] = br.ReadInt16();
 				FlightGroups[i].Waypoints[0][2] = br.ReadInt16();
-				FlightGroups[i].Yaw = br.ReadInt16();
-				FlightGroups[i].Pitch = br.ReadInt16();
-				FlightGroups[i].Roll = br.ReadInt16();
+				FlightGroups[i].Yaw = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
+				FlightGroups[i].Pitch = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
+				FlightGroups[i].Pitch += (short)(FlightGroups[i].Pitch < -90 ? 270 : -90);
+				FlightGroups[i].Roll = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
 			}
 			MissionPath = stream.Name;
 		}
@@ -221,10 +224,10 @@ namespace Idmr.Platform.Xwing
                 FlightGroupsBriefing[i].Cargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargoCraft = br.ReadInt16();
-				//TODO: THESE NEED TO CONVERT TO DEGREES
-                FlightGroupsBriefing[i].Pitch = br.ReadInt16();
-                FlightGroupsBriefing[i].Yaw = br.ReadInt16();
-                FlightGroupsBriefing[i].Roll = br.ReadInt16();
+                FlightGroupsBriefing[i].Pitch = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
+				FlightGroupsBriefing[i].Pitch += (short)(FlightGroups[i].Pitch < -90 ? 270 : -90);
+				FlightGroupsBriefing[i].Yaw = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
+				FlightGroupsBriefing[i].Roll = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
 			}
 
 			#region WindowUISettings
@@ -400,10 +403,9 @@ namespace Idmr.Platform.Xwing
 					bw.Write(FlightGroups[i].Waypoints[0][0]);
 					bw.Write(FlightGroups[i].Waypoints[0][1]);
 					bw.Write(FlightGroups[i].Waypoints[0][2]);
-					//TODO: Convert back to RAW
-					bw.Write(FlightGroups[i].Yaw);
-					bw.Write(FlightGroups[i].Pitch);
-					bw.Write(FlightGroups[i].Roll);
+					bw.Write((short)(byte)(FlightGroups[i].Yaw * 0x100 / 360));	// this forces a negative value to mask against 0x00FF instead of 0xFFFF
+					bw.Write((short)(byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
+					bw.Write((short)(byte)(FlightGroups[i].Roll * 0x100 / 360));
 				}
 				#endregion
 				fs.SetLength(fs.Position);
@@ -483,10 +485,9 @@ namespace Idmr.Platform.Xwing
                     fs.Position = p + 0x30;
 
                     bw.Write(FlightGroupsBriefing[i].SpecialCargoCraft);
-					// TODO: Convert back to RAW
-                    bw.Write(FlightGroupsBriefing[i].Pitch);
-                    bw.Write(FlightGroupsBriefing[i].Yaw);
-                    bw.Write(FlightGroupsBriefing[i].Roll);
+                    bw.Write((short)(byte)((FlightGroupsBriefing[i].Pitch >= 90 ? FlightGroupsBriefing[i].Pitch - 270 : FlightGroupsBriefing[i].Pitch + 90) * 0x100 / 360));
+                    bw.Write((short)(byte)(FlightGroupsBriefing[i].Yaw * 0x100 / 360));
+                    bw.Write((short)(byte)(FlightGroupsBriefing[i].Roll * 0x100 / 360));
                 }
 
                 #region WindowUISettings

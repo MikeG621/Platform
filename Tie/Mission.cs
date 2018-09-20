@@ -4,10 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0.1
  */
 
 /* CHANGELOG
+ * v3.0.1, 180919
+ * [FIX] Pitch value check during write
+ * v3.0, 180903
  * [UPD] updated string encodings [JB]
  * [NEW] EndOfMissionMessageColor [JB]
  * [UPD] PermaDeath (Unk9 and 10) [JB]
@@ -454,7 +457,7 @@ namespace Idmr.Platform.Tie
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown5);
 					fs.WriteByte(FlightGroups[i].PlayerCraft);
 					fs.WriteByte((byte)(FlightGroups[i].Yaw * 0x100 / 360));
-					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 64 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
+					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
 					fs.WriteByte((byte)(FlightGroups[i].Roll * 0x100 / 360));
 					bw.Write(FlightGroups[i].PermaDeathEnabled);
                     fs.WriteByte(FlightGroups[i].PermaDeathID);

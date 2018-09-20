@@ -2,13 +2,17 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 3.0
-Date: 2018.09.03
+Version: 3.0.1
+Date: 2018.09.19
 
 Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
+
+v3.0.1 - 19 Sep 2018
+ - (*.Mission) Fixed Pitch value check during write
+ - (Xwing.Mission) Add object angle conversion to/from degrees
 
 v3.0 - 03 Sep 2018
  - Lots of fixes, tweaks and new features by Random Starfighter (JB)

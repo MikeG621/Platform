@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0.1
  */
 
 /* CHANGELOG
+ * v3.0.1, 180919
+ * [FIX] Pitch value check during write
  * v3.0, 180903
  * [UPD] changed string encoding [JB]
  * [UPD] appropriate updates to read/write due to format update [JB]
@@ -689,9 +691,9 @@ namespace Idmr.Platform.Xwa
 					fs.WriteByte(FlightGroups[i].PlayerNumber);
 					bw.Write(FlightGroups[i].ArriveOnlyIfHuman);
 					fs.WriteByte(FlightGroups[i].PlayerCraft);
-					fs.WriteByte((byte)Math.Round(((double)FlightGroups[i].Yaw * 0x100 / 360)));
-					fs.WriteByte((byte)Math.Round(((double)(FlightGroups[i].Pitch >= 64 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360)));
-					fs.WriteByte((byte)Math.Round(((double)FlightGroups[i].Roll * 0x100 / 360)));
+					fs.WriteByte((byte)(FlightGroups[i].Yaw * 0x100 / 360));
+					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
+					fs.WriteByte((byte)(FlightGroups[i].Roll * 0x100 / 360));
 					fs.Position++;
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown4);
 					fs.Position++;
