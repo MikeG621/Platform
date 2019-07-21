@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [UPD] Orbit details
  * v3.0, 180903
  * [NEW] RoleTeams [JB]
  * [UPD] more Radio players, numbered unused Officers, Energy Beam, various renames [JB]
@@ -881,7 +882,7 @@ namespace Idmr.Platform.Xwa
 										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
 										"Craft destroys self|Delay time|Meaningless|Meaningless",
 										"Craft fires at and rams target|Meaningless|Meaningless|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"Orbits around origin, 100% Systems, does not return fire|# of loops|Meaningless|Meaningless",
 										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
 										"Unknown|Meaningless|Meaningless|Meaningless",
 										"Unknown|Meaningless|Meaningless|Meaningless",

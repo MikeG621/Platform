@@ -1306,9 +1306,11 @@ A maximum of 255 translates to 24:50 waiting time.
 24	Self-destruct
 	Var1	Delay Time
 25	Kamikaze
-26	(Orbit)
+26	(Orbit)/Permanently disabled
+	Var1	# of loops
 27	(Release Carried Cargo)
 28	Deliver/Drop Off
+	Var1	Recipient FG
 29	Unknown
 2A	(Attack)
 2B	Load Objects
