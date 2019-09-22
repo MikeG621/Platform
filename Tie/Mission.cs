@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2019 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0.1
+ * Version: 3.0.1+
  */
 
 /* CHANGELOG
+ * [UPD] added backup during save
  * v3.0.1, 180919
  * [FIX] Pitch value check during write
  * v3.0, 180903
@@ -392,10 +393,15 @@ namespace Idmr.Platform.Tie
 		public void Save()
 		{
 			FileStream fs = null;
+			string backup = MissionPath.Replace(".tie", "_tie.bak");
+			if (File.Exists(MissionPath))
+			{
+				File.Copy(MissionPath, backup);
+				File.Delete(MissionPath);
+			}
 			try
 			{
 
-				if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
                 BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
 				bw.Write((short)-1);
@@ -602,8 +608,15 @@ namespace Idmr.Platform.Tie
 			catch
 			{
                 if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
+				if (File.Exists(backup))
+				{
+					File.Delete(MissionPath);
+					File.Copy(backup, MissionPath);
+					File.Delete(backup);
+				}
 				throw;
 			}
+			File.Delete(backup);
 		}
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
