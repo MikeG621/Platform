@@ -710,11 +710,11 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>Value is <b>28</b></remarks>
 		public const int CraftLimit = 28;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is <b>48</b></remarks>
-		public const int FlightGroupLimit = 48;
+		/// <remarks>XWING95 is unique in the series in how it uses separate arrays for FlightGroups and ObjectGroups. The native <b>FlightGroup</b> limit is <b>16</b>, ObjectGroup limit is <b>64</b>. For the sake of editing in YOGEME, these groups are abstracted into a single container while at the same time extending these limits for third party support.</remarks>
+		public const int FlightGroupLimit = 255;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is <b>16</b></remarks>
-		public const int MessageLimit = 16;
+		/// <remarks>XWING95 does not have this feature.</remarks>
+		public const int MessageLimit = 0;
 		
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
