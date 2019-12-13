@@ -473,17 +473,30 @@ namespace Idmr.Platform.Xvt
 		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
+			//[JB] Rewrote the backup logic.  See the TIE Save() function for comments.
+            if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
+
 			FileStream fs = null;
-			string backup = MissionPath.Replace(".tie", "_tie.bak");
-			if (File.Exists(MissionPath))
-			{
-				File.Copy(MissionPath, backup);
-				File.Delete(MissionPath);
-			}
+            string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
+            bool backupCreated = false, writerCreated = false;
+
+            if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
+            {
+                try
+                {
+                    if (File.Exists(backup) )
+                        File.Delete(backup);
+                    File.Copy(MissionPath, backup);
+                    backupCreated = true;
+                }
+                catch { }
+            }
 			try
 			{
+                if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
                 BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
+                writerCreated = true;
                 int i;
 				long p;
 				#region Platform
@@ -829,16 +842,17 @@ namespace Idmr.Platform.Xvt
 			}
 			catch
 			{
-                if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
-				if (File.Exists(backup))
-				{
-					File.Delete(MissionPath);
-					File.Copy(backup, MissionPath);
-					File.Delete(backup);
-				}
-				throw;
+                if (fs != null) fs.Close();
+                if (writerCreated && backupCreated)
+                {
+                    File.Delete(MissionPath);
+                    File.Copy(backup, MissionPath);
+                    File.Delete(backup);
+                }
+                throw;
 			}
-			File.Delete(backup);
+            if(backupCreated)
+			    File.Delete(backup);
 		}
 
 		/// <summary>Save the mission to a new location</summary>
