@@ -93,7 +93,7 @@ namespace Idmr.Platform.Xwing
 			stream.Position = 2;
 			TimeLimitMinutes = br.ReadInt16();
 			EndEvent = br.ReadInt16();
-			Unknown1 = br.ReadInt16();
+			RndSeed = br.ReadInt16();
 			Location = br.ReadInt16();
 			for (i=0;i<3;i++) EndOfMissionMessages[i] = new string(br.ReadChars(64));
 			short numFlightGroups = br.ReadInt16();
@@ -566,7 +566,7 @@ namespace Idmr.Platform.Xwing
 
                 bw.Write(TimeLimitMinutes);
                 bw.Write(EndEvent);
-                bw.Write(Unknown1);
+                bw.Write(RndSeed);
                 bw.Write(Briefing.MissionLocation);
 
                 p = fs.Position;
@@ -746,9 +746,9 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>For player destruction, <b>00</b> is Rescued and <b>01</b> is Captured.<br/>
 		/// For Death Star outcomes, <b>01</b> is Clear Laser Tower, and <b>05</b> is Hit Exhaust Port.</remarks>
 		public short EndEvent = 0;
-		/// <summary>Unknown value</summary>
-		/// <remarks>Always appears to be zero</remarks>
-		public short Unknown1 = 0;
+		/// <summary>RndSeed value</summary>
+		/// <remarks>RndSeed is supposed to be an initializer to the pseudo-random number generator, but is not actually used.</remarks>
+		public short RndSeed = 0;
 		/// <summary>Gets or sets where the mission takes place</summary>
 		/// <remarks>Value is <b>00</b> for normal space missions, <b>01</b> for the Death Star surface</remarks>
 		public short Location = 0;
