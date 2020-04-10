@@ -10,6 +10,11 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
+v3.0.2 - XX XXX XXXX
+ - (*.Mission) Added backup during save
+ - (XWA.Strings) Orbit order details
+ - (XWA.Strings) More details to OverrideShipList length exception
+
 v3.0.1 - 19 Sep 2018
  - (*.Mission) Fixed Pitch value check during write
  - (Xwing.Mission) Add object angle conversion to/from degrees

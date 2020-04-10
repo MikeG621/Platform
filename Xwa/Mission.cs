@@ -148,8 +148,8 @@ namespace Idmr.Platform.Xwa
 		#region public methods
 		/// <summary>Load a mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> cannot be lcoated</exception>
-		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a XWA mission file</exception>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> cannot be located</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a XWA mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -582,7 +582,7 @@ namespace Idmr.Platform.Xwa
 		}
 
 		/// <summary>Save the mission with the default path</summary>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			FileStream fs = null;
@@ -1063,7 +1063,7 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Save the mission to a new location</summary>
 		/// <param name="filePath">Full path to the new file location</param>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
