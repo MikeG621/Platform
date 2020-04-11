@@ -13,7 +13,9 @@ Version History
 v3.0.2 - XX XXX XXXX
  - (*.Mission) Added backup during save
  - (XWA.Strings) Orbit order details
- - (XWA.Strings) More details to OverrideShipList length exception
+ - (*.Strings) More details to OverrideShipList length exception
+ - (Xwing.Strings) Added OverrideShipList
+ 
 
 v3.0.1 - 19 Sep 2018
  - (*.Mission) Fixed Pitch value check during write
