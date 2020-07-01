@@ -10,6 +10,7 @@
 /* CHANGELOG
  * [UPD] More details to OverrideShipList length exception
  * [UPD] Orbit details
+ * [UPD] Added missing craft entry to shiplist
  * v3.0, 180903
  * [NEW] RoleTeams [JB]
  * [UPD] more Radio players, numbered unused Officers, Energy Beam, various renames [JB]
@@ -368,6 +369,7 @@ namespace Idmr.Platform.Xwa
 										"MC80 Liberty-class",
 										"VSD II",
 										"ISD II",
+										"*Planet",
 										"*Planet"
 									};
 		static string[] _craftAbbrv = { "",
@@ -602,6 +604,7 @@ namespace Idmr.Platform.Xwa
 										"VSDII",
 										"ISDII",
 										"*B/Drop",
+										"*B/Drop"
 									 };
 		static string[] _rating = { "Novice",
 									"Officer",

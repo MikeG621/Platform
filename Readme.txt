@@ -15,6 +15,7 @@ v3.0.2 - XX XXX XXXX
  - (XWA.Strings) Orbit order details
  - (*.Strings) More details to OverrideShipList length exception
  - (Xwing.Strings) Added OverrideShipList
+ - (XWA.Strings) Added missing craft entry to shiplist
  
 
 v3.0.1 - 19 Sep 2018
