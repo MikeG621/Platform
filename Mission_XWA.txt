@@ -967,6 +967,7 @@ E4	MC80 Liberty-class Cruiser
 E5	Victory-class Star Destroyer II
 E6	Imperator-class Star Destroyer II
 E7	*Planet
+E8	*Planet
 
 Status
 00	None

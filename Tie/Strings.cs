@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
+ * Version: 3.1
  */
 
 /* CHANGELOG
+ * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception
  * v3.0, 180903
  * [UPD] changed TIE to T/F [JB]

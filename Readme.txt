@@ -2,15 +2,15 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 3.0.1
-Date: 2018.09.19
+Version: 3.1
+Date: 2020.07.03
 
 Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
-v3.0.2 - XX XXX XXXX
+v3.1 - 03 Jul 2020
  - (*.Mission) Added backup during save
  - (XWA.Strings) Orbit order details
  - (*.Strings) More details to OverrideShipList length exception
