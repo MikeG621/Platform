@@ -92,17 +92,23 @@ namespace Idmr.Platform
 										"Side Hexagon",
 										"Front Hexagon"
 									};
+		static string[] _formationMine = {"Flat (X-Y)",
+										"Side (Y-Z)",
+										"Front (X-Z)",
+										"Overlap on point (bad)"
+									};
 		static string[] _shipClass = { "Starfighters",
 										"Transports",
 										"Freighters/Containers",
 										"Starships",
 										"Utility craft",
 										"Platforms",
-										"Mines"
+										"Mines",
+										"Probes/Sats/Navs",
 									};
 		static string[] _objectType = { "Craft",
-										 "Weapons",
-										 "Satelites/Mines"
+										 "Mines",
+										 "Probes/Sats/Navs"
 									 };
 		#endregion
 		/// <summary>Gets a copy of FlightGroup craft markings</summary>
@@ -117,6 +123,9 @@ namespace Idmr.Platform
         /// <summary>Gets a copy of FlightGroup formations</summary>
 		/// <remarks>Array has a Length of 34</remarks>
 		public static string[] Formation { get { return (string[])_formation.Clone(); } }
+        /// <summary>Gets a copy of formations only used by mine space objects</summary>
+		/// <remarks>Array has a Length of 4</remarks>
+		public static string[] FormationMine { get { return (string[])_formationMine.Clone(); } }
 		/// <summary>Gets a copy of Trigger Types for solid objects</summary>
 		/// <remarks>Array has a Length of 3</remarks>
 		public static string[] ObjectType { get { return (string[])_objectType.Clone(); } }
