@@ -239,7 +239,7 @@ namespace Idmr.Platform.Tie
 				Messages = new MessageCollection(numMessages);
 				for (i=0;i<Messages.Count;i++)
 				{
-					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');
+					Messages[i].MessageString = new string(br.ReadChars(64));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
 					if (Messages[i].MessageString.Length > 0)  //[JB] Added length check, otherwise empty strings would crash the load process and make the mission unrecoverable to anything but hex editing.  
