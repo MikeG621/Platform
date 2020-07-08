@@ -56,8 +56,9 @@ namespace Idmr.Platform.Xvt
 	/// <remarks>This is the primary container object for XvT and BoP mission files</remarks>
 	public partial class Mission : MissionFile
 	{
-		string _unknown4 = "";
-		string _unknown5 = "";
+		string[] _iff = Strings.IFF;
+		IffNameIndexer _iffNameIndexer;
+
 		string _missionDescription = "";
 		string _missionFailed = "";
 		string _missionSuccessful = "";
@@ -106,6 +107,7 @@ namespace Idmr.Platform.Xvt
 		void _initialize()
 		{
 			_invalidError = _invalidError.Replace("{0}", "XvT or BoP");
+            _iffNameIndexer = new IffNameIndexer(this);
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			Globals = new GlobalsCollection();
@@ -146,10 +148,8 @@ namespace Idmr.Platform.Xvt
 			Unknown2 = br.ReadByte();
 			stream.Position = 0xB;
 			Unknown3 = Convert.ToBoolean(br.ReadByte());
-			stream.Position = 0x28;
-			Unknown4 = new string(br.ReadChars(0x10)).Trim('\0');
-			stream.Position = 0x50;
-			Unknown5 = new string(br.ReadChars(0x10)).Trim('\0');
+			stream.Position = 0x14;
+            for (i=2;i<6;i++) IFFs[i] = new string(br.ReadChars(0x14)).Trim('\0');
 			stream.Position = 0x64;
 			MissionType = (MissionTypeEnum)br.ReadByte();
 			Unknown6 = Convert.ToBoolean(br.ReadByte());
@@ -509,12 +509,13 @@ namespace Idmr.Platform.Xvt
 				bw.Write((short)Unknown2);
 				fs.Position++;
 				bw.Write(Unknown3);
-				fs.Position = 0x28;
-				bw.Write(Unknown4.ToCharArray());
-				fs.WriteByte(0);	// just to ensure termination
-				fs.Position = 0x50;
-				bw.Write(Unknown5.ToCharArray());
-				fs.WriteByte(0);	// just to ensure termination
+				fs.Position = 0x14;
+				for (i=2;i<6;i++)
+				{
+					p = fs.Position;
+					bw.Write(_iff[i].ToCharArray()); bw.Write('\0');
+					fs.Position = p + 0x14;
+				}
 				fs.Position = 0x64;
 				bw.Write((byte)MissionType);
 				bw.Write(Unknown6);
@@ -969,6 +970,8 @@ namespace Idmr.Platform.Xvt
         #endregion public methods
 
 		#region public properties
+        /// <summary>Gets the array accessor for the IFF names</summary>
+		public IffNameIndexer IFFs { get { return _iffNameIndexer; } }
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
 		/// <remarks>Value is <b>32</b></remarks>
 		public const int CraftLimit = 32;
@@ -991,20 +994,6 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B</remarks>
 		public bool Unknown3 { get; set; }
-		/// <summary>Unknown FileHeader value (BoP only?)</summary>
-		/// <remarks>Offset = 0x28, 16 char</remarks>
-		public string Unknown4
-		{
-			get { return _unknown4; }
-			set { _unknown4 = StringFunctions.GetTrimmed(value, 16); }
-		}
-		/// <summary>Unknown FileHeader value (BoP only?)</summary>
-		/// <remarks>Offset = 0x50, 16 char</remarks>
-		public string Unknown5
-		{
-			get { return _unknown5; }
-			set { _unknown5 = StringFunctions.GetTrimmed(value, 16); }
-		}
 		/// <summary>Gets or sets the category the mission belongs to</summary>
 		public MissionTypeEnum MissionType { get; set; }
 		/// <summary>Gets or sets an unknown FileHeader value</summary>
