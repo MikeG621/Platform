@@ -319,7 +319,8 @@ namespace Idmr.Platform.Xvt
 				for (i=0;i<numMessages;i++)
 				{
 					stream.Position += 2;
-					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');		// null-termed
+					Messages[i].MessageString = new string(br.ReadChars(64));
+					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
                     if (Messages[i].MessageString.Length > 0)
 					{

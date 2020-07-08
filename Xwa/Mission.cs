@@ -411,7 +411,8 @@ namespace Idmr.Platform.Xwa
 				for (i=0;i<numMessages;i++)
 				{
 					stream.Position += 2;
-					Messages[i].MessageString = new string(br.ReadChars(0x40)).Trim('\0');
+					Messages[i].MessageString = new string(br.ReadChars(0x40));
+					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					stream.Position += 0x10;
 					stream.Read(buffer, 0, 0xA);
 					for (j=0;j<10;j++) Messages[i].SentTo[j] = Convert.ToBoolean(buffer[j]);
