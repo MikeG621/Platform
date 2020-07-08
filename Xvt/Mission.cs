@@ -152,7 +152,7 @@ namespace Idmr.Platform.Xvt
             for (i=2;i<6;i++) IFFs[i] = new string(br.ReadChars(0x14)).Trim('\0');
 			stream.Position = 0x64;
 			MissionType = (MissionTypeEnum)br.ReadByte();
-			Unknown6 = Convert.ToBoolean(br.ReadByte());
+			PreventMissionOutcome = Convert.ToBoolean(br.ReadByte());
 			TimeLimitMin = br.ReadByte();
 			TimeLimitSec = br.ReadByte();
 			stream.Position = 0xA4;
@@ -518,7 +518,7 @@ namespace Idmr.Platform.Xvt
 				}
 				fs.Position = 0x64;
 				bw.Write((byte)MissionType);
-				bw.Write(Unknown6);
+				bw.Write(PreventMissionOutcome);
 				bw.Write(TimeLimitMin);
 				bw.Write(TimeLimitSec);
 				fs.Position = 0xA4;
@@ -996,9 +996,9 @@ namespace Idmr.Platform.Xvt
 		public bool Unknown3 { get; set; }
 		/// <summary>Gets or sets the category the mission belongs to</summary>
 		public MissionTypeEnum MissionType { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x65</remarks>
-		public bool Unknown6 { get; set; }
+		/// <summary>Gets or sets whether a mission is not allowed to be completed</summary>
+		/// <remarks>If enabled, victory or failure is not possible, a special condition used in some melee scenarios</remarks>
+		public bool PreventMissionOutcome { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
 		/// <remarks>Can be used in conjunction with <see cref="TimeLimitSec"/></remarks>
 		public byte TimeLimitMin { get; set; }
