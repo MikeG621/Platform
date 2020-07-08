@@ -337,53 +337,58 @@ namespace Idmr.Platform.Tie
 					}
 				}
 			}
-			for (i=0;i<10;i++)
+			//[JB] I've encountered some custom missions with an incomplete question list. A clever form of protection? Even TFW couldn't open it. Wrapping this in a try/catch block.
+			try
 			{
-				int j, k, l = 2;
-				j = br.ReadInt16();	//also got rid of saving here, calc'ing on the fly
-				if (j == 3)
+				for (i=0;i<10;i++)
 				{
-					stream.Position += 3;	// stupid TFW-isms
-					continue;
-				}
-				if (j == 0) continue;
-				BriefingQuestions.PostTrigger[i] = br.ReadByte();
-				BriefingQuestions.PostTrigType[i] = br.ReadByte();
-				for (k=0;k<j;k++)
-				{
-					BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
-					l++;
-					if (stream.ReadByte() == 10) break;
-					else stream.Position--;
-				}
-				l++;
-				for (k=l;k<j;k++)
-				{
-                    int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
-                    switch (b)
+					int j, k, l = 2;
+					j = br.ReadInt16();	//also got rid of saving here, calc'ing on the fly
+					if (j == 3)
 					{
-						case 0:
-							k = j;
-							break;
-						case 1:
-							BriefingQuestions.PostMissAnswers[i] += "]";
-							break;
-						case 2:
-							BriefingQuestions.PostMissAnswers[i] += "[";
-							break;
-						case 10:
-							BriefingQuestions.PostMissAnswers[i] += "\r\n";
-							break;
-						case 160:
-						case 255:
-							k = j;
-							break;
-						default:
-							BriefingQuestions.PostMissAnswers[i] += Convert.ToChar(b).ToString();
-							break;
+						stream.Position += 3;	// stupid TFW-isms
+						continue;
+					}
+					if (j == 0) continue;
+					BriefingQuestions.PostTrigger[i] = br.ReadByte();
+					BriefingQuestions.PostTrigType[i] = br.ReadByte();
+					for (k=0;k<j;k++)
+					{
+						BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
+						l++;
+						if (stream.ReadByte() == 10) break;
+						else stream.Position--;
+					}
+					l++;
+					for (k=l;k<j;k++)
+					{
+						int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
+						switch (b)
+						{
+							case 0:
+								k = j;
+								break;
+							case 1:
+								BriefingQuestions.PostMissAnswers[i] += "]";
+								break;
+							case 2:
+								BriefingQuestions.PostMissAnswers[i] += "[";
+								break;
+							case 10:
+								BriefingQuestions.PostMissAnswers[i] += "\r\n";
+								break;
+							case 160:
+							case 255:
+								k = j;
+								break;
+							default:
+								BriefingQuestions.PostMissAnswers[i] += Convert.ToChar(b).ToString();
+								break;
+						}
 					}
 				}
 			}
+			catch ( EndOfStreamException ) { /* Do nothing */ }
 			#endregion
 			MissionPath = stream.Name;
 		}
