@@ -62,7 +62,7 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>All Orders set Throttle to <b>100%</b>, all Goals set to <b>FALSE</b>, SP1 <b>Enabled</b></remarks>
 		public FlightGroup()
 		{
-			_stringLength = 0xC;
+			_stringLength = 0x10;
 			NumberOfWaves = 0;
 			NumberOfCraft = 1;
 			CraftType = 1;   //0 is None, default to X-wing.
