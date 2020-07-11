@@ -107,22 +107,22 @@ namespace Idmr.Platform.Tie
 						s += "FG:" + target;
 						break;
 					case 2:
-						s += Strings.CraftType[target + 1] + "s";
+						s += Strings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 3:
-						s += Strings.ShipClass[target];
+						s += Strings.SafeString(Strings.ShipClass, target);
 						break;
 					case 4:
-						s += Strings.ObjectType[target];
+						s += Strings.SafeString(Strings.ObjectType, target);
 						break;
 					case 5:
-						s += Strings.IFF[target] + "s";
+						s += "IFF:" + target;
 						break;
 					case 6:
-						s += "Craft with " + Strings.Orders[target] + " orders";
+						s += "Craft with " + Strings.SafeString(Strings.Orders, target) + " orders";
 						break;
 					case 7:
-						s += "Craft when " + Strings.CraftWhen[target];
+						s += "Craft when " + Strings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
 						s += "Global Group " + target;
@@ -140,7 +140,7 @@ namespace Idmr.Platform.Tie
 			public override string ToString()
 			{
 				if (Command == 0) return "None";
-				string order = Strings.Orders[Command];
+				string order = Strings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
 				{
 					string s = _orderTargetString(Target1, Target1Type);

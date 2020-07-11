@@ -95,35 +95,36 @@ namespace Idmr.Platform.Tie
 				string trig = "";
 				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
 				{
-					trig = Strings.Amount[Amount] + " of ";
+					trig = Strings.SafeString(Strings.Amount, Amount);
+					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
 					switch (VariableType)
 					{
 						case 1:
 							trig += "FG:" + Variable;
 							break;
 						case 2:
-							trig += "Ship type " + Strings.CraftType[Variable + 1];
+							trig += "Ship type " + Strings.SafeString(Strings.CraftType, Variable + 1);
 							break;
 						case 3:
-							trig += "Ship class " + Strings.ShipClass[Variable];
+							trig += "Ship class " + Strings.SafeString(Strings.ShipClass, Variable);
 							break;
 						case 4:
-							trig += "Object type " + Strings.ObjectType[Variable];
+							trig += "Object type " + Strings.SafeString(Strings.ObjectType, Variable);
 							break;
 						case 5:
-							trig += Strings.IFF[Variable] + "s";
+							trig += "IFF:" + Variable;
 							break;
 						case 6:
-							trig += "Ship orders " + Strings.Orders[Variable];
+							trig += "Ship orders " + Strings.SafeString(Strings.Orders, Variable);
 							break;
 						case 7:
-							trig += "Craft When " + Strings.CraftWhen[Variable];
+							trig += "Craft When " + Strings.SafeString(Strings.CraftWhen, Variable);
 							break;
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
 						case 9:
-							trig += "Misc " + Strings.Misc[Variable];
+							trig += "Misc " + Strings.SafeString(Strings.Misc, Variable);
 							break;
 						default:
 							trig += VariableType + " " + Variable;
@@ -131,7 +132,7 @@ namespace Idmr.Platform.Tie
 					}
 					trig += " must ";
 				}
-				trig += Strings.Trigger[Condition];
+				trig += Strings.SafeString(Strings.Trigger, Condition);
 				return trig;
 			}
 			

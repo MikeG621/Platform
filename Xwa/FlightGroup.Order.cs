@@ -201,7 +201,7 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				if (Command == 0) return "None";
-				string order = Strings.Orders[Command];
+				string order = Strings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 18) || (Command >= 23 && Command <= 27) || Command == 31 || Command == 32 || Command == 37)	//all orders where targets are important
 				{
 					string s = _orderTargetString(Target1, Target1Type);

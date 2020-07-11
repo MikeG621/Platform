@@ -101,7 +101,8 @@ namespace Idmr.Platform.Xwa
 					else
 					{
 						if (Amount > Strings.Amount.Length) Amount = 0; //can occur switching away from high-distance prox triggers
-						trig = Strings.Amount[Amount] + " of ";
+						trig = Strings.SafeString(Strings.Amount, Amount);
+						trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
 					}
 					switch (VariableType)
 					{
@@ -200,7 +201,7 @@ namespace Idmr.Platform.Xwa
 					else dist = Amount * 0.5 - 4;
 					trig += dist + " km of FG2:" + Parameter1;
 				}
-				else trig += Strings.Trigger[Condition];
+				else trig += Strings.SafeString(Strings.Trigger, Condition);
 				if (trig.Contains("Region")) trig += " " + Parameter1;
 				return trig;
 			}
