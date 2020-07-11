@@ -114,37 +114,73 @@ namespace Idmr.Platform.Xvt
 						s += "FG:" + target;
 						break;
 					case 2:
-						s += Strings.CraftType[target + 1] + "s";
+						s += Strings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 3:
-						s += Strings.ShipClass[target];
+						s += Strings.SafeString(Strings.ShipClass, target);
 						break;
 					case 4:
-						s += Strings.ObjectType[target];
+						s += Strings.SafeString(Strings.ObjectType, target);
 						break;
 					case 5:
-						s += Strings.IFF[target] + "s";
+						s += Strings.SafeString(Strings.IFF, target) + "s";
 						break;
 					case 6:
-						s += "Craft with " + Strings.Orders[target] + " orders";
+						s += "Craft with " + Strings.SafeString(Strings.Orders, target) + " starting orders";
 						break;
 					case 7:
-						s += "Craft when " + Strings.CraftWhen[target];
+						s += "Craft when " + Strings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
 						s += "Global Group " + target;
 						break;
+					case 9:
+						s += "Craft with " + Strings.SafeString(Strings.Rating, target) + " adjusted skill";
+						break;
+					case 0xA:
+						s += "Craft with primary status: " + Strings.SafeString(Strings.Status, target);
+						break;
+					case 0xB:
+						s += "All craft";
+						break;
 					case 0xC:
 						s += "TM:" + target;
 						break;
+					case 0xD:
+						s += "Player #" + (target + 1);
+						break;
+					case 0xE:
+						s += "Before elapsed time " + String.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
+						break;
+					case 0xF:
+						s += "Not FG:" + target;
+						break;
+					case 0x10:
+						s += "Not ship type " + Strings.SafeString(Strings.CraftType, target + 1) + "s";
+						break;
+					case 0x11:
+						s += "Not ship class " + Strings.SafeString(Strings.ShipClass, target);
+						break;
+					case 0x12:
+						s += "Not object type " + Strings.SafeString(Strings.ObjectType, target);
+						break;
 					case 0x13:
-						s += "All IFFs except " + Strings.IFF[target];  //[JB] Previously unknown order.
+						s += "Not IFF " + Strings.SafeString(Strings.IFF, target);
+						break;
+					case 0x14:
+						s += "Not GG " + target;
 						break;
 					case 0x15:
-						s += "All Teams except TM:" + target;
+						s += "All teams except TM:" + target;
+						break;
+					case 0x16:
+						s += "Not player #" + (target + 1);
 						break;
 					case 0x17:
 						s += "Global Unit " + target;
+						break;
+					case 0x18:
+						s += "Not global unit " + target;
 						break;
 					default:
 						s += type + " " + target;

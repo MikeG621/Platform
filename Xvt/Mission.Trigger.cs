@@ -76,41 +76,81 @@ namespace Idmr.Platform.Xvt
 				string trig = "";
 				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
 				{
-					trig = Strings.Amount[Amount] + " of ";
+					trig = Strings.SafeString(Strings.Amount, Amount);
+					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
 					switch (VariableType)
 					{
 						case 1:
 							trig += "FG:" + Variable;
 							break;
 						case 2:
-							trig += "Ship type " + Strings.CraftType[Variable+1];
+							trig += "Ship type " + Strings.SafeString(Strings.CraftType, Variable + 1);
 							break;
 						case 3:
-							trig += "Ship class " + Strings.ShipClass[Variable];
+							trig += "Ship class " + Strings.SafeString(Strings.ShipClass, Variable);
 							break;
 						case 4:
-							trig += "Object type " + Strings.ObjectType[Variable];
+							trig += "Object type " + Strings.SafeString(Strings.ObjectType, Variable);
 							break;
 						case 5:
-							trig += "IFF " + Strings.IFF[Variable];
+							trig += "IFF:" + Variable;
 							break;
 						case 6:
-							trig += "Ship orders " + Strings.Orders[Variable];
+							trig += "Craft with " + Strings.SafeString(Strings.Orders, Variable) + " starting orders";
 							break;
 						case 7:
-							trig += "Craft When " + Strings.CraftWhen[Variable];
+							trig += "Craft when " + Strings.SafeString(Strings.CraftWhen, Variable);
 							break;
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
+						case 9:
+							trig += "Craft with " + Strings.SafeString(Strings.Rating, Variable) + " adjusted skill";
+							break;
+						case 0xA:
+							trig += "Craft with primary status: " + Strings.SafeString(Strings.Status, Variable);
+							break;
+						case 0xB:
+							trig += "All craft";
+							break;
 						case 0xC:
 							trig += "TM:" + Variable;
 							break;
+						case 0xD:
+							trig += "(Player #" + Variable + ")";
+							break;
+						case 0xE:
+							trig += "(Before elapsed time " + String.Format("{0}:{1:00}", Variable * 5 / 60, Variable * 5 % 60) + ")";
+							break;
+						case 0xF:
+							trig += "All except FG:" + Variable;
+							break;
+						case 0x10:
+							trig += "All except " + Strings.SafeString(Strings.CraftType, Variable + 1) + "s";
+							break;
+						case 0x11:
+							trig += "All except " + Strings.SafeString(Strings.ShipClass, Variable);
+							break;
+						case 0x12:
+							trig += "All except " + Strings.SafeString(Strings.ObjectType, Variable);
+							break;
+						case 0x13:
+							trig += "All except IFF:" + Variable;
+							break;
+						case 0x14:
+							trig += "All except GG " + Variable;
+							break;
 						case 0x15:
-							trig += "Not TM:" + Variable;
+							trig += "All except TM:" + Variable;
+							break;
+						case 0x16:
+							trig += "(All except Player #" + (Variable + 1) + ")";
 							break;
 						case 0x17:
 							trig += "Global Unit " + Variable;
+							break;
+						case 0x18:
+							trig += "All except Global Unit " + Variable;
 							break;
 						default:
 							trig += VariableType + " " + Variable;
@@ -118,7 +158,7 @@ namespace Idmr.Platform.Xvt
 					}
 					trig += " must ";
 				}
-				trig += Strings.Trigger[Condition];
+				trig += Strings.SafeString(Strings.Trigger, Condition);
 				return trig;
 			}
 			
