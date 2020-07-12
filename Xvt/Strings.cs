@@ -498,8 +498,8 @@ namespace Idmr.Platform.Xvt
 										"Out of warheads"
 									};
 		static string[] _abort = { "never",
-									"0% shields",
-									"",
+									"0% shields (starship)",
+									"cannon sys disabled",
 									"out of warheads",
 									"50% hull",
 									"attacked",
