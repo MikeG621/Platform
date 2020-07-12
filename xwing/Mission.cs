@@ -156,10 +156,9 @@ namespace Idmr.Platform.Xwing
 				FlightGroups[i].Waypoints[0][0] = br.ReadInt16();
 				FlightGroups[i].Waypoints[0][1] = br.ReadInt16();
 				FlightGroups[i].Waypoints[0][2] = br.ReadInt16();
-				FlightGroups[i].Yaw = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
-				FlightGroups[i].Pitch = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
-				FlightGroups[i].Pitch += (short)(FlightGroups[i].Pitch < -90 ? 270 : -90);
-				FlightGroups[i].Roll = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
+				FlightGroups[i].Yaw = (short)br.ReadInt16();  //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
+				FlightGroups[i].Pitch = (short)br.ReadInt16();
+				FlightGroups[i].Roll = (short)br.ReadInt16();
 			}
 			MissionPath = stream.Name;
 		}
@@ -224,10 +223,9 @@ namespace Idmr.Platform.Xwing
                 FlightGroupsBriefing[i].Cargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargoCraft = br.ReadInt16();
-                FlightGroupsBriefing[i].Pitch = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
-				FlightGroupsBriefing[i].Pitch += (short)(FlightGroups[i].Pitch < -90 ? 270 : -90);
-				FlightGroupsBriefing[i].Yaw = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
-				FlightGroupsBriefing[i].Roll = (short)Math.Round((double)br.ReadInt16() * 360 / 0x100);
+				FlightGroupsBriefing[i].Yaw = (short)br.ReadInt16();
+				FlightGroupsBriefing[i].Pitch = (short)br.ReadInt16();
+				FlightGroupsBriefing[i].Roll = (short)br.ReadInt16();
 			}
 
 			#region WindowUISettings
@@ -419,9 +417,9 @@ namespace Idmr.Platform.Xwing
 					bw.Write(FlightGroups[i].Waypoints[0][0]);
 					bw.Write(FlightGroups[i].Waypoints[0][1]);
 					bw.Write(FlightGroups[i].Waypoints[0][2]);
-					bw.Write((short)(byte)(FlightGroups[i].Yaw * 0x100 / 360));	// this forces a negative value to mask against 0x00FF instead of 0xFFFF
-					bw.Write((short)(byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
-					bw.Write((short)(byte)(FlightGroups[i].Roll * 0x100 / 360));
+					bw.Write((short)FlightGroups[i].Yaw); //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
+					bw.Write((short)FlightGroups[i].Pitch);
+					bw.Write((short)FlightGroups[i].Roll);
 				}
 				#endregion
 				fs.SetLength(fs.Position);
@@ -526,9 +524,9 @@ namespace Idmr.Platform.Xwing
                     fs.Position = p + 0x30;
 
                     bw.Write(FlightGroupsBriefing[i].SpecialCargoCraft);
-                    bw.Write((short)(byte)((FlightGroupsBriefing[i].Pitch >= 90 ? FlightGroupsBriefing[i].Pitch - 270 : FlightGroupsBriefing[i].Pitch + 90) * 0x100 / 360));
-                    bw.Write((short)(byte)(FlightGroupsBriefing[i].Yaw * 0x100 / 360));
-                    bw.Write((short)(byte)(FlightGroupsBriefing[i].Roll * 0x100 / 360));
+					bw.Write((short)FlightGroupsBriefing[i].Yaw);
+					bw.Write((short)FlightGroupsBriefing[i].Pitch);
+					bw.Write((short)FlightGroupsBriefing[i].Roll);
                 }
 
                 #region WindowUISettings

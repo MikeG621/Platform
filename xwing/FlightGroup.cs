@@ -21,6 +21,28 @@ namespace Idmr.Platform.Xwing
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
 		Waypoint[] _waypoints = new Waypoint[15];
+
+		/// <summary>Gets or sets the object z-axis orientation at start in raw units (64 = 90 degrees).</summary>
+		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Pitch"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
+		public new short Yaw
+		{
+			get { return _yaw; }
+			set { _yaw = value; }
+		}
+		/// <summary>Gets or sets the object y-axis orientation at start in raw units (64 = 90 degrees).</summary>
+		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Yaw"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
+		public new short Pitch
+		{
+			get { return _pitch; }
+			set { _pitch = value; }
+		}
+		/// <summary>Gets or sets the object x-axis orientation at start in raw units (64 = 90 degrees).</summary>
+		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Yaw"/> and <see cref="Pitch"/>. Only applies to object groups.</remarks>
+		public new short Roll
+		{
+			get { return _roll; }
+			set { _roll = value; }
+		}
 		
 		//TODO: these indexes are wrong
 		/// <summary>Indexes for <see cref="Waypoints"/></summary>
