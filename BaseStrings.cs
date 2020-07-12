@@ -92,7 +92,7 @@ namespace Idmr.Platform
 										"Side Hexagon",
 										"Front Hexagon"
 									};
-		static string[] _formationMine = {"Flat (X-Y)",
+		static string[] _formationMine = {"Floor (X-Y)",
 										"Side (Y-Z)",
 										"Front (X-Z)",
 										"Overlap on point (bad)"
