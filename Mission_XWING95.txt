@@ -62,7 +62,7 @@ struct FileHeader (size 0xCE)
 	0x000	SHORT	PlatformID (2)
 	0x002	SHORT	TimeLimitMinutes
 	0x004	SHORT	EndEvent (enum)
-	0x006	SHORT	Unknown1
+	0x006	SHORT	RndSeed (unused)
 	0x008	SHORT	Location (enum)
 	0x00A	CHAR[64][3]	EndOfMissionMessages
 	0x0CA	SHORT	NumFGs
@@ -207,7 +207,7 @@ struct MissionHeader (size 0xC8)
 {
 	0x00	SHORT	TimeLimitMinutes
 	0x02	SHORT	EndEvent (enum)
-	0x04	SHORT	Unknown1
+	0x04	SHORT	RndSeed (unused)
 	0x06	SHORT	Location (enum)
 	0x08	CHAR[64][3]	EndOfMissionMessages
 }
@@ -254,7 +254,9 @@ do not use this value.
 EndEvent (enum) determines what happens when the player dies, and determines
 the end trigger for Death Star Surface missions.
 
-Unknown1 seems to always be zero.
+RndSeed is supposed to be an initializer to the pseudo-random number generator,
+for the purposes of randomizing backdrops. However, it is not actually used by
+the game and therefore completely useless. It is zero in all missions.
 
 Location (enum) determines whether mission is in deep space, or Death Star
 Surface.
@@ -321,8 +323,7 @@ ArrivalDelay
 Determines how much time after ArrivalEvent is triggered before the craft will
 arrive in the mission.  This value is encoded in an unusual format:
 If ArrivalDelay <= 20, the value is interpreted as minutes.
-If ArrivalDelay > 20, subtract 20.  The minutes is encoded as a multiple of 10.
-The "ones" digit encodes the seconds, each increment translating into 6 seconds.
+If ArrivalDelay > 20, subtract 20, then multiply the result by 6 seconds.
 
 Examples:
 A value of 5 means 5 minutes, 0 seconds.
@@ -416,7 +417,7 @@ always appearing as white in game.  Mines are always hostile no matter what.
 ObjectFormation (enum)
 Holds various parameter values depending on object types.
 For mines, this determines the formation.  Bits 1 (0x1) and 2 (0x2) will
-produce a value of 0 to 3.
+produce a value of 0 to 3.  See ObjectFormation enum.
 For destructible objects such as mines, satellites, probes, and nav buoy, the
 mission goal is encoded in bits 3 (0x4) and 4 (0x8).  If neither bit is set,
 there is no goal.  If Bit 3 (0x4) is set, the object must be destroyed.  If
@@ -685,10 +686,10 @@ Formation
 0B	Spiral
 
 ObjectFormation   (Only for mines)
-00	Flat
-01	Edge
-02	Broadside
-03	Scattered	(May be buggy)
+00	Floor (X-Y plane)
+01	Side (Y-Z plane)
+02	Front (X-Z plane)
+03	Scattered	(may be buggy, undefined locations)
 
 ArrivalEvent
 00	Always (true)

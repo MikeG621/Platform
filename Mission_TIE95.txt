@@ -302,6 +302,14 @@ flight group the flight leader is. Having a flight leader way out front can
 absorb fire and let the rest of the group fire salvos before being attacked
 themselves.  
 
+Formation has no effect on mines. They use the Status field instead. Possible
+values are:
+0: Floor (X-Y plane)
+1: Side (Y-Z plane)
+2: Front (X-Z plane)
+3: All overlap a single point. They'll destroy each other with friendly-fire.
+Anything beyond repeats this sequence. There is no way to change the spacing.
+
 NumberOfWaves is zero-indexed, so the number stored is actually the number of
 additional waves after the inital starting group. PlayerCraft is one-indexed
 with no player being a value of zero. You can only have one PlayerCraft 

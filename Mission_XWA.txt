@@ -292,7 +292,7 @@ struct GoalFG (size 0x50)
 
 struct Message (size 0xA2)
 {
-	0x00	SHORT	NessageIndex
+	0x00	SHORT	MessageIndex
 	0x02	STR(64)	Message
 	0x52	BYTE[10] SetToTeam
 	0x5C	Trigger	Trigger1
@@ -448,6 +448,14 @@ or craft type in a order you can lump everything to a GG and use a single
 target. LeaderSpacing is how far ahead of the rest of the flight group the
 flight leader is. Having a flight leader way out front can absorb fire and let
 the rest of the group fire salvos before being attacked themselves.  
+
+Formation has no effect on mines. They use the Status1 field instead. Possible
+values are:
+0: Floor (X-Y plane)
+1: Side (Y-Z plane)
+2: Front (X-Z plane)
+3: All overlap a single point. They'll destroy each other with friendly-fire.
+Anything beyond repeats this sequence. There is no way to change the spacing.
 
 NumberOfWaves is zero-indexed, but the number you'll likely see in editors is
 the number of total waves. A few values have been inserted here, the first
@@ -967,6 +975,11 @@ E4	MC80 Liberty-class Cruiser
 E5	Victory-class Star Destroyer II
 E6	Imperator-class Star Destroyer II
 E7	*Planet
+
+Notes:
+49, 4A both map to the same type as 48 (Comm Sat 3)
+4F maps to 4D (Mine C)
+B6 maps to B5 (R2-D2)
 
 Status
 00	None
