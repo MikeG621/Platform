@@ -97,6 +97,7 @@ namespace Idmr.Platform.Xwing
 			TargetSecondary = -1;
 			for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
 			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
+			Pitch = 64;  //Default for space objects, in raw units (64 = 90 degrees).
 		}
 
 		#region functions
