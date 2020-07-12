@@ -89,6 +89,7 @@
     <Compile Include="Xvt\Message.cs" />
     <Compile Include="Xvt\MessageCollection.cs" />
     <Compile Include="Xvt\Mission.cs" />
+    <Compile Include="Xvt\Mission.IffNameIndexer.cs" />
     <Compile Include="Xvt\Mission.Trigger.cs" />
     <Compile Include="Xvt\Strings.cs" />
     <Compile Include="Xvt\Team.cs" />
