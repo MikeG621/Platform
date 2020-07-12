@@ -166,8 +166,8 @@ IconSet
 		0x018	CHAR[16] Cargo
 		0x028	CHAR[16] SpecialCargo
 		0x038	SHORT	SpecialCargoCraft
-		0x03A	SHORT	Pitch
-		0x03C	SHORT	Yaw
+		0x03A	SHORT	Yaw
+		0x03C	SHORT	Pitch
 		0x03E	SHORT	Roll
 	}
 }
