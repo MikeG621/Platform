@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.1
  */
 
 /* CHANGELOG
+ * v3.1, 200703
+ * [UPD] More details to OverrideShipList length exception
  * v3.0, 180903
  * [NEW] RoleTeams [JB]
  * [UPD] Roles, "Resource Center" to "Research Facility" [JB]
@@ -561,7 +563,7 @@ namespace Idmr.Platform.Xvt
 			if (craftAbbrv == null || craftTypes == null)
 				throw new ArgumentNullException("At least one of the arrays is null, check for valid inputs.");
 			if (craftTypes.Length != _craftType.Length || craftAbbrv.Length != _craftAbbrv.Length)
-				throw new ArgumentException("New arrays must match original length.");
+				throw new ArgumentException("New arrays (Types " + craftTypes.Length + ", Abbrv " + craftAbbrv.Length + ") must match original length (" + _craftAbbrv.Length + ").");
 			_craftType = craftTypes;
 			_craftAbbrv = craftAbbrv;
 		}

@@ -975,6 +975,7 @@ E4	MC80 Liberty-class Cruiser
 E5	Victory-class Star Destroyer II
 E6	Imperator-class Star Destroyer II
 E7	*Planet
+E8	*Planet
 
 Notes:
 49, 4A both map to the same type as 48 (Comm Sat 3)

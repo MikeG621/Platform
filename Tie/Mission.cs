@@ -1,13 +1,14 @@
 /*
- * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Idmr.Platform.dll, X2020wing series mission library file, XW95-XWA
  * Copyright (C) 2009-2019 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0.1+
+ * Version: 3.1
  */
 
 /* CHANGELOG
+ * v3.1, 200703
  * [UPD] added backup during save
  * v3.0.1, 180919
  * [FIX] Pitch value check during write

@@ -1,18 +1,22 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.1
  */
 
 /* CHANGELOG
+ * v3.1, 200703
+ * [NEW] OverrideShipList
  * v3.0, 180309
  * [NEW] created [JB]
  * [UPD] "at least 1" amount changed to "any"
  */
+
+using System;
 
 namespace Idmr.Platform.Xwing
 {
@@ -355,6 +359,21 @@ namespace Idmr.Platform.Xwing
 		public static readonly string BriefingPageHintTitle = ">MISSION COMPLETION HINTS";
 		/// <summary>Caption used for briefing hint pages</summary>
 		public static readonly string BriefingPageHintCaption = "$>STRATEGY AND TACTICS$>FOR COMPLETING THIS MISSION$>ARE AVAILABLE.$$$>DO NOT READ THIS IF YOU WISH TO$>DISCOVER THESE FOR YOURSELF!$$$>CLICK ON THE BLACK PAGE NUMBER$>BOX TO SEE THE HINT(S).";
+
+		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays.</summary>
+		/// <param name="craftTypes">Array of new craft types.</param>
+		/// <param name="craftAbbrv">Array of new craft abbreviations.</param>
+		/// <exception cref="ArgumentException">The <see cref="Array.Length"/> of the arrays do match the originals.</exception>
+		/// <exception cref="ArgumentNullException">Either or both of the input arrays are <b>null</b>.</exception>
+		public static void OverrideShipList(string[] craftTypes, string[] craftAbbrv)
+		{
+			if (craftAbbrv == null || craftTypes == null)
+				throw new ArgumentNullException("At least one of the arrays is null, check for valid inputs.");
+			if (craftTypes.Length != _craftType.Length || craftAbbrv.Length != _craftAbbrv.Length)
+				throw new ArgumentException("New arrays (Types " + craftTypes.Length + ", Abbrv " + craftAbbrv.Length + ") must match original length (" + _craftAbbrv.Length + ").");
+			_craftType = craftTypes;
+			_craftAbbrv = craftAbbrv;
+		}
 
 		/// <summary>Gets a copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 5</remarks>
