@@ -21,6 +21,28 @@ namespace Idmr.Platform.Xwing
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
 		Waypoint[] _waypoints = new Waypoint[15];
+
+		/// <summary>Gets or sets the object z-axis orientation at start in raw units (64 = 90 degrees).</summary>
+		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Pitch"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
+		public new short Yaw
+		{
+			get { return _yaw; }
+			set { _yaw = value; }
+		}
+		/// <summary>Gets or sets the object y-axis orientation at start in raw units (64 = 90 degrees).</summary>
+		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Yaw"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
+		public new short Pitch
+		{
+			get { return _pitch; }
+			set { _pitch = value; }
+		}
+		/// <summary>Gets or sets the object x-axis orientation at start in raw units (64 = 90 degrees).</summary>
+		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Yaw"/> and <see cref="Pitch"/>. Only applies to object groups.</remarks>
+		public new short Roll
+		{
+			get { return _roll; }
+			set { _roll = value; }
+		}
 		
 		//TODO: these indexes are wrong
 		/// <summary>Indexes for <see cref="Waypoints"/></summary>
@@ -62,7 +84,7 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>All Orders set Throttle to <b>100%</b>, all Goals set to <b>FALSE</b>, SP1 <b>Enabled</b></remarks>
 		public FlightGroup()
 		{
-			_stringLength = 0xC;
+			_stringLength = 0x10;
 			NumberOfWaves = 0;
 			NumberOfCraft = 1;
 			CraftType = 1;   //0 is None, default to X-wing.
@@ -75,6 +97,7 @@ namespace Idmr.Platform.Xwing
 			TargetSecondary = -1;
 			for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
 			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
+			Pitch = 64;  //Default for space objects, in raw units (64 = 90 degrees).
 		}
 
 		#region functions

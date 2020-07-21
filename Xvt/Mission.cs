@@ -57,8 +57,9 @@ namespace Idmr.Platform.Xvt
 	/// <remarks>This is the primary container object for XvT and BoP mission files</remarks>
 	public partial class Mission : MissionFile
 	{
-		string _unknown4 = "";
-		string _unknown5 = "";
+		string[] _iff = Strings.IFF;
+		IffNameIndexer _iffNameIndexer;
+
 		string _missionDescription = "";
 		string _missionFailed = "";
 		string _missionSuccessful = "";
@@ -107,6 +108,7 @@ namespace Idmr.Platform.Xvt
 		void _initialize()
 		{
 			_invalidError = _invalidError.Replace("{0}", "XvT or BoP");
+            _iffNameIndexer = new IffNameIndexer(this);
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			Globals = new GlobalsCollection();
@@ -147,13 +149,11 @@ namespace Idmr.Platform.Xvt
 			Unknown2 = br.ReadByte();
 			stream.Position = 0xB;
 			Unknown3 = Convert.ToBoolean(br.ReadByte());
-			stream.Position = 0x28;
-			Unknown4 = new string(br.ReadChars(0x10)).Trim('\0');
-			stream.Position = 0x50;
-			Unknown5 = new string(br.ReadChars(0x10)).Trim('\0');
+			stream.Position = 0x14;
+            for (i=2;i<6;i++) IFFs[i] = new string(br.ReadChars(0x14)).Trim('\0');
 			stream.Position = 0x64;
 			MissionType = (MissionTypeEnum)br.ReadByte();
-			Unknown6 = Convert.ToBoolean(br.ReadByte());
+			PreventMissionOutcome = Convert.ToBoolean(br.ReadByte());
 			TimeLimitMin = br.ReadByte();
 			TimeLimitSec = br.ReadByte();
 			stream.Position = 0xA4;
@@ -320,7 +320,8 @@ namespace Idmr.Platform.Xvt
 				for (i=0;i<numMessages;i++)
 				{
 					stream.Position += 2;
-					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');		// null-termed
+					Messages[i].MessageString = new string(br.ReadChars(64));
+					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
                     if (Messages[i].MessageString.Length > 0)
 					{
@@ -474,17 +475,30 @@ namespace Idmr.Platform.Xvt
 		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
+			//[JB] Rewrote the backup logic.  See the TIE Save() function for comments.
+            if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
+
 			FileStream fs = null;
-			string backup = MissionPath.Replace(".tie", "_tie.bak");
-			if (File.Exists(MissionPath))
-			{
-				File.Copy(MissionPath, backup);
-				File.Delete(MissionPath);
-			}
+            string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
+            bool backupCreated = false, writerCreated = false;
+
+            if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
+            {
+                try
+                {
+                    if (File.Exists(backup) )
+                        File.Delete(backup);
+                    File.Copy(MissionPath, backup);
+                    backupCreated = true;
+                }
+                catch { }
+            }
 			try
 			{
+                if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
                 BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
+                writerCreated = true;
                 int i;
 				long p;
 				#region Platform
@@ -496,15 +510,16 @@ namespace Idmr.Platform.Xvt
 				bw.Write((short)Unknown2);
 				fs.Position++;
 				bw.Write(Unknown3);
-				fs.Position = 0x28;
-				bw.Write(Unknown4.ToCharArray());
-				fs.WriteByte(0);	// just to ensure termination
-				fs.Position = 0x50;
-				bw.Write(Unknown5.ToCharArray());
-				fs.WriteByte(0);	// just to ensure termination
+				fs.Position = 0x14;
+				for (i=2;i<6;i++)
+				{
+					p = fs.Position;
+					bw.Write(_iff[i].ToCharArray()); bw.Write('\0');
+					fs.Position = p + 0x14;
+				}
 				fs.Position = 0x64;
 				bw.Write((byte)MissionType);
-				bw.Write(Unknown6);
+				bw.Write(PreventMissionOutcome);
 				bw.Write(TimeLimitMin);
 				bw.Write(TimeLimitSec);
 				fs.Position = 0xA4;
@@ -830,16 +845,17 @@ namespace Idmr.Platform.Xvt
 			}
 			catch
 			{
-                if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
-				if (File.Exists(backup))
-				{
-					File.Delete(MissionPath);
-					File.Copy(backup, MissionPath);
-					File.Delete(backup);
-				}
-				throw;
+                if (fs != null) fs.Close();
+                if (writerCreated && backupCreated)
+                {
+                    File.Delete(MissionPath);
+                    File.Copy(backup, MissionPath);
+                    File.Delete(backup);
+                }
+                throw;
 			}
-			File.Delete(backup);
+            if(backupCreated)
+			    File.Delete(backup);
 		}
 
 		/// <summary>Save the mission to a new location</summary>
@@ -955,6 +971,8 @@ namespace Idmr.Platform.Xvt
         #endregion public methods
 
 		#region public properties
+        /// <summary>Gets the array accessor for the IFF names</summary>
+		public IffNameIndexer IFFs { get { return _iffNameIndexer; } }
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
 		/// <remarks>Value is <b>32</b></remarks>
 		public const int CraftLimit = 32;
@@ -977,25 +995,11 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B</remarks>
 		public bool Unknown3 { get; set; }
-		/// <summary>Unknown FileHeader value (BoP only?)</summary>
-		/// <remarks>Offset = 0x28, 16 char</remarks>
-		public string Unknown4
-		{
-			get { return _unknown4; }
-			set { _unknown4 = StringFunctions.GetTrimmed(value, 16); }
-		}
-		/// <summary>Unknown FileHeader value (BoP only?)</summary>
-		/// <remarks>Offset = 0x50, 16 char</remarks>
-		public string Unknown5
-		{
-			get { return _unknown5; }
-			set { _unknown5 = StringFunctions.GetTrimmed(value, 16); }
-		}
 		/// <summary>Gets or sets the category the mission belongs to</summary>
 		public MissionTypeEnum MissionType { get; set; }
-		/// <summary>Gets or sets an unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x65</remarks>
-		public bool Unknown6 { get; set; }
+		/// <summary>Gets or sets whether a mission is not allowed to be completed</summary>
+		/// <remarks>If enabled, victory or failure is not possible, a special condition used in some melee scenarios</remarks>
+		public bool PreventMissionOutcome { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
 		/// <remarks>Can be used in conjunction with <see cref="TimeLimitSec"/></remarks>
 		public byte TimeLimitMin { get; set; }

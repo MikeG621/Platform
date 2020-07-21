@@ -59,12 +59,12 @@ namespace Idmr.Platform.Xwa
                                        "Team 6",
                                        "Team 7",
                                        "Team 8",
-                                       "Team 9",
-                                       "Team 10",
-                                       "All 'Enemy' teams",
-                                       "All 'Friendly' teams",
-                                       "Unknown 13",
-                                       "Unknown 14"
+                                       "All Teams",
+                                       "All Other Teams",
+                                       "All Enemy teams",
+                                       "All Friendly teams",
+                                       "IFF Rebel (hyper)",
+                                       "IFF Imperial (hyper)"
                                     };
 
 		static string[] _roles = { "Command Ship",

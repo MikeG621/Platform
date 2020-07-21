@@ -240,7 +240,7 @@ namespace Idmr.Platform.Tie
 				Messages = new MessageCollection(numMessages);
 				for (i=0;i<Messages.Count;i++)
 				{
-					Messages[i].MessageString = new string(br.ReadChars(64)).Trim('\0');
+					Messages[i].MessageString = new string(br.ReadChars(64));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
 					if (Messages[i].MessageString.Length > 0)  //[JB] Added length check, otherwise empty strings would crash the load process and make the mission unrecoverable to anything but hex editing.  
@@ -338,53 +338,58 @@ namespace Idmr.Platform.Tie
 					}
 				}
 			}
-			for (i=0;i<10;i++)
+			//[JB] I've encountered some custom missions with an incomplete question list. A clever form of protection? Even TFW couldn't open it. Wrapping this in a try/catch block.
+			try
 			{
-				int j, k, l = 2;
-				j = br.ReadInt16();	//also got rid of saving here, calc'ing on the fly
-				if (j == 3)
+				for (i=0;i<10;i++)
 				{
-					stream.Position += 3;	// stupid TFW-isms
-					continue;
-				}
-				if (j == 0) continue;
-				BriefingQuestions.PostTrigger[i] = br.ReadByte();
-				BriefingQuestions.PostTrigType[i] = br.ReadByte();
-				for (k=0;k<j;k++)
-				{
-					BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
-					l++;
-					if (stream.ReadByte() == 10) break;
-					else stream.Position--;
-				}
-				l++;
-				for (k=l;k<j;k++)
-				{
-                    int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
-                    switch (b)
+					int j, k, l = 2;
+					j = br.ReadInt16();	//also got rid of saving here, calc'ing on the fly
+					if (j == 3)
 					{
-						case 0:
-							k = j;
-							break;
-						case 1:
-							BriefingQuestions.PostMissAnswers[i] += "]";
-							break;
-						case 2:
-							BriefingQuestions.PostMissAnswers[i] += "[";
-							break;
-						case 10:
-							BriefingQuestions.PostMissAnswers[i] += "\r\n";
-							break;
-						case 160:
-						case 255:
-							k = j;
-							break;
-						default:
-							BriefingQuestions.PostMissAnswers[i] += Convert.ToChar(b).ToString();
-							break;
+						stream.Position += 3;	// stupid TFW-isms
+						continue;
+					}
+					if (j == 0) continue;
+					BriefingQuestions.PostTrigger[i] = br.ReadByte();
+					BriefingQuestions.PostTrigType[i] = br.ReadByte();
+					for (k=0;k<j;k++)
+					{
+						BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
+						l++;
+						if (stream.ReadByte() == 10) break;
+						else stream.Position--;
+					}
+					l++;
+					for (k=l;k<j;k++)
+					{
+						int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
+						switch (b)
+						{
+							case 0:
+								k = j;
+								break;
+							case 1:
+								BriefingQuestions.PostMissAnswers[i] += "]";
+								break;
+							case 2:
+								BriefingQuestions.PostMissAnswers[i] += "[";
+								break;
+							case 10:
+								BriefingQuestions.PostMissAnswers[i] += "\r\n";
+								break;
+							case 160:
+							case 255:
+								k = j;
+								break;
+							default:
+								BriefingQuestions.PostMissAnswers[i] += Convert.ToChar(b).ToString();
+								break;
+						}
 					}
 				}
 			}
+			catch ( EndOfStreamException ) { /* Do nothing */ }
 			#endregion
 			MissionPath = stream.Name;
 		}
@@ -393,18 +398,32 @@ namespace Idmr.Platform.Tie
 		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
+            //[JB] Rewrote the backup logic since it was broken.  It should now retain the same protection concept with more robust handling.
+            //First check whether the file exists and is read-only.  Copying to a backup will inherit the read-only property and prevent any attempt to delete, silently breaking the backup feature unless the user directly intervenes to manually delete it.
+            if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
+
 			FileStream fs = null;
-			string backup = MissionPath.Replace(".tie", "_tie.bak");
-			if (File.Exists(MissionPath))
-			{
-				File.Copy(MissionPath, backup);
-				File.Delete(MissionPath);
-			}
+            //The backup filename must be normalized, as filenames are case-insensitive, unlike strings.  If the replace does not work, the resulting backup name will match the source, and attempting to copy will throw an exception.
+            string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
+            bool backupCreated = false, writerCreated = false;
+
+            if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
+            {
+                try
+                {
+                    if (File.Exists(backup) )
+                        File.Delete(backup);
+                    File.Copy(MissionPath, backup);
+                    backupCreated = true;
+                }
+                catch { }
+            }
 			try
 			{
-
-				fs = File.OpenWrite(MissionPath);
+                if (File.Exists(MissionPath)) File.Delete(MissionPath);
+                fs = File.OpenWrite(MissionPath);
                 BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
+                writerCreated = true;
 				bw.Write((short)-1);
 				bw.Write((short)FlightGroups.Count);
 				bw.Write((short)Messages.Count);
@@ -601,23 +620,26 @@ namespace Idmr.Platform.Tie
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
 				}
-				#endregion
+                #endregion
 				bw.Write((short)0x2106); fs.WriteByte(0xFF);
 				fs.SetLength(fs.Position);
 				fs.Close();
 			}
 			catch
 			{
-                if (fs != null) fs.Close(); //[JB] Fixed to prevent object instance error.
-				if (File.Exists(backup))
-				{
-					File.Delete(MissionPath);
-					File.Copy(backup, MissionPath);
-					File.Delete(backup);
-				}
-				throw;
+                if (fs != null) fs.Close(); //Prevent object instance exception if it failed to open.
+                //If the stream was opened successfully but failed at any point during writing, the contents are corrupt, so restore from backup.  Otherwise it's probably a different kind of access error, such as file already open.
+                if (writerCreated && backupCreated)
+                {
+                    File.Delete(MissionPath);
+                    File.Copy(backup, MissionPath);
+                    File.Delete(backup);
+                }
+                throw;
 			}
-			File.Delete(backup);
+            //Save completed successfully.
+            if(backupCreated)
+			    File.Delete(backup);
 		}
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>

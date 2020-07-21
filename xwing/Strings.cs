@@ -315,10 +315,10 @@ namespace Idmr.Platform.Xwing
 										"Hi-Lo",
 										"Spiral",
 									};
-		static string[] _formationObject = { "Flat",
-										"Edge",
-										"Broadside",
-										"Scattered"
+		static string[] _formationObject = { "Floor (X-Y)",
+										"Side (Y-Z)",
+										"Front (X-Z)",
+										"Scattered (undefined)"
 									};
 
 

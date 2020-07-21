@@ -81,11 +81,11 @@ struct FileHeader (size 0xA4)
 	0x04	SHORT	NumMessages
 	0x06	BYTE	Unknown1
 	0x08	BYTE	Unknown2
+	0x09	BYTE	RndSeed
 	0x0B	BOOL	Unknown3
-	0x28	CHAR[16] Unknown4			[seen only in BoP]
-	0x50	CHAR[16] Unknown5			[seen only in BoP]
+	0x14	STR(20)[4] IffNames3-6
 	0x64	BYTE	MissionType
-	0x65	BOOL	Unknown6
+	0x65	BOOL	PreventMissionOutcome
 	0x66	BYTE	TimeLimitMinutes
 	0x67	BYTE	TimeLimitSeconds
 }
@@ -113,7 +113,7 @@ struct FlightGroup (size 0x562)
 	0x05F	BYTE	GlobalGroup
 	0x060	BYTE	LeaderSpacing
 	0x061	BYTE	NumberOfWaves
-	0x062	BYTE	Unknown1
+	0x062	BYTE	Unknown1                 From Unknown5 in TIE, seems unused
 	0x063	BOOL	Unknown2
 	0x064	BYTE	PlayerNumber
 	0x065	BYTE	ArriveOnlyIfHuman
@@ -129,7 +129,7 @@ struct FlightGroup (size 0x562)
 	0x07D	Trigger	Arrival4
 	0x083	BOOL	Arrival3OrArrival4
 	0x084	BOOL	Arrival12OrArrival34
-	0x085	BYTE	Unknown3				[ARR_DELAY_30SECONDS?]
+	0x085	BYTE	RandomArrivalDelayExtraMinutes	Unknown3 [ARR_DELAY_30SECONDS?]
 	0x086	BYTE	ArrivalDelayMinutes
 	0x087	BYTE	ArrivalDelaySeconds
 	0x088	Trigger	Departure1
@@ -138,7 +138,7 @@ struct FlightGroup (size 0x562)
 	0x093	BYTE	DepartureDelayMinutes
 	0x094	BYTE	DepartureDelaySeconds
 	0x095	BYTE	AbortTrigger (enum)
-	0x096	BYTE	Unknown4
+	0x096	BYTE	RandomArrivalDelayExtraSeconds	Unknown4
 	0x098	BYTE	Unknown5
 	0x09A	BYTE	ArrivalMothership
 	0x09B	BYTE	ArriveViaMothership
@@ -153,8 +153,8 @@ struct FlightGroup (size 0x562)
 	0x1F4	BOOL	Skip1OrSkip2
 	0x1F5	GoalFG[8]
 	0x466	Waypt[4]
-	0x516	BOOL	Unknown17
-	0x518	BOOL	Unknown18
+	0x516	BOOL	Unknown17       From Unknown19 in TIE, seems unused
+	0x518	BOOL	Unknown18       From Unknown20 in TIE, seems unused
 	0x520	BOOL	PreventCraftNumbering
 	0x521	BYTE	DepartureClockMinutes
 	0x522	BYTE	DepartureClockSeconds
@@ -162,7 +162,7 @@ struct FlightGroup (size 0x562)
 	0x524	BYTE	CraftExplosionTime
 	0x525	BYTE	Status2 (enum)
 	0x526	BYTE	GlobalUnit
-	0x527	BOOL	Unknown22
+	0x527	BOOL	Unknown22      From Unknown21 in TIE, seems unused
 	0x528	BOOL	Unknown23
 	0x529	BOOL	Unknown24
 	0x52A	BOOL	Unknown25
@@ -192,6 +192,10 @@ struct Trigger (size 0x4)
 	0x2	BYTE	Variable
 	0x3	BYTE	Amount (enum)
 }
+
+Technical note: Triggers always come in pairs. Each pair is followed by 2
+unknown/unused bytes, then the BOOL indicating whether the evaluation should
+be OR'd together.
 
 struct Order (size 0x52)
 {
@@ -333,6 +337,16 @@ one of two values.
 The only known difference between platforms is seen at the very end, and a few
 more Unknown values
 
+RndSeed is an initializer to the pseudo-random number generator, for the
+purpose of randomizing backdrops and asteroid spawns. It helps ensure that
+these features are synchronized in multiplayer. 
+
+IffNames is a list of four custom strings for IFF #3 to 6. It is used
+exclusively for displaying IFF global goals in the in-game goal overlay. The
+first two IFF names (Rebel, Imperial) are accessed directly from localized
+strings found in "strings.txt" and cannot be modified in this list. If the
+first character of a string is "1", that first character is ignored.
+
 The MissionType value defines the mission as either a Training (normal) mission
 or a combat mission.
 00	Training
@@ -340,6 +354,14 @@ or a combat mission.
 02	Melee
 03	Multiplayer Training
 04	Multiplayer Combat
+
+The unknown mission type seems to be some kind of prototype melee. End mission
+combat statistics are not recorded in the pilot file. There may be other
+differences too.
+
+PreventMissionOutcome indicates that a mission outcome can never be resolved.
+Neither failure or victory is possible. Typically used for melee scenarios
+where accumulation of points is all that matters.
 
 Following that are the TimeLimit values, and a seemingly bunch of blank space.
 
@@ -378,6 +400,14 @@ target. LeaderSpacing is how far ahead of the rest of the flight group the
 flight leader is. Having a flight leader way out front can absorb fire and let
 the rest of the group fire salvos before being attacked themselves.  
 
+Formation has no effect on mines. They use the Status1 field instead. Possible
+values are:
+0: Floor (X-Y plane)
+1: Side (Y-Z plane)
+2: Front (X-Z plane)
+3: All overlap a single point. They'll destroy each other with friendly-fire.
+Anything beyond repeats this sequence. There is no way to change the spacing.
+
 NumberOfWaves is zero-indexed, but the number you'll likely see in editors is
 the number of total waves. A few values have been inserted here, the first
 being PlayerNumber. One-indexed, with zero meaning AI-controlled. Next is
@@ -401,6 +431,13 @@ fired. The DEP_DELAY changed from TIE, in that it now too starts the countdown
 from the firing of the Trigger. The AbortTrigger value applies only to
 individual craft, not the entire flight group. The Arrive/DepartViaMothership
 values when false will cause craft to use hyperspace.
+
+Two obscure values, RandomArrivalDelayExtraMinutes and Seconds control extra
+delay time that stacks additively with the ordinary arrival delay once the
+trigger is activated. The extra delay is calculated as seconds. If Randomize
+is enabled in the mission options, the extra delay will be anything from zero
+to the specified extra delay. If Randomize is disabled, it will always choose
+half the total delay.
 
 Orders, they're what make the world go 'round. Pick the Order from the list
 and go from there. Throttle is expressed as (10 - %Throttle / 10). So 100%
@@ -495,6 +532,12 @@ The message string actually holds a second purpose, that is defining the color
 of the message itself. The default message color is red, if the message starts
 with '1' it is green, '2' is blue and '3' is yellow. The number will not appear
 when displayed in-game.
+
+Technical note: the game will allow the full 64 characters to be used without
+any negative side effects. The final character is not required to be a null
+terminator. It will overflow into the SendTo* array, but most of it is null
+anyway, or is a non-printable char. Even so there's a hard limit of 70 chars
+that are copied into the actual message log.
 
 -- GlobalGoal --
 
@@ -692,7 +735,7 @@ Status
 02	1/2 Warheads
 03	No Shields
 04	1/2 Shields
-05	No Lasers
+05	No Turrets
 06	No Hyperdrive
 07	Shields 0%, charging
 08	Shields added or 200%
@@ -701,14 +744,25 @@ Status
 0B	Unknown
 0C	(200% Shields)
 0D	Shields 50%, Charging
-0E	(No Lasers)
+0E	(No Turrets)
 0F	Unknown
 10	Shields + Hyperdrive added
 11	Unknown
 12	200% Shields
 13	(50% Shields)
 14	Invincible
-15	Infinite Warheads
+15	Infinite Ammo
+
+Notes:
+0x05 and 0x0E (both No Turrets) will deactivate all gun turrets on a ship.
+Fixed forward-firing cannons are unaffected. 0x0E goes further, disabling the
+scripts that are responsible for managing turret behavior. Could possibly save
+CPU cycles, but both are otherwise identical from a gameplay perspective.
+
+0x15 (Infinite Ammo) applies to cannon energy, warheads, and countermeasures.
+
+Other duplicates are just that, essentially aliases that do the same thing.
+The unknowns don't seem to be used at all.
 
 Warhead
 00	None
@@ -809,22 +863,22 @@ ArrivalDifficulty
 
 Condition
 00	Always (true)
-01	Created
+01	Arrived
 02	Destroyed
 03	Attacked
 04	Captured
 05	Inspected
-06	Boarded
-07	Docked
+06	Finished Being Boarded
+07	Finished Docking
 08	Disabled
 09	Survived (exist)
 0A	None (false)
-0B	Unknown (---)
+0B	Unused
 0C	Completed mission
 0D	Completed Primary Goals
 0E	Failed Primary Goals
-0F	Completed Secondary Goals
-10	Failed Secondary Goals
+0F	Completed Secondary Goals  (unused)
+10	Failed Secondary Goals (unused)
 11	Completed Bonus Goals
 12	Failed Bonus Goals
 13	Dropped off
@@ -832,29 +886,88 @@ Condition
 15	0% Shields
 16	50% Hull
 17	Out of Warheads
-18	Unknown (arrive?)
+18	Cannon system disabled
 19	be dropped off
-1A	destroyed in 1 hit
+1A	Destroyed in 1 hit (broken)
 1B	NOT be disabled
 1C	NOT be picked up
-1D	destroyed w/o Inspection
-1E	be docked with
-1F	NOT be docked with
-20	begin boarding
-21	NOT begin boarding
+1D	Come and go w/o Inspection
+1E	Begin being boarded
+1F	NOT being boarded
+20	begin docking
+21	NOT begin docking
 22	50% Shields
 23	25% Shields
 24	75% Hull
 25	25% Hull
-26	Unknown
-27	Unknown
-28	Unknown
+26	Always Failed
+27	Inspect/Pickup team modifier
+28	Unused
 29	be all Player Craft
-2A	reinforced by AI?
+2A	be all AI Craft
 2B	come and go
 2C	be picked up
 2D	withdraw
 2E	be carried away
+
+Notes:
+0x09 (Survived) Checks the number of craft that have survived at the moment the
+trigger is evaluated. Includes craft that haven't arrived yet. Excludes craft
+that have been destroyed by any means.
+
+0x18 (Cannon system disabled) is true when the cannons are missing or disabled.
+Capital ships don't have a cannon subsystem, so it will always be true for
+them. Mag pulse does not damage the cannon subsystem of AI craft, but it will
+for players, so it can be used to detect a mag pulse hit on a player craft.
+
+0x1D (Destroyed w/o Inspection) Tracks craft that are destroyed (or prevented
+from arriving) without being inspected. If paired with Condition 0x27, its
+behavior is modified to track come and go without inspection, which can detect
+escaping craft.
+
+0x29 (be all Player Craft) and 0x2A (be all AI Craft) When combined with a
+VariableType of IFF or Team, has a special interaction. Instead of counting all
+craft, it counts the number of active player slots out of the total number of
+playable FGs. This allows mission design to tailor difficulty based on number
+of active players.
+
+0x0D/0x0E (Completed/Failed Primary Goals) and 0x11/0x12 (Completed/Failed
+Bonus Goals) If VariableType is Team, it checks the mission outcome for that
+team. In all other cases, it is true if any team has achieved victory.
+0x0F and 0x10 (Completed/Failed Secondary Goals) don't do anything.
+
+0x1A (Destroyed in 1 hit) A broken condition. It's supposed to be "come and
+go without being attacked" but the implementation is broken in a few ways. For
+trigger purposes, when it comes-and-goes, it will still evaluate to true even
+if attacked by the player. It is only false if attacked by AI, and only AI.
+When used as a goal, being attacked by anything (player or AI) is an anti-
+condition and will be immediately detected, resulting in instant failure. But
+there's another bug. If the player destroys the craft very quickly ("in 1 hit" 
+such as when using warheads), then "come-and-go" takes precendence over
+"attacked" and evaluates to success, even though it was attacked. But this bug
+only applies if the FG is one craft of one wave.
+
+0x1D (Come and go w/o Inspection) A bit strange. If used as a goal, it's
+exactly as it says. However, the statistic isn't globally tracked, so it will
+not activate for triggers unless paired with condition 0x27 for a specific
+team.
+
+0x26 (Always Failed) Evaluates to failure, as opposed to merely false. If used
+for a goal, it will cause immediate failure.
+
+0x27 (Inspect/Pickup team modifier) The game tracks Inspection/Pickup
+statistics in two ways. The default way is a grand total, which all teams
+contribute to. If any one team inspects a neutral, it's considered inspected by
+everyone for the purposes of all basic triggers. This modifier lets you check
+a specific team, and how much. It can only be used for particular conditions:
+Inspection, Come and Go Without Inspection, or Be Picked Up.
+
+Triggers operate in pairs (A:B). This condition is intended to be used in the B
+trigger, which modifies the A trigger to access statistics for a specific team
+instead the grand total. Trigger B's VariableType must be set to Team. Variable
+must be set to the team index. Amount doesn't matter. The and/or boolean
+doesn't matter.
+
 
 VariableType
 00	None
@@ -866,10 +979,77 @@ VariableType
 06	Order (enum)
 07	CraftWhen (enum)
 08	Global Group
+09	Adjusted AI skill level (enum)
+0A	Status1 (enum)
+0B	All Craft
 0C	Team
+0D	Player Slot *
+0E	Before elapsed time *
+0F	All Flight Group except
+10	All CraftType except
+11	All CraftCategory except
+12	All ObjectCategory except
 13	All IFFs except
+14	All Global Group except
 15	All Teams except
+16	All Player Slot except *
 17	Global Unit
+18	All Global Unit except
+
+Notes:
+0x06 (Order) Only checks the first mission order of the craft, as defined by
+its flight group. Not its actual current order.
+
+0x07 (CraftWhen) Any conditions that aren't Player Craft or Non-Player Craft
+will always return true when used for triggers. It is mostly intended to be
+used for orders.
+
+0x09 (Adjusted AI skill) Typically skill levels are modified by difficulty
+setting and game type. This condition checks the resulting adjusted skill
+level.
+
+0x0A (Status1) Only checks Status1, not Status2.
+
+0x0E (Before elapsed time) Time values are multiplied by 5 seconds. If the
+elapsed time is within this value, a target will be considered. If a target has
+been acquired, they won't necessarily stop shooting when the time limit is
+reached. This is a unique condition, only working correctly in very specific
+situations. See important notes further below.
+
+0x0D (Player Slot) This condition has a bug in the programming which causes it
+to work incorrectly if used to target Player #1. If the first FG in the mission
+is PlayerNumber 1, it will most likely target all craft, even the AI. It seems
+this can be avoided by having Player #1 in any other FG that isn't the first.
+
+0x16 (All Player Slot except) Both of these Player Slot conditions only
+consider flight groups of the corresponding player number, and they must have
+an active human pilot assigned to their duty roster. If no player is assigned,
+they will not be targeted.  If there is a player, it will target all craft in
+the FG, including AI wingmen.
+These are unique conditions. See notes continued below.
+
+- Unique Conditions -
+0x0D (Player slot), 0x0E (Before elapsed time), and 0x16 (All player slot
+except) are not valid conditions for triggers and will always return false.
+They work for orders, but are uniquely problematic when compared to other
+conditions.
+
+Potential order targets are typically scanned using two stages. The first stage
+examines flight groups for potentially valid targets, not invididual craft.
+Potential targets include flight groups that haven't arrived yet, in which case
+the operating craft will patrol until something arrives. Only when such
+potential targets are considered, will it proceed to the second stage. Then
+invidual craft are scanned to select an actual target.
+
+What makes these three conditions problematic is they are only examined in the
+second stage. They always return false in the first stage. Some other
+condition, such as a secondary target, must be a valid potential target in
+order to proceed to the second stage.
+
+There are ways to trick the game to proceed to the second stage, using other
+targets that can be expected to exist, that haven't arrived or logically never
+will, or even target its own FG. Each option has downsides such as wasted FG
+slots or deadlocked orders.
 
 CraftCategory
 00	Starfighters
@@ -909,7 +1089,7 @@ Amount
 AbortTrigger
 00	None
 01	0% Shields
-02	Unknown
+02	Cannons disabled
 03	Out of warheads
 04	50% Hull
 05	Attacked
@@ -918,8 +1098,20 @@ AbortTrigger
 08	75% Hull
 09	25% Hull
 
+Notes:
+0x01 triggers if the shield subsystem is missing or disabled. Otherwise only
+triggers for freighter or starship classes if shields are at zero.
+
+0x02 triggers if the cannon subsystem is missing or disabled. Mag pulse does
+not apply. Starships do not have a cannon subsystem and will immediately
+abort as soon as they arrive.
+
+AI craft will receive subsystem damage from ions if their system strength is
+weak enough, even though it may not actually hinder their ability to use them.
+
+
 Order
-00	Hold Station
+00	Hold Steady
 01	Go Home
 02	Circle
 	Var1	Number of Loops
@@ -935,7 +1127,7 @@ Order
 08	Attack Escorts
 09	Protect
 0A	Escort
-	Var2	Attack Player (0/1)
+	Var1	Array Index					[An array of 28 predefined location offsets relative to target]
 0B	Disable
 0C	Board and Give Cargo
 	Var1	Docking Time (seconds / 5)
@@ -956,43 +1148,52 @@ Order
 	Var1	Docking Time (seconds / 5)
 	Var2	Number of Dockings
 12	Drop off
-	Var1	Deploy Time?
+	Var1	Not Used
 	Var2	Flight Group
 13	Wait
 	Var1	Wait time (seconds / 5)
-14	SS Wait
+14	Wait 2
 	Var1	Wait time (seconds / 5)
 15	SS Patrol Loop
 	Var1	Number of Loops
 16	SS Await Return
 17	SS Launch
 18	SS Protect
-19	SS Wait and Protect
+19	SS Protect 2
 1A	SS Patrol and Attack
 1B	SS Patrol and Disable
-1C	SS Hold Steady
-	Var1	Wait time (seconds / 5)
+1C	Hold Steady 2
 1D	SS Go Home
-1E	SS Wait
-	Var1	Wait time (seconds / 5)
+1E	Hold Steady 3
 1F	SS Board
 	Var1	Docking Time (seconds / 5)
 	Var2	Number of Dockings
 20	Board to Repair
 	Var1	Docking Time (seconds / 5)
 	Var2	Number of Dockings
-21	Hold Station
-22	Hold Steady
-23	SS Hold Station
+21	Hold Steady 4
+22	Hold Steady 5
+23	Hold Steady 6
 24	Self-destruct
 	Var1	Delay Time (seconds / 5)
 25	Kamikaze
-26	SS Disabled
-27	SS Hold Steady
+26	Hold Steady 7
+27	Null (Hold Steady)
+
+Notes:
+0x00, 0x1C, 0x1E, 0x21, 0x22, 0x23, and 0x26 all map to the same Hold Steady
+order.
+0x27 internally maps to a null order that is distinct from Hold Steady, but its
+behavior is functionally equivalent.
+0x13 and 0x14 both map to the same Wait order.
+0x18 and 0x19 both map to the same SS Protect order.
+
 
 CraftWhen
+00	Captured
 01	Inspected
-02	Boarded
+02	Finished being boarded
+03	Finished docking
 04	Disabled
 05	Attacked
 06	Any hull damage
@@ -1000,7 +1201,28 @@ CraftWhen
 08	Non-special craft
 09	Player's craft
 0A	Non-player's craft
-0C	not disabled
+0B	*Not attacked (broken)
+0C	Not disabled
+0D	Not captured
+0E	*Not inspected (broken)
+0F	Never (always false)
+10	Not finished being boarded
+11	Never
+12	Not finished docking
+13	Never
+14	Never
+15	Never
+16	Hull 75% or less
+17	Hull 50% or less
+18	Hull 25% or less
+19	Out of warheads
+
+Notes:
+Conditions 0x0B (not attacked) and 0x0E (not inspected) check all 10 teams for
+at least one to be true. This effectively makes them useless, as an unused team
+will qualify and return true.
+
+
 
 EventType
 03	Stop

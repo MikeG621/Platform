@@ -25,11 +25,11 @@ namespace Idmr.Platform
 		protected string _messageString = "New Message";
 
 		/// <summary>Gets or sets the in-flight message string</summary>
-		/// <remarks>Restricted to 63 characters, defaults to <b>"New Message"</b></remarks>
+		/// <remarks>Restricted to 64 characters, defaults to <b>"New Message"</b></remarks>
 		public string MessageString
 		{
 			get { return _messageString; }
-			set { _messageString = Idmr.Common.StringFunctions.GetTrimmed(value, 0x3F); }
+			set { _messageString = Idmr.Common.StringFunctions.GetTrimmed(value, 0x40); }
 		}
 		/// <summary>Gets or sets the message color index</summary>
 		public byte Color { get; set; }
