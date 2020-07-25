@@ -4,10 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
+ * [UPD] Better Save backup [JB]
+ * [UPD] Message load null term fixed [JB]
+ * [UPD] Iffs renamed to IFFs
  * v3.1, 200703
  * [UPD] added backup during save
  * v3.0.1, 180919
@@ -161,10 +164,10 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Load a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid XWA mission file</exception>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid XWA mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
-			if (MissionFile.GetPlatform(stream) != MissionFile.Platform.XWA) throw new InvalidDataException(_invalidError);
+			if (GetPlatform(stream) != Platform.XWA) throw new InvalidDataException(_invalidError);
             BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
 			int i, j;
 			long p;
@@ -1096,11 +1099,11 @@ namespace Idmr.Platform.Xwa
 
             foreach (Globals global in Globals)
                 foreach (Globals.Goal goal in global.Goals)
-                    foreach (Mission.Trigger trig in goal.Triggers)
+                    foreach (Trigger trig in goal.Triggers)
                         trig.TransformFGReferences(fgIndex, -1, false);
 
             foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
+                foreach (Trigger trig in msg.Triggers)
                     trig.TransformFGReferences(fgIndex, -1, true);
 
             //XWA Briefing does not use FG indexes.
@@ -1123,11 +1126,11 @@ namespace Idmr.Platform.Xwa
 
             foreach (Globals global in Globals)
                 foreach (Globals.Goal goal in global.Goals)
-                    foreach (Mission.Trigger trig in goal.Triggers)
+                    foreach (Trigger trig in goal.Triggers)
                         trig.SwapFGReferences(srcIndex, dstIndex);
 
             foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
+                foreach (Trigger trig in msg.Triggers)
                     trig.SwapFGReferences(srcIndex, dstIndex);
 
             foreach (Briefing b in Briefings)
@@ -1154,25 +1157,25 @@ namespace Idmr.Platform.Xwa
             if (msgIndex < 0 || msgIndex >= Messages.Count) return 0;  //If out of range, do nothing and return selection to first item.
 
             foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
+                foreach (Trigger trig in msg.Triggers)
                     trig.TransformMessageRef(msgIndex, -1);
 
             foreach (FlightGroup fg in FlightGroups)
             {
-                foreach (Mission.Trigger trig in fg.ArrDepTriggers)
+                foreach (Trigger trig in fg.ArrDepTriggers)
                     trig.TransformMessageRef(msgIndex, -1);
 
                 foreach (FlightGroup.Order order in fg.Orders)
                 {
                     order.TransformMessageReferences(msgIndex, -1);
-                    foreach (Mission.Trigger trig in order.SkipTriggers)
+                    foreach (Trigger trig in order.SkipTriggers)
                         trig.TransformMessageRef(msgIndex, -1);
                 }
             }
 
             foreach (Globals global in Globals)
                 foreach (Globals.Goal goal in global.Goals)
-                    foreach (Mission.Trigger trig in goal.Triggers)
+                    foreach (Trigger trig in goal.Triggers)
                         trig.TransformMessageRef(msgIndex, -1);
             
             return Messages.RemoveAt(msgIndex);
@@ -1188,25 +1191,25 @@ namespace Idmr.Platform.Xwa
             if ((srcIndex < 0 || srcIndex >= Messages.Count) || (dstIndex < 0 || dstIndex >= Messages.Count) || (srcIndex == dstIndex)) return false;
 
             foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
+                foreach (Trigger trig in msg.Triggers)
                     trig.SwapMessageReferences(srcIndex, dstIndex);
 
             foreach (FlightGroup fg in FlightGroups)
             {
-                foreach (Mission.Trigger trig in fg.ArrDepTriggers)
+                foreach (Trigger trig in fg.ArrDepTriggers)
                     trig.SwapMessageReferences(srcIndex, dstIndex);
 
                 foreach (FlightGroup.Order order in fg.Orders)
                 {
                     order.SwapMessageReferences(srcIndex, dstIndex);
-                    foreach (Mission.Trigger trig in order.SkipTriggers)
+                    foreach (Trigger trig in order.SkipTriggers)
                         trig.SwapMessageReferences(srcIndex, dstIndex);
                 }
             }
 
             foreach (Globals global in Globals)
                 foreach (Globals.Goal goal in global.Goals)
-                    foreach (Mission.Trigger trig in goal.Triggers)
+                    foreach (Trigger trig in goal.Triggers)
                         trig.SwapMessageReferences(srcIndex, dstIndex);
 
             Message temp = Messages[srcIndex];
@@ -1355,7 +1358,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets the array accessor for the Region names</summary>
 		public Indexer<string> Regions { get { return _regionNameIndexer; } }
 		/// <summary>Gets the array accessor for the IFF names</summary>
-		public Indexer<string> Iffs { get { return _iffNameIndexer; } }
+		public Indexer<string> IFFs { get { return _iffNameIndexer; } }
 		#endregion public properties
 		
 		/// <summary>Container for Global Cargo data</summary>

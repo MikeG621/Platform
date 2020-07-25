@@ -10,6 +10,34 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
+ - (TIE.Strings) IFF numbers removed from defaults
+ - (XWA.Mission) Iffs renamed to IFFs
+ - (XWA.Mission.Trigger) IFF substitution implemented
+ - Lots of fixes and tweaks by Random Starfighter (JB)
+ -- (BaseMessage) Message length increased to 64 from 63
+ -- (BaseStrings) FormationMine added, ShipClass and ObjectType updated
+ -- (*.Order) SafeString implementated
+ -- (*.Trigger) SafeString implementated
+ -- (*.Trigger) ToString() now prevents "of of"
+ -- (*.Mission) Better Save backup
+ -- (*.Mission) Message load null term fixed
+ -- (Tie.Mission) Handling to load incomplete briefing questions
+ -- (XvT.FlightGroup.Order) TriggerType expanded
+ -- (XvT.Mission) Unknown4 and 5 removed, part of new IFF names
+ -- (XvT.Mission) Unknown6 renamed to PreventMissionOutcome
+ -- (XvT.Mission.IffNameIndexer) New
+ -- (XvT.Mission.Trigger) TriggerType expanded
+ -- (XvT.Strings) Various updates to throughout
+ -- (XWA.Strings) RoleTeams updated
+ -- (Xwing.Flightgroup) Raw values for Pitch/Yaw/Roll instead of degrees
+ -- (Xwing.Flightgroup) Internal string length increased
+ -- (Xwing.Mission) Unknown1 renamed to RndSeed
+ -- (Xwing.Mission) Fixed Yaw/Pitch being flipped during save
+ -- (Xwing.Mission) FlightGroup limit increased to 255
+ -- (Xwing.Mission) MessageLimit decreased to 0
+ -- (xwing.Strings) FormationObject updated
+
+ 
 v3.1 - 03 Jul 2020
  - (*.Mission) Added backup during save
  - (XWA.Strings) Orbit order details

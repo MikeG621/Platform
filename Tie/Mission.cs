@@ -1,13 +1,15 @@
 /*
- * Idmr.Platform.dll, X2020wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2019 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
+ * [FIX] Handling to load incomplete briefing questions [JB]
+ * [FIX] Better save backup [JB]
  * v3.1, 200703
  * [UPD] added backup during save
  * v3.0.1, 180919
@@ -108,12 +110,12 @@ namespace Idmr.Platform.Tie
 			BriefingQuestions = new Questions();
 		}
 		#endregion constructors
-		
+
 		#region public methods
 		/// <summary>Loads a mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="FileNotFoundException"><i>filePath</i> does not exist</exception>
-		/// <exception cref="InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> does not exist</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a TIE mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -124,7 +126,7 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Loads a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid TIE mission file</exception>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid TIE mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
 			if (GetPlatform(stream) != Platform.TIE) throw new InvalidDataException(_invalidError);
@@ -644,7 +646,7 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
 		/// <param name="filePath">Full path to the new <see cref="MissionFile.MissionPath"/></param>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;

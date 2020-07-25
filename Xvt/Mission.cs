@@ -4,10 +4,14 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
+ * [UPD] Message load null term fixed [JB]
+ * [UPD] Better Save backup [JB]
+ * [UPD] Unknown4 and 5 removed, part of new IFF names [JB]
+ * [UPD] Unknown6 renamed to PreventMissionOutcome [JB]
  * v3.1, 200703
  * [UPD] added backup during save
  * v3.0.1, 180919
@@ -120,8 +124,8 @@ namespace Idmr.Platform.Xvt
 		#region public methods
 		/// <summary>Load a mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
-		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a XvT or BoP mission file</exception>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> does not exist</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a XvT or BoP mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -132,12 +136,12 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Load a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid XvT or BoP mission file</exception>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid XvT or BoP mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
-			MissionFile.Platform p = MissionFile.GetPlatform(stream);
-			if (p != MissionFile.Platform.XvT && p != MissionFile.Platform.BoP) throw new InvalidDataException(_invalidError);
-			IsBop = (p == MissionFile.Platform.BoP);
+			Platform p = GetPlatform(stream);
+			if (p != Platform.XvT && p != Platform.BoP) throw new InvalidDataException(_invalidError);
+			IsBop = (p == Platform.BoP);
             BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
             int i, j;
 			stream.Position = 2;
@@ -396,7 +400,7 @@ namespace Idmr.Platform.Xvt
 						char c = Teams[i].EndOfMissionMessages[j][0];
 						if (c == '1' || c == '2' || c == '3')
 						{
-							Teams[i].EndOfMissionMessageColor[j] = Byte.Parse(c.ToString());
+							Teams[i].EndOfMissionMessageColor[j] = byte.Parse(c.ToString());
 							Teams[i].EndOfMissionMessages[j] = Teams[i].EndOfMissionMessages[j].Substring(1);
 						}
 					}
@@ -472,7 +476,7 @@ namespace Idmr.Platform.Xvt
 		}
 
 		/// <summary>Save the mission with the default path</summary>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
 			//[JB] Rewrote the backup logic.  See the TIE Save() function for comments.
@@ -537,7 +541,7 @@ namespace Idmr.Platform.Xvt
 					{
 						string s = FlightGroups[i].Roles[j];
 						if (FlightGroups[i].Roles[j] != "") bw.Write((s.Length > 4 ? s.Substring(0, 4).ToCharArray() : s.ToCharArray()));
-						else bw.Write((Int32)0);
+						else bw.Write((int)0);
 					}
 					fs.Position = p + 0x28;
 					bw.Write(FlightGroups[i].Cargo.ToCharArray());
@@ -860,7 +864,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Save the mission to a new location</summary>
 		/// <param name="filePath">Full path to the new file location</param>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -922,7 +926,7 @@ namespace Idmr.Platform.Xvt
                         trig.GoalTrigger.TransformFGReferences(fgIndex, -1, false);
 
             foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
+                foreach (Trigger trig in msg.Triggers)
                     trig.TransformFGReferences(fgIndex, -1, true);
 
             foreach (Briefing b in Briefings)
@@ -949,7 +953,7 @@ namespace Idmr.Platform.Xvt
                         trig.GoalTrigger.SwapFGReferences(srcIndex, dstIndex);
 
             foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
+                foreach (Trigger trig in msg.Triggers)
                     trig.SwapFGReferences(srcIndex, dstIndex);
 
             foreach(Briefing b in Briefings)

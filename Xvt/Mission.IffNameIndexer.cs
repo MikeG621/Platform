@@ -1,22 +1,19 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2020 Michael Gaisser (mjgaisser@gmail.com)
+ * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
- * v2.1, 141214
- * [UPD] change to MPL
- * v2.0, 120525
- * [NEW] Indexer<T> implementation
+ * [NEW] created [JB]
  */
 
-using System;
-using System.IO;
 using Idmr.Common;
+using System;
 
 namespace Idmr.Platform.Xvt
 {

@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 2.5+
  */
 
 /* CHANGELOG
+ * [UPD] SafeString implemented [JB]
  * v2.5, 170107
  * [FIX] hack _checkValues [JB]
  * v2.1, 141214
@@ -107,22 +108,22 @@ namespace Idmr.Platform.Tie
 						s += "FG:" + target;
 						break;
 					case 2:
-						s += Strings.SafeString(Strings.CraftType, target + 1) + "s";
+						s += BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 3:
-						s += Strings.SafeString(Strings.ShipClass, target);
+						s += BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
 					case 4:
-						s += Strings.SafeString(Strings.ObjectType, target);
+						s += BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
 					case 5:
 						s += "IFF:" + target;
 						break;
 					case 6:
-						s += "Craft with " + Strings.SafeString(Strings.Orders, target) + " orders";
+						s += "Craft with " + BaseStrings.SafeString(Strings.Orders, target) + " orders";
 						break;
 					case 7:
-						s += "Craft when " + Strings.SafeString(Strings.CraftWhen, target);
+						s += "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
 						s += "Global Group " + target;
@@ -140,7 +141,7 @@ namespace Idmr.Platform.Tie
 			public override string ToString()
 			{
 				if (Command == 0) return "None";
-				string order = Strings.SafeString(Strings.Orders, Command);
+				string order = BaseStrings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
 				{
 					string s = _orderTargetString(Target1, Target1Type);
@@ -174,11 +175,11 @@ namespace Idmr.Platform.Tie
 			}
 			/// <summary>Converts an Order for XvT</summary>
 			/// <param name="ord">The Order to convert</param>
-			/// <returns>A copy of <i>ord</i> for XvT</returns>
+			/// <returns>A copy of <paramref name="ord"/> for XvT</returns>
 			public static implicit operator Xvt.FlightGroup.Order(Order ord) { return new Xvt.FlightGroup.Order((byte[])ord); }
 			/// <summary>Converts an Order for XWA</summary>
 			/// <param name="ord">The Order to convert</param>
-			/// <returns>A copy of <i>ord</i> for XWA</returns>
+			/// <returns>A copy of <paramref name="ord"/> for XWA</returns>
 			public static implicit operator Xwa.FlightGroup.Order(Order ord) { return new Xwa.FlightGroup.Order((byte[])ord); }
 			
 			/// <summary>Gets or sets the unknown value</summary>

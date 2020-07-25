@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [UPD] SafeString implemented [JB]
  * v3.0, 180903
  * [UPD] now init to TRUE [JB]
  * [UPD] case 14 added [JB]
@@ -111,31 +112,31 @@ namespace Idmr.Platform.Xwa
 						s = "FG:" + target;
 						break;
 					case 2:
-						s = Strings.SafeString(Strings.CraftType, target + 1) + "s";
+						s = BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 3:
-						s = Strings.SafeString(Strings.ShipClass, target);
+						s = BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
 					case 4:
-						s = Strings.SafeString(Strings.ObjectType, target);
+						s = BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
 					case 5:
-						s = Strings.SafeString(Strings.IFF, target) + "s";
+						s = BaseStrings.SafeString(Strings.IFF, target) + "s";
 						break;
 					case 6:
-						s = "Craft with " + Strings.SafeString(Strings.Orders, target) + " orders";
+						s = "Craft with " + BaseStrings.SafeString(Strings.Orders, target) + " orders";
 						break;
 					case 7:
-						s = "Craft when " + Strings.SafeString(Strings.CraftWhen, target);
+						s = "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
 						s = "Global Group " + target;
 						break;
                     case 9:
-                        s = "Rating " + Strings.SafeString(Strings.Rating, target);
+                        s = "Rating " + BaseStrings.SafeString(Strings.Rating, target);
                         break;
                     case 10:
-                        s = "Craft with status: " + Strings.SafeString(Strings.Status, target);
+                        s = "Craft with status: " + BaseStrings.SafeString(Strings.Status, target);
                         break;
                     case 11:
                         s = "All";
@@ -147,22 +148,22 @@ namespace Idmr.Platform.Xwa
                         s = "Player #" + target;
                         break;
                     case 14:
-                        s = "before time " + String.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
+                        s = "before time " + string.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
                         break;
                     case 15:
                         s = "Not FG:" + target;
                         break;
                     case 16:
-                        s = "Not ship type " + Strings.SafeString(Strings.CraftType, target + 1);
+                        s = "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target + 1);
                         break;
                     case 17:
-                        s = "Not ship class " + Strings.SafeString(Strings.ShipClass, target);
+                        s = "Not ship class " + BaseStrings.SafeString(Strings.ShipClass, target);
                         break;
                     case 18:
-                        s = "Not object type " + Strings.SafeString(Strings.ObjectType, target);
+                        s = "Not object type " + BaseStrings.SafeString(Strings.ObjectType, target);
                         break;
                     case 19:
-                        s = "Not IFF " + Strings.SafeString(Strings.IFF, target);
+                        s = "Not IFF " + BaseStrings.SafeString(Strings.IFF, target);
                         break;
                     case 20:
                         s = "Not GG " + target;
@@ -171,7 +172,7 @@ namespace Idmr.Platform.Xwa
                         s = "All Teams except TM:" + target;
                         break;
                     case 22:
-                        s = "Not player " + target;
+                        s = "Not player #" + target;
                         break;
                     case 23:
                         s = "Global Unit " + target;
@@ -201,7 +202,7 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				if (Command == 0) return "None";
-				string order = Strings.SafeString(Strings.Orders, Command);
+				string order = BaseStrings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 18) || (Command >= 23 && Command <= 27) || Command == 31 || Command == 32 || Command == 37)	//all orders where targets are important
 				{
 					string s = _orderTargetString(Target1, Target1Type);
@@ -238,7 +239,7 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Converts an Order for TIE</summary>
 			/// <remarks><see cref="Speed"/>, <see cref="CustomText"/>, <see cref="Waypoints"/> and <see cref="SkipTriggers"/> are lost in the conversion</remarks>
 			/// <param name="ord">The Order to convert</param>
-			/// <returns>A copy of <i>ord</i> for use in TIE95</returns>
+			/// <returns>A copy of <paramref name="ord"/> for use in TIE95</returns>
 			public static explicit operator Tie.FlightGroup.Order(Order ord)
 			{
 				// Speed, CustomText, WPs, Skips lost
@@ -247,7 +248,7 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Converts an Order for XvT</summary>
 			/// <remarks><see cref="Waypoints"/> and <see cref="SkipTriggers"/> are lost in the conversion. <see cref="CustomText"/> trimmed to 16 characters</remarks>
 			/// <param name="ord">The Order to convert</param>
-			/// <returns>A copy of <i>ord</i> for use in XvT</returns>
+			/// <returns>A copy of <paramref name="ord"/> for use in XvT</returns>
 			public static explicit operator Xvt.FlightGroup.Order(Order ord)
 			{
 				// WPs, Skips lost

@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [UPD] IFF numbers removed
  * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception
  * v3.0, 180903
@@ -39,10 +40,10 @@ namespace Idmr.Platform.Tie
 		#region array definitions
 		static string[] _iff = { "Rebel",
 								  "Imperial",
-								  "IFF3-Blue",
-								  "IFF4-Purple",
-								  "IFF5-Red",
-								  "IFF6-Purple"
+								  "Blue",
+								  "Purple",
+								  "Red",
+								  "Purple"
 							  };
 		static string[] _beam = { "None",
 								   "Tractor beam",

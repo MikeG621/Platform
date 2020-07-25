@@ -1,13 +1,15 @@
 /*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] SafeString implemented [JB]
+ * [FIX] ToString now prevents "of of" [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * [FIX] _checkValues reverts TargetType 0A to 00 (LA sloppiness, caused load fail on certain missions)
@@ -15,9 +17,8 @@
  * [NEW] conversions, validation, exceptions, ToString() override
  */
 
-using System;
-using System.IO;
 using Idmr.Common;
+using System;
 
 namespace Idmr.Platform.Tie
 {
@@ -31,7 +32,7 @@ namespace Idmr.Platform.Tie
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
 			public Trigger(byte[] raw)
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
@@ -39,12 +40,12 @@ namespace Idmr.Platform.Tie
 				ArrayFunctions.TrimArray(raw, 0, _items);
 				_checkValues(this);
 			}
-			
+
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
@@ -95,7 +96,7 @@ namespace Idmr.Platform.Tie
 				string trig = "";
 				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
 				{
-					trig = Strings.SafeString(Strings.Amount, Amount);
+					trig = BaseStrings.SafeString(Strings.Amount, Amount);
 					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
 					switch (VariableType)
 					{
@@ -103,28 +104,28 @@ namespace Idmr.Platform.Tie
 							trig += "FG:" + Variable;
 							break;
 						case 2:
-							trig += "Ship type " + Strings.SafeString(Strings.CraftType, Variable + 1);
+							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable + 1);
 							break;
 						case 3:
-							trig += "Ship class " + Strings.SafeString(Strings.ShipClass, Variable);
+							trig += "Ship class " + BaseStrings.SafeString(Strings.ShipClass, Variable);
 							break;
 						case 4:
-							trig += "Object type " + Strings.SafeString(Strings.ObjectType, Variable);
+							trig += "Object type " + BaseStrings.SafeString(Strings.ObjectType, Variable);
 							break;
 						case 5:
 							trig += "IFF:" + Variable;
 							break;
 						case 6:
-							trig += "Ship orders " + Strings.SafeString(Strings.Orders, Variable);
+							trig += "Ship orders " + BaseStrings.SafeString(Strings.Orders, Variable);
 							break;
 						case 7:
-							trig += "Craft When " + Strings.SafeString(Strings.CraftWhen, Variable);
+							trig += "Craft When " + BaseStrings.SafeString(Strings.CraftWhen, Variable);
 							break;
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
 						case 9:
-							trig += "Misc " + Strings.SafeString(Strings.Misc, Variable);
+							trig += "Misc " + BaseStrings.SafeString(Strings.Misc, Variable);
 							break;
 						default:
 							trig += VariableType + " " + Variable;
@@ -132,7 +133,7 @@ namespace Idmr.Platform.Tie
 					}
 					trig += " must ";
 				}
-				trig += Strings.SafeString(Strings.Trigger, Condition);
+				trig += BaseStrings.SafeString(Strings.Trigger, Condition);
 				return trig;
 			}
 			
@@ -148,12 +149,12 @@ namespace Idmr.Platform.Tie
 			/// <summary>Converts a Trigger for use in XvT</summary>
 			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A copy of <i>trig</i> for XvT</returns>
+			/// <returns>A copy of <paramref name="trig"/> for XvT</returns>
 			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftUpgrade(trig)); }
 			/// <summary>Converts a Trigger for use in XWA</summary>
 			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A copy of <i>trig</i> for XWA</returns>
+			/// <returns>A copy of <paramref name="trig"/> for XWA</returns>
 			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(_craftUpgrade(trig)); }
 		}
 	}

@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
+ * [UPD] RoleTeams updated [JB]
  * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception
  * [UPD] Orbit details

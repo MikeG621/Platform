@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
+ * [UPD] various updates throughout [JB]
  * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception
  * v3.0, 180903

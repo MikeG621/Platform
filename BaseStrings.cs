@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [UPD] ShipClass and ObjectType updated [JB]
+ * [NEW] FormationMine [JB]
  * v3.0, 180309
  * [UPD] reworded >Easy [JB]
  * [NEW] DifficultyAbbrv [JB]

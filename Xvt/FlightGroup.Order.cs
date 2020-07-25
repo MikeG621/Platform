@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [UPD] SafeString implemented [JB]
+ * [UPD] TriggerType expanded [JB]
  * v3.0, 180903
  * [UPD] added "All IFFs except" target type [JB]
  * v2.1, 141214
@@ -114,31 +116,31 @@ namespace Idmr.Platform.Xvt
 						s += "FG:" + target;
 						break;
 					case 2:
-						s += Strings.SafeString(Strings.CraftType, target + 1) + "s";
+						s += BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 3:
-						s += Strings.SafeString(Strings.ShipClass, target);
+						s += BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
 					case 4:
-						s += Strings.SafeString(Strings.ObjectType, target);
+						s += BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
 					case 5:
-						s += Strings.SafeString(Strings.IFF, target) + "s";
+						s += BaseStrings.SafeString(Strings.IFF, target) + "s";
 						break;
 					case 6:
-						s += "Craft with " + Strings.SafeString(Strings.Orders, target) + " starting orders";
+						s += "Craft with " + BaseStrings.SafeString(Strings.Orders, target) + " starting orders";
 						break;
 					case 7:
-						s += "Craft when " + Strings.SafeString(Strings.CraftWhen, target);
+						s += "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
 						s += "Global Group " + target;
 						break;
 					case 9:
-						s += "Craft with " + Strings.SafeString(Strings.Rating, target) + " adjusted skill";
+						s += "Craft with " + BaseStrings.SafeString(Strings.Rating, target) + " adjusted skill";
 						break;
 					case 0xA:
-						s += "Craft with primary status: " + Strings.SafeString(Strings.Status, target);
+						s += "Craft with primary status: " + BaseStrings.SafeString(Strings.Status, target);
 						break;
 					case 0xB:
 						s += "All craft";
@@ -150,22 +152,22 @@ namespace Idmr.Platform.Xvt
 						s += "Player #" + (target + 1);
 						break;
 					case 0xE:
-						s += "Before elapsed time " + String.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
+						s += "Before elapsed time " + string.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
 						break;
 					case 0xF:
 						s += "Not FG:" + target;
 						break;
 					case 0x10:
-						s += "Not ship type " + Strings.SafeString(Strings.CraftType, target + 1) + "s";
+						s += "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
 					case 0x11:
-						s += "Not ship class " + Strings.SafeString(Strings.ShipClass, target);
+						s += "Not ship class " + BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
 					case 0x12:
-						s += "Not object type " + Strings.SafeString(Strings.ObjectType, target);
+						s += "Not object type " + BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
 					case 0x13:
-						s += "Not IFF " + Strings.SafeString(Strings.IFF, target);
+						s += "Not IFF " + BaseStrings.SafeString(Strings.IFF, target);
 						break;
 					case 0x14:
 						s += "Not GG " + target;
@@ -195,7 +197,7 @@ namespace Idmr.Platform.Xvt
 			public override string ToString()
 			{
 				if (Command == 0) return "None";
-				string order = Strings.Orders[Command];
+				string order = BaseStrings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
 				{
 					string s = _orderTargetString(Target1, Target1Type);
@@ -232,7 +234,7 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Converts an Order for TIE</summary>
 			/// <remarks><see cref="Speed"/> and <see cref="Designation"/> are lost</remarks>
 			/// <param name="order">The Order to convert</param>
-			/// <returns>A copy of <i>order</i> for use in TIE95</returns>
+			/// <returns>A copy of <paramref name="order"/> for use in TIE95</returns>
 			public static explicit operator Tie.FlightGroup.Order(Order order)
 			{
 				// Speed, Designtation are lost
@@ -240,7 +242,7 @@ namespace Idmr.Platform.Xvt
 			}
 			/// <summary>Converts an Order for XWA</summary>
 			/// <param name="order">The Order to convert</param>
-			/// <returns>A copy of <i>order</i> for use in XWA</returns>
+			/// <returns>A copy of <paramref name="order"/> for use in XWA</returns>
 			public static implicit operator Xwa.FlightGroup.Order(Order order)
 			{
 				Xwa.FlightGroup.Order ord = new Xwa.FlightGroup.Order((byte[])order);

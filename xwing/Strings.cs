@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1
+ * Version: 3.1+
  */
 
 /* CHANGELOG
+ * [UPD] FormationObject updated [JB]
  * v3.1, 200703
  * [NEW] OverrideShipList
  * v3.0, 180309

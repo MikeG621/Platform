@@ -1,7 +1,7 @@
 XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2018.06.05
+Updated: 2020.07.21
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due

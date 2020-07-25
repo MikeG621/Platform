@@ -1,13 +1,16 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [UPD] SafeString implemented [JB]
+ * [FIX] ToString now prevents "of of" [JB]
+ * [UPD] IFF substitution setup
  * v3.0, 180903
  * [UPD] added SafeString calls [JB]
  * [FIX] delay calculation [JB]
@@ -34,10 +37,10 @@ namespace Idmr.Platform.Xwa
 		{
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[6]) { }
-			
+
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i> Length</exception>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
 			public Trigger(byte[] raw)
 			{
 				_items = new byte[6];
@@ -45,13 +48,13 @@ namespace Idmr.Platform.Xwa
 				else if (raw.Length >= 4) for (int i = 0; i < 4; i++) _items[i] = raw[i];
 				else throw new ArgumentException("Minimum length of raw is 4", "raw");
 			}
-			
+
 			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <remarks>If <i>raw</i>.Length is 6 or greater, reads six bytes. If the length is 4 or 5, reads only four bytes</remarks>
+			/// <remarks>If <paramref name="raw"/>.Length is 6 or greater, reads six bytes. If the length is 4 or 5, reads only four bytes</remarks>
 			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i> Length</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
 			public Trigger(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
@@ -90,7 +93,7 @@ namespace Idmr.Platform.Xwa
 			}
 			
 			/// <summary>Returns a representative string of the Trigger</summary>
-			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required</remarks>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b>, IFFs are <b>"IFF:#" and </b> Teams are <b>"TM:#"</b> for later substitution if required</remarks>
 			/// <returns>Description of the trigger and targets if applicable</returns>
 			public override string ToString()
 			{
@@ -101,7 +104,7 @@ namespace Idmr.Platform.Xwa
 					else
 					{
 						if (Amount > Strings.Amount.Length) Amount = 0; //can occur switching away from high-distance prox triggers
-						trig = Strings.SafeString(Strings.Amount, Amount);
+						trig = BaseStrings.SafeString(Strings.Amount, Amount);
 						trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
 					}
 					switch (VariableType)
@@ -110,34 +113,34 @@ namespace Idmr.Platform.Xwa
 							trig += "FG:" + Variable;
 							break;
 						case 2:
-							trig += "Ship type " + Strings.SafeString(Strings.CraftType, Variable + 1);
+							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable + 1);
 							break;
 						case 3:
-							trig += "Ship class " + Strings.SafeString(Strings.ShipClass, Variable);
+							trig += "Ship class " + BaseStrings.SafeString(Strings.ShipClass, Variable);
 							break;
 						case 4:
-							trig += "Object type " + Strings.SafeString(Strings.ObjectType, Variable);
+							trig += "Object type " + BaseStrings.SafeString(Strings.ObjectType, Variable);
 							break;
 						case 5:
-							trig += "IFF " + Strings.SafeString(Strings.IFF, Variable);
+							trig += "IFF:" + Variable;
 							break;
 						case 6:
-							trig += "Ship orders " + Strings.SafeString(Strings.Orders, Variable);
+							trig += "Ship orders " + BaseStrings.SafeString(Strings.Orders, Variable);
 							break;
 						case 7:
-							trig += "Craft When " + Strings.SafeString(Strings.CraftWhen, Variable);
+							trig += "Craft When " + BaseStrings.SafeString(Strings.CraftWhen, Variable);
 							break;
 						case 8:
 							trig += "Global Group " + Variable;
 							break;
                         case 9:
-                            trig += "Rating " + Strings.SafeString(Strings.Rating, Variable);
+                            trig += "Rating " + BaseStrings.SafeString(Strings.Rating, Variable);
                             break;
                         case 10:
-                            trig += "Craft with status: " + Strings.SafeString(Strings.Status, Variable);
+                            trig += "Craft with status: " + BaseStrings.SafeString(Strings.Status, Variable);
                             break;
                         case 11:
-                            trig += "All";
+                            trig += "All craft";
                             break;
                         case 12:
                             trig += "TM:" + Variable;
@@ -150,17 +153,17 @@ namespace Idmr.Platform.Xwa
                             trig += "all except FG:" + Variable;
                             break;
                         case 16:
-                            trig += "all except " + Strings.SafeString(Strings.CraftType, Variable + 1) + "s";
+                            trig += "all except " + BaseStrings.SafeString(Strings.CraftType, Variable + 1) + "s";
                             break;
                         case 17:
-                            trig += "all except " + Strings.SafeString(Strings.ShipClass, Variable);
+                            trig += "all except " + BaseStrings.SafeString(Strings.ShipClass, Variable);
                             break;
                         case 18:
-                            trig += "all except " + Strings.SafeString(Strings.ObjectType, Variable);
+                            trig += "all except " + BaseStrings.SafeString(Strings.ObjectType, Variable);
                             break;
                         case 19:
-                            trig += "all except IFF " + Strings.SafeString(Strings.IFF, Variable);
-                            break;
+                            trig += "all except IFF:" + Variable;
+							break;
                         case 20:
                             trig += "all except GG " + Variable;
                             break;
@@ -191,7 +194,7 @@ namespace Idmr.Platform.Xwa
 					}
 					trig += " must ";
 				}
-				if (VariableType == 14) trig = "After " + String.Format("{0}:{1:00}", Variable * 5 / 60, Variable * 5 % 60) + " delay";
+				if (VariableType == 14) trig = "After " + string.Format("{0}:{1:00}", Variable * 5 / 60, Variable * 5 % 60) + " delay";
 				else if (Condition == 0x31 || Condition == 0x32)
 				{
 					trig += (Condition == 0x32 ? "NOT " : "") + "be within ";
@@ -201,7 +204,7 @@ namespace Idmr.Platform.Xwa
 					else dist = Amount * 0.5 - 4;
 					trig += dist + " km of FG2:" + Parameter1;
 				}
-				else trig += Strings.SafeString(Strings.Trigger, Condition);
+				else trig += BaseStrings.SafeString(Strings.Trigger, Condition);
 				if (trig.Contains("Region")) trig += " " + Parameter1;
 				return trig;
 			}
@@ -219,13 +222,13 @@ namespace Idmr.Platform.Xwa
 			/// <remarks>Parameters are lost in the conversion</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
-			/// <returns>A copy of <i>trig</i> for use in TIE95</returns>
+			/// <returns>A copy of <paramref name="trig"/> for use in TIE95</returns>
 			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
 			/// <summary>Converts a Trigger for use in XvT</summary>
 			/// <remarks>Parameters are lost in the conversion</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
-			/// <returns>A copy of <i>trig</i> for use in XvT</returns>
+			/// <returns>A copy of <paramref name="trig"/> for use in XvT</returns>
 			public static explicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
 			
 			/// <summary>Gets or sets the first additional setting</summary>

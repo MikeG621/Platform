@@ -1,14 +1,19 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0.1
+ * Version: 3.0.1+
  */
 
 /* CHANGELOG
+ * [UPD] Unknown1 renamed to RndSeed [JB]
+ * [UPD] Better Save backup [JB]
+ * [FIX] Yaw/Pitch flipped during save [JB]
+ * [UPD] FlightGroupLimit increased to 255 [JB]
+ * [UPD] MessageLimit decreased to 0 [JB]
  * v3.0.1, 180919
  * [FIX] Object angle degress conversion
  * v3.0, 180903
@@ -65,8 +70,8 @@ namespace Idmr.Platform.Xwing
 		#region public methods
 		/// <summary>Loads a mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="FileNotFoundException"><i>filePath</i> does not exist</exception>
-		/// <exception cref="InvalidDataException"><i>filePath</i> is not a TIE mission file</exception>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> does not exist</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a X-wing mission file</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -83,7 +88,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Loads a mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid X-wing mission file</exception>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission file</exception>
 		public void LoadFromStream(FileStream stream)
 		{
 			if (GetPlatform(stream) != Platform.Xwing) throw new InvalidDataException(_invalidError);
@@ -165,7 +170,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Loads a mission briefing (.BRF) file from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission briefing file</param>
-		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid X-wing mission briefing file</exception>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission briefing file</exception>
 		public void LoadBriefingFromStream(FileStream stream)
 		{
             BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
@@ -380,7 +385,7 @@ namespace Idmr.Platform.Xwing
 					#endregion
 
                     //Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)
-					for (int j = 0; j < 4; j++) for (int k = 0; k < 7; k++) bw.Write((short)(FlightGroups[i].Waypoints[k][j] /* * (j == 1 ? -1 : 1))*/));
+					for (int j = 0; j < 4; j++) for (int k = 0; k < 7; k++) bw.Write(FlightGroups[i].Waypoints[k][j] /* * (j == 1 ? -1 : 1))*/);
 
 					//More craft info
 					bw.Write((short)FlightGroups[i].Formation);
@@ -417,9 +422,9 @@ namespace Idmr.Platform.Xwing
 					bw.Write(FlightGroups[i].Waypoints[0][0]);
 					bw.Write(FlightGroups[i].Waypoints[0][1]);
 					bw.Write(FlightGroups[i].Waypoints[0][2]);
-					bw.Write((short)FlightGroups[i].Yaw); //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
-					bw.Write((short)FlightGroups[i].Pitch);
-					bw.Write((short)FlightGroups[i].Roll);
+					bw.Write(FlightGroups[i].Yaw); //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
+					bw.Write(FlightGroups[i].Pitch);
+					bw.Write(FlightGroups[i].Roll);
 				}
 				#endregion
 				fs.SetLength(fs.Position);
@@ -524,9 +529,9 @@ namespace Idmr.Platform.Xwing
                     fs.Position = p + 0x30;
 
                     bw.Write(FlightGroupsBriefing[i].SpecialCargoCraft);
-					bw.Write((short)FlightGroupsBriefing[i].Yaw);
-					bw.Write((short)FlightGroupsBriefing[i].Pitch);
-					bw.Write((short)FlightGroupsBriefing[i].Roll);
+					bw.Write(FlightGroupsBriefing[i].Yaw);
+					bw.Write(FlightGroupsBriefing[i].Pitch);
+					bw.Write(FlightGroupsBriefing[i].Roll);
                 }
 
                 #region WindowUISettings
@@ -620,7 +625,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
 		/// <param name="filePath">Full path to the new <see cref="MissionFile.MissionPath"/></param>
-		/// <exception cref="System.UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
