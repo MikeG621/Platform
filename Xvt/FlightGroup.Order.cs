@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] SafeString implemented [JB]
  * [UPD] TriggerType expanded [JB]
  * v3.0, 180903

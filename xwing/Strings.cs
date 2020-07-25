@@ -9,6 +9,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] FormationObject updated [JB]
  * v3.1, 200703
  * [NEW] OverrideShipList

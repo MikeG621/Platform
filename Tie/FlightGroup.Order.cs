@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] SafeString implemented [JB]
  * v2.5, 170107
  * [FIX] hack _checkValues [JB]

@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] Better Save backup [JB]
  * [UPD] Message load null term fixed [JB]
  * [UPD] Iffs renamed to IFFs
@@ -1358,6 +1359,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets the array accessor for the Region names</summary>
 		public Indexer<string> Regions { get { return _regionNameIndexer; } }
 		/// <summary>Gets the array accessor for the IFF names</summary>
+		/// <remarks>No custom Indexer for XWA due to no special processing of values</remarks>
 		public Indexer<string> IFFs { get { return _iffNameIndexer; } }
 		#endregion public properties
 		

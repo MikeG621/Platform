@@ -9,6 +9,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [NEW] created [JB]
  */
 
@@ -27,11 +28,11 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Initializes the indexer</summary>
 			/// <param name="parent">The parent Mission</param>
 			public IffNameIndexer(Mission parent) : base(parent._iff) { _owner = parent; }
-			
+
 			/// <summary>Gets or sets the IFF Name</summary>
 			/// <remarks>20 character limit, Rebel and Imperial are read-only</remarks>
 			/// <param name="index">IFF index</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value</exception>
 			/// <exception cref="InvalidOperationException">Index is read-only</exception>
 			/// <returns>The IFF name</returns>
 			public override string this[int index]

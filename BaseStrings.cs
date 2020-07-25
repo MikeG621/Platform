@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] ShipClass and ObjectType updated [JB]
  * [NEW] FormationMine [JB]
  * v3.0, 180309

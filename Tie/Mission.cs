@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [FIX] Handling to load incomplete briefing questions [JB]
  * [FIX] Better save backup [JB]
  * v3.1, 200703

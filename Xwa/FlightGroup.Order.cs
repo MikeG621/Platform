@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] SafeString implemented [JB]
  * v3.0, 180903
  * [UPD] now init to TRUE [JB]

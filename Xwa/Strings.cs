@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] RoleTeams updated [JB]
  * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception

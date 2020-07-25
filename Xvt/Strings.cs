@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] various updates throughout [JB]
  * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception

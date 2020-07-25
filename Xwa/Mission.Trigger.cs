@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]
  * [UPD] IFF substitution setup

@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] Message load null term fixed [JB]
  * [UPD] Better Save backup [JB]
  * [UPD] Unknown4 and 5 removed, part of new IFF names [JB]
@@ -92,8 +93,8 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Create a new mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>filePath</i> does not exist</exception>
-		/// <exception cref="System.IO.InvalidDataException"><i>filePath</i> is not a XvT or BoP mission file</exception>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> does not exist</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a XvT or BoP mission file</exception>
 		public Mission(string filePath)
 		{
 			_initialize();
@@ -102,7 +103,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Create a new mission from an open FileStream</summary>
 		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><i>stream</i> is not a valid XvT or BoP mission file</exception>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid XvT or BoP mission file</exception>
 		public Mission(FileStream stream)
 		{
 			_initialize();

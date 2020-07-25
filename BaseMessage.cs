@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] Message length increased to 64 [JB]
  * v2.1, 141214
  * [UPD] change to MPL

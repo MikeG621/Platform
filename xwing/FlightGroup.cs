@@ -9,6 +9,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [NEW] Raw values for Pitch/Yaw/Roll instead of degrees [JB]
  * [UPD] _stringLength increased [JB]
  * v3.0, 180309

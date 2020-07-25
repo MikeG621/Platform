@@ -10,6 +10,7 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
+v3.2 - XX XXX XXXX
  - (TIE.Strings) IFF numbers removed from defaults
  - (XWA.Mission) Iffs renamed to IFFs
  - (XWA.Mission.Trigger) IFF substitution implemented

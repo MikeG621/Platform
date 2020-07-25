@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]
  * v2.1, 141214

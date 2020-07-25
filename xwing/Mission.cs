@@ -9,6 +9,7 @@
  */
 
 /* CHANGELOG
+ * v3.2, XXXXXX
  * [UPD] Unknown1 renamed to RndSeed [JB]
  * [UPD] Better Save backup [JB]
  * [FIX] Yaw/Pitch flipped during save [JB]
