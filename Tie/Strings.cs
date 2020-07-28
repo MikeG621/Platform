@@ -140,6 +140,7 @@ namespace Idmr.Platform.Tie
 										"Asteroid Field 2",
 										"Planet"
 									};
+		static string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
 		static string[] _craftAbbrv = { "",
 										 "X-W",
 										 "Y-W",
@@ -229,6 +230,7 @@ namespace Idmr.Platform.Tie
 										 "Asteroid",
 										 "Planet"
 									 };
+		static string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
         static string[] _rating = { "Novice",    //[JB] Fixed to mirror names in HD1W.TIE
 									 "Officer",
 									 "Veteran",
@@ -492,19 +494,24 @@ namespace Idmr.Platform.Tie
 									};
 		#endregion
 
-		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays.</summary>
-		/// <param name="craftTypes">Array of new craft types.</param>
-		/// <param name="craftAbbrv">Array of new craft abbreviations.</param>
+		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays, or restores defaults.</summary>
+		/// <param name="craftTypes">Array of new craft types, or null to restore both defaults.</param>
+		/// <param name="craftAbbrv">Array of new craft abbreviations, or null to restore both defaults.</param>
 		/// <exception cref="ArgumentException">The <see cref="Array.Length"/> of the arrays do match the originals.</exception>
-		/// <exception cref="ArgumentNullException">Either or both of the input arrays are <b>null</b>.</exception>
 		public static void OverrideShipList(string[] craftTypes, string[] craftAbbrv)
 		{
-			if (craftAbbrv == null || craftTypes == null)
-				throw new ArgumentNullException("At least one of the arrays is null, check for valid inputs.");
-			if (craftTypes.Length != _craftType.Length || craftAbbrv.Length != _craftAbbrv.Length)
-				throw new ArgumentException("New arrays (Types " + craftTypes.Length + ", Abbrv " + craftAbbrv.Length + ") must match original length (" + _craftAbbrv.Length + ").");
-			_craftType = craftTypes;
-			_craftAbbrv = craftAbbrv;
+			if (craftTypes != null && craftAbbrv != null)
+			{
+				if (craftTypes.Length != _defaultCraftType.Length || craftAbbrv.Length != _defaultCraftAbbrv.Length)
+					throw new ArgumentException("New arrays (Types " + craftTypes.Length + ", Abbrv " + craftAbbrv.Length + ") must match original length (" + _craftAbbrv.Length + ").");
+				_craftType = craftTypes;
+				_craftAbbrv = craftAbbrv;
+			}
+			else
+			{
+				_craftType = _defaultCraftType;
+				_craftAbbrv = _defaultCraftAbbrv;
+			}
 		}
 
 		/// <summary>Gets a copy of the default IFF Names</summary>
