@@ -10,6 +10,7 @@
 /* CHANGELOG
  * v3.2, XXXXXX
  * [UPD] RoleTeams updated [JB]
+ * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
  * v3.1, 200703
  * [UPD] More details to OverrideShipList length exception
  * [UPD] Orbit details

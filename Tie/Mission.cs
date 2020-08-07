@@ -8,7 +8,8 @@
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, XXXXXX
+ * [UPD] PermaDeath changed to bool
  * [FIX] Handling to load incomplete briefing questions [JB]
  * [FIX] Better save backup [JB]
  * v3.1, 200703
@@ -198,7 +199,7 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].Pitch = (short)Math.Round((double)(sbyte)buffer[0x14] * 360 / 0x100);
 				FlightGroups[i].Pitch += (short)(FlightGroups[i].Pitch < -90 ? 270 : -90);
 				FlightGroups[i].Roll = (short)Math.Round((double)(sbyte)buffer[0x15] * 360 / 0x100);
-				FlightGroups[i].PermaDeathEnabled = buffer[0x16];
+				FlightGroups[i].PermaDeathEnabled = Convert.ToBoolean(buffer[0x16]);
 				FlightGroups[i].PermaDeathID = buffer[0x17];
 				FlightGroups[i].Unknowns.Unknown11 = buffer[0x18];
 				#endregion

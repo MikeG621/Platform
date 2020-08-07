@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -968,7 +968,7 @@ namespace Idmr.Platform
 
             List<string> captionText;
             bool hintPage = false;
-            for (int i = 0; i < miss.Briefing.pages.Count; i++)
+            for (int i = 0; i < miss.Briefing.Pages.Count; i++)
             {
                 if (!miss.Briefing.IsMapPage(i))
                 {
@@ -1478,7 +1478,7 @@ namespace Idmr.Platform
             string failText = "";
             List<string> captionText;
             bool hintPage = false;
-            for (int i = 0; i < miss.Briefing.pages.Count; i++)
+            for (int i = 0; i < miss.Briefing.Pages.Count; i++)
             {
                 if(!miss.Briefing.IsMapPage(i))
                 {
@@ -1911,7 +1911,7 @@ namespace Idmr.Platform
                 evt[2] = (short)i;     //Icon #
                 evt[3] = (short)bfg.GetTIECraftType();
                 evt[4] = (short)bfg.GetTIEIFF();
-                if (evt[3] == 0x56)   //Hack for asteroids (which don't seem to have an icon) to display as the asteroid R&D base.
+                if (evt[3] == 0x56)   //Icon Hack for asteroids (which don't seem to have an icon) to display as the asteroid R&D base.
                     evt[3] = 0x42;
                 for (int j = 0; j < 5; j++)
                     xwa.Briefings[0].Events[wpos++] = evt[j];
@@ -1965,7 +1965,7 @@ namespace Idmr.Platform
             string failText = "";
             List<string> captionText;
             bool hintPage = false;
-            for (int i = 0; i < miss.Briefing.pages.Count; i++)
+            for (int i = 0; i < miss.Briefing.Pages.Count; i++)
             {
                 if (!miss.Briefing.IsMapPage(i))
                 {

@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -30,15 +30,15 @@ namespace Idmr.Platform
 	public abstract class BaseBriefing
 	{
 		/// <summary>The raw event data</summary>
-		protected short[] _events;
+		private protected short[] _events;
 		/// <summary>The strings placed on the map</summary>
-		protected string[] _briefingTags;
+		private protected string[] _briefingTags;
 		/// <summary>The captions and titles</summary>
-		protected string[] _briefingStrings;
+		private protected string[] _briefingStrings;
 		/// <summary>The briefing format</summary>
-        protected MissionFile.Platform _platform;
+        private protected MissionFile.Platform _platform;
 		/// <summary>The number of parameters per event type</summary>
-		protected EventParameters _eventParameters;
+		private protected EventParameters _eventParameters;
 
 		/// <summary>Known briefing event types</summary>
 		public enum EventType : byte {
@@ -151,14 +151,14 @@ namespace Idmr.Platform
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index</param>
-		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
-        public virtual bool IsEndEvent(int evt)
+		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
+		public virtual bool IsEndEvent(int evt)
         {
             return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
         }
 		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
 		/// <param name="evt">The event index</param>
-		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag8"/>.</returns>
+		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag8"/>.</returns>
         public virtual bool IsFGTag(int evt)
         {
             return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
@@ -171,17 +171,15 @@ namespace Idmr.Platform
             bool deleteCommand = false;
             if (newIndex < 0)
                 deleteCommand = true;
-
-            int p = 0, advance = 0;
-            int paramCount = 0;
-            while (p < EventsLength)
+			int p = 0;
+			while (p < EventsLength)
             {
                 int evt = Events[p + 1];
                 if (IsEndEvent(evt))
                     break;
 
-                advance = 2 + EventParameterCount(evt);
-                if (IsFGTag(evt))
+				int advance = 2 + EventParameterCount(evt);
+				if (IsFGTag(evt))
                 {
                     if (Events[p + 2] == fgIndex)
                     {
@@ -192,8 +190,8 @@ namespace Idmr.Platform
                         else
                         {
                             int len = EventsLength; //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
-                            paramCount = 2 + EventParameterCount(evt);
-                            for (int i = p; i < len - paramCount; i++)
+							int paramCount = 2 + EventParameterCount(evt);
+							for (int i = p; i < len - paramCount; i++)
                                 Events[i] = Events[i + paramCount];  //Drop everything down
                             for (int i = len - paramCount; i < len; i++)
                                 Events[i] = 0;  //Erase the final space
@@ -222,11 +220,11 @@ namespace Idmr.Platform
 		/// <summary>Object to maintain a read-only array</summary>
 		public class EventParameters
 		{
-			byte[] _counts = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
+			readonly byte[] _counts = { 0, 0, 0, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 0, 0, 0, 0 };
 
 			/// <summary>Gets a parameter count</summary>
 			/// <param name="eventType">The briefing event</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
 			public byte this[int eventType] { get { return _counts[eventType]; } }
 
 			/// <summary>Gets a parameter count</summary>

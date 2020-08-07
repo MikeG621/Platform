@@ -9,7 +9,7 @@
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, XXXXXX
  * [UPD] Unknown1 renamed to RndSeed [JB]
  * [UPD] Better Save backup [JB]
  * [FIX] Yaw/Pitch flipped during save [JB]
@@ -162,9 +162,9 @@ namespace Idmr.Platform.Xwing
 				FlightGroups[i].Waypoints[0][0] = br.ReadInt16();
 				FlightGroups[i].Waypoints[0][1] = br.ReadInt16();
 				FlightGroups[i].Waypoints[0][2] = br.ReadInt16();
-				FlightGroups[i].Yaw = (short)br.ReadInt16();  //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
-				FlightGroups[i].Pitch = (short)br.ReadInt16();
-				FlightGroups[i].Roll = (short)br.ReadInt16();
+				FlightGroups[i].Yaw = br.ReadInt16();  //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
+				FlightGroups[i].Pitch = br.ReadInt16();
+				FlightGroups[i].Roll = br.ReadInt16();
 			}
 			MissionPath = stream.Name;
 		}
@@ -229,9 +229,9 @@ namespace Idmr.Platform.Xwing
                 FlightGroupsBriefing[i].Cargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargo = new string(br.ReadChars(16));
                 FlightGroupsBriefing[i].SpecialCargoCraft = br.ReadInt16();
-				FlightGroupsBriefing[i].Yaw = (short)br.ReadInt16();
-				FlightGroupsBriefing[i].Pitch = (short)br.ReadInt16();
-				FlightGroupsBriefing[i].Roll = (short)br.ReadInt16();
+				FlightGroupsBriefing[i].Yaw = br.ReadInt16();
+				FlightGroupsBriefing[i].Pitch = br.ReadInt16();
+				FlightGroupsBriefing[i].Roll = br.ReadInt16();
 			}
 
 			#region WindowUISettings
@@ -241,12 +241,12 @@ namespace Idmr.Platform.Xwing
             {
                 for (int j = 0; j < 5; j++)
                 {
-                    BriefingUIItem item = Briefing.windowSettings[i].items[j];
-                    item.top = br.ReadInt16();
-                    item.left = br.ReadInt16();
-                    item.bottom = br.ReadInt16();
-                    item.right = br.ReadInt16();
-                    item.visible = br.ReadInt16();
+                    BriefingUIItem item = Briefing.WindowSettings[i].Items[j];
+                    item.Top = br.ReadInt16();
+                    item.Left = br.ReadInt16();
+                    item.Bottom = br.ReadInt16();
+                    item.Right = br.ReadInt16();
+                    item.IsVisible = Convert.ToBoolean(br.ReadInt16());
                 }
             }
 			#endregion WindowUISettings
@@ -256,7 +256,7 @@ namespace Idmr.Platform.Xwing
             Briefing.ResetPages(count);
 			for (int i = 0; i < count; i++)
 			{
-                BriefingPage pg = Briefing.pages[i];
+                BriefingPage pg = Briefing.Pages[i];
                 pg.Length = br.ReadInt16(); //total ticks
                 pg.EventsLength = br.ReadInt16();  //Count of Int16s
                 pg.CoordSet = br.ReadInt16();
@@ -536,25 +536,25 @@ namespace Idmr.Platform.Xwing
                 }
 
                 #region WindowUISettings
-                short count = (short)Briefing.windowSettings.Count;
+                short count = (short)Briefing.WindowSettings.Count;
                 bw.Write(count);
                 for (int i = 0; i < count; i++)
                 {
                     for (int j = 0; j < 5; j++)
                     {
-                        BriefingUIItem item = Briefing.windowSettings[i].items[j];
-                        bw.Write(item.top);
-                        bw.Write(item.left);
-                        bw.Write(item.bottom);
-                        bw.Write(item.right);
-                        bw.Write(item.visible);
+                        BriefingUIItem item = Briefing.WindowSettings[i].Items[j];
+                        bw.Write(item.Top);
+                        bw.Write(item.Left);
+                        bw.Write(item.Bottom);
+                        bw.Write(item.Right);
+                        bw.Write(Convert.ToInt16(item.IsVisible));
                     }
                 }
                 #endregion WindowUISettings
 
                 #region Pages
-                bw.Write((short)Briefing.pages.Count);
-                for (int i = 0; i < Briefing.pages.Count; i++)
+                bw.Write((short)Briefing.Pages.Count);
+                for (int i = 0; i < Briefing.Pages.Count; i++)
                 {
                     BriefingPage pg = Briefing.GetBriefingPage(i);
                     bw.Write(pg.Length);

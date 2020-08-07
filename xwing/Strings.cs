@@ -11,6 +11,7 @@
 /* CHANGELOG
  * v3.2, XXXXXX
  * [UPD] FormationObject updated [JB]
+ * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
  * v3.1, 200703
  * [NEW] OverrideShipList
  * v3.0, 180309

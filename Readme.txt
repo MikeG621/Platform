@@ -10,7 +10,7 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
-v3.2 - XX XXX XXXX
+v4.0 - XX XXX XXXX
  - (TIE.Strings) IFF numbers removed from defaults
  - (XWA.Mission) Iffs renamed to IFFs
  - (XWA.Mission.Trigger) IFF substitution implemented
@@ -18,6 +18,7 @@ v3.2 - XX XXX XXXX
  -- (BaseMessage) Message length increased to 64 from 63
  -- (BaseStrings) FormationMine added, ShipClass and ObjectType updated
  -- (*.Order) SafeString implementated
+ -- (*.Strings) Ability to reset CraftType and CraftAbbrv to defaults
  -- (*.Trigger) SafeString implementated
  -- (*.Trigger) ToString() now prevents "of of"
  -- (*.Mission) Better Save backup

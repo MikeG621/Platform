@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * v4.0, xxxxxx
+ * [UPD] PermaDeath is bool
  * v3.0, 180309
  * [UPD] added EditorCraftNumber and Difficulty to ToString() [JB]
  * [NEW] helper functions for move/delete FG [JB]
@@ -27,15 +29,17 @@ using Idmr.Common;
 namespace Idmr.Platform.Tie
 {
 	/// <summary>Object for individual FlightGroups</summary>
-	[Serializable] public partial class FlightGroup : BaseFlightGroup
+	[Serializable]
+	public partial class FlightGroup : BaseFlightGroup
 	{
-		Mission.Trigger[] _arrDepTriggers = new Mission.Trigger[3];
+		readonly Mission.Trigger[] _arrDepTriggers = new Mission.Trigger[3];
 		string _pilot = "";
-		Order[] _orders = new Order[3];
-		Waypoint[] _waypoints = new Waypoint[15];
-		
+		readonly Order[] _orders = new Order[3];
+		readonly Waypoint[] _waypoints = new Waypoint[15];
+
 		/// <summary>Indexes for <see cref="ArrDepTriggers"/></summary>
-		public enum ArrDepTriggerIndex : byte {
+		public enum ArrDepTriggerIndex : byte
+		{
 			/// <summary>First arrival trigger</summary>
 			Arrival1,
 			/// <summary>Second arrival trigger</summary>
@@ -104,48 +108,48 @@ namespace Idmr.Platform.Tie
 		public string ToString(bool verbose)
 		{
 			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-            if (EditorCraftNumber > 0) //[JB] Added numbering information.
-                longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+			if (EditorCraftNumber > 0) //[JB] Added numbering information.
+				longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
 			if (!verbose) return longName;
 
-            //[JB] Added difficulty tag, by feature request.
-            string ret = IFF + " - " + GlobalGroup + " - " + (PlayerCraft != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName;
-            if (Difficulty >= 1 && Difficulty <= 6)
-                ret += " [" + BaseStrings.DifficultyAbbrv[Difficulty] + "]";
+			//[JB] Added difficulty tag, by feature request.
+			string ret = IFF + " - " + GlobalGroup + " - " + (PlayerCraft != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName;
+			if (Difficulty >= 1 && Difficulty <= 6)
+				ret += " [" + BaseStrings.DifficultyAbbrv[Difficulty] + "]";
 
-            return ret;
+			return ret;
 		}
-		
-        /// <summary>Changes all Flight Group indexes during a FG Move or Delete operation.</summary>
-        /// <remarks>Should not be called directly unless part of a larger FG Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
-        /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
-        /// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-        /// <returns>Returns true if anything was changed.</returns>
-        public bool TransformFGReferences(int srcIndex, int dstIndex)
-        {
-            bool change = false;
-            bool delete = false;
-            byte dst = (byte)dstIndex;
-            if (dstIndex < 0)
-            {
-                dst = 0;
-                delete = true;
-            }
 
-            //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-            if (ArrivalCraft1 == srcIndex) { ArrivalCraft1 = dst; change = true; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete) { ArrivalCraft1--; change = true; }
-            if (ArrivalCraft2 == srcIndex) { ArrivalCraft2 = dst; change = true; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete) { ArrivalCraft2--; change = true; }
-            if (DepartureCraft1 == srcIndex) { DepartureCraft1 = dst; change = true; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete) { DepartureCraft1--; change = true; }
-            if (DepartureCraft2 == srcIndex) { DepartureCraft2 = dst; change = true; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete) { DepartureCraft2--; change = true; }
-            for (int i = 0; i < ArrDepTriggers.Length; i++)
-            {
-                Mission.Trigger adt = ArrDepTriggers[i];
-                change |= adt.TransformFGReferences(srcIndex, dstIndex, (i < 2));  //[0] and [1] are are arrival.  Set those to true.
-            }
-            foreach (FlightGroup.Order order in Orders)
-                change |= order.TransformFGReferences(srcIndex, dstIndex);
-            return change;
-        }
+		/// <summary>Changes all Flight Group indexes during a FG Move or Delete operation.</summary>
+		/// <remarks>Should not be called directly unless part of a larger FG Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
+		/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+		/// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+		/// <returns>Returns true if anything was changed.</returns>
+		public bool TransformFGReferences(int srcIndex, int dstIndex)
+		{
+			bool change = false;
+			bool delete = false;
+			byte dst = (byte)dstIndex;
+			if (dstIndex < 0)
+			{
+				dst = 0;
+				delete = true;
+			}
+
+			//If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
+			if (ArrivalCraft1 == srcIndex) { ArrivalCraft1 = dst; change = true; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete) { ArrivalCraft1--; change = true; }
+			if (ArrivalCraft2 == srcIndex) { ArrivalCraft2 = dst; change = true; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete) { ArrivalCraft2--; change = true; }
+			if (DepartureCraft1 == srcIndex) { DepartureCraft1 = dst; change = true; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete) { DepartureCraft1--; change = true; }
+			if (DepartureCraft2 == srcIndex) { DepartureCraft2 = dst; change = true; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete) { DepartureCraft2--; change = true; }
+			for (int i = 0; i < ArrDepTriggers.Length; i++)
+			{
+				Mission.Trigger adt = ArrDepTriggers[i];
+				change |= adt.TransformFGReferences(srcIndex, dstIndex, (i < 2));  //[0] and [1] are are arrival.  Set those to true.
+			}
+			foreach (Order order in Orders)
+				change |= order.TransformFGReferences(srcIndex, dstIndex);
+			return change;
+		}
 
 		/// <summary>Gets or sets the Pilot name, used as short note</summary>
 		/// <remarks>Restricted to 12 characters</remarks>
@@ -154,7 +158,7 @@ namespace Idmr.Platform.Tie
 			get { return _pilot; }
 			set { _pilot = StringFunctions.GetTrimmed(value, _stringLength); }
 		}
-        /// <summary>Gets or sets if the FlightGroup responds to player's orders</summary>
+		/// <summary>Gets or sets if the FlightGroup responds to player's orders</summary>
 		public bool FollowsOrders { get; set; }
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for blank Arrival triggers and a delay of 30 seconds or less</remarks>
@@ -176,18 +180,19 @@ namespace Idmr.Platform.Tie
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes</remarks>
 		public Waypoint[] Waypoints { get { return _waypoints; } }
 
-        /// <summary>If enabled, Flight Groups that die in campaign mode will not appear in later missions.  Formerly Unknown9</summary>
-        public byte PermaDeathEnabled { get; set; }	//TODO: I think this is really bool, need to get MOA running to check
-        /// <summary>If enabled, Flight Groups matching this ID that have died in previous missions will not appear.  Formerly Unknown10</summary>
-        public byte PermaDeathID { get; set; }
+		/// <summary>If enabled, Flight Groups that die in campaign mode will not appear in later missions.  Formerly Unknown9</summary>
+		public bool PermaDeathEnabled { get; set; }
+		/// <summary>If enabled, Flight Groups matching this ID that have died in previous missions will not appear.  Formerly Unknown10</summary>
+		public byte PermaDeathID { get; set; }
 
 		/// <summary>Container for unknown values</summary>
-		[Serializable] public struct UnknownValues
+		[Serializable]
+		public struct UnknownValues
 		{
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x003B, in Craft section, Reserved(0)</remarks>
 			public byte Unknown1 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0041, in Craft section</remarks>
 			public byte Unknown5 { get; set; }
@@ -195,23 +200,23 @@ namespace Idmr.Platform.Tie
 			// Unknown9 is campaign perma-death flag.  Offset 0x0046, in Craft section.
 
 			// Unknown10 is campaign perma-death ID.  Offset 0x0047, in Craft section.
-            
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0048, in Craft section, Reserved(0)</remarks>
 			public byte Unknown11 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0053, in Arr/Dep section, Reserved(0)</remarks>
 			public byte Unknown12 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x005D, in Arr/Dep section, Reserved(0)</remarks>
 			public byte Unknown15 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x005E, in Arr/Dep section</remarks>
 			public byte Unknown16 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x005F, in Arr/Dep section, Reserved(0)</remarks>
 			public byte Unknown17 { get; set; }
