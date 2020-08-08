@@ -10,6 +10,7 @@
 
 /* CHANGELOG
  * v4.0, xxxxxx
+ * [UPD] BriefingPage.PageType is now the enum
  * [DEL] IsVisible() removed
  * [DEL] obsolete EventCount() removed
  * [UPD] short Visible changed to bool IsVisible
@@ -503,9 +504,7 @@ namespace Idmr.Platform.Xwing
 		public bool IsMapPage(int page)
 		{
 			if (page < 0 || page >= Pages.Count) return false;
-			if (Pages[page].PageType >= 0 && Pages[page].PageType < WindowSettings.Count)
-				return WindowSettings[Pages[page].PageType].GetElement(BriefingUIPage.Elements.Map).IsVisible;
-			return false;
+			return WindowSettings[Pages[page].PageType].GetElement(BriefingUIPage.Elements.Map).IsVisible;
 		}
 
 		/// <summary>Enumerates a list of caption strings found in a briefing page.</summary>
@@ -740,6 +739,6 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets or sets the applicable Waypoint coordinate set index</summary>
 		public short CoordSet { get; set; }
 		/// <summary>Gets or sets if the page is <see cref="Briefing.PageType.Map"/> or <see cref="Briefing.PageType.Text"/></summary>
-		public short PageType { get; set; }  //TODO: this should be handled as the enum
+		public short PageType { get; set; }	// TODO this really should be the enum, but need more research to see if >= 2 values are possible
 	}
 }

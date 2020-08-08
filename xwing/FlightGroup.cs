@@ -9,7 +9,7 @@
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, XXXXXX
  * [NEW] Raw values for Pitch/Yaw/Roll instead of degrees [JB]
  * [UPD] _stringLength increased [JB]
  * v3.0, 180309
@@ -23,7 +23,7 @@ namespace Idmr.Platform.Xwing
 	/// <summary>Object for individual FlightGroups</summary>
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
-		Waypoint[] _waypoints = new Waypoint[15];
+		readonly Waypoint[] _waypoints = new Waypoint[15];
 
 		/// <summary>Gets or sets the object z-axis orientation at start in raw units (64 = 90 degrees).</summary>
 		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Pitch"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
@@ -115,8 +115,8 @@ namespace Idmr.Platform.Xwing
 		/// <returns>Representation of the FlightGroup</returns>
 		public string ToString(bool verbose)
 		{
-			string longName = "";
-            string waves = (NumberOfWaves + 1) + "x" + NumberOfCraft;
+			string waves = (NumberOfWaves + 1) + "x" + NumberOfCraft;
+			string longName;
 			if (IsObjectGroup())
 			{
 				int index = ObjectType - 17;
@@ -125,18 +125,18 @@ namespace Idmr.Platform.Xwing
 			}
 			else
 			{
-				if(CraftType == 2 && Status1 >= 10)  //Hack for B-wings
+				if (CraftType == 2 && Status1 >= 10)  // Index hack for B-wings
 					longName = Strings.CraftAbbrv[18] + " " + Name;
-                else if(CraftType == 25)
-                    longName = Strings.CraftAbbrv[18] + " " + Name;
+				else if (CraftType == 25)
+					longName = Strings.CraftAbbrv[18] + " " + Name;
 				else
 					longName = Strings.CraftAbbrv[CraftType] + " " + Name;
 
-                if (EditorCraftNumber > 0) //[JB] Added numbering information.
-                    longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
-            }
-                
-            if (!verbose) return longName;
+				if (EditorCraftNumber > 0) //[JB] Added numbering information.
+					longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+			}
+
+			if (!verbose) return longName;
             return IFF + " - " + (PlayerCraft != 0 ? "*" : "") + waves + " " + longName;
 		}
 
@@ -177,7 +177,7 @@ namespace Idmr.Platform.Xwing
                     case 22: return 0x46; //Satellite
                     case 23: return 0x53; //Nav Buoy
                     case 24: return 0x50; //Probe
-                    case 25: return 0x4;  //Hack for B-wings in a BRF listing.
+                    case 25: return 0x4;  //Index hack for B-wings in a BRF listing.
                     default:
                         if (ObjectType >= 26 && ObjectType <= 33) return 0x56;  //Asteroid
                         if (ObjectType >= 34 && ObjectType <= 49) return 0x57;  //Planet
@@ -205,7 +205,7 @@ namespace Idmr.Platform.Xwing
                 case 16: return 0x35;  // ISD
                 case 17: return 0x08;  // T/A
             }
-            return 0;	//TODO: should this return 0 or 255?
+            return 255;
         }		
 
 		/// <summary>Gets the calculated minutes from the raw <see cref="ArrivalDelay"/> value.</summary>
@@ -232,12 +232,13 @@ namespace Idmr.Platform.Xwing
 		/// <returns>The calculated delay value</returns>
 		public short CreateArrivalDelay(int minutes, int seconds)
 		{
-			//TODO: need to place limits on the inputs to prevent OutOfRange
-			int delay = 0;
-			if(seconds == 0 && minutes <= 20)
+			int delay;
+			if (minutes < 0) minutes = 0;
+			if (seconds < 0) seconds = 0;
+			if (seconds == 0 && minutes <= 20)
 				delay = minutes;
 			else
-				delay = (20 + (minutes * 10) + (seconds / 6));
+				delay = 20 + (minutes * 10) + (seconds / 6);
 			return (short)delay;
 		}
 
@@ -338,10 +339,10 @@ namespace Idmr.Platform.Xwing
 		public short ArrivalDelay { get; set; }
 		/// <summary>Gets or sets the Arrival Trigger</summary>
 		/// <remarks>Values are per <see cref="Strings.Trigger"/></remarks>
-		public short ArrivalEvent { get; set; } //TODO: should really be renamed
+		public short ArrivalEvent { get; set; }
 		/// <summary>Gets or sets the Arrival Trigger target</summary>
 		/// <remarks>Use <b>-1</b> for "None"</remarks>
-		public short ArrivalFG { get; set; }	//TODO: should really be renamed
+		public short ArrivalFG { get; set; }
 		/// <summary>Gets or sets the FG's arrival/departure ship.</summary>
 		/// <remarks>Use <b>-1</b> for "None"</remarks>
 		public short Mothership { get; set; }
@@ -353,9 +354,9 @@ namespace Idmr.Platform.Xwing
 		public short DepartureHyperspace { get; set; }
 		/// <summary>Gets or sets the order's parameter</summary>
 		/// <remarks>For docking orders, this is "Docking Time" in minutes, otherwise it's "Throttle" for patrol/circle orders.</remarks>
-		public short DockTimeThrottle { get; set; }	//TODO: should be renamed
+		public short DockTimeThrottle { get; set; }
 		/// <summary>Gets or sets the FG Goal</summary>
-		public short Objective { get; set; }	//TODO: rename
+		public short Objective { get; set; }
 		/// <summary>Gets or sets the craft's Object type</summary>
 		public short ObjectType { get; set; }
 		/// <summary>Gets or sets the FG's primary order</summary>
