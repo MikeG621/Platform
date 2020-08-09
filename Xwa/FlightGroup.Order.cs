@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * v3.0, 180903
  * [UPD] now init to TRUE [JB]
@@ -36,8 +36,8 @@ namespace Idmr.Platform.Xwa
 		[Serializable] public class Order : BaseOrder
 		{
 			string _customText = "";
-			Waypoint[] _waypoints = new Waypoint[8];
-			Mission.Trigger[] _skipTriggers = new Mission.Trigger[2];
+			readonly Waypoint[] _waypoints = new Waypoint[8];
+			readonly Mission.Trigger[] _skipTriggers = new Mission.Trigger[2];
 			
 			#region constructors
 			/// <summary>Initializes a blank Order</summary>
@@ -102,7 +102,7 @@ namespace Idmr.Platform.Xwa
 			}
 			#endregion constructors
 
-			static string _orderTargetString(byte target, byte type)
+			static string orderTargetString(byte target, byte type)
 			{
 				string s = "";
 				switch (type)
@@ -206,16 +206,16 @@ namespace Idmr.Platform.Xwa
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 18) || (Command >= 23 && Command <= 27) || Command == 31 || Command == 32 || Command == 37)	//all orders where targets are important
 				{
-					string s = _orderTargetString(Target1, Target1Type);
-					string s2 = _orderTargetString(Target2, Target2Type);
+					string s = orderTargetString(Target1, Target1Type);
+					string s2 = orderTargetString(Target2, Target2Type);
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
 						if (T1AndOrT2) order += " or " + s2;
 						else order += " if " + s2;
 					}
-					s = _orderTargetString(Target3, Target3Type);
-					s2 = _orderTargetString(Target4, Target4Type);
+					s = orderTargetString(Target3, Target3Type);
+					s2 = orderTargetString(Target4, Target4Type);
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
@@ -254,8 +254,10 @@ namespace Idmr.Platform.Xwa
 			{
 				// WPs, Skips lost
 				// CustomText trimmed to 16 char
-				Xvt.FlightGroup.Order newOrder = new Xvt.FlightGroup.Order((byte[])ord);
-				newOrder.Designation = ord.CustomText;
+				Xvt.FlightGroup.Order newOrder = new Xvt.FlightGroup.Order((byte[])ord)
+				{
+					Designation = ord.CustomText
+				};
 				return newOrder;
 			}
 			

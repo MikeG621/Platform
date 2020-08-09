@@ -1,13 +1,15 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] auto-property
  * v2.1, 141214
  * [UPD] change to MPL
  */
@@ -19,15 +21,13 @@ namespace Idmr.Platform.Xwa
 	/// <summary>Object for individual Team's mission-wide goals</summary>
 	[Serializable] public partial class Globals
 	{
-		Goal[] _goals = new Goal[3];
-
 		/// <summary>Creates a new Globals object</summary>
 		/// <remarks>Three <see cref="Goals"/>, each with four <see cref="Goal.Triggers"/> all set to "<b>never (FALSE)</b>"</remarks>
-		public Globals() { for (int i = 0; i < 3; i++) _goals[i] = new Goal(); }
-		
+		public Globals() { for (int i = 0; i < 3; i++) Goals[i] = new Goal(); }
+
 		/// <summary>The Global Goals</summary>
 		/// <remarks>Use the <see cref="GoalIndex"/> enumeration for indexes</remarks>
-		public Goal[] Goals { get { return _goals; } }
+		public Goal[] Goals { get; } = new Goal[3];
 		
 		/// <summary>Goal indexes</summary>
 		public enum GoalIndex : byte {

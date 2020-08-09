@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] Message load null term fixed [JB]
  * [UPD] Better Save backup [JB]
  * [UPD] Unknown4 and 5 removed, part of new IFF names [JB]
@@ -62,9 +62,7 @@ namespace Idmr.Platform.Xvt
 	/// <remarks>This is the primary container object for XvT and BoP mission files</remarks>
 	public partial class Mission : MissionFile
 	{
-		string[] _iff = Strings.IFF;
-		IffNameIndexer _iffNameIndexer;
-
+		readonly string[] _iff = Strings.IFF;
 		string _missionDescription = "";
 		string _missionFailed = "";
 		string _missionSuccessful = "";
@@ -88,7 +86,7 @@ namespace Idmr.Platform.Xvt
 		public Mission()
 		{
 			MissionType = MissionTypeEnum.Training;
-			_initialize();
+			initialize();
 		}
 
 		/// <summary>Create a new mission from a file</summary>
@@ -97,7 +95,7 @@ namespace Idmr.Platform.Xvt
 		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a XvT or BoP mission file</exception>
 		public Mission(string filePath)
 		{
-			_initialize();
+			initialize();
 			LoadFromFile(filePath);
 		}
 
@@ -106,14 +104,14 @@ namespace Idmr.Platform.Xvt
 		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid XvT or BoP mission file</exception>
 		public Mission(FileStream stream)
 		{
-			_initialize();
+			initialize();
 			LoadFromStream(stream);
 		}
 		
-		void _initialize()
+		void initialize()
 		{
 			_invalidError = _invalidError.Replace("{0}", "XvT or BoP");
-            _iffNameIndexer = new IffNameIndexer(this);
+            IFFs = new IffNameIndexer(this);
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			Globals = new GlobalsCollection();
@@ -973,11 +971,11 @@ namespace Idmr.Platform.Xvt
             return true;
         }
 
-        #endregion public methods
+		#endregion public methods
 
 		#region public properties
-        /// <summary>Gets the array accessor for the IFF names</summary>
-		public IffNameIndexer IFFs { get { return _iffNameIndexer; } }
+		/// <summary>Gets the array accessor for the IFF names</summary>
+		public IffNameIndexer IFFs { get; private set; }
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
 		/// <remarks>Value is <b>32</b></remarks>
 		public const int CraftLimit = 32;

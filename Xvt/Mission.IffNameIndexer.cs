@@ -5,11 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [NEW] created [JB]
  */
 
@@ -22,12 +22,10 @@ namespace Idmr.Platform.Xvt
 	{
 		/// <summary>Object to provide array access to the IFF names</summary>
 		public class IffNameIndexer	: Indexer<string>
-		{	
-			Mission _owner;
-			
+		{			
 			/// <summary>Initializes the indexer</summary>
 			/// <param name="parent">The parent Mission</param>
-			public IffNameIndexer(Mission parent) : base(parent._iff) { _owner = parent; }
+			public IffNameIndexer(Mission parent) : base(parent._iff) { }
 
 			/// <summary>Gets or sets the IFF Name</summary>
 			/// <remarks>20 character limit, Rebel and Imperial are read-only</remarks>

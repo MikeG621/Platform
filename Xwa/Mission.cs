@@ -4,11 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
+ * [UPD] auto-properties
  * [UPD] Better Save backup [JB]
  * [UPD] Message load null term fixed [JB]
  * [UPD] Iffs renamed to IFFs
@@ -59,10 +60,9 @@ namespace Idmr.Platform.Xwa
 	/// <remarks>This is the primary container object for XWA mission files</remarks>
 	public partial class Mission : MissionFile
 	{
-		string[] _iff = Strings.IFF;
-		string[] _region = new string[4];
-		GlobCarg[] _globalCargo = new GlobCarg[16];
-		string[] _globalGroup = new string[16];
+		readonly string[] _iff = Strings.IFF;
+		readonly string[] _region = new string[4];
+		readonly string[] _globalGroup = new string[16];
 		string _missionDescription = "#";
 		string _missionFailed = "#";
 		string _missionSuccessful = "";
@@ -70,9 +70,6 @@ namespace Idmr.Platform.Xwa
 		string _descriptionNote = "";
 		string _failedNote = "";
 		string _successfulNote = "";
-		Indexer<string> _globalGroupNameIndexer;
-		Indexer<string> _regionNameIndexer;
-		Indexer<string> _iffNameIndexer;
 
 		/// <summary>Briefing <see cref="Logo"/> values</summary>
 		public enum LogoEnum : byte {
@@ -111,8 +108,8 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Default constructor, creates a blank mission</summary>
 		public Mission()
 		{
-			_initialize();
-			for (int i=0;i<16;i++) { _globalCargo[i].Cargo = ""; _globalCargo[i].Unknown1 = true;  _globalGroup[i] = ""; }
+			initialize();
+			for (int i=0;i<16;i++) { GlobalCargo[i].Cargo = ""; GlobalCargo[i].Unknown1 = true;  _globalGroup[i] = ""; }
 			for (int i=0;i<4;i++) { _region[i] = "Region " + (i+1).ToString(); _iff[i+2] = ""; }
 			Unknown1 = Unknown2 = true;
 			MissionType = HangarEnum.MonCalCruiser;
@@ -124,7 +121,7 @@ namespace Idmr.Platform.Xwa
 		/// <param name="filePath">Full path to the file</param>
 		public Mission(string filePath)
 		{
-			_initialize();
+			initialize();
 			LoadFromFile(filePath);
 		}
 
@@ -132,16 +129,16 @@ namespace Idmr.Platform.Xwa
 		/// <param name="stream">Opened FileStream to mission file</param>
 		public Mission(FileStream stream)
 		{
-			_initialize();
+			initialize();
 			LoadFromStream(stream);
 		}
 		
-		void _initialize()
+		void initialize()
 		{
 			_invalidError = _invalidError.Replace("{0}", "XWA");
-			_globalGroupNameIndexer = new Indexer<string>(_globalGroup, 56);
-			_regionNameIndexer = new Indexer<string>(_region, 0x83);
-			_iffNameIndexer = new Indexer<string>(_iff, 19, new bool[]{true, true, false, false, false, false});
+			GlobalGroups = new Indexer<string>(_globalGroup, 56);
+			Regions = new Indexer<string>(_region, 0x83);
+			IFFs = new Indexer<string>(_iff, 19, new bool[]{true, true, false, false, false, false});
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			Globals = new GlobalsCollection();
@@ -1255,7 +1252,7 @@ namespace Idmr.Platform.Xwa
 		public bool Unknown1 { get; set; }
 
 		/// <summary>Gets the Global Cargos for the mission</summary>
-		public GlobCarg[] GlobalCargo { get { return _globalCargo; } }
+		public GlobCarg[] GlobalCargo { get; } = new GlobCarg[16];
 		/// <summary>Gets or sets the start mode of the player)</summary>
 		public HangarEnum MissionType { get; set; }
 		/// <summary>Gets or sets the minutes value of the time limit</summary>
@@ -1355,14 +1352,14 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets or sets the Briefings for the mission</summary>
 		public BriefingCollection Briefings { get; set; }
 		/// <summary>Gets the array accessor for the GG names</summary>
-		public Indexer<string> GlobalGroups { get { return _globalGroupNameIndexer; } }
+		public Indexer<string> GlobalGroups { get; private set; }
 		/// <summary>Gets the array accessor for the Region names</summary>
-		public Indexer<string> Regions { get { return _regionNameIndexer; } }
+		public Indexer<string> Regions { get; private set; }
 		/// <summary>Gets the array accessor for the IFF names</summary>
 		/// <remarks>No custom Indexer for XWA due to no special processing of values</remarks>
-		public Indexer<string> IFFs { get { return _iffNameIndexer; } }
+		public Indexer<string> IFFs { get; private set; }
 		#endregion public properties
-		
+
 		/// <summary>Container for Global Cargo data</summary>
 		[Serializable] public struct GlobCarg
 		{

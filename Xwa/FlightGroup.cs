@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-3030 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] auto-properties
  * v3.0, 180903
  * [UPD] Energy Beam and Cluster Mine added [JB]
  * [UPD] disable Designations on init [JB]
@@ -33,16 +35,9 @@ namespace Idmr.Platform.Xwa
 	public partial class FlightGroup : BaseFlightGroup
 	{
 		// offsets are local within FG
-		Mission.Trigger[] _arrDepTriggers = new Mission.Trigger[6];
 		string _role = "";
-		bool[] _arrDepAndOr = new bool[4];
-		Order[,] _orders = new Order[4,4];
-		Goal[] _goals = new Goal[8];
-		bool[] _optLoadout = new bool[18]; //[JB] Added Energy Beam and Cluster Mine
-		OptionalCraft[] _optCraft = new OptionalCraft[10];
+		readonly bool[] _optLoadout = new bool[18]; //[JB] Added Energy Beam and Cluster Mine
 		string _pilotID = "";
-		Waypoint[] _waypoints = new Waypoint[4];
-		LoadoutIndexer _loadoutIndexer;
 
 		/// <summary>Indexes for <see cref="ArrDepTriggers"/></summary>
 		public enum ArrDepTriggerIndex : byte
@@ -79,16 +74,16 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>All <see cref="Orders"/> set to <b>100%</b> <see cref="BaseFlightGroup.BaseOrder.Throttle"/> (16 total, 4 per Region), <see cref="Goals"/> set to <b>NONE</b>, SP1 <b>Enabled</b>, most <see cref="Unknowns"/> <b>0/false</b>, <see cref="UnknownValues.Unknown1"/> to <b>2</b></remarks>
 		public FlightGroup()
 		{
-			for (int i = 0; i < 6; i++) _arrDepTriggers[i] = new Mission.Trigger();
-			for (int i = 0; i < 4; i++) _waypoints[i] = new Waypoint();
-			for (int i = 0; i < 16; i++) _orders[i / 4, i % 4] = new Order();
-			for (int i = 0; i < 8; i++) _goals[i] = new Goal();
+			for (int i = 0; i < 6; i++) ArrDepTriggers[i] = new Mission.Trigger();
+			for (int i = 0; i < 4; i++) Waypoints[i] = new Waypoint();
+			for (int i = 0; i < 16; i++) Orders[i / 4, i % 4] = new Order();
+			for (int i = 0; i < 8; i++) Goals[i] = new Goal();
 			_optLoadout[0] = true;
             _optLoadout[9] = true;  //[JB] Adjusted these indexes for added Energy Beam, Cluster Mine
 			_optLoadout[14] = true;
-			_waypoints[0].Enabled = true;
+			Waypoints[0].Enabled = true;
 			Unknowns.Unknown1 = 2;
-			_loadoutIndexer = new LoadoutIndexer(_optLoadout);
+			OptLoadout = new LoadoutIndexer(_optLoadout);
             EnableDesignation1 = 255; //[JB] Set to disabled
             EnableDesignation2 = 255;
 		}
@@ -202,8 +197,8 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>19 character limit, appears to be an editor note</remarks>
 		public string Role
 		{
-			get { return _role; }
-			set { _role = StringFunctions.GetTrimmed(value, _stringLength); }
+			get => _role;
+			set => _role = StringFunctions.GetTrimmed(value, _stringLength);
 		}
 		/// <summary>Gets or sets the allegiance value that controls goals and IFF behaviour</summary>
 		public byte Team { get; set; }
@@ -220,52 +215,52 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Mapped to <see cref="BaseFlightGroup.Name"/>.</remarks>
 		public string LightRGB
 		{
-			get { return Name; }
-			set { Name = value; }
+			get => Name;
+			set => Name = value;
 		}
 		/// <summary>Gets or sets the Shadow value of the Backdrop.</summary>
 		/// <remarks>Mapped to <see cref="GlobalCargo"/>, does not have error-checking.</remarks>
 		public byte Shadow
 		{
-			get { return GlobalCargo; }
-			set { GlobalCargo = value; }
+			get => GlobalCargo;
+			set => GlobalCargo = value;
 		}
 		/// <summary>Gets or sets the numerical Brightness value of the Backdrop.</summary>
 		/// <remarks>Mapped to <see cref="BaseFlightGroup.Cargo"/>.</remarks>
 		public string Brightness
 		{
-			get { return Cargo; }
-			set { Cargo = value; }
+			get => Cargo;
+			set => Cargo = value;
 		}
 		/// <summary>Gets or sets the numerical Size of the Backdrop.</summary>
 		/// <remarks>Mapped to <see cref="BaseFlightGroup.SpecialCargo"/>.</remarks>
 		public string BackdropSize
 		{
-			get { return SpecialCargo; }
-			set { SpecialCargo = value; }
+			get => SpecialCargo;
+			set => SpecialCargo = value;
 		}
 		#endregion
 		#region arrdep
 		/// <summary>Returns <b>true</b> if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds { get { return (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && _arrDepTriggers[2].Condition == 0 && _arrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
+		public bool ArrivesIn30Seconds { get { return (ArrDepTriggers[0].Condition == 0 && ArrDepTriggers[1].Condition == 0 && ArrDepTriggers[2].Condition == 0 && ArrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
 		/// <summary>Gets the Arrival and Departure trigger array</summary>
 		/// <remarks>Use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
-		public Mission.Trigger[] ArrDepTriggers { get { return _arrDepTriggers; } }
+		public Mission.Trigger[] ArrDepTriggers { get; } = new Mission.Trigger[6];
 		/// <summary>Gets which <see cref="ArrDepTriggers"/> must be completed</summary>
 		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}</remarks>
-		public bool[] ArrDepAndOr { get { return _arrDepAndOr; } }
+		public bool[] ArrDepAndOr { get; } = new bool[4];
 		#endregion
 		/// <summary>Gets the FlightGroup objective commands</summary>
 		/// <remarks>Array is [Region, OrderIndex]</remarks>
-		public Order[,] Orders { get { return _orders; } }
+		public Order[,] Orders { get; } = new Order[4, 4];
 		/// <summary>Gets the FlightGroup-specific mission goals</summary>
 		/// <remarks>Array is Length = 8</remarks>
-		public Goal[] Goals { get { return _goals; } }
-		
+		public Goal[] Goals { get; } = new Goal[8];
+
 		/// <summary>Gets the FlightGroup start location markers</summary>
 		/// <remarks>Array is length 4</remarks>
-		public Waypoint[] Waypoints { get { return _waypoints; } }
+		public Waypoint[] Waypoints { get; } = new Waypoint[4];
 		#region Unks and Option
 		/// <summary>Determines if the FlightGroup should share numbering across the <see cref="GlobalUnit"/></summary>
 		public bool GlobalNumbering { get; set; }
@@ -280,10 +275,10 @@ namespace Idmr.Platform.Xwa
 		public byte GlobalUnit { get; set; }
 		/// <summary>Gets the array of alternate weapons the player can select</summary>
 		/// <remarks>Use the <see cref="LoadoutIndexer.Indexes"/> enumeration for indexes</remarks>
-		public LoadoutIndexer OptLoadout { get { return _loadoutIndexer; } }
+		public LoadoutIndexer OptLoadout { get; private set; }
 		/// <summary>Gets the array of alternate craft types the player can select</summary>
 		/// <remarks>Array is Length = 10</remarks>
-		public OptionalCraft[] OptCraft { get { return _optCraft; } }
+		public OptionalCraft[] OptCraft { get; } = new OptionalCraft[10];
 		/// <summary>The alternate craft types the player can select by list</summary>
 		public OptionalCraftCategory OptCraftCategory = OptionalCraftCategory.None;
 
@@ -291,8 +286,8 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>15 character limit</remarks>
 		public string PilotID
 		{
-			get { return _pilotID; }
-			set { _pilotID = StringFunctions.GetTrimmed(value, 15); }
+			get => _pilotID;
+			set => _pilotID = StringFunctions.GetTrimmed(value, 15);
 		}
 		/// <summary>For Backdrop <see cref="BaseFlightGroup.CraftType">CraftTypes</see>, is the backdrop image</summary>
 		/// <remarks>Zero denotes a light source</remarks>

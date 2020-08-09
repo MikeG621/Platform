@@ -1,10 +1,10 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2017 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5
+ * Version: 4.0
  */
 
 /* CHANGELOG
@@ -29,8 +29,10 @@ namespace Idmr.Platform.Xvt
 		public FlightGroupCollection()
 		{
 			_itemLimit = Mission.FlightGroupLimit;
-			_items = new List<FlightGroup>(_itemLimit);
-			_items.Add(new FlightGroup());
+			_items = new List<FlightGroup>(_itemLimit)
+			{
+				new FlightGroup()
+			};
 		}
 
 		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>

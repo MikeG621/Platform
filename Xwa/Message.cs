@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] auto-properties
  * v3.0, 180903
  * [UPD] changes to Delay [JB]
  * v2.1, 141214
@@ -24,9 +26,6 @@ namespace Idmr.Platform.Xwa
 	[Serializable]
 	public class Message : BaseMessage
 	{
-		Mission.Trigger[] _triggers = new Mission.Trigger[6];
-		bool[] _sentTo = new bool[10];
-		bool[] _trigAndOr = new bool[4];
 		string _voiceID = "";
 		string _note = "";
 
@@ -34,43 +33,43 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Sent to Team 1 by default</remarks>
 		public Message()
 		{
-			for (int i = 0; i < 6; i++) _triggers[i] = new Mission.Trigger();
-			_sentTo[0] = true;
+			for (int i = 0; i < 6; i++) Triggers[i] = new Mission.Trigger();
+			SentTo[0] = true;
 		}
 
 		/// <summary>Gets or sets if the triggers are mutually exclusive</summary>
 		public bool T1AndOrT2
 		{
-			get { return _trigAndOr[0]; }
-			set { _trigAndOr[0] = value; }
+			get => TrigAndOr[0];
+			set => TrigAndOr[0] = value;
 		}
 		/// <summary>Gets or sets if the triggers are mutually exclusive</summary>
 		public bool T3AndOrT4
 		{
-			get { return _trigAndOr[1]; }
-			set { _trigAndOr[1] = value; }
+			get => TrigAndOr[1];
+			set => TrigAndOr[1] = value;
 		}
 		/// <summary>Gets or sets if the triggers pairs are mutually exclusive</summary>
 		public bool T12AndOrT34
 		{
-			get { return _trigAndOr[2]; }
-			set { _trigAndOr[2] = value; }
+			get => TrigAndOr[2];
+			set => TrigAndOr[2] = value;
 		}
 		/// <summary>Gets or sets if the triggers are mutually exclusive</summary>
 		public bool CancelT1AndOrT2
 		{
-			get { return _trigAndOr[3]; }
-			set { _trigAndOr[3] = value; }
+			get => TrigAndOr[3];
+			set => TrigAndOr[3] = value;
 		}
 		/// <summary>Gets the Triggers that control the Message behaviour</summary>
 		/// <remarks>Array length is 6. Four normal Triggers, followed by two Cancel Triggers</remarks>
-		public Mission.Trigger[] Triggers { get { return _triggers; } }
+		public Mission.Trigger[] Triggers { get; } = new Mission.Trigger[6];
 		/// <summary>Gets which teams can receive the message</summary>
 		/// <remarks>Array length = 10</remarks>
-		public bool[] SentTo { get { return _sentTo; } }
+		public bool[] SentTo { get; } = new bool[10];
 		/// <summary>Gets the array for the trigger AndOr values</summary>
 		/// <remarks>Array is {1AO2, 3AO4, 12AO34, Cancel1AO2}. <b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b></remarks>
-		public bool[] TrigAndOr { get { return _trigAndOr; } }
+		public bool[] TrigAndOr { get; } = new bool[4];
 		/// <summary>Unknown value</summary>
 		/// <remarks>Offset 0x66</remarks>
 		public byte Unknown1 { get; set; }
@@ -78,8 +77,8 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Value is restricted to 8 characters</remarks>
 		public string VoiceID
 		{
-			get { return _voiceID; }
-			set { _voiceID = StringFunctions.GetTrimmed(value, 8); }
+			get => _voiceID;
+			set => _voiceID = StringFunctions.GetTrimmed(value, 8);
 		}
 		/// <summary>Gets or sets the editor note typically used to signify the FlightGroup index of the speaker</summary>
 		/// <remarks>Defaults to <b>zero</b>, there appears to be no game mechanic or consequence for using this value</remarks>
@@ -97,8 +96,8 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Value is restricted to 63 characters</remarks>
 		public string Note
 		{
-			get { return _note; }
-			set { _note = StringFunctions.GetTrimmed(value, 0x53); }
+			get => _note;
+			set => _note = StringFunctions.GetTrimmed(value, 0x53);
 		}
-    }
+	}
 }

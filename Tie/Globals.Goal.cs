@@ -1,19 +1,19 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] Triggers to auto-property
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
  */
-
-using System;
 
 namespace Idmr.Platform.Tie
 {
@@ -22,17 +22,17 @@ namespace Idmr.Platform.Tie
 		/// <summary>Object for a single Global Goal</summary>
 		public class Goal
 		{
-			Mission.Trigger[] _triggers = new Mission.Trigger[2];
-			
 			/// <summary>Initialize a new Goal</summary>
-			/// <remarks>If <i>condition</i> is set to <b>10</b> ("never (FALSE)"), <see cref="T1AndOrT2"/> is set to <b>true</b> ("OR")</remarks>
 			/// <param name="condition">Default Trigger.Condition</param>
+			/// <remarks>If <paramref name="condition"/> is set to <b>10</b> ("never (FALSE)"), <see cref="T1AndOrT2"/> is set to <b>true</b> ("OR")</remarks>
 			public Goal(byte condition)
 			{
 				for (int i = 0; i < 2; i++)
 				{
-					_triggers[i] = new Mission.Trigger();
-					_triggers[i].Condition = condition;
+					Triggers[i] = new Mission.Trigger
+					{
+						Condition = condition
+					};
 				}
 				T1AndOrT2 = (condition == 10);
 			}
@@ -41,7 +41,7 @@ namespace Idmr.Platform.Tie
 			public bool T1AndOrT2 { get; set; }
 			/// <summary>Gets the Triggers that define the Goal</summary>
 			/// <remarks>Array length is 2</remarks>
-			public Mission.Trigger[] Triggers { get { return _triggers; } }
+			public Mission.Trigger[] Triggers { get; private set; } = new Mission.Trigger[2];
 		}
 	}
 }

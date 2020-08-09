@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v4.0, XXXXXX
+ * v4.0, 200809
  * [UPD] PermaDeath changed to bool
  * [FIX] Handling to load incomplete briefing questions [JB]
  * [FIX] Better save backup [JB]
@@ -53,16 +53,13 @@ namespace Idmr.Platform.Tie
 	/// <remarks>This is the primary container object for a TIE95 mission file</remarks>
 	public partial class Mission : MissionFile
 	{
-		string[] _endOfMissionMessages = new string[6];	//Mission Comp/Fail messages
-		string[] _iff = Strings.IFF;
-		bool[] _iffHostile = new bool[6];
-		IffNameIndexer _iffNameIndexer;
-		Indexer<bool> _iffHostileIndexer;
-        byte[] _endOfMissionMessageColor = new byte[6];
-        Indexer<string> _endOfMissionIndexer;
-		
+		readonly string[] _endOfMissionMessages = new string[6];    //Mission Comp/Fail messages
+		readonly string[] _iff = Strings.IFF;
+		readonly bool[] _iffHostile = new bool[6];
+
 		/// <summary>Pre- and Post-mission officers</summary>
-		public enum BriefingOfficers : byte {
+		public enum BriefingOfficers : byte
+		{
 			/// <summary>No officers present</summary>
 			None,
 			/// <summary>Both officers are present</summary>
@@ -77,15 +74,15 @@ namespace Idmr.Platform.Tie
 		/// <summary>Default constructor, creates a blank mission</summary>
 		public Mission()
 		{
-			_initialize();
-			for (int i=0;i<6;i++) _endOfMissionMessages[i] = "";
+			initialize();
+			for (int i = 0; i < 6; i++) _endOfMissionMessages[i] = "";
 		}
 
 		/// <summary>Creates a new mission from a file</summary>
 		/// <param name="filePath">Full path to the file</param>
 		public Mission(string filePath)
 		{
-			_initialize();
+			initialize();
 			LoadFromFile(filePath);
 		}
 
@@ -93,18 +90,18 @@ namespace Idmr.Platform.Tie
 		/// <param name="stream">Opened FileStream to mission file</param>
 		public Mission(FileStream stream)
 		{
-			_initialize();
+			initialize();
 			LoadFromStream(stream);
 		}
-		
-		void _initialize()
+
+		void initialize()
 		{
 			OfficersPresent = BriefingOfficers.FlightOfficer;
 			_invalidError = _invalidError.Replace("{0}", "TIE");
 			_iffHostile[0] = true;
-			_iffNameIndexer = new IffNameIndexer(this);
-			_iffHostileIndexer = new Indexer<bool>(_iffHostile, new bool[]{true, true, false, false, false, false});
-			_endOfMissionIndexer = new Indexer<string>(_endOfMissionMessages, 63);
+			IFFs = new IffNameIndexer(this);
+			IffHostile = new Indexer<bool>(_iffHostile, new bool[] { true, true, false, false, false, false });
+			EndOfMissionMessages = new Indexer<string>(_endOfMissionMessages, 63);
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			GlobalGoals = new Globals();
@@ -132,7 +129,7 @@ namespace Idmr.Platform.Tie
 		public void LoadFromStream(FileStream stream)
 		{
 			if (GetPlatform(stream) != Platform.TIE) throw new InvalidDataException(_invalidError);
-            BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
+			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
 			int i;
 			stream.Position = 2;
 			short numFlightGroups = br.ReadInt16();
@@ -143,30 +140,30 @@ namespace Idmr.Platform.Tie
 			stream.Position = 0xD;
 			CapturedOnEjection = br.ReadBoolean();
 			stream.Position = 0x18;
-            for (i = 0; i < 6; i++)
-            {
-                EndOfMissionMessages[i] = new string(br.ReadChars(64));
-                if (EndOfMissionMessages[i] != "")
-                {
-                    char c = EndOfMissionMessages[i][0];
-                    if (c == '1' || c == '2' || c == '3')
-                    {
-                        EndOfMissionMessageColor[i] = byte.Parse(c.ToString());
-                        EndOfMissionMessages[i] = EndOfMissionMessages[i].Substring(1);
-                    }
-                }
-            }
+			for (i = 0; i < 6; i++)
+			{
+				EndOfMissionMessages[i] = new string(br.ReadChars(64));
+				if (EndOfMissionMessages[i] != "")
+				{
+					char c = EndOfMissionMessages[i][0];
+					if (c == '1' || c == '2' || c == '3')
+					{
+						EndOfMissionMessageColor[i] = byte.Parse(c.ToString());
+						EndOfMissionMessages[i] = EndOfMissionMessages[i].Substring(1);
+					}
+				}
+			}
 			stream.Position += 2;
 			byte[] buffer = new byte[64];
-			for (i=2;i<6;i++) IFFs[i] = new string(br.ReadChars(12));
+			for (i = 2; i < 6; i++) IFFs[i] = new string(br.ReadChars(12));
 			#region FlightGroups
 			FlightGroups = new FlightGroupCollection(numFlightGroups);
-			for (i=0;i<FlightGroups.Count;i++)
+			for (i = 0; i < FlightGroups.Count; i++)
 			{
 				#region Craft
 				int j;
 				FlightGroups[i].Name = new string(br.ReadChars(12));
-				FlightGroups[i].Pilot = new string(br.ReadChars(12));	//not used by TIE
+				FlightGroups[i].Pilot = new string(br.ReadChars(12));   //not used by TIE
 				FlightGroups[i].Cargo = new string(br.ReadChars(12));
 				FlightGroups[i].SpecialCargo = new string(br.ReadChars(12));
 				stream.Read(buffer, 0, 0x38);
@@ -192,7 +189,7 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].FormDistance = buffer[0xD];
 				FlightGroups[i].GlobalGroup = buffer[0xE];
 				FlightGroups[i].FormLeaderDist = buffer[0xF];
-				FlightGroups[i].NumberOfWaves = (byte)(buffer[0x10]+1);
+				FlightGroups[i].NumberOfWaves = (byte)(buffer[0x10] + 1);
 				FlightGroups[i].Unknowns.Unknown5 = buffer[0x11];
 				FlightGroups[i].PlayerCraft = buffer[0x12];
 				FlightGroups[i].Yaw = (short)Math.Round((double)(sbyte)buffer[0x13] * 360 / 0x100);
@@ -242,7 +239,7 @@ namespace Idmr.Platform.Tie
 			if (numMessages != 0)
 			{
 				Messages = new MessageCollection(numMessages);
-				for (i=0;i<Messages.Count;i++)
+				for (i = 0; i < Messages.Count; i++)
 				{
 					Messages[i].MessageString = new string(br.ReadChars(64));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
@@ -268,7 +265,7 @@ namespace Idmr.Platform.Tie
 			else { Messages.Clear(); }
 			#endregion
 			#region Globals
-			for (i=0;i<3;i++)
+			for (i = 0; i < 3; i++)
 			{
 				stream.Read(buffer, 0, 8);
 				GlobalGoals.Goals[i].Triggers[0] = new Trigger(buffer, 0);
@@ -284,37 +281,37 @@ namespace Idmr.Platform.Tie
 			#region Briefing
 			Briefing.Length = br.ReadInt16();
 			Briefing.Unknown1 = br.ReadInt16();
-			stream.Position += 6;	// StartLength, EventsLength, Res(0)
-			for (i=0;i<12;i++)
+			stream.Position += 6;   // StartLength, EventsLength, Res(0)
+			for (i = 0; i < 12; i++)
 			{
 				stream.Read(buffer, 0, 0x40);
 				Buffer.BlockCopy(buffer, 0, Briefing.Events, 0x40 * i, 0x40);
 			}
 			stream.Read(buffer, 0, 0x20);
 			Buffer.BlockCopy(buffer, 0, Briefing.Events, 0x300, 0x20);
-			for (i=0;i<32;i++)
+			for (i = 0; i < 32; i++)
 			{
 				int j = br.ReadInt16();
 				if (j > 0) Briefing.BriefingTag[i] = new string(br.ReadChars(j));
 			}
-			for (i=0;i<32;i++)
+			for (i = 0; i < 32; i++)
 			{
 				int j = br.ReadInt16();
 				if (j > 0) Briefing.BriefingString[i] = new string(br.ReadChars(j));
 			}
 			#endregion
 			#region Questions
-			for (i=0;i<10;i++)
+			for (i = 0; i < 10; i++)
 			{
 				int j, k, l = 0;
-				j = br.ReadInt16();	//read the question length, we're just not going to save it
+				j = br.ReadInt16(); //read the question length, we're just not going to save it
 				if (j == 1)
 				{
-					stream.Position++;	//if it's just the return, get rid of it
+					stream.Position++;  //if it's just the return, get rid of it
 					continue;
 				}
 				if (j == 0) continue;
-				for (k=0;k<j;k++)
+				for (k = 0; k < j; k++)
 				{
 					BriefingQuestions.PreMissQuestions[i] += br.ReadChar().ToString();
 					l++;
@@ -322,10 +319,10 @@ namespace Idmr.Platform.Tie
 					else stream.Position--;
 				}
 				l++;
-				for (k=l;k<j;k++)
+				for (k = l; k < j; k++)
 				{
-                    int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
-                    switch (b)	//TIE uses char(2) and char(1) for bolding in this section
+					int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
+					switch (b)  //TIE uses char(2) and char(1) for bolding in this section
 					{
 						case 1:
 							BriefingQuestions.PreMissAnswers[i] += "]";
@@ -334,7 +331,7 @@ namespace Idmr.Platform.Tie
 							BriefingQuestions.PreMissAnswers[i] += "[";
 							break;
 						case 10:
-							BriefingQuestions.PreMissAnswers[i] += "\r\n";	//because txt doesn't like \n by itself
+							BriefingQuestions.PreMissAnswers[i] += "\r\n";  //because txt doesn't like \n by itself
 							break;
 						default:
 							BriefingQuestions.PreMissAnswers[i] += Convert.ToChar(b).ToString();
@@ -345,19 +342,19 @@ namespace Idmr.Platform.Tie
 			//[JB] I've encountered some custom missions with an incomplete question list. A clever form of protection? Even TFW couldn't open it. Wrapping this in a try/catch block.
 			try
 			{
-				for (i=0;i<10;i++)
+				for (i = 0; i < 10; i++)
 				{
 					int j, k, l = 2;
-					j = br.ReadInt16();	//also got rid of saving here, calc'ing on the fly
+					j = br.ReadInt16(); //also got rid of saving here, calc'ing on the fly
 					if (j == 3)
 					{
-						stream.Position += 3;	// stupid TFW-isms
+						stream.Position += 3;   // stupid TFW-isms
 						continue;
 					}
 					if (j == 0) continue;
 					BriefingQuestions.PostTrigger[i] = br.ReadByte();
 					BriefingQuestions.PostTrigType[i] = br.ReadByte();
-					for (k=0;k<j;k++)
+					for (k = 0; k < j; k++)
 					{
 						BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
 						l++;
@@ -365,7 +362,7 @@ namespace Idmr.Platform.Tie
 						else stream.Position--;
 					}
 					l++;
-					for (k=l;k<j;k++)
+					for (k = l; k < j; k++)
 					{
 						int b = br.ReadChar(); //[JB] Must honor stream encoding for strings, can't use ReadByte
 						switch (b)
@@ -393,7 +390,7 @@ namespace Idmr.Platform.Tie
 					}
 				}
 			}
-			catch ( EndOfStreamException ) { /* Do nothing */ }
+			catch (EndOfStreamException) { /* Do nothing */ }
 			#endregion
 			MissionPath = stream.Name;
 		}
@@ -402,32 +399,32 @@ namespace Idmr.Platform.Tie
 		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
 		public void Save()
 		{
-            //[JB] Rewrote the backup logic since it was broken.  It should now retain the same protection concept with more robust handling.
-            //First check whether the file exists and is read-only.  Copying to a backup will inherit the read-only property and prevent any attempt to delete, silently breaking the backup feature unless the user directly intervenes to manually delete it.
-            if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
+			//[JB] Rewrote the backup logic since it was broken.  It should now retain the same protection concept with more robust handling.
+			//First check whether the file exists and is read-only.  Copying to a backup will inherit the read-only property and prevent any attempt to delete, silently breaking the backup feature unless the user directly intervenes to manually delete it.
+			if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
 
 			FileStream fs = null;
-            //The backup filename must be normalized, as filenames are case-insensitive, unlike strings.  If the replace does not work, the resulting backup name will match the source, and attempting to copy will throw an exception.
-            string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
-            bool backupCreated = false, writerCreated = false;
+			//The backup filename must be normalized, as filenames are case-insensitive, unlike strings.  If the replace does not work, the resulting backup name will match the source, and attempting to copy will throw an exception.
+			string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
+			bool backupCreated = false, writerCreated = false;
 
-            if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
-            {
-                try
-                {
-                    if (File.Exists(backup) )
-                        File.Delete(backup);
-                    File.Copy(MissionPath, backup);
-                    backupCreated = true;
-                }
-                catch { }
-            }
+			if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
+			{
+				try
+				{
+					if (File.Exists(backup))
+						File.Delete(backup);
+					File.Copy(MissionPath, backup);
+					backupCreated = true;
+				}
+				catch { }
+			}
 			try
 			{
-                if (File.Exists(MissionPath)) File.Delete(MissionPath);
-                fs = File.OpenWrite(MissionPath);
-                BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
-                writerCreated = true;
+				if (File.Exists(MissionPath)) File.Delete(MissionPath);
+				fs = File.OpenWrite(MissionPath);
+				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
+				writerCreated = true;
 				bw.Write((short)-1);
 				bw.Write((short)FlightGroups.Count);
 				bw.Write((short)Messages.Count);
@@ -437,15 +434,15 @@ namespace Idmr.Platform.Tie
 				fs.Position = 0xD;
 				bw.Write(CapturedOnEjection);
 				fs.Position = 0x18;
-				for (int i=0;i<6;i++)
+				for (int i = 0; i < 6; i++)
 				{
 					long p = fs.Position;
-                    if (EndOfMissionMessageColor[i] != 0) bw.Write(Convert.ToByte(EndOfMissionMessageColor[i] + 48));
-                    bw.Write(_endOfMissionMessages[i].ToCharArray()); bw.Write('\0');
+					if (EndOfMissionMessageColor[i] != 0) bw.Write(Convert.ToByte(EndOfMissionMessageColor[i] + 48));
+					bw.Write(_endOfMissionMessages[i].ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x40;
 				}
 				fs.Position += 2;
-				for (int i=2;i<6;i++)
+				for (int i = 2; i < 6; i++)
 				{
 					long p = fs.Position;
 					if (_iffHostile[i]) bw.Write('1');
@@ -453,7 +450,7 @@ namespace Idmr.Platform.Tie
 					fs.Position = p + 0xC;
 				}
 				#region Flightgroups
-				for (int i=0;i<FlightGroups.Count;i++)
+				for (int i = 0; i < FlightGroups.Count; i++)
 				{
 					long p = fs.Position;
 					int j;
@@ -467,7 +464,7 @@ namespace Idmr.Platform.Tie
 					bw.Write(FlightGroups[i].SpecialCargo.ToCharArray());
 					fs.Position = p + 0x30;
 					if (FlightGroups[i].SpecialCargoCraft == 0) fs.WriteByte(FlightGroups[i].NumberOfCraft);
-					else fs.WriteByte((byte)(FlightGroups[i].SpecialCargoCraft-1));
+					else fs.WriteByte((byte)(FlightGroups[i].SpecialCargoCraft - 1));
 					bw.Write(FlightGroups[i].RandSpecCargo);
 					fs.WriteByte(FlightGroups[i].CraftType);
 					fs.WriteByte(FlightGroups[i].NumberOfCraft);
@@ -483,14 +480,14 @@ namespace Idmr.Platform.Tie
 					fs.WriteByte(FlightGroups[i].FormDistance);
 					fs.WriteByte(FlightGroups[i].GlobalGroup);
 					fs.WriteByte(FlightGroups[i].FormLeaderDist);
-					fs.WriteByte((byte)(FlightGroups[i].NumberOfWaves-1));
+					fs.WriteByte((byte)(FlightGroups[i].NumberOfWaves - 1));
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown5);
 					fs.WriteByte(FlightGroups[i].PlayerCraft);
 					fs.WriteByte((byte)(FlightGroups[i].Yaw * 0x100 / 360));
 					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
 					fs.WriteByte((byte)(FlightGroups[i].Roll * 0x100 / 360));
 					bw.Write(FlightGroups[i].PermaDeathEnabled);
-                    fs.WriteByte(FlightGroups[i].PermaDeathID);
+					fs.WriteByte(FlightGroups[i].PermaDeathID);
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown11);
 					#endregion
 					#region Arr/Dep
@@ -530,7 +527,7 @@ namespace Idmr.Platform.Tie
 				}
 				#endregion
 				#region Messages
-				for (int i=0;i<Messages.Count;i++)
+				for (int i = 0; i < Messages.Count; i++)
 				{
 					long p = fs.Position;
 					if (Messages[i].Color != 0) bw.Write((byte)(Messages[i].Color + 0x30));
@@ -565,14 +562,14 @@ namespace Idmr.Platform.Tie
 				byte[] briefBuffer = new byte[Briefing.Events.Length * 2];
 				Buffer.BlockCopy(Briefing.Events, 0, briefBuffer, 0, briefBuffer.Length);
 				bw.Write(briefBuffer);
-				for (int i=0;i<32;i++)
+				for (int i = 0; i < 32; i++)
 				{
 					string str_t = Briefing.BriefingTag[i].Replace("\r", "");
 					int j = Briefing.BriefingTag[i].Length;
 					bw.Write((short)j);
 					bw.Write(str_t.ToCharArray());
 				}
-				for (int i=0;i<32;i++)
+				for (int i = 0; i < 32; i++)
 				{
 					string str_t = Briefing.BriefingString[i].Replace("\r", "");
 					int j = Briefing.BriefingString[i].Length;
@@ -581,7 +578,7 @@ namespace Idmr.Platform.Tie
 				}
 				#endregion
 				#region Questions
-				for (int i=0;i<10;i++)
+				for (int i = 0; i < 10; i++)
 				{
 					int j;
 					string str_q = BriefingQuestions.PreMissQuestions[i];
@@ -593,23 +590,23 @@ namespace Idmr.Platform.Tie
 					if (j == 0)
 					{
 						bw.Write((short)0);
-						continue;	//if it doesn't exist, don't even bother with the rest of this
+						continue;   //if it doesn't exist, don't even bother with the rest of this
 					}
-					j++;	//takes into account the q/a spacer
+					j++;    //takes into account the q/a spacer
 					bw.Write((short)j);
 					bw.Write(str_q.ToCharArray());
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
 				}
-				for (int i=0;i<10;i++)
+				for (int i = 0; i < 10; i++)
 				{
 					int j;
 					string str_q = BriefingQuestions.PostMissQuestions[i];
 					string str_a = BriefingQuestions.PostMissAnswers[i];
-                    str_a = str_a.Replace("\r", "");
-                    str_a = str_a.Replace(']', Convert.ToChar(1));  //[JB] Debrief questions use the same highlight scheme.  Added character conversions.
+					str_a = str_a.Replace("\r", "");
+					str_a = str_a.Replace(']', Convert.ToChar(1));  //[JB] Debrief questions use the same highlight scheme.  Added character conversions.
 					str_a = str_a.Replace('[', Convert.ToChar(2));
-                    j = str_q.Length + str_a.Length;
+					j = str_q.Length + str_a.Length;
 					if (j == 0)
 					{
 						bw.Write((short)0);
@@ -624,26 +621,26 @@ namespace Idmr.Platform.Tie
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
 				}
-                #endregion
+				#endregion
 				bw.Write((short)0x2106); fs.WriteByte(0xFF);
 				fs.SetLength(fs.Position);
 				fs.Close();
 			}
 			catch
 			{
-                if (fs != null) fs.Close(); //Prevent object instance exception if it failed to open.
-                //If the stream was opened successfully but failed at any point during writing, the contents are corrupt, so restore from backup.  Otherwise it's probably a different kind of access error, such as file already open.
-                if (writerCreated && backupCreated)
-                {
-                    File.Delete(MissionPath);
-                    File.Copy(backup, MissionPath);
-                    File.Delete(backup);
-                }
-                throw;
+				if (fs != null) fs.Close(); //Prevent object instance exception if it failed to open.
+											//If the stream was opened successfully but failed at any point during writing, the contents are corrupt, so restore from backup.  Otherwise it's probably a different kind of access error, such as file already open.
+				if (writerCreated && backupCreated)
+				{
+					File.Delete(MissionPath);
+					File.Copy(backup, MissionPath);
+					File.Delete(backup);
+				}
+				throw;
 			}
-            //Save completed successfully.
-            if(backupCreated)
-			    File.Delete(backup);
+			//Save completed successfully.
+			if (backupCreated)
+				File.Delete(backup);
 		}
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
@@ -654,20 +651,20 @@ namespace Idmr.Platform.Tie
 			MissionPath = filePath;
 			Save();
 		}
-		
+
 		/// <summary>Checks a CraftType for valid values and adjusts if necessary</summary>
 		/// <param name="craftType">The craft index to check</param>
 		/// <returns>Resultant CraftType index, or <b>255</b> if invalid</returns>
 		public static byte CraftCheck(byte craftType)
 		{
 			if (craftType > 91) return 255;
-			else if (craftType == 77) return 31;	// G/PLT
-			else if (craftType == 89) return 10;	// SHPYD
-			else if (craftType == 90) return 11;	// REPYD
-			else if (craftType == 91) return 39;	// M/SC
+			else if (craftType == 77) return 31;    // G/PLT
+			else if (craftType == 89) return 10;    // SHPYD
+			else if (craftType == 90) return 11;    // REPYD
+			else if (craftType == 91) return 39;    // M/SC
 			else return craftType;
 		}
-		
+
 		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</summary>
 		/// <remarks>First checks for invalid Types, then runs through allowed values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
 		/// <param name="type">Trigger.Type or Order.TargetType</param>
@@ -689,9 +686,9 @@ namespace Idmr.Platform.Tie
 				else variable = newCraft;
 			}
 			else if (type == 3) if (variable > 6) errorMessage = "CraftCategory";
-			else if (type == 4) if (variable > 2) errorMessage = "ObjectCategory";
-			else if (type == 5) if (variable > 5) errorMessage = "IFF";
-			else if (type == 6) if (variable > 39) errorMessage = "Order";
+				else if (type == 4) if (variable > 2) errorMessage = "ObjectCategory";
+					else if (type == 5) if (variable > 5) errorMessage = "IFF";
+						else if (type == 6) if (variable > 39) errorMessage = "Order";
 			// don't want to check CraftWhen
 			// can't check GlobalGroup
 			// don't want to check Misc
@@ -703,69 +700,69 @@ namespace Idmr.Platform.Tie
 		/// <returns>The index of the next available FlightGroup if successfull, otherwise <b>-1</b></returns>
 		/// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
 		public int DeleteFG(int fgIndex)
-        {
-            if (fgIndex < 0 || fgIndex >= FlightGroups.Count)
-                return 0;  //If for some reason this is out of range, don't do anything and return selection to first item.
+		{
+			if (fgIndex < 0 || fgIndex >= FlightGroups.Count)
+				return 0;  //If for some reason this is out of range, don't do anything and return selection to first item.
 
-            foreach (Globals.Goal goal in GlobalGoals.Goals)
-                foreach (Mission.Trigger trig in goal.Triggers)
-                    trig.TransformFGReferences(fgIndex, -1, false);
+			foreach (Globals.Goal goal in GlobalGoals.Goals)
+				foreach (Mission.Trigger trig in goal.Triggers)
+					trig.TransformFGReferences(fgIndex, -1, false);
 
-            foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
-                    trig.TransformFGReferences(fgIndex, -1, true);
+			foreach (Message msg in Messages)
+				foreach (Mission.Trigger trig in msg.Triggers)
+					trig.TransformFGReferences(fgIndex, -1, true);
 
-            Briefing.TransformFGReferences(fgIndex, -1);
+			Briefing.TransformFGReferences(fgIndex, -1);
 
-            foreach (FlightGroup fg in FlightGroups)
-                fg.TransformFGReferences(fgIndex, -1);
-            
-            return FlightGroups.RemoveAt(fgIndex);  //This handles all the cleanup within the FlightGroupCollection itself.
-        }
+			foreach (FlightGroup fg in FlightGroups)
+				fg.TransformFGReferences(fgIndex, -1);
 
-        /// <summary>Swaps two FlightGroups.</summary>
+			return FlightGroups.RemoveAt(fgIndex);  //This handles all the cleanup within the FlightGroupCollection itself.
+		}
+
+		/// <summary>Swaps two FlightGroups.</summary>
 		/// <param name="srcIndex">The original index</param>
 		/// <param name="dstIndex">The new index</param>
-        /// <remarks>Automatically performs bounds checking and adjusts all references in the mission to prevent breaking any indexes for triggers, orders, etc.</remarks>
-        /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if index validation failed.</returns>
-        public bool SwapFG(int srcIndex, int dstIndex)
-        {
-            if((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;
+		/// <remarks>Automatically performs bounds checking and adjusts all references in the mission to prevent breaking any indexes for triggers, orders, etc.</remarks>
+		/// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if index validation failed.</returns>
+		public bool SwapFG(int srcIndex, int dstIndex)
+		{
+			if ((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;
 
-            foreach (Globals.Goal goal in GlobalGoals.Goals)
-                foreach (Mission.Trigger trig in goal.Triggers)
-                    trig.SwapFGReferences(srcIndex, dstIndex);
+			foreach (Globals.Goal goal in GlobalGoals.Goals)
+				foreach (Mission.Trigger trig in goal.Triggers)
+					trig.SwapFGReferences(srcIndex, dstIndex);
 
-            foreach (Message msg in Messages)
-                foreach (Mission.Trigger trig in msg.Triggers)
-                    trig.SwapFGReferences(srcIndex, dstIndex);
+			foreach (Message msg in Messages)
+				foreach (Mission.Trigger trig in msg.Triggers)
+					trig.SwapFGReferences(srcIndex, dstIndex);
 
-            Briefing.SwapFGReferences(srcIndex, dstIndex);
+			Briefing.SwapFGReferences(srcIndex, dstIndex);
 
-            foreach (FlightGroup fg in FlightGroups)
-            {
-                fg.TransformFGReferences(dstIndex, 255);
-                fg.TransformFGReferences(srcIndex, dstIndex);
-                fg.TransformFGReferences(255, srcIndex);
-            }
-            FlightGroup temp = FlightGroups[srcIndex];
-            FlightGroups[srcIndex] = FlightGroups[dstIndex];
-            FlightGroups[dstIndex] = temp;
+			foreach (FlightGroup fg in FlightGroups)
+			{
+				fg.TransformFGReferences(dstIndex, 255);
+				fg.TransformFGReferences(srcIndex, dstIndex);
+				fg.TransformFGReferences(255, srcIndex);
+			}
+			FlightGroup temp = FlightGroups[srcIndex];
+			FlightGroups[srcIndex] = FlightGroups[dstIndex];
+			FlightGroups[dstIndex] = temp;
 
-            return true;
-        }
-        #endregion public methods
-		
+			return true;
+		}
+		#endregion public methods
+
 		#region public properties
 		/// <summary>Gets the array accessor for the IFF names</summary>
-		public IffNameIndexer IFFs { get { return _iffNameIndexer; } }
+		public IffNameIndexer IFFs { get; private set; }
 		/// <summary>Gets the array accessor for the IFF behaviour</summary>
-		public Indexer<bool> IffHostile { get { return _iffHostileIndexer; } }
+		public Indexer<bool> IffHostile { get; private set; }
 
-        /// <summary>Gets or sets the color of the specified EoM Message</summary>
-        public byte[] EndOfMissionMessageColor { get { return _endOfMissionMessageColor; } }
-        /// <summary>Gets the array accessor for the EoM Messages</summary>
-		public Indexer<string> EndOfMissionMessages { get { return _endOfMissionIndexer; } }
+		/// <summary>Gets the array of EoM Message colors</summary>
+		public byte[] EndOfMissionMessageColor { get; } = new byte[6];
+		/// <summary>Gets the array accessor for the EoM Messages</summary>
+		public Indexer<string> EndOfMissionMessages { get; private set; }
 
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
 		/// <remarks>Value is <b>28</b></remarks>
@@ -776,14 +773,14 @@ namespace Idmr.Platform.Tie
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
 		/// <remarks>Value is <b>16</b></remarks>
 		public const int MessageLimit = 16;
-		
+
 		/// <summary>Gets or sets the officers present before and after the mission</summary>
 		/// <remarks>Defaults to <b>FlightOfficer</b></remarks>
 		public BriefingOfficers OfficersPresent { get; set; }
 		/// <summary>Gets or sets if the pilot is captured upon ejection or destruction</summary>
 		/// <remarks><b>true</b> results in capture, <b>false</b> results in rescue (default)</remarks>
 		public bool CapturedOnEjection { get; set; }
-		
+
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>
 		public FlightGroupCollection FlightGroups { get; set; }

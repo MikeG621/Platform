@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] various updates throughout [JB]
  * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
  * v3.1, 200703
@@ -40,7 +40,7 @@ namespace Idmr.Platform.Xvt
 	public abstract class Strings : BaseStrings
 	{
 		#region array declarations
-        static string[] _roleTeams = { "Role Disabled",
+        static readonly string[] _roleTeams = { "Role Disabled",
                                         "Team 1", 
                                         "Team 2", 
                                         "Team 3", 
@@ -50,7 +50,7 @@ namespace Idmr.Platform.Xvt
                                         "All Other Teams", 
                                     };
 
-		static string[] _roles = { "None",
+		static readonly string[] _roles = { "None",
 									"Base",
 									"Command Ship",
 									"Convoy Craft",
@@ -64,7 +64,7 @@ namespace Idmr.Platform.Xvt
 									"Strike Craft",
 									"Tertiary Target"
 								};
-		static string[] _radio = { "None",
+		static readonly string[] _radio = { "None",
 										"Team 1 (Imperial)",
 										"Team 2 (Rebel)",
 										"Team 3",
@@ -82,21 +82,21 @@ namespace Idmr.Platform.Xvt
 										"Player 7",
 										"Player 8"
 									};
-		static string[] _iff = { "Rebel",
+		static readonly string[] _iff = { "Rebel",
 										"Imperial",
 										"Blue",
 										"Yellow",
 										"Red",
 										"Purple"
 								  };
-		static string[] _beam = { "None",
+		static readonly string[] _beam = { "None",
 									"Tractor beam",
 									"Jamming beam",
 									"Decoy beam",
 									"(Energy beam)"
 							   };
 
-        static string[] _difficulty = { "All",
+        static readonly string[] _difficulty = { "All",
 										"Easy",
 										"Medium",
 										"Hard",
@@ -108,7 +108,7 @@ namespace Idmr.Platform.Xvt
 										"Medium",
 										"Hard",
 									 };
-        static string[] _difficultyAbbrv = { "",
+        static readonly string[] _difficultyAbbrv = { "",
 										"E",
 										"M",
 										"H",
@@ -215,7 +215,7 @@ namespace Idmr.Platform.Xvt
 										"Repair Yard",
 										"Modified Strike Cruiser"
 									};
-		static string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
+		static readonly string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
 		static string[] _craftAbbrv = { "",
 										"X-W",
 										"Y-W",
@@ -310,15 +310,15 @@ namespace Idmr.Platform.Xvt
 										"REPYD",
 										"M/SC"
 									 };
-		static string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
-		static string[] _rating = { "Novice",
+		static readonly string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
+		static readonly string[] _rating = { "Novice",
 									"Officer",
 									"Veteran",
 									"Ace",
 									"Top Ace",
 									"Jedi"
 								 };
-		static string[] _status = { "Normal",
+		static readonly string[] _status = { "Normal",
 									"2x Warheads",
 									"1/2 Warheads",
 									"No Shields",         //[JB] Was "Disabled", confirmed actual effect
@@ -341,7 +341,7 @@ namespace Idmr.Platform.Xvt
 									"Invincible",
 									"Infinite Ammo"
 								 };
-		static string[] _trigger = { "always (TRUE)",
+		static readonly string[] _trigger = { "always (TRUE)",
 										"have arrived",
 										"be destroyed",
 										"be attacked",
@@ -389,7 +389,7 @@ namespace Idmr.Platform.Xvt
 										"withdraw",
 										"be carried away"
 								  };
-		static string[] _triggerType = { "none",
+		static readonly string[] _triggerType = { "none",
 											"Flight Group",
 											"Ship type",
 											"Ship class",
@@ -415,7 +415,7 @@ namespace Idmr.Platform.Xvt
 											"Global Unit",
                                             "All global units except"
 									  };
-		static string[] _amount = { "100%",
+		static readonly string[] _amount = { "100%",
 									"75%",
 									"50%",
 									"25%",
@@ -436,7 +436,7 @@ namespace Idmr.Platform.Xvt
 									"each craft",
 									"each special craft"
 								 };
-		static string[] _orders = { "Hold Steady",
+		static readonly string[] _orders = { "Hold Steady",
 									"Go Home",
 									"Circle",
 									"Circle and Evade",
@@ -477,7 +477,7 @@ namespace Idmr.Platform.Xvt
 									"Hold Steady 7",
 									"Null (Hold Steady)"
 								 };
-		static string[] _craftWhen = { "Captured",
+		static readonly string[] _craftWhen = { "Captured",
 										"Inspected",
 										"Finished being boarded",
 										"Finished docking",
@@ -504,7 +504,7 @@ namespace Idmr.Platform.Xvt
 										"Hull 25% or less",
 										"Out of warheads"
 									};
-		static string[] _abort = { "never",
+		static readonly string[] _abort = { "never",
 									"0% shields (starship)",
 									"cannon sys disabled",
 									"out of warheads",
@@ -515,7 +515,7 @@ namespace Idmr.Platform.Xvt
 									"75% hull",
 									"25% hull"
 								};
-		static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
+		static readonly string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
 										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless",
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless",

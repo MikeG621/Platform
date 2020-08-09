@@ -5,12 +5,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v4.0, xxxxxx
- * [UPD] BriefingPage.PageType is now the enum
+ * v4.0, 200809
+ * [UPD] EventMapper now private readonly static _eventMapper
+ * [UPD] BriefingUIPage.Items, BriefingPage.Events, Briefing.Pages and Briefing.WindowSettings changed to property, private set
  * [DEL] IsVisible() removed
  * [DEL] obsolete EventCount() removed
  * [UPD] short Visible changed to bool IsVisible
@@ -29,9 +30,9 @@ namespace Idmr.Platform.Xwing
 	public class Briefing : BaseBriefing
 	{
 		/// <summary>Collection of Briefing pages</summary>
-		public List<BriefingPage> Pages;
+		public List<BriefingPage> Pages { get; private set; }
 		/// <summary>Collection of window settings </summary>
-		public List<BriefingUIPage> WindowSettings;
+		public List<BriefingUIPage> WindowSettings { get; private set; }
 
 		/// <summary>Known briefing event types unique to XWING</summary>
 		new public enum EventType : byte
@@ -113,9 +114,9 @@ namespace Idmr.Platform.Xwing
 		//TIEID: Event ID in TIE Fighter if it exists (zero for no TIE equivalent)
 		//PARAMS: Event parameter count in X-wing
 		//-- Credits to the XWVM team for providing documentation of these events.
-		//TODO: see if this needs to be const, maybe [][] or [,]
+		//TODO: should really be [,]
 		/// <summary>Array to convert X-wing and TIE Briefing events</summary>
-		public short[] EventMapper = {  //19 events, 4 columns each
+		readonly static short[] _eventMapper = {  //19 events, 4 columns each
 		// DISP  XWID  TIEID  PARAMS       NOTES
 			 0,    0,    0,   0,
 			 1,    1,    0,   0,  //01: Wait For Click. (No params)   --> none (Doesn't exist in TIE)
@@ -316,8 +317,8 @@ namespace Idmr.Platform.Xwing
 
 		private short getEventMapperIndex(int eventID)
 		{
-			for (short i = 0; i < EventMapper.Length / 4; i++)
-				if (EventMapper[(i * 4) + 1] == eventID)  //+1 for Column[1]
+			for (short i = 0; i < _eventMapper.Length / 4; i++)
+				if (_eventMapper[(i * 4) + 1] == eventID)  //+1 for Column[1]
 					return (short)(i * 4);
 			return 0;
 		}
@@ -329,16 +330,16 @@ namespace Idmr.Platform.Xwing
 		/// <returns>A short[] array of equal size to the exact resulting command length.</returns>
 		public short[] ReadBriefingEvent(int page, int rawOffset)
 		{
-			short evtTime = Pages[page]._events[rawOffset++];
-			short evtCommand = Pages[page]._events[rawOffset++];
+			short evtTime = Pages[page].Events[rawOffset++];
+			short evtCommand = Pages[page].Events[rawOffset++];
 			short mapperOffset = getEventMapperIndex(evtCommand);
-			int paramCount = EventMapper[mapperOffset + 3]; //Column[3] is param counts
+			int paramCount = _eventMapper[mapperOffset + 3]; //Column[3] is param counts
 			short[] retEvent = new short[2 + paramCount];
 			int writePos = 0;
 			retEvent[writePos++] = evtTime;
 			retEvent[writePos++] = evtCommand;
 			for (int i = 0; i < paramCount; i++)
-				retEvent[writePos++] = Pages[page]._events[rawOffset++];
+				retEvent[writePos++] = Pages[page].Events[rawOffset++];
 			return retEvent;
 		}
 		/// <summary>Takes an event from ReadBriefingEvent and translates it into a TIE95 compatible format, adjusting event IDs and parameter count as necessary.</summary>
@@ -352,11 +353,11 @@ namespace Idmr.Platform.Xwing
 			short rpos = 0, wpos = 0;
 			short evtTime = xwingEvent[rpos++];
 			short evtCommand = xwingEvent[rpos++];
-			Tie.Briefing.EventParameters TIEEventParameters = new Tie.Briefing.EventParameters();
+			BaseBriefing.EventParameters tieEventParameters = new BaseBriefing.EventParameters();
 			short mapperOffset = getEventMapperIndex(evtCommand);
-			short tieCommand = EventMapper[mapperOffset + 2];
-			short tieParams = TIEEventParameters[tieCommand];
-			short xwParams = EventMapper[mapperOffset + 3];
+			short tieCommand = _eventMapper[mapperOffset + 2];
+			short tieParams = tieEventParameters[tieCommand];
+			short xwParams = _eventMapper[mapperOffset + 3];
 
 			short[] retEvent = new short[2 + tieParams];
 			retEvent[wpos++] = evtTime;
@@ -405,10 +406,10 @@ namespace Idmr.Platform.Xwing
 		{
 			BriefingPage pg = GetBriefingPage(page);
 			int pos = 0;
-			while (pos < pg._events.Length)
+			while (pos < pg.Events.Length)
 			{
 				pos++; //skip event time
-				int evt = pg._events[pos++];
+				int evt = pg.Events[pos++];
 				if (evt == (int)EventType.None)
 					return pos - 2;
 				else if (evt == (int)EventType.EndBriefing)
@@ -621,8 +622,8 @@ namespace Idmr.Platform.Xwing
 	/// <summary>Object for the window settings</summary>
 	public class BriefingUIPage
 	{
-		/// <summary>Gets or sets the viewport settings array</summary>
-		public BriefingUIItem[] Items;
+		/// <summary>Gets the viewport settings array</summary>
+		public BriefingUIItem[] Items { get; private set; }
 
 		/// <summary>The valid viewport elements</summary>
 		public enum Elements
@@ -704,14 +705,11 @@ namespace Idmr.Platform.Xwing
 	[Serializable]
 	public class BriefingPage
 	{
-		/// <summary>The raw events</summary>
-		internal short[] _events;
-
 		/// <summary>Initalizes a new object</summary>
 		/// <remarks><see cref="Events"/> is initalized to a length of 0x190</remarks>
 		public BriefingPage()
 		{
-			_events = new short[0x190];
+			Events = new short[0x190];
 		}
 
 		/// <summary>Set the initial events and <see cref="Briefing.EventType.EndBriefing"/></summary>
@@ -721,16 +719,16 @@ namespace Idmr.Platform.Xwing
 		{
 			CoordSet = 1;
 			Length = 0x21C; //default 45 seconds
-			_events[1] = 15;  //Center map
-			_events[5] = 16;  //Move
-			_events[6] = 0x30;
-			_events[7] = 0x30;
-			_events[8] = 9999;
-			_events[9] = 41;  //End marker
+			Events[1] = 15;  //Center map
+			Events[5] = 16;  //Move
+			Events[6] = 0x30;
+			Events[7] = 0x30;
+			Events[8] = 9999;
+			Events[9] = 41;  //End marker
 		}
 
-		/// <summary>Gets the raw even data</summary>
-		public short[] Events { get { return _events; } }
+		/// <summary>Gets the raw event data</summary>
+		public short[] Events { get; private set; }
 		/// <summary>Gets or sets the briefing length in ticks</summary>
 		/// <remarks>Xwing uses 8 ticks per second</remarks>
 		public short Length { get; set; }

@@ -2,18 +2,26 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 3.1
-Date: 2020.07.03
+Version: 4.0
+Date: 2020.08.09
 
 Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
-v4.0 - XX XXX XXXX
+v4.0 - 09 Aug 2020
+ - A lot of arrays and such were changed to use auto-properties, many of them with private set
+ - A lot of other arrays and objects were set to readonly
+ - (TIE.Flightgroup) PermaDeath changed to bool
  - (TIE.Strings) IFF numbers removed from defaults
  - (XWA.Mission) Iffs renamed to IFFs
  - (XWA.Mission.Trigger) IFF substitution implemented
+ - (Xwing.Briefings) IsVisible() removed
+ - (Xwing.Briefing) EventCount() removed
+ - (Xwing.Briefing) Visible renamed to IsVisible
+ - (Xwing.Briefing) public fields have PascalCase applied
+ - (Xwing.Briefing) EventMapper now private readonly static _eventMapper
  - Lots of fixes and tweaks by Random Starfighter (JB)
  -- (BaseMessage) Message length increased to 64 from 63
  -- (BaseStrings) FormationMine added, ShipClass and ObjectType updated
@@ -37,7 +45,7 @@ v4.0 - XX XXX XXXX
  -- (Xwing.Mission) Fixed Yaw/Pitch being flipped during save
  -- (Xwing.Mission) FlightGroup limit increased to 255
  -- (Xwing.Mission) MessageLimit decreased to 0
- -- (xwing.Strings) FormationObject updated
+ -- (Xwing.Strings) FormationObject updated
 
  
 v3.1 - 03 Jul 2020
@@ -238,7 +246,7 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2018 Michael Gaisser
+Copyright © 2009-2020 Michael Gaisser
 This library file and related files are licensed under the Mozilla Public License
 v2.0 or later.  See MPL.txt for further details.
 

@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] auto-properties
  * v3.0, 180903
  * [UPD] removed team visiblity init [JB]
  * v2.1, 141214
@@ -27,9 +29,6 @@ namespace Idmr.Platform.Xwa
 	[Serializable]
 	public class Briefing : BaseBriefing
 	{
-		Indexer<string> _stringsNotes = new Indexer<string>(new string[0x80], 0x64);
-
-		bool[] _team = new bool[10];
 		/// <summary>Frames per second for briefing animation</summary>
 		/// <remarks>Value is <b>25 (0x19)</b></remarks>
 		public const int TicksPerSecond = 0x19;
@@ -50,7 +49,7 @@ namespace Idmr.Platform.Xwa
 			{
 				_briefingTags[i] = "";
 				_briefingStrings[i] = "";
-				_stringsNotes[i] = "";
+				BriefingStringsNotes[i] = "";
 			}
 			_events[1] = (short)EventType.MoveMap;
 			_events[5] = (short)EventType.ZoomMap;
@@ -63,10 +62,10 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Gets the briefing team visibility</summary>
 		/// <remarks>Determines which teams view the briefing. Array length = 10</remarks>
-		public bool[] Team { get { return _team; } }
+		public bool[] Team { get; } = new bool[10];
 
 		/// <summary>Gets the Indexer for the notes attributed to <see cref="BaseBriefing.BriefingString"/></summary>
 		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
-		public Indexer<string> BriefingStringsNotes { get { return _stringsNotes; } }
+		public Indexer<string> BriefingStringsNotes { get; } = new Indexer<string>(new string[0x80], 0x64);
 	}
 }

@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] IFF numbers removed
  * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
  * v3.1, 200703
@@ -40,14 +40,14 @@ namespace Idmr.Platform.Tie
 	public abstract class Strings : BaseStrings
 	{
 		#region array definitions
-		static string[] _iff = { "Rebel",
+		static readonly string[] _iff = { "Rebel",
 								  "Imperial",
 								  "Blue",
 								  "Purple",
 								  "Red",
 								  "Purple"
 							  };
-		static string[] _beam = { "None",
+		static readonly string[] _beam = { "None",
 								   "Tractor beam",
 								   "Jamming beam",
 								   "(Decoy Beam)"
@@ -141,7 +141,7 @@ namespace Idmr.Platform.Tie
 										"Asteroid Field 2",
 										"Planet"
 									};
-		static string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
+		static readonly string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
 		static string[] _craftAbbrv = { "",
 										 "X-W",
 										 "Y-W",
@@ -231,15 +231,15 @@ namespace Idmr.Platform.Tie
 										 "Asteroid",
 										 "Planet"
 									 };
-		static string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
-        static string[] _rating = { "Novice",    //[JB] Fixed to mirror names in HD1W.TIE
+		static readonly string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
+        static readonly string[] _rating = { "Novice",    //[JB] Fixed to mirror names in HD1W.TIE
 									 "Officer",
 									 "Veteran",
 									 "Ace",
 									 "Top Ace",
 									 "Jedi (invul)"
 								 };
-        static string[] _status = { "Normal",
+        static readonly string[] _status = { "Normal",
 									 "2x Warheads",
 									 "1/2 Warheads",
 									 "No Shields",   //[JB] Wasn't Disabled
@@ -261,7 +261,7 @@ namespace Idmr.Platform.Tie
 									 "19",
 									 "Invincible"
 								 };
-		static string[] _trigger = { "always (TRUE)",
+		static readonly string[] _trigger = { "always (TRUE)",
 									  "have arrived",				//[JB] was "be created"
 									  "be destroyed",
 									  "be attacked",
@@ -287,7 +287,7 @@ namespace Idmr.Platform.Tie
 									  "run out of missiles",
 									  "Unknown (arrive?)"
 								  };
-		static string[] _triggerType = { "none",
+		static readonly string[] _triggerType = { "none",
 										  "Flight Group",
 										  "Ship type",
 										  "Ship class",
@@ -298,7 +298,7 @@ namespace Idmr.Platform.Tie
 										  "Global Group",
 										  "Misc",
 									  };
-		static string[] _amount = { "100%",
+		static readonly string[] _amount = { "100%",
 									 "75%",
 									 "50%",
 									 "25%",
@@ -315,13 +315,13 @@ namespace Idmr.Platform.Tie
 									 "any of first wave",
 									 "all but 1 of first wave"
 								 };
-		static string[] _goalAmount = { "100%",
+		static readonly string[] _goalAmount = { "100%",
 									  "50%",
 									  "at least 1 of",
 									  "all but 1 of",
 									  "all special craft in"
 								  };
-		static string[] _orders = { "Hold Steady",
+		static readonly string[] _orders = { "Hold Steady",
 									 "Go Home",
 									 "Circle",
 									 "Circle and Evade",
@@ -362,7 +362,7 @@ namespace Idmr.Platform.Tie
 									 "Rendezvous II",
 									 "SS Disabled"
 								 };
-		static string[] _craftWhen = { "",
+		static readonly string[] _craftWhen = { "",
 										"Boarding",
 										"Boarded",
 										"Defending",
@@ -375,7 +375,7 @@ namespace Idmr.Platform.Tie
 										"Non-player craft",
 										""
 									};
-		static string[] _misc = { "Novice craft",
+		static readonly string[] _misc = { "Novice craft",
 								   "Officer craft",
 								   "Veteran craft",
 								   "Ace craft",
@@ -431,14 +431,14 @@ namespace Idmr.Platform.Tie
 								   "",
 								   "Mines"
 							   };
-		static string[] _abort = { "never",
+		static readonly string[] _abort = { "never",
 									"0% shields",
 									"75% systems (not SS)",
 									"out of warheads",
 									"50% hull",
 									"attacked"
 								};
-		static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
+		static readonly string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
 										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless",
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless",
@@ -479,7 +479,7 @@ namespace Idmr.Platform.Tie
 										"Flies to Waypoint 1 and rendezvouses with other craft|Meaningless|Meaningless",
 										"Disabled|Meaningless|Meaningless"
 									};
-		static string[] _formation = { "Vic",
+		static readonly string[] _formation = { "Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",

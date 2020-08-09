@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.5+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * v2.5, 170107
  * [FIX] hack _checkValues [JB]
@@ -49,7 +49,7 @@ namespace Idmr.Platform.Tie
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
 				_items = new byte[18];
 				ArrayFunctions.TrimArray(raw, 0, _items);
-				_checkValues(this);
+				checkValues(this);
 			}
 			
 			/// <summary>Initializes the order from raw data</summary>
@@ -64,11 +64,11 @@ namespace Idmr.Platform.Tie
 					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 18));
 				_items = new byte[18];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
-				_checkValues(this);
+				checkValues(this);
 			}
 			#endregion
 			
-			static void _checkValues(Order o)
+			static void checkValues(Order o)
 			{
 				string error = "";
 				string msg;
@@ -98,7 +98,7 @@ namespace Idmr.Platform.Tie
 				if (error != "") throw new ArgumentException("Invalid values detected: " + error);
 			}
 			
-			static string _orderTargetString(byte target, byte type)
+			static string orderTargetString(byte target, byte type)
 			{
 				string s = "";
 				switch (type)
@@ -145,16 +145,16 @@ namespace Idmr.Platform.Tie
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
 				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
 				{
-					string s = _orderTargetString(Target1, Target1Type);
-					string s2 = _orderTargetString(Target2, Target2Type);
+					string s = orderTargetString(Target1, Target1Type);
+					string s2 = orderTargetString(Target2, Target2Type);
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
 						if (T1AndOrT2) order += " or " + s2;
 						else order += " if " + s2;
 					}
-					s = _orderTargetString(Target3, Target3Type);
-					s2 = _orderTargetString(Target4, Target4Type);
+					s = orderTargetString(Target3, Target3Type);
+					s2 = orderTargetString(Target4, Target4Type);
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{

@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] _extension changed to const
  * v3.0, 180309
  * [UPD] Added Xwing support [JB]
  * v2.1, 141214
@@ -24,12 +26,12 @@ namespace Idmr.Platform
 	/// <remarks>Contains functions to determine platform</remarks>
 	public abstract class MissionFile
 	{
-		static string _extension = ".tie";
-		
+		const string _extension = ".tie";
+
 		/// <summary>Error message template</summary>
-		protected string _invalidError = "File is not a valid {0} mission file";
+		private protected string _invalidError = "File is not a valid {0} mission file";
 		/// <summary>Default filename</summary>
-		protected string _missionPath = "\\NewMission" + _extension;
+		private protected string _missionPath = "\\NewMission" + _extension;
 		
 		/// <summary>Types of mission files</summary>
 		public enum Platform : byte {
@@ -53,7 +55,7 @@ namespace Idmr.Platform
 		/// <returns>Enumerated Platform</returns>
 		public static Platform GetPlatform(string fileMission)
 		{
-			if (!fileMission.ToLower().EndsWith(".tie")) return Platform.Invalid;
+			if (!fileMission.ToLower().EndsWith(_extension)) return Platform.Invalid;
 			FileStream fs = File.OpenRead(fileMission);
 			Platform p = GetPlatform(fs);
 			fs.Close();
@@ -65,7 +67,7 @@ namespace Idmr.Platform
 		/// <returns>Enumerated Platform</returns>
 		public static Platform GetPlatform(FileStream stream)
 		{
-			if (!stream.Name.ToLower().EndsWith(".tie") && !stream.Name.ToLower().EndsWith(".xwi")) return Platform.Invalid;  //[JB] Need to be able to load .xwi files.
+			if (!stream.Name.ToLower().EndsWith(_extension) && !stream.Name.ToLower().EndsWith(".xwi")) return Platform.Invalid;  //[JB] Need to be able to load .xwi files.
 			stream.Position = 0;
 			short p = new BinaryReader(stream).ReadInt16();
 			if (p == -1) return Platform.TIE;
@@ -90,6 +92,6 @@ namespace Idmr.Platform
 		}
 		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to <b>"NewMission.tie"</b></remarks>
-		public string MissionFileName { get { return Idmr.Common.StringFunctions.GetFileName(MissionPath, true); } }
+		public string MissionFileName { get { return Common.StringFunctions.GetFileName(MissionPath, true); } }
 	}
 }

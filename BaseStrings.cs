@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] ShipClass and ObjectType updated [JB]
  * [NEW] FormationMine [JB]
  * v3.0, 180309
@@ -29,7 +29,7 @@ namespace Idmr.Platform
 	public abstract class BaseStrings
 	{
 		#region array declarations
-		static string[] _warheads = { "None",
+		static readonly string[] _warheads = { "None",
 										"Space Bomb",
 										"Heavy Rocket",
 										"Concussion Missile",
@@ -39,12 +39,12 @@ namespace Idmr.Platform
 										"Mag Pulse",
 										"(Ion Pulse)"
 								   };
-		static string[] _color = { "Red (TIE - none)",
+		static readonly string[] _color = { "Red (TIE - none)",
 									"Gold (TIE - Red)",
 									"Blue (TIE - Gold)",
 									"Green (TIE - Blue)"
 								};
-		static string[] _difficulty = { "All",
+		static readonly string[] _difficulty = { "All",
 										"Easy",
 										"Medium",
 										"Hard",
@@ -52,7 +52,7 @@ namespace Idmr.Platform
 										"Less than Hard",
 										"Never",
 									 };
-        static string[] _difficultyAbbrv = { "",
+        static readonly string[] _difficultyAbbrv = { "",
 										"E",
 										"M",
 										"H",
@@ -60,7 +60,7 @@ namespace Idmr.Platform
 										"<H",
 										"X",
 									 };
-        static string[] _formation = { "Vic",
+        static readonly string[] _formation = { "Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",
@@ -95,12 +95,12 @@ namespace Idmr.Platform
 										"Side Hexagon",
 										"Front Hexagon"
 									};
-		static string[] _formationMine = {"Floor (X-Y)",
+		static readonly string[] _formationMine = {"Floor (X-Y)",
 										"Side (Y-Z)",
 										"Front (X-Z)",
 										"Overlap on point (bad)"
 									};
-		static string[] _shipClass = { "Starfighters",
+		static readonly string[] _shipClass = { "Starfighters",
 										"Transports",
 										"Freighters/Containers",
 										"Starships",
@@ -109,7 +109,7 @@ namespace Idmr.Platform
 										"Mines",
 										"Probes/Sats/Navs",
 									};
-		static string[] _objectType = { "Craft",
+		static readonly string[] _objectType = { "Craft",
 										 "Mines",
 										 "Probes/Sats/Navs"
 									 };

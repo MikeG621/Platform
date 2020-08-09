@@ -5,11 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v4.0, XXXXXX
+ * v4.0, 200809
  * [UPD] Unknown1 renamed to RndSeed [JB]
  * [UPD] Better Save backup [JB]
  * [FIX] Yaw/Pitch flipped during save [JB]

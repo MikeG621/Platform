@@ -1,10 +1,10 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
@@ -30,12 +30,13 @@ namespace Idmr.Platform.Xwa
 	public partial class FlightGroup : BaseFlightGroup
 	{
 		/// <summary>Object for a single FlightGroup-specific Goal</summary>
-		[Serializable] public class Goal : Indexer<byte>
+		[Serializable]
+		public class Goal : Indexer<byte>
 		{
 			string _incompleteText = "";
 			string _completeText = "";
 			string _failedText = "";
-			
+
 			/// <summary>Initializes a blank Goal</summary>
 			/// <remarks><see cref="Condition"/> is set to <b>"never (FALSE)"</b></remarks>
 			public Goal()
@@ -43,7 +44,7 @@ namespace Idmr.Platform.Xwa
 				_items = new byte[16];
 				_items[1] = 10;
 			}
-			
+
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 16</param>
 			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
@@ -53,7 +54,7 @@ namespace Idmr.Platform.Xwa
 				_items = new byte[16];
 				ArrayFunctions.TrimArray(raw, 0, _items);
 			}
-			
+
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 16</param>
 			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
@@ -72,7 +73,7 @@ namespace Idmr.Platform.Xwa
 			/// <returns>Description of the goal if enabled, otherwise <b>"None"</b></returns>
 			public override string ToString()
 			{
-				string goal = "";
+				string goal;
 				if (Condition != 0 && Condition != 10)
 				{
 					goal = (Condition == 0x31 || Condition == 0x32 ? "Any" : Strings.Amount[Amount]) + " of Flight Group ";
@@ -99,86 +100,86 @@ namespace Idmr.Platform.Xwa
 			/// <remarks>Values are <b>0-3</b>; must, must not (Prevent), BONUS must, BONUS must not (bonus prevent)</remarks>
 			public byte Argument
 			{
-				get { return _items[0]; }
-				set { _items[0] = value; }
+				get => _items[0];
+				set => _items[0] = value;
 			}
 			/// <summary>Gets or sets the Goal trigger</summary>
 			public byte Condition
 			{
-				get { return _items[1]; }
-				set { _items[1] = value; }
+				get => _items[1];
+				set => _items[1] = value;
 			}
 			/// <summary>Gets or sets the amount of the FlightGroup required to meet <see cref="Condition"/></summary>
 			public byte Amount
 			{
-				get { return _items[2]; }
-				set { _items[2] = value; }
+				get => _items[2];
+				set => _items[2] = value;
 			}
 			/// <summary>Gets or sets the points value stored in the file</summary>
 			public sbyte RawPoints
 			{
-				get { return (sbyte)_items[3]; }
-				set { _items[3] = (byte)value; }
+				get => (sbyte)_items[3];
+				set => _items[3] = (byte)value;
 			}
 			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
 			/// <remarks>Equals <see cref="RawPoints"/> * 25, limited from <b>-3200</b> to <b>+3175</b></remarks>
 			public short Points
 			{
-				get { return (short)(RawPoints * 25); }
-				set { RawPoints = (sbyte)((value > 3175 ? 3175 : (value < -3200 ? -3200 : value)) / 25); }
+				get => (short)(RawPoints * 25);
+				set => RawPoints = (sbyte)((value > 3175 ? 3175 : (value < -3200 ? -3200 : value)) / 25);
 			}
 			/// <summary>Gets or sets if the Goal is active</summary>
 			public bool Enabled
 			{
-				get { return Convert.ToBoolean(_items[4]); }
-				set { _items[4] = Convert.ToByte(value); }
+				get => Convert.ToBoolean(_items[4]);
+				set => _items[4] = Convert.ToByte(value);
 			}
 			/// <summary>Gets or sets which Team the Goal applies to</summary>
 			public byte Team
 			{
-				get { return _items[5]; }
-				set { _items[5] = value; }
+				get => _items[5];
+				set => _items[5] = value;
 			}
-            /// <summary>Gets or sets the unknown</summary>
-            public byte Unknown42
-            {
-                get { return _items[13]; }
-                set { _items[13] = value; }
-            }
-			/// <summary>Gets or sets the additional Goal setting</summary>
-            /// <remarks>Shared as both an extra parameter for certain orders, or goal time limit for anything else.  Zero for no time limit.  Standard delay format used by Message and Order waiting times.</remarks>
-            public byte Parameter
+			/// <summary>Gets or sets the unknown</summary>
+			public byte Unknown42
 			{
-				get { return _items[14]; }
-				set { _items[14] = value; }
+				get => _items[13];
+				set => _items[13] = value;
+			}
+			/// <summary>Gets or sets the additional Goal setting</summary>
+			/// <remarks>Shared as both an extra parameter for certain orders, or goal time limit for anything else.  Zero for no time limit.  Standard delay format used by Message and Order waiting times.</remarks>
+			public byte Parameter
+			{
+				get => _items[14];
+				set => _items[14] = value;
 			}
 			/// <summary>Gets or sets the location within the Active Sequence</summary>
 			public byte ActiveSequence
 			{
-				get { return _items[15]; }
-				set { _items[15] = value; }
+				get => _items[15];
+				set => _items[15] = value;
 			}
-			
+
 			/// <summary>Gets or sets the goal text shown before completion</summary>
 			/// <remarks>String is limited to 63 char. Not used for Bonus goals</remarks>
 			public string IncompleteText
 			{
-				get { return _incompleteText; }
-				set { _incompleteText = StringFunctions.GetTrimmed(value, 63); }
+				get => _incompleteText;
+				set => _incompleteText = StringFunctions.GetTrimmed(value, 63);
 			}
 			/// <summary>Gets or sets the goal text shown after completion</summary>
 			/// <remarks>String is limited to 63 char</remarks>
 			public string CompleteText
 			{
-				get { return _completeText; }
-				set { _completeText = StringFunctions.GetTrimmed(value, 63); }
+				get => _completeText;
+				set => _completeText = StringFunctions.GetTrimmed(value, 63);
 			}
 			/// <summary>Gets or sets the goal text shown after failure</summary>
 			/// <remarks>String is limited to 63 char. Not used for Bonus or Prevent goals</remarks>
 			public string FailedText
 			{
-				get { return _failedText; }
-				set { _failedText = StringFunctions.GetTrimmed(value, 63); }
+				get => _failedText;
+				set => _failedText = StringFunctions.GetTrimmed(value, 63);
 			}
 
 			/// <summary>Unknown value</summary>

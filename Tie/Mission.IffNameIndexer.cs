@@ -4,7 +4,7 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 4.0
  */
 
 /* CHANGELOG
@@ -23,8 +23,8 @@ namespace Idmr.Platform.Tie
 	{
 		/// <summary>Object to provide array access to the IFF names</summary>
 		public class IffNameIndexer	: Indexer<string>
-		{	
-			Mission _owner;
+		{
+			readonly Mission _owner;
 			
 			/// <summary>Initializes the indexer</summary>
 			/// <param name="parent">The parent Mission</param>
@@ -33,7 +33,7 @@ namespace Idmr.Platform.Tie
 			/// <summary>Gets or sets the IFF Name</summary>
 			/// <remarks>11 character limit, Rebel and Imperial are read-only</remarks>
 			/// <param name="index">IFF index</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value</exception>
 			/// <exception cref="InvalidOperationException">Index is read-only</exception>
 			/// <returns>The IFF name</returns>
 			public override string this[int index]

@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]
  * v2.1, 141214
@@ -39,7 +39,7 @@ namespace Idmr.Platform.Tie
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
 				_items = new byte[4];
 				ArrayFunctions.TrimArray(raw, 0, _items);
-				_checkValues(this);
+				checkValues(this);
 			}
 
 			/// <summary>Initializes a new Trigger from raw data</summary>
@@ -54,10 +54,10 @@ namespace Idmr.Platform.Tie
 					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
 				_items = new byte[4];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
-				_checkValues(this);
+				checkValues(this);
 			}
 			
-			static void _checkValues(Trigger t)
+			static void checkValues(Trigger t)
 			{
 				string error = "";
 				string msg;
@@ -76,7 +76,7 @@ namespace Idmr.Platform.Tie
 				t.Amount = (byte)(t.Amount == 16 ? 1 : (t.Amount == 17 ? 2 : (t.Amount == 18 ? 0 : (t.Amount == 19 ? 6 : t.Amount))));
 			}
 			
-			static byte[] _craftUpgrade(Trigger t)
+			static byte[] craftUpgrade(Trigger t)
 			{
 				byte[] b = (byte[])t;
 				if (b[1] == 2)
@@ -151,12 +151,12 @@ namespace Idmr.Platform.Tie
 			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <returns>A copy of <paramref name="trig"/> for XvT</returns>
-			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftUpgrade(trig)); }
+			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(craftUpgrade(trig)); }
 			/// <summary>Converts a Trigger for use in XWA</summary>
 			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <returns>A copy of <paramref name="trig"/> for XWA</returns>
-			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(_craftUpgrade(trig)); }
+			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(craftUpgrade(trig)); }
 		}
 	}
 }

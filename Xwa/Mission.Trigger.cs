@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]
  * [UPD] IFF substitution setup
@@ -74,7 +74,7 @@ namespace Idmr.Platform.Xwa
 				}
 			}
 			
-			static byte[] _craftDowngrade(Trigger t)
+			static byte[] craftDowngrade(Trigger t)
 			{
 				byte[] b = new byte[4];
 				ArrayFunctions.TrimArray((byte[])t, 0, b);
@@ -224,13 +224,13 @@ namespace Idmr.Platform.Xwa
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
 			/// <returns>A copy of <paramref name="trig"/> for use in TIE95</returns>
-			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
+			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger(craftDowngrade(trig)); }	// Parameters lost
 			/// <summary>Converts a Trigger for use in XvT</summary>
 			/// <remarks>Parameters are lost in the conversion</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
 			/// <returns>A copy of <paramref name="trig"/> for use in XvT</returns>
-			public static explicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(_craftDowngrade(trig)); }	// Parameters lost
+			public static explicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(craftDowngrade(trig)); }	// Parameters lost
 			
 			/// <summary>Gets or sets the first additional setting</summary>
 			public byte Parameter1

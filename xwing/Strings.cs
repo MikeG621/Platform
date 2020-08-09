@@ -5,11 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] FormationObject updated [JB]
  * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
  * v3.1, 200703
@@ -28,14 +28,14 @@ namespace Idmr.Platform.Xwing
 	public abstract class Strings
 	{
 		#region array definitions
-		static string[] _iff = { "Default",
+		static readonly string[] _iff = { "Default",
 								  "Rebel",
 								  "Imperial",
 								  "Neutral (Blue)",
 								  "4 (Unknown/Unused)"
 							  };
 
-        static string[] _color = { "Red (TIE - none)",
+        static readonly string[] _color = { "Red (TIE - none)",
 									"Gold (TIE - Red)",
 									"Blue (TIE - Gold)",
 									"Green (TIE - Blue)"
@@ -61,7 +61,7 @@ namespace Idmr.Platform.Xwing
 										"TIE Advanced",
 										"B-Wing"
 									 };
-		static string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
+		static readonly string[] _defaultCraftType = (string[])_craftType.Clone();  //Backup to preserve original when overriding.
 		static string[] _craftAbbrv = { "None",
 										"X-W",
 										"Y-W",
@@ -82,8 +82,8 @@ namespace Idmr.Platform.Xwing
 										"T/A",
 										"B-W"
 									  };
-		static string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
-		static string[] _objectType = {   "None",
+		static readonly string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
+		static readonly string[] _objectType = {   "None",
 										  "Mine1",  //[JB] IMPORTANT! Objects begin at index 18 in game.
 										  "Mine2",
 										  "Mine3",
@@ -160,7 +160,7 @@ namespace Idmr.Platform.Xwing
          *   Bit 3 = chk 3 (mid left), Bit 4 = chk 4 (mid right)
          *   Bit 5 = chk 1 (front left), Bit 6 = chk 2 (front right)
          */
-        static string[] _platformBitfield = { "",  //Training Platform 1   //ID:58 (0x3A)  does not have guns
+        static readonly string[] _platformBitfield = { "",  //Training Platform 1   //ID:58 (0x3A)  does not have guns
                                     "563412",  //0x3B
                                     "214365",  //0x3C
                                     "214365",  //0x3D
@@ -174,13 +174,13 @@ namespace Idmr.Platform.Xwing
                                     "216543"   //0x45	
                                             };
 
-		static string[] _rating = { "Novice",
+		static readonly string[] _rating = { "Novice",
 									 "Officer",
 									 "Veteran",
 									 "Ace",
 									 "Top Ace"
 								 };
-		static string[] _status = { "Normal",
+		static readonly string[] _status = { "Normal",
 									 "No Warheads",
 									 "1/2 Warheads",
 									 "No Shields",
@@ -191,7 +191,7 @@ namespace Idmr.Platform.Xwing
 									 "8",
 									 "9"
 								 };
-		static string[] _trigger = { "always (TRUE)",
+		static readonly string[] _trigger = { "always (TRUE)",
 									  "have arrived",
 									  "be destroyed",
 									  "be attacked",
@@ -200,13 +200,13 @@ namespace Idmr.Platform.Xwing
 									  "be disabled",
 								  };
 
-		static string[] _goalAmount = { "100%",  //[JB] Remove?
+		static readonly string[] _goalAmount = { "100%",  //[JB] Remove?
 									  "50%",
 									  "any of",
 									  "all but 1 of",
 									  "all special craft in"
 								  };
-		static string[] _orders = { "Hold Steady",
+		static readonly string[] _orders = { "Hold Steady",
 									 "Go Home",
 									 "Circle and Ignore",
 									 "Fly Once and Ignore",
@@ -241,7 +241,7 @@ namespace Idmr.Platform.Xwing
 									 "Wait for Arrival of (Pri/Sec)"
 								 };
 
-		static string[] _objective = { "None",
+		static readonly string[] _objective = { "None",
 										 "100% be destroyed",
 										 "100% must complete mission",
 										 "100% be captured",
@@ -260,13 +260,13 @@ namespace Idmr.Platform.Xwing
 										 "Arrive"
 									 };
 
-        static string[] _objectObjective = { "None",
+        static readonly string[] _objectObjective = { "None",
 										 "100% Destroyed",
 										 "100% Survived"
 									 };
         
 
-		static string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
+		static readonly string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
 										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless",
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless",
@@ -307,7 +307,7 @@ namespace Idmr.Platform.Xwing
 										"Flies to Waypoint 1 and rendezvouses with other craft|Meaningless|Meaningless",
 										"Disabled|Meaningless|Meaningless"
 									};
-		static string[] _formation = { "Vic",
+		static readonly string[] _formation = { "Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",
@@ -320,18 +320,18 @@ namespace Idmr.Platform.Xwing
 										"Hi-Lo",
 										"Spiral",
 									};
-		static string[] _formationObject = { "Floor (X-Y)",
+		static readonly string[] _formationObject = { "Floor (X-Y)",
 										"Side (Y-Z)",
 										"Front (X-Z)",
 										"Scattered (undefined)"
 									};
 
 
-		static string[] _missionLocation = { "Deep Space",
+		static readonly string[] _missionLocation = { "Deep Space",
 										"Death Star Surface"
 									};
 
-		static string[] _endEvents = {"Capture Possible",
+		static readonly string[] _endEvents = {"Capture Possible",
 									"Rescued/Clear Laser Tower",
 									"2",
 									"3",
@@ -339,14 +339,14 @@ namespace Idmr.Platform.Xwing
 									"Hit Exhaust Port"
 									 };
         
-        static string[] _briefingUIElement = { "Title",
+        static readonly string[] _briefingUIElement = { "Title",
                                                "Text",
                                                "Unused1",
                                                "Unused2",
                                                "Map"
                                              };
         
-        static string[] _orderValue = {      "0   (100%)", //Interpreted as either docking time or throttle, depending on order.
+        static readonly string[] _orderValue = {      "0   (100%)", //Interpreted as either docking time or throttle, depending on order.
                                              "1   (20%)",
                                              "2   (30%)",
                                              "3   (40%)",

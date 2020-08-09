@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] Teams now auto-property
  * v3.0, 180903
  * [UPD] Moved Team init to BriefingCollection [JB]
  * v2.5, 170107
@@ -25,8 +27,6 @@ namespace Idmr.Platform.Xvt
 	[Serializable]
 	public class Briefing : BaseBriefing
 	{
-		bool[] _team = new bool[10];  //[JB] Added team functionality
-
 		/// <summary>Frames per second for briefing animation</summary>
 		/// <remarks>Value is <b>20 (0x14)</b></remarks>
 		public const int TicksPerSecond = 0x14;
@@ -63,6 +63,6 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Gets the briefing team visibility</summary>  
 		/// <remarks>Determines which teams view the briefing. Array length = 10</remarks>  
-		public bool[] Team { get { return _team; } }
+		public bool[] Team { get; } = new bool[10];
 	}
 }

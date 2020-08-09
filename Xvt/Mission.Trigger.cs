@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v3.2, XXXXXX
+ * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]
  * [UPD] TriggerType expanded [JB]
@@ -40,7 +40,7 @@ namespace Idmr.Platform.Xvt
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
 				_items = new byte[4];
 				_items = raw;
-				_checkValues(this);
+				checkValues(this);
 			}
 
 			/// <summary>Initializes a new Trigger from raw data</summary>
@@ -55,10 +55,10 @@ namespace Idmr.Platform.Xvt
 					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
 				_items = new byte[4];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
-				_checkValues(this);
+				checkValues(this);
 			}
 			
-			static void _checkValues(Trigger t)
+			static void checkValues(Trigger t)
 			{
 				string error = "";
 				string msg;

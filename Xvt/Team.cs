@@ -1,13 +1,15 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] auto-properties
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -22,10 +24,7 @@ namespace Idmr.Platform.Xvt
 	[Serializable] public class Team
 	{
 		string _name = "";
-		bool[] _alliedWithTeam = new bool[10];
-		byte[] _endOfMissionMessageColor = new byte[6];
-		string[] _endOfMissionMessages = new string[6];
-		Indexer<string> _eomMessageIndexer;
+		readonly string[] _endOfMissionMessages = new string[6];
 
 		/// <summary>Indexes for <see cref="EndOfMissionMessageColor"/> and <see cref="EndOfMissionMessages"/></summary>
 		public enum MessageIndex : byte {
@@ -48,30 +47,30 @@ namespace Idmr.Platform.Xvt
 		/// <param name="teamNumber">Team index being initialized. Corrects to <b>0-9</b> as required</param>
 		public Team(int teamNumber)
 		{
-			if (teamNumber <= 0) { _name = "Imperial"; _alliedWithTeam[0] = true; }
+			if (teamNumber <= 0) { _name = "Imperial"; AlliedWithTeam[0] = true; }
 			else if (teamNumber == 1) _name = "Rebel";
 			else _name = "Team " + (teamNumber > 8 ? 10 : teamNumber + 1);
 			for (int i = 0; i < 6; i++) _endOfMissionMessages[i] = "";
-			_eomMessageIndexer = new Indexer<string>(_endOfMissionMessages, 63);
+			EndOfMissionMessages = new Indexer<string>(_endOfMissionMessages, 63);
 		}
 
 		/// <summary>Gets or sets the Team name</summary>
 		/// <remarks>15 character limit</remarks>
 		public string Name
 		{
-			get { return _name; }
-			set { _name = StringFunctions.GetTrimmed(value, 0xE); }
+			get => _name;
+			set => _name = StringFunctions.GetTrimmed(value, 0xE);
 		}
 		/// <summary>Gets the allegiance with other teams</summary>
 		/// <remarks>Array is Length = 10</remarks>
-		public bool[] AlliedWithTeam { get { return _alliedWithTeam; } }
-		
+		public bool[] AlliedWithTeam { get; } = new bool[10];
+
 		/// <summary>Gets or sets the color of the specified EoM Message</summary>
 		/// <remarks>Use the <see cref="MessageIndex"/> enumeration for array indexes</remarks>
-		public byte[] EndOfMissionMessageColor { get { return _endOfMissionMessageColor; } }
+		public byte[] EndOfMissionMessageColor { get; } = new byte[6];
 		
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
 		/// <remarks>Use the <see cref="MessageIndex"/> enumeration for array indexes</remarks>
-		public Indexer<string> EndOfMissionMessages { get { return _eomMessageIndexer; } }
+		public Indexer<string> EndOfMissionMessages { get; private set; }
 	}
 }

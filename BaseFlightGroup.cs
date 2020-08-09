@@ -28,23 +28,23 @@ namespace Idmr.Platform
 	{
 		/// <summary>Maximum string length for <see cref="Name"/>, <see cref="Cargo"/> and <see cref="SpecialCargo"/></summary>
 		/// <remarks>Defaults to 0x13, may be redefined by derivative classes</remarks>
-		protected int _stringLength = 0x13;
+		private protected int _stringLength = 0x13;
 		/// <summary>Displayed name of the FG</summary>
-		protected string _name = "New Ship";
+		private protected string _name = "New Ship";
 		/// <summary>Displayed cargo</summary>
-		protected string _cargo = "";
+		private protected string _cargo = "";
 		/// <summary>Displayed special cargo</summary>
-		protected string _specialCargo = "";
+		private protected string _specialCargo = "";
 		/// <summary>Special craft index</summary>
-		protected byte _specialCargoCraft = 0;
+		private protected byte _specialCargoCraft = 0;
 		/// <summary>Whether or not the Special Craft is decided at random</summary>
-		protected bool _randSpecCargo = false;
+		private protected bool _randSpecCargo = false;
 		/// <summary>Raw X rotation in degrees</summary>
-		protected short _yaw = 0;
+		private protected short _yaw = 0;
 		/// <summary>Raw Y rotation in degrees</summary>
-		protected short _pitch = 0;
+		private protected short _pitch = 0;
 		/// <summary>Raw Z rotation in degrees</summary>
-		protected short _roll = 0;
+		private protected short _roll = 0;
 
 		/// <summary>Default constructor</summary>
 		protected BaseFlightGroup()

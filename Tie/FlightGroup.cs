@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
+ * Version: 4.0
  */
 
 /* CHANGELOG
- * v4.0, xxxxxx
+ * v4.0, 200809
  * [UPD] PermaDeath is bool
  * v3.0, 180309
  * [UPD] added EditorCraftNumber and Difficulty to ToString() [JB]

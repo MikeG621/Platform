@@ -20,4 +20,4 @@ using System.Reflection;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("3.1.*")]
+[assembly: AssemblyVersion("4.0.*")]

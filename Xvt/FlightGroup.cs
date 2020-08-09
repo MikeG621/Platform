@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 4.0
  */
 
 /* CHANGELOG
+ * v4.0, 200809
+ * [UPD] cleaned arrays
  * v3.0, 180903
  * [UPD] added Ion Pulse, Energy Beam, Cluster Mine [JB]
  * [UPD] changed default Skip triggers to True [JB]
@@ -30,17 +32,8 @@ namespace Idmr.Platform.Xvt
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
 		// offsets are local within FG
-		Mission.Trigger[] _arrDepTriggers = new Mission.Trigger[6];
-		string[] _roles = new string[4];
-		bool[] _arrDepAO = new bool[4];
-		Order[] _orders = new Order[4];
-		Mission.Trigger[] _skipToOrder4Trigger = new Mission.Trigger[2];
-		Goal[] _goals = new Goal[8];
-		bool[] _optLoad = new bool[18];  //[JB] Added Ion Pulse, Energy Beam, Cluster Mine
-		OptionalCraft[] _optCraft = new OptionalCraft[10];
-		Waypoint[] _waypoints = new Waypoint[22];
-		Indexer<string> _rolesIndexer;
-		LoadoutIndexer _loadoutIndexer;
+		readonly string[] _roles = new string[4];
+		readonly bool[] _optLoad = new bool[18];  //[JB] Added Ion Pulse, Energy Beam, Cluster Mine
 
 		/// <summary>Indexes for <see cref="ArrDepTriggers"/></summary>
 		public enum ArrDepTriggerIndex : byte {
@@ -123,18 +116,18 @@ namespace Idmr.Platform.Xvt
 		public FlightGroup()
 		{
 			_stringLength = 0x14;
-			for (int i = 0; i < _orders.Length; i++) _orders[i] = new Order();
+			for (int i = 0; i < Orders.Length; i++) Orders[i] = new Order();
 			for (int i = 0; i < _roles.Length; i++) _roles[i] = "";
-			for (int i = 0; i < _arrDepTriggers.Length; i++) _arrDepTriggers[i] = new Mission.Trigger();
-			for (int i = 0; i < _skipToOrder4Trigger.Length; i++) { _skipToOrder4Trigger[i] = new Mission.Trigger(); }  //[JB] Removed setting skip trigger condition to False by default. LEC missions use True for empty conditions.
-			for (int i = 0; i < _goals.Length; i++) _goals[i] = new Goal();
+			for (int i = 0; i < ArrDepTriggers.Length; i++) ArrDepTriggers[i] = new Mission.Trigger();
+			for (int i = 0; i < SkipToOrder4Trigger.Length; i++) { SkipToOrder4Trigger[i] = new Mission.Trigger(); }  //[JB] Removed setting skip trigger condition to False by default. LEC missions use True for empty conditions.
+			for (int i = 0; i < Goals.Length; i++) Goals[i] = new Goal();
             _optLoad[0] = true;
             _optLoad[9] = true;  //[JB] Adjusted these indexes for added Ion Pulse, Energy Beam, Cluster Mine
             _optLoad[14] = true;
-            for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
-			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
-			_rolesIndexer = new Indexer<string>(_roles, 4);
-			_loadoutIndexer = new LoadoutIndexer(_optLoad);
+            for (int i = 0; i < Waypoints.Length; i++) Waypoints[i] = new Waypoint();
+			Waypoints[(int)WaypointIndex.Start1].Enabled = true;
+			Roles = new Indexer<string>(_roles, 4);
+			OptLoadout = new LoadoutIndexer(_optLoad);
 		}
 
 		/// <summary>Gets a string representation of the FlightGroup</summary>
@@ -210,7 +203,7 @@ namespace Idmr.Platform.Xvt
         #region craft
 		/// <summary>Gets the craft roles, such as Command Ship or Strike Craft</summary>
 		/// <remarks>This value has been seen as an AI string with unknown results. Restricted to 4 characters.</remarks>
-		public Indexer<string> Roles { get { return _rolesIndexer; } }
+		public Indexer<string> Roles { get; private set; }
 		
 		/// <summary>The allegiance value that controls goals and IFF behaviour</summary>
 		public byte Team { get; set; }
@@ -229,29 +222,30 @@ namespace Idmr.Platform.Xvt
 		#region arr/dep
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds { get { return (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && _arrDepTriggers[2].Condition == 0 && _arrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
+		public bool ArrivesIn30Seconds { get { return (ArrDepTriggers[0].Condition == 0 && ArrDepTriggers[1].Condition == 0 && ArrDepTriggers[2].Condition == 0 && ArrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
 		/// <summary>Gets the Arrival and Departure triggers</summary>
 		/// <remarks>Use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
-		public Mission.Trigger[] ArrDepTriggers { get { return _arrDepTriggers; } }
+		public Mission.Trigger[] ArrDepTriggers { get; } = new Mission.Trigger[6];
 		/// <summary>Gets which <see cref="ArrDepTriggers"/> must be completed</summary>
 		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}; effectively <see cref="ArrDepTriggerIndex"/> / 2</remarks>
-		public bool[] ArrDepAO { get { return _arrDepAO; } }
+		public bool[] ArrDepAO { get; } = new bool[4];
 		#endregion
 		/// <summary>Gets the Orders used to control FlightGroup behaviour</summary>
-		public Order[] Orders { get { return _orders; } }
+		/// <remarks>Array is length = 4</remarks>
+		public Order[] Orders { get; } = new Order[4];
 		/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to <see cref="Orders">Order[3]</see></summary>
 		/// <remarks>Array length is 2</remarks>
-		public Mission.Trigger[] SkipToOrder4Trigger { get { return _skipToOrder4Trigger; } }
+		public Mission.Trigger[] SkipToOrder4Trigger { get; } = new Mission.Trigger[2];
 		/// <summary>Determines if both <see cref="SkipToOrder4Trigger">Skip triggers</see> must be completed</summary>
 		/// <remarks><b>true</b> is AND, <b>false</b> is OR</remarks>
 		public bool SkipToO4T1AndOrT2 { get; set; }
 		/// <summary>Gets the FlightGroup-specific mission goals</summary>
 		/// <remarks>Array is Length = 8</remarks>
-		public Goal[] Goals { get { return _goals; } }
-		
+		public Goal[] Goals { get; } = new Goal[8];
+
 		/// <summary>Gets the FlightGroup location markers</summary>
 		/// <remarks>Use <see cref="WaypointIndex"/> for indexes</remarks>
-		public Waypoint[] Waypoints { get { return _waypoints; } }
+		public Waypoint[] Waypoints { get; } = new Waypoint[22];
 		
 		#region Unks and Options
 		/// <summary>The defenses available to the FG</summary>
@@ -272,10 +266,10 @@ namespace Idmr.Platform.Xvt
 
         /// <summary>Gets the array of alternate weapons the player can select</summary>
 		/// <remarks>Use <see cref="LoadoutIndexer.Indexes"/> for indexes</remarks>
-		public LoadoutIndexer OptLoadout { get { return _loadoutIndexer; } }
+		public LoadoutIndexer OptLoadout { get; private set; }
 		/// <summary>Gets the array of alternate craft types the player can select</summary>
 		/// <remarks>Array is Length = 10</remarks>
-		public OptionalCraft[] OptCraft { get { return _optCraft; } }
+		public OptionalCraft[] OptCraft { get; } = new OptionalCraft[10];
 		/// <summary>The alternate craft types the player can select by list</summary>
 		public OptionalCraftCategory OptCraftCategory { get; set; }
 		/// <summary>The unknown values container</summary>
