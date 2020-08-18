@@ -257,14 +257,14 @@ namespace Idmr.Platform.Xvt
 		public byte Status2 { get; set; }
 		/// <summary>The additional grouping assignment, can share craft numbering</summary>
 		public byte GlobalUnit { get; set; }
-        /// <summary>Prevents craft numbering (if multiple craft in each wave) from appearing in the CMD.</summary>
-        public bool PreventCraftNumbering { get; set; }
-        /// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in minutes.  Formerly Unknown20 at Offset 0x0521.</summary>
-        public byte DepartureClockMinutes { get; set; }
-        /// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in seconds.  Formerly Unknown21 at Offset 0x0522.</summary>
-        public byte DepartureClockSeconds { get; set; }
 		/// <summary>Determines a special condition when additional waves will stop arriving. This is not an abort condition.</summary>
 		public byte StopArrivingWhen { get; set; }
+		/// <summary>Prevents craft numbering (if multiple craft in each wave) from appearing in the CMD.</summary>
+		public bool PreventCraftNumbering { get; set; }
+		/// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in minutes.  Formerly Unknown20 at Offset 0x0521.</summary>
+		public byte DepartureClockMinutes { get; set; }
+		/// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in seconds.  Formerly Unknown21 at Offset 0x0522.</summary>
+		public byte DepartureClockSeconds { get; set; }
 		/// <summary>Determines additional arrival delay time (minutes) based on whether Randomize is enabled in-game.</summary>
 		public byte RandomArrivalDelayMinutes { get; set; }
 		/// <summary>Determines additional arrival delay time (seconds) based on whether Randomize is enabled in-game.</summary>
@@ -325,16 +325,16 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Offset 0x0518, in Unknowns/Options section</remarks>
 			public bool Unknown18 { get; set; }
 			
-			// <summary>Previously Unknown value</summary>
-            // <remarks>Offset 0x0520, in Unknowns/Options section.  See PreventCraftNumbering.</remarks>
+			/// <summary>Previously Unknown value</summary>
+			/// <remarks>Offset 0x0520, in Unknowns/Options section. See <see cref="PreventCraftNumbering"/></remarks>
 			//public bool Unknown19 { get; set; }
 
-            // <summary>Previously Unknown value</summary>
-            // <remarks>Offset 0x0521, in Unknowns/Options section.  See DepClockMinutes.</remarks>
+			/// <summary>Previously Unknown value</summary>
+			/// <remarks>Offset 0x0521, in Unknowns/Options section. See <see cref="DepartureClockMinutes"/></remarks>
 			//public byte Unknown20 { get; set; }
 
-            // <summary>Previously Unknown value</summary>
-            // <remarks>Offset 0x0522, in Unknowns/Options section.  See DepClockSeconds.</remarks>
+			/// <summary>Previously Unknown value</summary>
+			/// <remarks>Offset 0x0522, in Unknowns/Options section. See <see cref="DepartureClockSeconds"/></remarks>
 			//public byte Unknown21 { get; set; }
 			
 			/// <summary>Unknown value</summary>
