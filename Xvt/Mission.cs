@@ -196,7 +196,7 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].FormLeaderDist = buffer[0x10];
 				FlightGroups[i].NumberOfWaves = (byte)(buffer[0x11]+1);
 				FlightGroups[i].Unknowns.Unknown1 = buffer[0x12];
-				FlightGroups[i].Unknowns.Unknown2 = Convert.ToBoolean(buffer[0x13]);
+				FlightGroups[i].StopArrivingWhen = (buffer[0x13]);
 				FlightGroups[i].PlayerNumber = buffer[0x14];
 				FlightGroups[i].ArriveOnlyIfHuman = Convert.ToBoolean(buffer[0x15]);
 				FlightGroups[i].PlayerCraft = buffer[0x16];
@@ -221,14 +221,14 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].ArrDepAO[0] = Convert.ToBoolean(buffer[0xB]);
 				FlightGroups[i].ArrDepAO[1] = Convert.ToBoolean(buffer[0x16]);
 				FlightGroups[i].ArrDepAO[2] = Convert.ToBoolean(buffer[0x17]);
-				FlightGroups[i].Unknowns.Unknown3 = buffer[0x18];
+				FlightGroups[i].RandomArrivalDelayMinutes = buffer[0x18];
 				FlightGroups[i].ArrivalDelayMinutes = buffer[0x19];
 				FlightGroups[i].ArrivalDelaySeconds = buffer[0x1A];
 				FlightGroups[i].ArrDepAO[3] = Convert.ToBoolean(buffer[0x25]);
 				FlightGroups[i].DepartureTimerMinutes = buffer[0x26];
 				FlightGroups[i].DepartureTimerSeconds = buffer[0x27];
 				FlightGroups[i].AbortTrigger = buffer[0x28];
-				FlightGroups[i].Unknowns.Unknown4 = buffer[0x29];
+				FlightGroups[i].RandomArrivalDelaySeconds = buffer[0x29];
 				FlightGroups[i].Unknowns.Unknown5 = buffer[0x2B];
 				FlightGroups[i].ArrivalCraft1 = buffer[0x2D];
 				FlightGroups[i].ArrivalMethod1 = Convert.ToBoolean(buffer[0x2E]);	// false = hyper, true = mothership
@@ -569,7 +569,7 @@ namespace Idmr.Platform.Xvt
 					fs.WriteByte(FlightGroups[i].FormLeaderDist);
 					fs.WriteByte((byte)(FlightGroups[i].NumberOfWaves-1));
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown1);
-					bw.Write(FlightGroups[i].Unknowns.Unknown2);
+					bw.Write(FlightGroups[i].StopArrivingWhen);
 					fs.WriteByte(FlightGroups[i].PlayerNumber);
 					bw.Write(FlightGroups[i].ArriveOnlyIfHuman);
 					fs.WriteByte(FlightGroups[i].PlayerCraft);
@@ -589,7 +589,7 @@ namespace Idmr.Platform.Xvt
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAO[1]);
 					bw.Write(FlightGroups[i].ArrDepAO[2]);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown3);
+					fs.WriteByte(FlightGroups[i].RandomArrivalDelayMinutes);
 					fs.WriteByte(FlightGroups[i].ArrivalDelayMinutes);
 					fs.WriteByte(FlightGroups[i].ArrivalDelaySeconds);
 					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[4][j]);
@@ -599,7 +599,7 @@ namespace Idmr.Platform.Xvt
 					fs.WriteByte(FlightGroups[i].DepartureTimerMinutes);
 					fs.WriteByte(FlightGroups[i].DepartureTimerSeconds);
 					fs.WriteByte(FlightGroups[i].AbortTrigger);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown4);
+					fs.WriteByte(FlightGroups[i].RandomArrivalDelaySeconds);
 					fs.Position++;
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown5);
 					fs.Position++;

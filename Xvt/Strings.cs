@@ -556,6 +556,12 @@ namespace Idmr.Platform.Xvt
 										"Stationary, 100% Systems, does not return fire.|Meaningless|Meaningless",
 										"Stationary, 100% Systems, does not return fire.|Meaningless|Meaningless"
 									};
+
+		static readonly string[] _stopArrivingWhen = { "No condition (normal)",
+												"Any of this FG completes mission",
+												"Team mission outcome is victory",
+												"Team mission outcome is failure"
+									};
         #endregion
 
 		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays, or restores defaults.</summary>
@@ -635,5 +641,8 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Gets of copy of the descriptions of orders and variables</summary>
 		/// <remarks>Array is Length = 40</remarks>
 		public static string[] OrderDesc { get { return (string[])_orderDesc.Clone(); } }
+		/// <summary>Gets of copy of the StopArrivingWhen enum used in arr/dep</summary>
+		/// <remarks>Array is Length = 4</remarks>
+		public static string[] StopArrivingWhen { get { return (string[])_stopArrivingWhen.Clone(); } }
 	}
 }
