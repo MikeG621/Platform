@@ -301,16 +301,16 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Offset 0x0062, in Craft section</remarks>
 			public byte Unknown1 { get; set; }
 			
-			/// <summary>Previously Unknown value</summary>
-			/// <remarks>Offset 0x0063, in Craft section. <see cref="StopArrivingWhen"/></remarks>
+			// <summary>Previously Unknown value</summary>
+			// <remarks>Offset 0x0063, in Craft section. <see cref="StopArrivingWhen"/></remarks>
 			//public bool Unknown2 { get; set; }
 			
-			/// <summary>Previously Unknown value</summary>
-			/// <remarks>Offset 0x0085, in Arr/Dep section. <see cref="RandomArrivalDelayMinutes"/></remarks>
+			// <summary>Previously Unknown value</summary>
+			// <remarks>Offset 0x0085, in Arr/Dep section. <see cref="RandomArrivalDelayMinutes"/></remarks>
 			//public byte Unknown3 { get; set; }
 			
-			/// <summary>Previously Unknown value</summary>
-			/// <remarks>Offset 0x0096, in Arr/Dep section. <see cref="RandomArrivalDelaySeconds"/></remarks>
+			// <summary>Previously Unknown value</summary>
+			// <remarks>Offset 0x0096, in Arr/Dep section. <see cref="RandomArrivalDelaySeconds"/></remarks>
 			//public byte Unknown4 { get; set; }
 			
 			/// <summary>Unknown value</summary>
@@ -325,16 +325,16 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Offset 0x0518, in Unknowns/Options section</remarks>
 			public bool Unknown18 { get; set; }
 			
-			/// <summary>Previously Unknown value</summary>
-			/// <remarks>Offset 0x0520, in Unknowns/Options section. See <see cref="PreventCraftNumbering"/></remarks>
+			// <summary>Previously Unknown value</summary>
+			// <remarks>Offset 0x0520, in Unknowns/Options section. See <see cref="PreventCraftNumbering"/></remarks>
 			//public bool Unknown19 { get; set; }
 
-			/// <summary>Previously Unknown value</summary>
-			/// <remarks>Offset 0x0521, in Unknowns/Options section. See <see cref="DepartureClockMinutes"/></remarks>
+			// <summary>Previously Unknown value</summary>
+			// <remarks>Offset 0x0521, in Unknowns/Options section. See <see cref="DepartureClockMinutes"/></remarks>
 			//public byte Unknown20 { get; set; }
 
-			/// <summary>Previously Unknown value</summary>
-			/// <remarks>Offset 0x0522, in Unknowns/Options section. See <see cref="DepartureClockSeconds"/></remarks>
+			// <summary>Previously Unknown value</summary>
+			// <remarks>Offset 0x0522, in Unknowns/Options section. See <see cref="DepartureClockSeconds"/></remarks>
 			//public byte Unknown21 { get; set; }
 			
 			/// <summary>Unknown value</summary>
