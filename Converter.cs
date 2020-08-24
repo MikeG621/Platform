@@ -118,17 +118,17 @@ namespace Idmr.Platform
                 tie.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
                 #endregion ArrDep
                 #region Goals
-                if ((miss.FlightGroups[i].Goals[0].Enabled == true) && miss.FlightGroups[i].Goals[0].Team == 0)
+                if (miss.FlightGroups[i].Goals[0].GetEnabledForTeam(0))
                 {
                     tie.FlightGroups[i].Goals.PrimaryCondition = miss.FlightGroups[i].Goals[0].Condition;
                     tie.FlightGroups[i].Goals.PrimaryAmount = miss.FlightGroups[i].Goals[0].Amount;
                 }
-                if ((miss.FlightGroups[i].Goals[1].Enabled == true) && miss.FlightGroups[i].Goals[1].Team == 0)
+                if (miss.FlightGroups[i].Goals[1].GetEnabledForTeam(0))
                 {
                     tie.FlightGroups[i].Goals.SecondaryCondition = miss.FlightGroups[i].Goals[1].Condition;
                     tie.FlightGroups[i].Goals.SecondaryAmount = miss.FlightGroups[i].Goals[1].Amount;
                 }
-                if ((miss.FlightGroups[i].Goals[2].Enabled == true) && miss.FlightGroups[i].Goals[2].Team == 0)
+                if (miss.FlightGroups[i].Goals[2].GetEnabledForTeam(0))
                 {
                     tie.FlightGroups[i].Goals.BonusCondition = miss.FlightGroups[i].Goals[2].Condition;
                     tie.FlightGroups[i].Goals.BonusAmount = miss.FlightGroups[i].Goals[2].Amount;
@@ -1283,8 +1283,7 @@ namespace Idmr.Platform
                         xvt.FlightGroups[i].Goals[0].Condition = cond;
                         xvt.FlightGroups[i].Goals[0].Argument = 0;  //Must be completed
                         xvt.FlightGroups[i].Goals[0].Amount = amount;
-                        xvt.FlightGroups[i].Goals[0].Team = 0;
-                        xvt.FlightGroups[i].Goals[0].Enabled = true;
+                        xvt.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
                         //tieGoalsCheck("FlightGroup " + i, xvt.FlightGroups[i].Goals);   //Don't need to convert the amounts, we've set them directly.
 
                         if (i == playerMothership)
@@ -1307,8 +1306,7 @@ namespace Idmr.Platform
                             xvt.FlightGroups[i].Goals[0].Condition = cond;
                             xvt.FlightGroups[i].Goals[0].Argument = argument;
                             xvt.FlightGroups[i].Goals[0].Amount = 0;  //100%
-                            xvt.FlightGroups[i].Goals[0].Team = 0;
-                            xvt.FlightGroups[i].Goals[0].Enabled = true;
+                            xvt.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
 
                             if (role != "")
                                 xvt.FlightGroups[i].Roles[0] = role;

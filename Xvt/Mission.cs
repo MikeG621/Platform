@@ -632,16 +632,9 @@ namespace Idmr.Platform.Xvt
 						fs.WriteByte(FlightGroups[i].Goals[j].Condition);
 						fs.WriteByte(FlightGroups[i].Goals[j].Amount);
 						bw.Write(FlightGroups[i].Goals[j].RawPoints);
-						bw.Write(FlightGroups[i].Goals[j].Enabled);
-						fs.WriteByte(FlightGroups[i].Goals[j].Team);
-						bw.Write(FlightGroups[i].Goals[j].Unknown10);
-						bw.Write(FlightGroups[i].Goals[j].Unknown11);
-						bw.Write(FlightGroups[i].Goals[j].Unknown12);
-						fs.Position += 2;	//[JB]
-						fs.WriteByte(FlightGroups[i].Goals[j].Unknown13);
-						bw.Write(FlightGroups[i].Goals[j].Unknown14);
-						fs.Position++;
-						fs.WriteByte(FlightGroups[i].Goals[j].TimeLimit);  //[JB] Previously Unknown16
+						for (int k = 0; k < 10; k++)
+							bw.Write(FlightGroups[i].Goals[j].GetEnabledForTeam(k));
+						fs.WriteByte(FlightGroups[i].Goals[j].TimeLimit);
 						fs.Position = p + 0x243 + (j*0x4E);
 					}
 					fs.Position++;
