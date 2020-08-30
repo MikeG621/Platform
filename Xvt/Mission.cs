@@ -150,6 +150,7 @@ namespace Idmr.Platform.Xvt
 			Unknown1 = br.ReadByte();
 			stream.Position++;
 			Unknown2 = br.ReadByte();
+			RndSeed = br.ReadByte();
 			stream.Position = 0xB;
 			Unknown3 = Convert.ToBoolean(br.ReadByte());
 			stream.Position = 0x14;
@@ -510,7 +511,8 @@ namespace Idmr.Platform.Xvt
 				bw.Write((short)FlightGroups.Count);
 				bw.Write((short)Messages.Count);
 				bw.Write((short)Unknown1);
-				bw.Write((short)Unknown2);
+				bw.Write(Unknown2);
+				bw.Write(RndSeed);
 				fs.Position++;
 				bw.Write(Unknown3);
 				fs.Position = 0x14;
@@ -988,6 +990,9 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x08</remarks>
 		public byte Unknown2 { get; set; }
+		/// <summary>Seeds the random number generator that is responsible for deciding backdrops and asteroid positions.</summary>
+		/// <remarks>Offset = 0x09</remarks>
+		public byte RndSeed { get; set; }
 		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B</remarks>
 		public bool Unknown3 { get; set; }
