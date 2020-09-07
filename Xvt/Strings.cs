@@ -369,7 +369,7 @@ namespace Idmr.Platform.Xvt
 										"be dropped off",
 										"* be destroyed in one hit",
 										"NOT be disabled",
-										"NOT be picked up",
+										"NOT be captured",
 										"come and go w/o inspection",
 										"begin being boarded",       //was "be docked with"
 										"NOT being boarded",
@@ -385,7 +385,7 @@ namespace Idmr.Platform.Xvt
 										"be all Player Craft",
 										"be all AI Craft",
 										"come and go",
-										"be picked up",
+										"be bagged",
 										"withdraw",
 										"be carried away"
 								  };
@@ -413,7 +413,7 @@ namespace Idmr.Platform.Xvt
 											"All teams except",
 											"* All players except #",
 											"Global Unit",
-                                            "All global units except"
+											"All global units except"
 									  };
 		static readonly string[] _amount = { "100%",
 									"75%",
@@ -556,6 +556,12 @@ namespace Idmr.Platform.Xvt
 										"Stationary, 100% Systems, does not return fire.|Meaningless|Meaningless",
 										"Stationary, 100% Systems, does not return fire.|Meaningless|Meaningless"
 									};
+
+		static readonly string[] _stopArrivingWhen = { "No condition (normal)",
+												"Any of this FG completes mission",
+												"Team mission outcome is victory",
+												"Team mission outcome is failure"
+									};
         #endregion
 
 		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays, or restores defaults.</summary>
@@ -582,10 +588,10 @@ namespace Idmr.Platform.Xvt
 		static readonly public string TeamPrefixes = "1234AFH";
 
 		/// <summary>Gets a copy of Arrival difficulty settings</summary>
-		/// <remarks>Array has a Length of 10</remarks>
+		/// <remarks>Array has a Length of 11</remarks>
 		new public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
         /// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
-        /// <remarks>Array has a Length of 10</remarks>
+        /// <remarks>Array has a Length of 11</remarks>
         new public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
         /// <summary>Gets a copy of the default team name entries that craft roles can be applied to.</summary>
         /// <remarks>Array is Length = 8</remarks>
@@ -627,7 +633,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array is Length = 40</remarks>
 		public static string[] Orders { get { return (string[])_orders.Clone(); } }
 		/// <summary>Gets of copy of the craft behaviours to be used in triggers</summary>
-		/// <remarks>Array is Length = 22</remarks>
+		/// <remarks>Array is Length = 26</remarks>
 		public static string[] CraftWhen { get { return (string[])_craftWhen.Clone(); } }
 		/// <summary>Gets of copy of the individual craft abort conditions</summary>
 		/// <remarks>Array is Length = 10</remarks>
@@ -635,5 +641,8 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Gets of copy of the descriptions of orders and variables</summary>
 		/// <remarks>Array is Length = 40</remarks>
 		public static string[] OrderDesc { get { return (string[])_orderDesc.Clone(); } }
+		/// <summary>Gets of copy of the StopArrivingWhen enum used in arr/dep</summary>
+		/// <remarks>Array is Length = 4</remarks>
+		public static string[] StopArrivingWhen { get { return (string[])_stopArrivingWhen.Clone(); } }
 	}
 }

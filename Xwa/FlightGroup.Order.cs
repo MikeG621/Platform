@@ -131,7 +131,7 @@ namespace Idmr.Platform.Xwa
 						s = "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, target);
 						break;
 					case 8:
-						s = "Global Group " + target;
+						s = "GG:" + target;
 						break;
                     case 9:
                         s = "Rating " + BaseStrings.SafeString(Strings.Rating, target);
@@ -167,7 +167,7 @@ namespace Idmr.Platform.Xwa
                         s = "Not IFF " + BaseStrings.SafeString(Strings.IFF, target);
                         break;
                     case 20:
-                        s = "Not GG " + target;
+                        s = "Not GG:" + target;
                         break;
                     case 21:
                         s = "All Teams except TM:" + target;

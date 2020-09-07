@@ -115,52 +115,23 @@ namespace Idmr.Platform.Xvt
 				get { return (short)((sbyte)_items[3] * 250); }
 				set { _items[3] = (byte)((value > 31750 ? 31750 : (value < -32000 ? -32000 : value)) / 250); }
 			}
-			/// <summary>Gets or sets if the Goal is active</summary>
-			public bool Enabled
+
+			/// <summary>Gets whether the goal is enabled for the specified team.</summary>
+			/// <remarks>The EnabledForTeam array encompasses 10 elements ranging from offsets 0x4 to 0xD, which formerly contained Unknown10 through Unknown 15.</remarks>
+			/// <exception cref="ArgumentOutOfRangeException">Team index is outside the bounds of the array.</exception>
+			public bool GetEnabledForTeam(int index)
 			{
-				get { return Convert.ToBoolean(_items[4]); }
-				set { _items[4] = Convert.ToByte(value); }
+				if(index < 0 || index >= 10)
+					throw new ArgumentOutOfRangeException("Team index must be 0 to 9, inclusive.");
+				return (_items[4 + index] != 0);
 			}
-			/// <summary>Gets or sets which Team the Goal applies to</summary>
-			public byte Team
+			/// <summary>Sets whether the goal is enabled for the specified team.</summary>
+			/// <exception cref="ArgumentOutOfRangeException">Team index is outside the bounds of the array.</exception>
+			public void SetEnabledForTeam(int index, bool state)
 			{
-				get { return _items[5]; }
-				set { _items[5] = value; }
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x06</remarks>
-			public bool Unknown10
-			{
-				get { return Convert.ToBoolean(_items[6]); }
-				set { _items[6] = Convert.ToByte(value); }
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x07</remarks>
-			public bool Unknown11
-			{
-				get { return Convert.ToBoolean(_items[7]); }
-				set { _items[7] = Convert.ToByte(value); }
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x08</remarks>
-			public bool Unknown12
-			{
-				get { return Convert.ToBoolean(_items[8]); }
-				set { _items[8] = Convert.ToByte(value); }
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x0B</remarks>
-			public byte Unknown13
-			{
-				get { return _items[11]; }
-				set { _items[11] = value; }
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x0C</remarks>
-			public bool Unknown14
-			{
-				get { return Convert.ToBoolean(_items[12]); }
-				set { _items[12] = Convert.ToByte(value); }
+				if(index < 0 || index >= 10)
+					throw new ArgumentOutOfRangeException("Team index must be 0 to 9, inclusive.");
+				_items[4 + index] = Convert.ToByte(state);
 			}
 			/// <summary>Time limit</summary>
 			/// <remarks>Time limit that goal must be finished within (seconds*5).  Previously Unknown16. Goal offset 0x0E</remarks>

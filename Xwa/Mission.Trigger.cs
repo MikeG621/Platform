@@ -132,7 +132,7 @@ namespace Idmr.Platform.Xwa
 							trig += "Craft When " + BaseStrings.SafeString(Strings.CraftWhen, Variable);
 							break;
 						case 8:
-							trig += "Global Group " + Variable;
+							trig += "GG:" + Variable;
 							break;
                         case 9:
                             trig += "Rating " + BaseStrings.SafeString(Strings.Rating, Variable);
@@ -166,7 +166,7 @@ namespace Idmr.Platform.Xwa
                             trig += "all except IFF:" + Variable;
 							break;
                         case 20:
-                            trig += "all except GG " + Variable;
+                            trig += "all except GG:" + Variable;
                             break;
                         case 21:
                             trig += "all except TM:" + Variable;
