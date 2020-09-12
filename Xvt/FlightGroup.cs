@@ -4,10 +4,14 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * v5.0, xxxxxx
+ * [UPD] Unknown2 to StopArrivingWhen
+ * [UPD] Unknown3 to RandomArrivalDelayMinutes
+ * [UPD] Unknown4 to RandomArrivalDelaySeconds
  * v4.0, 200809
  * [UPD] cleaned arrays
  * v3.0, 180903
@@ -211,6 +215,10 @@ namespace Idmr.Platform.Xvt
 		/// <summary>The team or player number to which the craft communicates with</summary>
 		public byte Radio { get; set; }
 		
+		/// <summary>Determines a special condition when additional waves will stop arriving. This is not an abort condition.</summary>
+		/// <remarks>Formerly Unknown2 at Offset 0x63</remarks>
+		public byte StopArrivingWhen { get; set; }
+		
 		/// <summary>Determines if the craft has a human or AI pilot</summary>
 		/// <remarks>Value of <b>zero</b> defined as AI-controlled craft. Human craft will launch as AI-controlled if no player is present.</remarks>
 		public byte PlayerNumber { get; set; }
@@ -223,22 +231,32 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
 		public bool ArrivesIn30Seconds { get { return (ArrDepTriggers[0].Condition == 0 && ArrDepTriggers[1].Condition == 0 && ArrDepTriggers[2].Condition == 0 && ArrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
+		
 		/// <summary>Gets the Arrival and Departure triggers</summary>
 		/// <remarks>Use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
 		public Mission.Trigger[] ArrDepTriggers { get; } = new Mission.Trigger[6];
 		/// <summary>Gets which <see cref="ArrDepTriggers"/> must be completed</summary>
 		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}; effectively <see cref="ArrDepTriggerIndex"/> / 2</remarks>
 		public bool[] ArrDepAO { get; } = new bool[4];
+		
+		/// <summary>Determines additional arrival delay time (minutes) based on whether Randomize is enabled in-game.</summary>
+		/// <remarks>Formerly Unknown3 at Offset 0x85</remarks>
+		public byte RandomArrivalDelayMinutes { get; set; }
+		/// <summary>Determines additional arrival delay time (seconds) based on whether Randomize is enabled in-game.</summary>
+		/// <remarks>Formerly Unknown4 at Offset 0x96</remarks>
+		public byte RandomArrivalDelaySeconds { get; set; }
 		#endregion
 		/// <summary>Gets the Orders used to control FlightGroup behaviour</summary>
 		/// <remarks>Array is length = 4</remarks>
 		public Order[] Orders { get; } = new Order[4];
+		
 		/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to <see cref="Orders">Order[3]</see></summary>
 		/// <remarks>Array length is 2</remarks>
 		public Mission.Trigger[] SkipToOrder4Trigger { get; } = new Mission.Trigger[2];
 		/// <summary>Determines if both <see cref="SkipToOrder4Trigger">Skip triggers</see> must be completed</summary>
 		/// <remarks><b>true</b> is AND, <b>false</b> is OR</remarks>
 		public bool SkipToO4T1AndOrT2 { get; set; }
+		
 		/// <summary>Gets the FlightGroup-specific mission goals</summary>
 		/// <remarks>Array is Length = 8</remarks>
 		public Goal[] Goals { get; } = new Goal[8];
@@ -250,36 +268,40 @@ namespace Idmr.Platform.Xvt
 		#region Unks and Options
 		/// <summary>The defenses available to the FG</summary>
 		public byte Countermeasures { get; set; }
+		
 		/// <summary>The duration of death animation</summary>
 		/// <remarks>Unknown multiplier, appears to react differently depending on craft class</remarks>
 		public byte ExplosionTime { get; set; }
+		
 		/// <summary>The second condition of the FlightGroup upon creation</summary>
 		public byte Status2 { get; set; }
+		
 		/// <summary>The additional grouping assignment, can share craft numbering</summary>
 		public byte GlobalUnit { get; set; }
-		/// <summary>Determines a special condition when additional waves will stop arriving. This is not an abort condition.</summary>
-		public byte StopArrivingWhen { get; set; }
+		
 		/// <summary>Prevents craft numbering (if multiple craft in each wave) from appearing in the CMD.</summary>
 		public bool PreventCraftNumbering { get; set; }
-		/// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in minutes.  Formerly Unknown20 at Offset 0x0521.</summary>
+		
+		/// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in minutes</summary>
+		/// <remarks>Formerly Unknown20 at Offset 0x0521</remarks>
 		public byte DepartureClockMinutes { get; set; }
-		/// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in seconds.  Formerly Unknown21 at Offset 0x0522.</summary>
+		/// <summary>If nonzero, the craft will abort mission when the elapsed mission time (player's in-flight clock) reaches this time in seconds</summary>
+		/// <remarks>Formerly Unknown21 at Offset 0x0522</remarks>
 		public byte DepartureClockSeconds { get; set; }
-		/// <summary>Determines additional arrival delay time (minutes) based on whether Randomize is enabled in-game.</summary>
-		public byte RandomArrivalDelayMinutes { get; set; }
-		/// <summary>Determines additional arrival delay time (seconds) based on whether Randomize is enabled in-game.</summary>
-		public byte RandomArrivalDelaySeconds { get; set; }
 
         /// <summary>Gets the array of alternate weapons the player can select</summary>
 		/// <remarks>Use <see cref="LoadoutIndexer.Indexes"/> for indexes</remarks>
 		public LoadoutIndexer OptLoadout { get; private set; }
+		
 		/// <summary>Gets the array of alternate craft types the player can select</summary>
 		/// <remarks>Array is Length = 10</remarks>
 		public OptionalCraft[] OptCraft { get; } = new OptionalCraft[10];
+		
 		/// <summary>The alternate craft types the player can select by list</summary>
 		public OptionalCraftCategory OptCraftCategory { get; set; }
+		
 		/// <summary>The unknown values container</summary>
-		/// <remarks>All values initialize to <b>0</b> or <b>false</b>. <see cref="Orders"/> contain Unknown6-9, <see cref="Goals"/> contain Unknown10-16</remarks>
+		/// <remarks>All values initialize to <b>0</b> or <b>false</b>. <see cref="Orders"/> contain Unknown6-9, <see cref="Goals"/> contains Unknown16</remarks>
 		public UnknownValues Unknowns;
 		#endregion
 		
@@ -301,18 +323,6 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Offset 0x0062, in Craft section</remarks>
 			public byte Unknown1 { get; set; }
 			
-			// <summary>Previously Unknown value</summary>
-			// <remarks>Offset 0x0063, in Craft section. <see cref="StopArrivingWhen"/></remarks>
-			//public bool Unknown2 { get; set; }
-			
-			// <summary>Previously Unknown value</summary>
-			// <remarks>Offset 0x0085, in Arr/Dep section. <see cref="RandomArrivalDelayMinutes"/></remarks>
-			//public byte Unknown3 { get; set; }
-			
-			// <summary>Previously Unknown value</summary>
-			// <remarks>Offset 0x0096, in Arr/Dep section. <see cref="RandomArrivalDelaySeconds"/></remarks>
-			//public byte Unknown4 { get; set; }
-			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0098, in Arr/Dep section</remarks>
 			public byte Unknown5 { get; set; }
@@ -324,18 +334,6 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0518, in Unknowns/Options section</remarks>
 			public bool Unknown18 { get; set; }
-			
-			// <summary>Previously Unknown value</summary>
-			// <remarks>Offset 0x0520, in Unknowns/Options section. See <see cref="PreventCraftNumbering"/></remarks>
-			//public bool Unknown19 { get; set; }
-
-			// <summary>Previously Unknown value</summary>
-			// <remarks>Offset 0x0521, in Unknowns/Options section. See <see cref="DepartureClockMinutes"/></remarks>
-			//public byte Unknown20 { get; set; }
-
-			// <summary>Previously Unknown value</summary>
-			// <remarks>Offset 0x0522, in Unknowns/Options section. See <see cref="DepartureClockSeconds"/></remarks>
-			//public byte Unknown21 { get; set; }
 			
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0527, in Unknowns/Options section</remarks>

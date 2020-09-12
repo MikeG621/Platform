@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * v5.0, xxxxxx
+ * [UPD] Enabled, Team, Unknowns10-15 replaced with Get/SetEnabledForTeam()
  * v3.0, 180903
  * [NEW] TimeLimit, formerly Unk16 [JB]
  * v2.5, 170107

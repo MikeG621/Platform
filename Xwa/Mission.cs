@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * v5.0, xxxxxx
+ * [FIX] Changed Trim to TrimEnd for craft Name and Cargos, as there's the potential for leading \0 which would show the rest of the string
  * v4.0, 200809
  * [UPD] auto-properties
  * [UPD] Better Save backup [JB]
@@ -225,9 +227,9 @@ namespace Idmr.Platform.Xwa
 				try { FlightGroups[i].GlobalSpecialCargo = (byte)(buffer[6]+1); }
 				catch { FlightGroups[i].GlobalSpecialCargo = 0; }
 				stream.Position += 0xD;
-				FlightGroups[i].Cargo = new string(br.ReadChars(0x14)).Trim('\0');
-				FlightGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).Trim('\0');
-				FlightGroups[i].Role = new string(br.ReadChars(0x14)).Trim('\0');
+				FlightGroups[i].Cargo = new string(br.ReadChars(0x14)).TrimEnd('\0');
+				FlightGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).TrimEnd('\0');
+				FlightGroups[i].Role = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				stream.Position += 5;
 				stream.Read(buffer, 0, 0x1D);
 				FlightGroups[i].SpecialCargoCraft = buffer[0];

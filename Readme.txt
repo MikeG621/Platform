@@ -10,6 +10,17 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
+v5.0 - xx xxx xxxx]
+ - (XWA) Changed Trim to TrimEnd for craft Name and Cargos during load, as there's the potential for leading \0 which would keep the rest of the string
+ - Mostly XvT-related updates by Random Starfighter (JB)
+ -- Mission.RndSeed discovered
+ -- FlightGroup.Unknown2 is now StopArrivingWhen enum
+ -- FlightGroup.Unknown3 is now RandomArrivalDelayMinutes
+ -- FlightGroup.Unknown4 is now RandomArrivalDelaySeconds
+ -- FG Goals discovered to have an array of Enabled values, not just the one followed by a Team value (which happened to just work for SP missions). Consumes Unk10-15.
+ -- Documentation updates to Mission_XvT.txt for some of the finer workings of some triggers and conditions
+ -- (XWA) Global Group references in Orders and Triggers prepped for string replacement, similar to FGs and Teams.
+ 
 v4.0 - 09 Aug 2020
  - A lot of arrays and such were changed to use auto-properties, many of them with private set
  - A lot of other arrays and objects were set to readonly

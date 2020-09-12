@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * v5.0, xxxxxx
+ * [NEW] RndSeed
  * v4.0, 200809
  * [UPD] Message load null term fixed [JB]
  * [UPD] Better Save backup [JB]

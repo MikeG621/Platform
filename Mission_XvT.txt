@@ -1,7 +1,8 @@
 XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
+Contributor: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2020.07.21
+Updated: 2020.09.20
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -114,7 +115,7 @@ struct FlightGroup (size 0x562)
 	0x060	BYTE	LeaderSpacing
 	0x061	BYTE	NumberOfWaves
 	0x062	BYTE	Unknown1                 From Unknown5 in TIE, seems unused
-	0x063	BOOL	StopArrivingWhen (enum)  Unknown2
+	0x063	BYTE	StopArrivingWhen (enum)  Unknown2
 	0x064	BYTE	PlayerNumber
 	0x065	BYTE	ArriveOnlyIfHuman
 	0x066	BYTE	PlayerCraft
@@ -129,7 +130,7 @@ struct FlightGroup (size 0x562)
 	0x07D	Trigger	Arrival4
 	0x083	BOOL	Arrival3OrArrival4
 	0x084	BOOL	Arrival12OrArrival34
-	0x085	BYTE	RandomArrivalDelayExtraMinutes	Unknown3 [ARR_DELAY_30SECONDS?]
+	0x085	BYTE	RandomArrivalDelayExtraMinutes	Unknown3
 	0x086	BYTE	ArrivalDelayMinutes
 	0x087	BYTE	ArrivalDelaySeconds
 	0x088	Trigger	Departure1
@@ -156,8 +157,8 @@ struct FlightGroup (size 0x562)
 	0x516	BOOL	Unknown17       From Unknown19 in TIE, seems unused
 	0x518	BOOL	Unknown18       From Unknown20 in TIE, seems unused
 	0x520	BOOL	PreventCraftNumbering
-	0x521	BYTE	DepartureClockMinutes
-	0x522	BYTE	DepartureClockSeconds
+	0x521	BYTE	DepartureClockMinutes	Unknown20
+	0x522	BYTE	DepartureClockSeconds	Unknown21
 	0x523	BYTE	Countermeasures
 	0x524	BYTE	CraftExplosionTime
 	0x525	BYTE	Status2 (enum)
