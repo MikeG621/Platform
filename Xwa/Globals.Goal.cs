@@ -8,7 +8,8 @@
  */
 
 /* CHANGELOG
- * v4.0, [UPD] auto-properties
+ * v4.0, 200809
+ * [UPD] auto-properties
  * v2.7, 180509
  * [UPD] just tweaked the Trigger declaration
  * v2.1, 141214

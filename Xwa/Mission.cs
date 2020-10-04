@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.0
  */
 
 /* CHANGELOG
- * v5.0, xxxxxx
+ * v5.0, 201004
  * [FIX] Changed Trim to TrimEnd for craft Name and Cargos, as there's the potential for leading \0 which would show the rest of the string
  * v4.0, 200809
  * [UPD] auto-properties

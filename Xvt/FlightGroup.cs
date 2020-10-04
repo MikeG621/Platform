@@ -4,11 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.0
  */
 
 /* CHANGELOG
- * v5.0, xxxxxx
+ * v5.0, 201004
  * [UPD] Unknown2 to StopArrivingWhen
  * [UPD] Unknown3 to RandomArrivalDelayMinutes
  * [UPD] Unknown4 to RandomArrivalDelaySeconds
