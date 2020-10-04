@@ -10,7 +10,7 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
-v5.0 - xx xxx xxxx
+v5.0 - 10 Oct 2020
  - (XWA) Changed Trim to TrimEnd for craft Name and Cargos during load, as there's the potential for leading \0 which would keep the rest of the string
  - Mostly XvT-related updates by Random Starfighter (JB)
  -- Mission.RndSeed discovered
