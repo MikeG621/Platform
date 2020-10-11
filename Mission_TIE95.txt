@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2020.07.21
+Updated: 2020.10.10
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -122,8 +122,8 @@ struct FlightGroup (size 0x124)
 	0x055	BYTE	ArrivalDelaySeconds
 	0x056	Trigger	Departure
 	0x05A	BYTE	DepartureDelayMinutes		Unknown13
-	0x05B	BYTE	DepartureDelatSeconds		Unknown14
-	0x05C	BYTE	AbortTrigger (enum)
+	0x05B	BYTE	DepartureDelaySeconds		Unknown14
+	0x05C	BYTE	AbortCondition (enum)
 	0x05D	BYTE	Reserved (0)			Unknown15
 	0x05E	BYTE	Unknown16
 	0x05F	BYTE	Reserved (0)			Unknown17
@@ -706,7 +706,7 @@ GoalAmount
 03	All but one
 04	Special craft
 
-AbortTrigger
+AbortCondition
 00	None
 01	0% Shields
 02	Systems 75% (fighters and transports only)*
