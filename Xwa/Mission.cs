@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.0
+ * Version: 5.0+
  */
 
 /* CHANGELOG
+ * [UPD] Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]
  * v5.0, 201004
  * [FIX] Changed Trim to TrimEnd for craft Name and Cargos, as there's the potential for leading \0 which would show the rest of the string
  * v4.0, 200809
@@ -277,13 +278,13 @@ namespace Idmr.Platform.Xwa
 					FlightGroups[i].ArrDepTriggers[4][j] = buffer[0x26+j];	// Dep1...
 					FlightGroups[i].ArrDepTriggers[5][j] = buffer[0x2C+j];
 				}
-				FlightGroups[i].ArrDepAndOr[0] = Convert.ToBoolean(buffer[0x10]);
+				FlightGroups[i].ArrDepAndOr[0] = Convert.ToBoolean(buffer[0x10] & 1);
 				FlightGroups[i].Unknowns.Unknown6 = Convert.ToBoolean(buffer[0x11]);
-				FlightGroups[i].ArrDepAndOr[1] = Convert.ToBoolean(buffer[0x20]);
-				FlightGroups[i].ArrDepAndOr[2] = Convert.ToBoolean(buffer[0x22]);
+				FlightGroups[i].ArrDepAndOr[1] = Convert.ToBoolean(buffer[0x20] & 1);
+				FlightGroups[i].ArrDepAndOr[2] = Convert.ToBoolean(buffer[0x22] & 1);
 				FlightGroups[i].ArrivalDelayMinutes = buffer[0x24];
 				FlightGroups[i].ArrivalDelaySeconds = buffer[0x25];
-				FlightGroups[i].ArrDepAndOr[3] = Convert.ToBoolean(buffer[0x34]);
+				FlightGroups[i].ArrDepAndOr[3] = Convert.ToBoolean(buffer[0x34] & 1);
 				FlightGroups[i].DepartureTimerMinutes = buffer[0x36];
 				FlightGroups[i].DepartureTimerSeconds = buffer[0x37];
 				FlightGroups[i].AbortTrigger = buffer[0x38];
@@ -325,7 +326,7 @@ namespace Idmr.Platform.Xwa
 						FlightGroups[i].Orders[j/4, j%4].SkipTriggers[0][h] = buffer[h];
 						FlightGroups[i].Orders[j/4, j%4].SkipTriggers[1][h] = buffer[h+6];
 					}
-					FlightGroups[i].Orders[j/4, j%4].SkipT1AndOrT2 = Convert.ToBoolean(buffer[0xE]);
+					FlightGroups[i].Orders[j/4, j%4].SkipT1AndOrT2 = Convert.ToBoolean(buffer[0xE] & 1);
                 }
 				#endregion
 				#region Goals
@@ -429,14 +430,14 @@ namespace Idmr.Platform.Xwa
 						Messages[i].Triggers[3][j] = buffer[0x16+j];
 					}
 					Messages[i].Unknown1 = buffer[0xC];
-					Messages[i].TrigAndOr[0] = Convert.ToBoolean(buffer[0xE]);
-					Messages[i].TrigAndOr[1] = Convert.ToBoolean(buffer[0x1E]);
+					Messages[i].TrigAndOr[0] = Convert.ToBoolean(buffer[0xE] & 1);
+					Messages[i].TrigAndOr[1] = Convert.ToBoolean(buffer[0x1E] & 1);
 					Messages[i].VoiceID = new string(br.ReadChars(8)).Trim('\0');
 					Messages[i].OriginatingFG = br.ReadByte();
 					stream.Position += 7;
 					stream.Read(buffer, 0, 0x16);
 					Messages[i].Delay = buffer[0];
-                    Messages[i].TrigAndOr[2] = Convert.ToBoolean(buffer[1]);
+                    Messages[i].TrigAndOr[2] = Convert.ToBoolean(buffer[1] & 1);
 					Messages[i].Color = buffer[2];
                     Messages[i].Unknown2 = buffer[3];
 
@@ -445,7 +446,7 @@ namespace Idmr.Platform.Xwa
 						Messages[i].Triggers[4][j] = buffer[4+j];	// CancelT1...
 						Messages[i].Triggers[5][j] = buffer[0xA+j];
 					}
-					Messages[i].TrigAndOr[3] = Convert.ToBoolean(buffer[0x12]);
+					Messages[i].TrigAndOr[3] = Convert.ToBoolean(buffer[0x12] & 1);
 					Messages[i].Unknown3 = Convert.ToBoolean(buffer[0x14]);
 				}
 			}
@@ -464,7 +465,7 @@ namespace Idmr.Platform.Xwa
 						Globals[i].Goals[k].Triggers[0][j] = buffer[j];
 						Globals[i].Goals[k].Triggers[1][j] = buffer[j+6];
 					}
-					Globals[i].Goals[k].T1AndOrT2 = br.ReadBoolean();
+					Globals[i].Goals[k].T1AndOrT2 = Convert.ToBoolean(br.ReadByte() & 1);
 					Globals[i].Goals[k].Unknown1 = br.ReadBoolean();
 					stream.Read(buffer, 0, 0xE);
 					for (j=0;j<6;j++)
@@ -472,11 +473,11 @@ namespace Idmr.Platform.Xwa
 						Globals[i].Goals[k].Triggers[2][j] = buffer[j];
 						Globals[i].Goals[k].Triggers[3][j] = buffer[j+6];
 					}
-					Globals[i].Goals[k].T3AndOrT4 = br.ReadBoolean();
+					Globals[i].Goals[k].T3AndOrT4 = Convert.ToBoolean(br.ReadByte() & 1);
 					stream.Position += 8;
 					Globals[i].Goals[k].Unknown2 = br.ReadBoolean();
 					stream.Position += 9;
-					Globals[i].Goals[k].T12AndOrT34 = br.ReadBoolean();
+					Globals[i].Goals[k].T12AndOrT34 = Convert.ToBoolean(br.ReadByte() & 1);
 					stream.Read(buffer, 0, 7);
 					Globals[i].Goals[k].Unknown3 = buffer[0];
 					Globals[i].Goals[k].RawPoints=(sbyte)buffer[1];

@@ -10,6 +10,8 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
+ - (XWA) Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]
+
 v5.0 - 10 Oct 2020
  - (XWA) Changed Trim to TrimEnd for craft Name and Cargos during load, as there's the potential for leading \0 which would keep the rest of the string
  - Mostly XvT-related updates by Random Starfighter (JB)
