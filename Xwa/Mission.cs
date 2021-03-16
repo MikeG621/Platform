@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.0+
+ * Version: 5.1
  */
 
 /* CHANGELOG
+ * v5.1, 210315
  * [UPD] Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]
  * v5.0, 201004
  * [FIX] Changed Trim to TrimEnd for craft Name and Cargos, as there's the potential for leading \0 which would show the rest of the string

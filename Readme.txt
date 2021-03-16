@@ -2,14 +2,15 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.0
-Date: 2020.10.04
+Version: 5.1
+Date: 2021.03.15
 
 Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.1 - 15 Marc 2021
  - (XWA) Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]
 
 v5.0 - 10 Oct 2020

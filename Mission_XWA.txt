@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2020.07.21
+Updated: 2021.03.15
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -57,6 +57,12 @@ NOTE2: Since XWA is a step up from XvT, the mission file is larger and even
 more complex. There are many sections that are repeated, and several
 additional sections that are introduced, some of which being dynamic in size.
 You'll see the appropriate notes as needed.
+
+NOTE3: **IMPORTANT** The And/Or Trigger BOOLs (and possibly all BOOLs) are
+actually checking for even/odd instead of zero/non-zero. The source does make a
+(value & 1) comparison to determine TRUE. For standard read/write this isn't an
+issue, but if you're dealing with a poorly formatted mission file, this can
+cause unexpected results.
 
 --
 FileHeader
