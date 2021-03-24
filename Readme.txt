@@ -10,7 +10,10 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
-v5.1 - 15 Marc 2021
+v5.2 - xx xxx xxxx
+ - (XW) WaitForClick briefing event wasn't converting to Page Break, causing failures after mission conversions [YOGEME#51]
+
+v5.1 - 15 Mar 2021
  - (XWA) Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]
 
 v5.0 - 10 Oct 2020

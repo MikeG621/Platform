@@ -1,14 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [FIX] Mapping of the WaitForClick event to PageBreak for conversions [YOGEME/#51]
  * v4.0, 200809
  * [UPD] EventMapper now private readonly static _eventMapper
  * [UPD] BriefingUIPage.Items, BriefingPage.Events, Briefing.Pages and Briefing.WindowSettings changed to property, private set
@@ -118,8 +119,8 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Array to convert X-wing and TIE Briefing events</summary>
 		readonly static short[] _eventMapper = {  //19 events, 4 columns each
 		// DISP  XWID  TIEID  PARAMS       NOTES
-			 0,    0,    0,   0,
-			 1,    1,    0,   0,  //01: Wait For Click. (No params)   --> none (Doesn't exist in TIE)
+			 0,    0,     0,   0,
+			 1,    1,  0x03,   0,  //01: Wait For Click. (No params)   --> Page Break (no params)
 			 2,   10,  0x11,   0,  //10: Clear Texts Boxes (No params) --> Clear Text Tags
 			 3,   11,  0x04,   1,  //11: Display Title (textId)        --> Title Text (textId)
 			 4,   12,  0x05,   1,  //12: Display Main Text (textId)    --> Caption Text (textId)
