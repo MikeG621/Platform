@@ -2,7 +2,7 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.1
+Version: 5.2
 Date: 2021.03.15
 
 Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
@@ -10,7 +10,7 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
-v5.2 - xx xxx xxxx
+v5.2 - 24 Mar 2021
  - (XW) WaitForClick briefing event wasn't converting to Page Break, causing failures after mission conversions [YOGEME#51]
 
 v5.1 - 15 Mar 2021

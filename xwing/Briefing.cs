@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.2
  */
 
 /* CHANGELOG
+ * v5.2, 210324
  * [FIX] Mapping of the WaitForClick event to PageBreak for conversions [YOGEME/#51]
  * v4.0, 200809
  * [UPD] EventMapper now private readonly static _eventMapper
