@@ -10,6 +10,9 @@ Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XW
 =========
 Version History
 
+ - (Converter) Fixed the XW Description conversions, since it wasn't always sorting properly
+ - (Converter) Removed the BRF MoveMap multiplier in XW-XWA [YOGEME#53]
+
 v5.2 - 24 Mar 2021
  - (XW) WaitForClick briefing event wasn't converting to Page Break, causing failures after mission conversions [YOGEME#51]
 

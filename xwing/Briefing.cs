@@ -5,10 +5,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.2
+ * Version: 5.2+
  */
 
 /* CHANGELOG
+ * [UPD] Allowed Title strings to be returned in GetCaptionText()
+ * [UPD] Added additional check to ContainsHintText()
  * v5.2, 210324
  * [FIX] Mapping of the WaitForClick event to PageBreak for conversions [YOGEME/#51]
  * v4.0, 200809
@@ -526,7 +528,7 @@ namespace Idmr.Platform.Xwing
 			{
 				short[] xwevt = ReadBriefingEvent(page, rpos);
 				rpos += xwevt.Length;
-				if (xwevt[1] == (short)EventType.CaptionText)
+				if (xwevt[1] == (short)EventType.CaptionText || xwevt[1] == (short)EventType.TitleText)
 					captionText.Add(BriefingString[xwevt[2]]);
 				else if (xwevt[1] == 0 || xwevt[1] == (short)EventType.EndBriefing)
 					break;
@@ -535,11 +537,11 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Determines if the given caption text is a potential hint page.</summary>
 		/// <param name="captionText">The text to check</param>
-		/// <returns><b>true</b> if <i>captionText</i> contains ">STRATEGY AND TACTICS".</returns>
+		/// <returns><b>true</b> if <paramref name="captionText"/> contains "&lt;STRATEGY AND TACTICS" or "&lt;MISSION COMPLETION HINTS".</returns>
 		/// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
 		public bool ContainsHintText(string captionText)
 		{
-			return (captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0);
+			return (captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0);
 		}
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>

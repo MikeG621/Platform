@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [FIX YOGEME#53] removed zoom multiplier in XW-XWA BRF MoveMap event
+ * [FIX] Strip out Title strings from XW Description conversion
  * v4.0, 200809
  * [UPD] cleanup
  * v3.0, 180309
@@ -970,10 +972,10 @@ namespace Idmr.Platform
             tie.Briefing.Events[wpos++] = 9999;
             tie.Briefing.Events[wpos++] = 0x22;
 
-            #endregion Briefing
-
-            //Extract the mission description from the briefing's text pages.  Anything before the hints page goes into the pre-mission questions.  The hints pages go into the post-mission failure questions. 
-            List<string> preText = new List<string>();
+			#endregion Briefing
+			#region Description
+			//Extract the mission description from the briefing's text pages.  Anything before the hints page goes into the pre-mission questions.  The hints pages go into the post-mission failure questions. 
+			List<string> preText = new List<string>();
             List<string> failText = new List<string>();
 
             List<string> captionText;
@@ -988,7 +990,7 @@ namespace Idmr.Platform
                         if (s == "") continue;
                         bool isHintMsg = miss.Briefing.ContainsHintText(s);
                         hintPage |= isHintMsg;  //All of the hint pages are in order.
-                        if (isHintMsg) continue;
+                        if (isHintMsg || s.StartsWith(">")) continue;
                         List<string> list = hintPage ? failText : preText;
                         if (list.Count == 0)
                         {
@@ -1015,8 +1017,9 @@ namespace Idmr.Platform
                 tie.BriefingQuestions.PostTrigType[i] = 1; //Primary goal
                 tie.BriefingQuestions.PostTrigger[i] = 5;  //Failed
             }
+			#endregion Description
 
-            tie.MissionPath = miss.MissionPath.ToUpper().Replace(".XWI", "_TIE.tie");
+			tie.MissionPath = miss.MissionPath.ToUpper().Replace(".XWI", "_TIE.tie");
             return tie;
         }
 
@@ -1090,7 +1093,6 @@ namespace Idmr.Platform
             xvt.MissionType = bop ? Xvt.Mission.MissionTypeEnum.MPTraining : Xvt.Mission.MissionTypeEnum.Training;
             //Not doing mission time.
             #endregion Mission
-
             #region FGs
             //List<XwingGlobalGroup> ggList = new List<XwingGlobalGroup>();
             for (int i = 0; i < miss.FlightGroups.Count; i++)
@@ -1487,7 +1489,6 @@ namespace Idmr.Platform
             xvt.Briefings[0].Events[wpos++] = 0x22;
             xvt.Briefings[0].Team[0] = true;
             #endregion Briefing
-
             #region Description
             //Extract the mission description from the briefing's text pages.
             string preText = "";
@@ -1504,6 +1505,7 @@ namespace Idmr.Platform
                         if (s == "") continue;
                         bool isHintMsg = miss.Briefing.ContainsHintText(s);
                         hintPage |= isHintMsg;  //All of the hint pages are in order.
+                        if (s.StartsWith(">")) continue;
                         if (hintPage && !isHintMsg)
                         {
                             if (failText.Length > 0) failText += "$";
@@ -1523,8 +1525,9 @@ namespace Idmr.Platform
             failText = failText.Replace("]", "");
             xvt.MissionDescription = preText;
             xvt.MissionFailed = failText;
-            xvt.MissionPath = miss.MissionPath.ToUpper().Replace(".XWI", "_xvt.tie");
             #endregion Description
+
+            xvt.MissionPath = miss.MissionPath.ToUpper().Replace(".XWI", "_xvt.tie");
             return xvt;
         }
 
@@ -1594,7 +1597,6 @@ namespace Idmr.Platform
             xwa.MissionType = Xwa.Mission.HangarEnum.MonCalCruiser;
             //Not doing mission time.
             #endregion Mission
-
             #region FGs
 
             byte curGU = 1;
@@ -1964,11 +1966,11 @@ namespace Idmr.Platform
                     tieevt[2] = (short)(tieevt[2] * 2.4);
                     tieevt[3] = (short)(tieevt[3] * 2.4);
                 }
-                else if (tieevt[1] == (short)BaseBriefing.EventType.MoveMap)
+                /*else if (tieevt[1] == (short)BaseBriefing.EventType.MoveMap) //[MG] This "half move" might be related to an issue in YOGEME itself, once that was corrected this needed to be removed
                 {
                     tieevt[2] = (short)(tieevt[2] * 0.5);  //[JB] For reasons I haven't investigated, XWA needs a half move to be positioned correctly.  Or at least for the few missions I tested.
                     tieevt[3] = (short)(tieevt[3] * 0.5);
-                }
+                }*/
                 if (tieevt.Length < 2)
                     break;
                 tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Xwa.Briefing.TicksPerSecond);
@@ -1980,7 +1982,6 @@ namespace Idmr.Platform
             xwa.Briefings[0].Events[wpos++] = 0x22;
             xwa.Briefings[0].Team[0] = true;
             #endregion Briefing
-
             #region Description
             //Extract the mission description from the briefing's text pages.
             string preText = "";
@@ -1997,6 +1998,7 @@ namespace Idmr.Platform
                         if (s == "") continue;
                         bool isHintMsg = miss.Briefing.ContainsHintText(s);
                         hintPage |= isHintMsg;  //All of the hint pages are in order.
+                        if (s.StartsWith(">")) continue;
                         if (hintPage && !isHintMsg)
                         {
                             if (failText.Length > 0) failText += "$";
@@ -2017,7 +2019,6 @@ namespace Idmr.Platform
             xwa.MissionDescription = preText;
             xwa.MissionFailed = failText;
             #endregion Description
-
             #region Backdrops
             //Two backdrops with randomized type and location for lighting, similar to how skirmish files are generated.
             Random rnd = new Random();
@@ -2061,6 +2062,7 @@ namespace Idmr.Platform
 			for (int i = 0; i < 4; i++) bd.Waypoints[0][i] = coord2[i];
             xwa.FlightGroups.Add(bd);
             #endregion Backdrops
+
             string path = miss.MissionPath.ToUpper().Replace(".XWI", "_xwa.tie");
             path = path.Insert(path.LastIndexOf('\\') + 1, "B0M1_");  //Appends after the last slash, or at the start of the filename if none found.  XWA might crash if the mission doesn't have the proper mission prefix.
             xwa.MissionPath = path;
