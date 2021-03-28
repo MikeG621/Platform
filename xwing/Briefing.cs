@@ -5,14 +5,16 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.2+
+ * Version: 5.3
  */
 
 /* CHANGELOG
+ * v5.3, 210328
  * [UPD] Allowed Title strings to be returned in GetCaptionText()
  * [UPD] Added additional check to ContainsHintText()
+ * [FIX YOGEME#51] ClearText now converts to Page Break, v5.2 WaitForClick conversion removed
  * v5.2, 210324
- * [FIX] Mapping of the WaitForClick event to PageBreak for conversions [YOGEME/#51]
+ * [FIX YOGEME#51] Mapping of the WaitForClick event to PageBreak for conversions
  * v4.0, 200809
  * [UPD] EventMapper now private readonly static _eventMapper
  * [UPD] BriefingUIPage.Items, BriefingPage.Events, Briefing.Pages and Briefing.WindowSettings changed to property, private set
@@ -118,24 +120,24 @@ namespace Idmr.Platform.Xwing
 		//TIEID: Event ID in TIE Fighter if it exists (zero for no TIE equivalent)
 		//PARAMS: Event parameter count in X-wing
 		//-- Credits to the XWVM team for providing documentation of these events.
-		//TODO: should really be [,]
+		//TODO: would be nicer in something other than short[]
 		/// <summary>Array to convert X-wing and TIE Briefing events</summary>
 		readonly static short[] _eventMapper = {  //19 events, 4 columns each
 		// DISP  XWID  TIEID  PARAMS       NOTES
 			 0,    0,     0,   0,
-			 1,    1,  0x03,   0,  //01: Wait For Click. (No params)   --> Page Break (no params)
-			 2,   10,  0x11,   0,  //10: Clear Texts Boxes (No params) --> Clear Text Tags
+			 1,    1,     0,   0,  //01: Wait For Click. (No params)   --> None
+			 2,   10,  0x03,   0,  //10: Clear Text (No params)        --> Page Break (no params)
 			 3,   11,  0x04,   1,  //11: Display Title (textId)        --> Title Text (textId)
 			 4,   12,  0x05,   1,  //12: Display Main Text (textId)    --> Caption Text (textId)
 			 5,   14,  0x05,   1,  //14: Display Main Text 2 (textId)  --> Caption Text (textId)
 			 6,   15,  0x06,   2,  //15: Center Map (x, y)             --> Move Map (X,Y)
 			 7,   16,  0x07,   2,  //16: Zoom Map (xFactor, yFactor)   --> Zoom Map (X,Y)
-			 8,   21,  0x08,   0,  //21: Clear Highlights (No params)  --> Clear FG Tags
-			 9,   22,  0x09,   1,  //22: Set highlight 1 (objectId)    --> FG Tag 1 (FGIndex)
-			10,   23,  0x0A,   1,  //23: Set highlight 2 (objectId)    --> FG Tag 2 (FGIndex)
-			11,   24,  0x0B,   1,  //24: Set highlight 3 (objectId)    --> FG Tag 3 (FGIndex)
-			12,   25,  0x0C,   1,  //25: Set highlight 4 (objectId)    --> FG Tag 4 (FGIndex)
-			13,   26,  0x11,   0,  //26: Clear Tags (No params)        --> Clear Text Tags
+			 8,   21,  0x08,   0,  //21: Clear FG Tags (No params)     --> Clear FG Tags
+			 9,   22,  0x09,   1,  //22: Set FG Tag 1 (objectId)       --> FG Tag 1 (FGIndex)
+			10,   23,  0x0A,   1,  //23: Set FG Tag 2 (objectId)       --> FG Tag 2 (FGIndex)
+			11,   24,  0x0B,   1,  //24: Set FG Tag 3 (objectId)       --> FG Tag 3 (FGIndex)
+			12,   25,  0x0C,   1,  //25: Set FG Tag 4 (objectId)       --> FG Tag 4 (FGIndex)
+			13,   26,  0x11,   0,  //26: Clear Text Tags (No params)   --> Clear Text Tags
 			14,   27,  0x12,   3,  //27: Create Tag 1 (tagId, x, y)    --> Text Tag 1 (tag, color, x, y)
 			15,   28,  0x13,   3,  //28: Create Tag 2 (tagId, x, y)    --> Text Tag 2 (tag, color, x, y)
 			16,   29,  0x14,   3,  //29: Create Tag 3 (tagId, x, y)    --> Text Tag 3 (tag, color, x, y)
@@ -313,7 +315,7 @@ namespace Idmr.Platform.Xwing
 		}
 		/// <summary>Gets a string without the highlighting brackets.</summary>
 		/// <param name="text">The string to convert.</param>
-		/// <returns><i>text</i> without the "[" or "]" characters.</returns>
+		/// <returns><paramref name="text"/> without the "[" or "]" characters.</returns>
 		public string RemoveBrackets(string text)
 		{
 			return text.Replace("[", string.Empty).Replace("]", string.Empty);
@@ -468,7 +470,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Returns the string name of a particular <see cref="EventType"/>.</summary>
 		/// <param name="eventCommand">The event</param>
-		/// <returns>The event type, otherwise <b>"Unknown (<i>eventCommand</i>)"</b>.</returns>
+		/// <returns>The event type, otherwise <b>"Unknown (<paramref name="eventCommand"/>)"</b>.</returns>
 		public string GetEventTypeAsString(EventType eventCommand)
 		{
 			if (_eventTypeStringMap.ContainsKey(eventCommand))
@@ -541,19 +543,19 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
 		public bool ContainsHintText(string captionText)
 		{
-			return (captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0);
+			return captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0;
 		}
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index</param>
-		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
+		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
 		public override bool IsEndEvent(int evt)
 		{
 			return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
 		}
 		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
 		/// <param name="evt">The event index</param>
-		/// <returns><b>true</b> if <i>evt</i> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag4"/>.</returns>
+		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag4"/>.</returns>
 		public override bool IsFGTag(int evt)
 		{
 			return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag4);
@@ -561,7 +563,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Gets the number of parameters for the specified event type</summary>
 		/// <param name="eventType">The briefing event</param>
-		/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
 		/// <returns>The number of parameters</returns>
 		override public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
 		#endregion public methods
@@ -598,7 +600,7 @@ namespace Idmr.Platform.Xwing
 
 			/// <summary>Gets a parameter count</summary>
 			/// <param name="eventType">The briefing event</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
 			public byte this[int eventType] { get { return _counts[eventType]; } }
 
 			/// <summary>Gets a parameter count</summary>

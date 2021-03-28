@@ -2,16 +2,21 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.2
-Date: 2021.03.15
+Version: 5.3
+Date: 2021.03.28
 
-Library for editing LucasArts *.TIE mission files for Xwing95, TIE95, XvT and XWA
+Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
- - (Converter) Fixed the XW Description conversions, since it wasn't always sorting properly
- - (Converter) Removed the BRF MoveMap multiplier in XW-XWA [YOGEME#53]
+v5.3, 28 Mar 2021
+ - Several items around X-wing Briefing conversions, most related to YOGEME#51 and YOGEME#53
+ -- (Converter) Fixed Description, since it wasn't always splitting out hints properly
+ -- (Converter) Removed auto creation of Page Break before ClearText
+ -- (Converter) Removed the MoveMap multiplier in XW-XWA
+ -- (Converter) Skip over porting "None" events
+ -- (XW) ClearText event now correctly maps to Page Break, v5.2 WaitForClick conversion removed
 
 v5.2 - 24 Mar 2021
  - (XW) WaitForClick briefing event wasn't converting to Page Break, causing failures after mission conversions [YOGEME#51]

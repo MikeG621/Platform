@@ -4,12 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.3
  */
 
 /* CHANGELOG
+ * v5.3, 210328
  * [FIX YOGEME#53] removed zoom multiplier in XW-XWA BRF MoveMap event
  * [FIX] Strip out Title strings from XW Description conversion
+ * [FIX YOGEME#51] Removed auto-add of Page Break event when XW ClearText detected
+ * [FIX YOGEME#51] in XW BRF conversion, skip over "None" events
  * v4.0, 200809
  * [UPD] cleanup
  * v3.0, 180309
@@ -617,8 +620,8 @@ namespace Idmr.Platform
                     MessageString = miss.EndOfMissionMessages[2],
                     Color = color,
                     Delay = 1   // 5 sec
-				};
-				msg.Triggers[0].Amount = 0;
+                };
+                msg.Triggers[0].Amount = 0;
                 msg.Triggers[0].VariableType = 5; //IFF
                 msg.Triggers[0].Variable = 0;
                 msg.Triggers[0].Condition = 13; //complete primary mission
@@ -862,14 +865,14 @@ namespace Idmr.Platform
                 {
                     if (tie.FlightGroups[i].CraftType == 0x4B)  //Special case for mine.
                     {
-						Tie.FlightGroup.Order order = new Tie.FlightGroup.Order
-						{
-							Command = 7,           //Attack targets
-							Target1Type = 0x5,     //IFF
-							Target1 = oppositeIFF,
-							T1AndOrT2 = true      //OR   (none)
-						};
-						tie.FlightGroups[i].Orders[0] = order;
+                        Tie.FlightGroup.Order order = new Tie.FlightGroup.Order
+                        {
+                            Command = 7,           //Attack targets
+                            Target1Type = 0x5,     //IFF
+                            Target1 = oppositeIFF,
+                            T1AndOrT2 = true      //OR   (none)
+                        };
+                        tie.FlightGroups[i].Orders[0] = order;
                     }
                 }
                 #endregion Orders
@@ -908,17 +911,17 @@ namespace Idmr.Platform
                 }
                 else if (tie.FlightGroups.Count < Tie.Mission.FlightGroupLimit)   //Create a new FG solely for a briefing icon, if there's space.
                 {
-					Tie.FlightGroup newFG = new Tie.FlightGroup
-					{
-						Name = bfg.Name,
-						Cargo = "BRIEF_ICON",
-						CraftType = (byte)bfg.GetTIECraftType(),
-						NumberOfCraft = 1,
-						NumberOfWaves = 1,
-						IFF = bfg.GetTIEIFF(),
-						Difficulty = 0
-					};
-					newFG.ArrDepTriggers[0].Condition = 10; //False so it never arrives.
+                    Tie.FlightGroup newFG = new Tie.FlightGroup
+                    {
+                        Name = bfg.Name,
+                        Cargo = "BRIEF_ICON",
+                        CraftType = (byte)bfg.GetTIECraftType(),
+                        NumberOfCraft = 1,
+                        NumberOfWaves = 1,
+                        IFF = bfg.GetTIEIFF(),
+                        Difficulty = 0
+                    };
+                    newFG.ArrDepTriggers[0].Condition = 10; //False so it never arrives.
                     newFG.ArrDepTriggers[1].Condition = 10; //False
 
                     newFG.Waypoints[14] = bfg.Waypoints[wpIndex];
@@ -951,11 +954,11 @@ namespace Idmr.Platform
             while (rpos < length)
             {
                 short[] xwevt = miss.Briefing.ReadBriefingEvent(0, rpos);
-                if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
+                /*if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
                 {
                     tie.Briefing.Events[wpos++] = (short)(((float)xwevt[0] / Xwing.Briefing.TicksPerSecond) * Tie.Briefing.TicksPerSecond);
                     tie.Briefing.Events[wpos++] = (short)BaseBriefing.EventType.PageBreak;
-                }
+                }*/
                 short[] tieevt = miss.Briefing.TranslateBriefingEvent(xwevt);
                 if (tieevt[1] >= (short)BaseBriefing.EventType.FGTag1 && tieevt[1] <= (short)BaseBriefing.EventType.FGTag8)
                     tieevt[2] = (short)(BRFtoReal.ContainsKey(tieevt[2]) ? BRFtoReal[tieevt[2]] : 0);  //Replace the BRF FlightGroup with the mapped FlightGroup as detected, or replace with zero.
@@ -965,17 +968,18 @@ namespace Idmr.Platform
                 if (tieevt.Length < 2)
                     break;
                 tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Tie.Briefing.TicksPerSecond);
-                for (int i = 0; i < tieevt.Length; i++)
-                    tie.Briefing.Events[wpos++] = tieevt[i];
+                if (tieevt[1] != (short)BaseBriefing.EventType.None)
+                    for (int i = 0; i < tieevt.Length; i++)
+                        tie.Briefing.Events[wpos++] = tieevt[i];
                 rpos += xwevt.Length;
             }
             tie.Briefing.Events[wpos++] = 9999;
             tie.Briefing.Events[wpos++] = 0x22;
 
-			#endregion Briefing
-			#region Description
-			//Extract the mission description from the briefing's text pages.  Anything before the hints page goes into the pre-mission questions.  The hints pages go into the post-mission failure questions. 
-			List<string> preText = new List<string>();
+            #endregion Briefing
+            #region Description
+            //Extract the mission description from the briefing's text pages.  Anything before the hints page goes into the pre-mission questions.  The hints pages go into the post-mission failure questions. 
+            List<string> preText = new List<string>();
             List<string> failText = new List<string>();
 
             List<string> captionText;
@@ -1017,9 +1021,9 @@ namespace Idmr.Platform
                 tie.BriefingQuestions.PostTrigType[i] = 1; //Primary goal
                 tie.BriefingQuestions.PostTrigger[i] = 5;  //Failed
             }
-			#endregion Description
+            #endregion Description
 
-			tie.MissionPath = miss.MissionPath.ToUpper().Replace(".XWI", "_TIE.tie");
+            tie.MissionPath = miss.MissionPath.ToUpper().Replace(".XWI", "_TIE.tie");
             return tie;
         }
 
@@ -1039,16 +1043,16 @@ namespace Idmr.Platform
         /// <param name="miss">XWING95 mission to convert</param>
 		/// <param name="bop">If the mission is to be XvT or BoP</param>
         /// <returns>Upgraded mission</returns>
-        /// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/></exception>
+        /// <exception cref="ArgumentException">Properties incompatable with XvT were detected in <paramref name="miss"/></exception>
         public static Xvt.Mission XwingToXvtBop(Xwing.Mission miss, bool bop)
         {
-			Xvt.Mission xvt = new Xvt.Mission
-			{
-				IsBop = bop,
-				FlightGroups = new Xvt.FlightGroupCollection(miss.FlightGroups.Count)
-			};
-			#region Mission
-			byte[] teamMap = new byte[2] { 0, 1 };
+            Xvt.Mission xvt = new Xvt.Mission
+            {
+                IsBop = bop,
+                FlightGroups = new Xvt.FlightGroupCollection(miss.FlightGroups.Count)
+            };
+            #region Mission
+            byte[] teamMap = new byte[2] { 0, 1 };
 
             int playerIFF = 0;  //Need to find the player to determine how to set up radio orders.  We'll do it this way if for some reason a custom mission is set up otherwise.
             int playerMothership = -1;  //We'll use this to set a craft role later, if applicable.
@@ -1078,13 +1082,13 @@ namespace Idmr.Platform
             xvt.Teams[0].EndOfMissionMessages[1] = (color > 0 ? color.ToString() : "") + miss.EndOfMissionMessages[1];
             if (miss.EndOfMissionMessages[2] != "")
             {
-				Xvt.Message msg = new Xvt.Message
-				{
-					MessageString = miss.EndOfMissionMessages[2],
-					Color = color,
+                Xvt.Message msg = new Xvt.Message
+                {
+                    MessageString = miss.EndOfMissionMessages[2],
+                    Color = color,
                     Delay = 1   //5 sec
-				};
-				msg.Triggers[0].Amount = 0;
+                };
+                msg.Triggers[0].Amount = 0;
                 msg.Triggers[0].VariableType = 12; //Team
                 msg.Triggers[0].Variable = 0;
                 msg.Triggers[0].Condition = 13; //complete primary mission
@@ -1362,14 +1366,14 @@ namespace Idmr.Platform
                 {
                     if (xvt.FlightGroups[i].CraftType == 0x4B)  //Special case for mine.
                     {
-						Xvt.FlightGroup.Order order = new Xvt.FlightGroup.Order
-						{
-							Command = 7,           //Attack targets
-							Target1Type = 0x5,     //IFF
-							Target1 = oppositeIFF,
-							T1AndOrT2 = true      //OR   (none)
-						};
-						xvt.FlightGroups[i].Orders[0] = order;
+                        Xvt.FlightGroup.Order order = new Xvt.FlightGroup.Order
+                        {
+                            Command = 7,           //Attack targets
+                            Target1Type = 0x5,     //IFF
+                            Target1 = oppositeIFF,
+                            T1AndOrT2 = true      //OR   (none)
+                        };
+                        xvt.FlightGroups[i].Orders[0] = order;
                     }
                 }
 
@@ -1419,17 +1423,17 @@ namespace Idmr.Platform
                 }
                 else if (xvt.FlightGroups.Count < Xvt.Mission.FlightGroupLimit)   //Create a new FG solely for a briefing icon, if there's space.
                 {
-					Xvt.FlightGroup newFG = new Xvt.FlightGroup
-					{
-						Name = bfg.Name,
-						Cargo = "BRIEF_ICON",
-						CraftType = (byte)bfg.GetTIECraftType(),
-						NumberOfCraft = 1,
-						NumberOfWaves = 1,
-						IFF = bfg.GetTIEIFF(),
-						Difficulty = 0
-					};
-					newFG.ArrDepTriggers[0].Condition = 10; //False so it never arrives.
+                    Xvt.FlightGroup newFG = new Xvt.FlightGroup
+                    {
+                        Name = bfg.Name,
+                        Cargo = "BRIEF_ICON",
+                        CraftType = (byte)bfg.GetTIECraftType(),
+                        NumberOfCraft = 1,
+                        NumberOfWaves = 1,
+                        IFF = bfg.GetTIEIFF(),
+                        Difficulty = 0
+                    };
+                    newFG.ArrDepTriggers[0].Condition = 10; //False so it never arrives.
                     newFG.ArrDepTriggers[1].Condition = 10; //False
 
                     newFG.Waypoints[14] = bfg.Waypoints[wpIndex];
@@ -1462,11 +1466,11 @@ namespace Idmr.Platform
             while (rpos < length)
             {
                 short[] xwevt = miss.Briefing.ReadBriefingEvent(0, rpos);
-                if (rpos > 0 && xwevt[1] == (short)Platform.Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
+                /*if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
                 {
                     xvt.Briefings[0].Events[wpos++] = (short)(((float)xwevt[0] / Xwing.Briefing.TicksPerSecond) * Xvt.Briefing.TicksPerSecond);
                     xvt.Briefings[0].Events[wpos++] = (short)BaseBriefing.EventType.PageBreak;
-                }
+                }*/
                 short[] tieevt = miss.Briefing.TranslateBriefingEvent(xwevt);
                 if (tieevt[1] >= (short)BaseBriefing.EventType.FGTag1 && tieevt[1] <= (short)BaseBriefing.EventType.FGTag8)
                     tieevt[2] = (short)(BRFtoReal.ContainsKey(tieevt[2]) ? BRFtoReal[tieevt[2]] : 0);  //Replace the BRF FlightGroup with the mapped FlightGroup as detected, or replace with zero.
@@ -1481,8 +1485,9 @@ namespace Idmr.Platform
                 if (tieevt.Length < 2)
                     break;
                 tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Xvt.Briefing.TicksPerSecond);
-                for (int i = 0; i < tieevt.Length; i++)
-                    xvt.Briefings[0].Events[wpos++] = tieevt[i];
+                if (tieevt[1] != (short)BaseBriefing.EventType.None)
+                    for (int i = 0; i < tieevt.Length; i++)
+                        xvt.Briefings[0].Events[wpos++] = tieevt[i];
                 rpos += xwevt.Length;
             }
             xvt.Briefings[0].Events[wpos++] = 9999;
@@ -1531,7 +1536,6 @@ namespace Idmr.Platform
             return xvt;
         }
 
-
         /// <summary>Upgrades XWING95 missions to XWA</summary>
         /// <remarks>Attempts to convert Name, Cargo, and SpecialCargo strings from uppercase to initial-case only.<br/>
         /// Maximum FG.Formation value of 12 allowed.<br/>
@@ -1547,15 +1551,15 @@ namespace Idmr.Platform
         /// Filename will end in "_xvt.tie"</remarks>
         /// <param name="miss">XWING95 mission to convert</param>
         /// <returns>Upgraded mission</returns>
-        /// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/></exception>
+        /// <exception cref="ArgumentException">Properties incompatable with XWA were detected in <paramref name="miss"/></exception>
         public static Xwa.Mission XwingToXwa(Xwing.Mission miss)
         {
-			Xwa.Mission xwa = new Xwa.Mission
-			{
-				FlightGroups = new Xwa.FlightGroupCollection(miss.FlightGroups.Count)
-			};
-			#region Mission
-			byte[] teamMap = new byte[2] { 0, 1 };
+            Xwa.Mission xwa = new Xwa.Mission
+            {
+                FlightGroups = new Xwa.FlightGroupCollection(miss.FlightGroups.Count)
+            };
+            #region Mission
+            byte[] teamMap = new byte[2] { 0, 1 };
 
             int playerIFF = 0;  //Need to find the player to determine how to set up radio orders.  We'll do it this way if for some reason a custom mission is set up otherwise.
             int playerMothership = -1;  //We'll use this to set a craft role later, if applicable.
@@ -1587,8 +1591,8 @@ namespace Idmr.Platform
                     MessageString = miss.EndOfMissionMessages[2],
                     Color = (byte)playerIFF,
                     Delay = 5
-				};
-				msg.Triggers[0].Amount = 0;
+                };
+                msg.Triggers[0].Amount = 0;
                 msg.Triggers[0].VariableType = 12; //Team
                 msg.Triggers[0].Variable = 0;
                 msg.Triggers[0].Condition = 13; //complete primary mission
@@ -1875,14 +1879,14 @@ namespace Idmr.Platform
                 {
                     if (xwa.FlightGroups[i].CraftType == 0x4B)  //Special case for mine.
                     {
-						Xwa.FlightGroup.Order order = new Xwa.FlightGroup.Order
-						{
-							Command = 7,           //Attack targets
-							Target1Type = 0x5,     //IFF
-							Target1 = oppositeIFF,
-							T1AndOrT2 = true      //OR   (none)
-						};
-						xwa.FlightGroups[i].Orders[0, 0] = order;
+                        Xwa.FlightGroup.Order order = new Xwa.FlightGroup.Order
+                        {
+                            Command = 7,           //Attack targets
+                            Target1Type = 0x5,     //IFF
+                            Target1 = oppositeIFF,
+                            T1AndOrT2 = true      //OR   (none)
+                        };
+                        xwa.FlightGroups[i].Orders[0, 0] = order;
                     }
                 }
                 #endregion Orders
@@ -1951,11 +1955,11 @@ namespace Idmr.Platform
             while (rpos < length)
             {
                 short[] xwevt = miss.Briefing.ReadBriefingEvent(0, rpos);
-                if (rpos > 0 && xwevt[1] == (short)Platform.Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
+                /*if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
                 {
                     xwa.Briefings[0].Events[wpos++] = (short)(((float)xwevt[0] / Xwing.Briefing.TicksPerSecond) * Xwa.Briefing.TicksPerSecond);
                     xwa.Briefings[0].Events[wpos++] = (short)BaseBriefing.EventType.PageBreak;
-                }
+                }*/
                 short[] tieevt = miss.Briefing.TranslateBriefingEvent(xwevt);
                 if (tieevt[1] >= (short)BaseBriefing.EventType.TextTag1 && tieevt[1] <= (short)BaseBriefing.EventType.TextTag8)
                     tieevt[5] = 2;  //Color Yellow.  Blue (3) is too dark to read clearly, and there's no other bright neutral color.
@@ -1966,7 +1970,7 @@ namespace Idmr.Platform
                     tieevt[2] = (short)(tieevt[2] * 2.4);
                     tieevt[3] = (short)(tieevt[3] * 2.4);
                 }
-                /*else if (tieevt[1] == (short)BaseBriefing.EventType.MoveMap) //[MG] This "half move" might be related to an issue in YOGEME itself, once that was corrected this needed to be removed
+                /*else if (tieevt[1] == (short)BaseBriefing.EventType.MoveMap) //~MG This "half move" might be related to an issue in YOGEME itself, once that was corrected this needed to be removed
                 {
                     tieevt[2] = (short)(tieevt[2] * 0.5);  //[JB] For reasons I haven't investigated, XWA needs a half move to be positioned correctly.  Or at least for the few missions I tested.
                     tieevt[3] = (short)(tieevt[3] * 0.5);
@@ -1974,8 +1978,9 @@ namespace Idmr.Platform
                 if (tieevt.Length < 2)
                     break;
                 tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Xwa.Briefing.TicksPerSecond);
-                for (int i = 0; i < tieevt.Length; i++)
-                    xwa.Briefings[0].Events[wpos++] = tieevt[i];
+                if (tieevt[1] != (short)BaseBriefing.EventType.None)
+                    for (int i = 0; i < tieevt.Length; i++)
+                        xwa.Briefings[0].Events[wpos++] = tieevt[i];
                 rpos += xwevt.Length;
             }
             xwa.Briefings[0].Events[wpos++] = 9999;
@@ -2030,36 +2035,36 @@ namespace Idmr.Platform
             coord1[rnd.Next(3)] = 1;   //Randomize one of the coordinates
             coord2[rnd.Next(3)] = -1;
 
-			Xwa.FlightGroup bd = new Xwa.FlightGroup
-			{
-				Name = "1.0 1.0 1.0",
-				Cargo = Math.Round(0.5 + (rnd.NextDouble() * 0.5), 1).ToString(),         //Brightness randomized from 0.5 to 1.0
-				SpecialCargo = Math.Round(1.7 + (rnd.NextDouble() * 0.9), 1).ToString(),  //Size randomized from 1.7 to 2.6
-				CraftType = 183,  //Backdrop
-				NumberOfCraft = 1,
-				GlobalCargo = (byte)rnd.Next(7),  //Shadow randomized from 0 to 6
-				IFF = 4,  //IFF Red
-				Team = 9,
-				GlobalGroup = 31,
+            Xwa.FlightGroup bd = new Xwa.FlightGroup
+            {
+                Name = "1.0 1.0 1.0",
+                Cargo = Math.Round(0.5 + (rnd.NextDouble() * 0.5), 1).ToString(),         //Brightness randomized from 0.5 to 1.0
+                SpecialCargo = Math.Round(1.7 + (rnd.NextDouble() * 0.9), 1).ToString(),  //Size randomized from 1.7 to 2.6
+                CraftType = 183,  //Backdrop
+                NumberOfCraft = 1,
+                GlobalCargo = (byte)rnd.Next(7),  //Shadow randomized from 0 to 6
+                IFF = 4,  //IFF Red
+                Team = 9,
+                GlobalGroup = 31,
                 Backdrop = (byte)backdrop1
             };
-			for (int i = 0; i < 4; i++) bd.Waypoints[0][i] = coord1[i];
+            for (int i = 0; i < 4; i++) bd.Waypoints[0][i] = coord1[i];
             xwa.FlightGroups.Add(bd);
 
-			bd = new Xwa.FlightGroup
-			{
-				Name = "1.0 1.0 1.0",
-				Cargo = Math.Round(0.5 + (rnd.NextDouble() * 0.5), 1).ToString(),         //Brightness randomized from 0.5 to 1.0
-				SpecialCargo = "1.0",   //Size
-				CraftType = 183,  //Backdrop
-				NumberOfCraft = 1,
-				GlobalCargo = 1,   //Shadow  (stars don't have shadows)
-				IFF = 4,  //IFF Red
-				Team = 9,
-				GlobalGroup = 31,
+            bd = new Xwa.FlightGroup
+            {
+                Name = "1.0 1.0 1.0",
+                Cargo = Math.Round(0.5 + (rnd.NextDouble() * 0.5), 1).ToString(),         //Brightness randomized from 0.5 to 1.0
+                SpecialCargo = "1.0",   //Size
+                CraftType = 183,  //Backdrop
+                NumberOfCraft = 1,
+                GlobalCargo = 1,   //Shadow  (stars don't have shadows)
+                IFF = 4,  //IFF Red
+                Team = 9,
+                GlobalGroup = 31,
                 Backdrop = (byte)backdrop2
             };
-			for (int i = 0; i < 4; i++) bd.Waypoints[0][i] = coord2[i];
+            for (int i = 0; i < 4; i++) bd.Waypoints[0][i] = coord2[i];
             xwa.FlightGroups.Add(bd);
             #endregion Backdrops
 
@@ -2069,15 +2074,13 @@ namespace Idmr.Platform
             return xwa;
         }
 
-
+        #region helper functions
         /// <summary>Determines if the player can issue orders to this craft in XWING95.</summary>
         /// <param name="xwingCraftType">Must be an XWING95 craft type ID.</param>
         /// <returns>Returns <b>true</b> if the player is capable of issuing orders to this craft in XWING95.</returns>
         static bool xwingPlayerCommand(int xwingCraftType)
         {
-            if (xwingCraftType >= 1 && xwingCraftType <= 10) return true;  //X-W, Y-W (and B-W), A-W, T/F, T/I, T/B, GUN, TRN, SHU, TUG
-            if (xwingCraftType == 17) return true; //T/A
-            return false;
+            return (xwingCraftType >= 1 && xwingCraftType <= 10) || (xwingCraftType == 17);  //(X-W, Y-W/B-W, A-W, T/F, T/I, T/B, GUN, TRN, SHU, TUG) || (T/A)
         }
 
         /// <summary>Converts XWING95 primary and secondary targets into a default BaseOrder.</summary>
@@ -2106,7 +2109,7 @@ namespace Idmr.Platform
         /// <returns><b>true</b> if a fighter.</returns>
         static bool xwingCanWithdraw(int xwingCraftType)
         {
-            return ((xwingCraftType >= 1 && xwingCraftType <= 7) || (xwingCraftType == 17));    //(X-W, Y-W/B-W, A-W, T/F, T/I, T/B, GUN) || (T/A)
+            return (xwingCraftType >= 1 && xwingCraftType <= 7) || (xwingCraftType == 17);    //(X-W, Y-W/B-W, A-W, T/F, T/I, T/B, GUN) || (T/A)
         }
 
         /// <summary>Moves order target slots up if there is space to do so.</summary>
@@ -2144,7 +2147,7 @@ namespace Idmr.Platform
             for (int i = 0; i < carr.Length; i++)
             {
                 char c = carr[i];
-                if (firstCase == true)
+                if (firstCase)
                 {
                     if (char.IsLetter(c))
                         firstCase = false;
@@ -2330,12 +2333,12 @@ namespace Idmr.Platform
         }
 
         /// <summary>Returns an ArgumentException formatted for MissionLimits based on the inputs</summary>
-        /// <param name="toTie"><i>true</i> for TIE95, <i>false</i> for XvT</param>
-        /// <param name="mode"><i>true</i> for FlightGroups, <i>false</i> for Messages</param>
+        /// <param name="toTie"><b>true</b> for TIE95, <b>false</b> for XvT</param>
+        /// <param name="isFG"><b>true</b> for FlightGroups, <b>false</b> for Messages</param>
         /// <param name="limit">The appropriate Mission Limit value</param>
-        static ArgumentException maxException(bool toTie, bool mode, int limit)
+        static ArgumentException maxException(bool toTie, bool isFG, int limit)
         {
-            string s = (mode ? "FlightGroups" : "In-Flight Messages");
+            string s = (isFG ? "FlightGroups" : "In-Flight Messages");
             return new ArgumentException("Number of " + s + " exceeds " + (toTie ? "TIE95" : "XvT")
                 + " maximum (" + limit + "). Remove " + s + " before converting");
         }
@@ -2361,5 +2364,6 @@ namespace Idmr.Platform
             + (mode == 0 ? "Status" : (mode == 1 ? "Formation" : (mode == 2 ? "Abort condition" : (mode == 3 ? "Order" : "CraftType"))))
             + " detected. FG " + index + ", " + (mode == 3 ? "Order: " : "") + id);
         }
+        #endregion
     }
 }
