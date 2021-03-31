@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [FIX YOGEME#55] FG goal amounts when converting XW [JB]
  * v5.3, 210328
  * [FIX YOGEME#53] removed zoom multiplier in XW-XWA BRF MoveMap event
  * [FIX] Strip out Title strings from XW Description conversion
@@ -789,17 +790,17 @@ namespace Idmr.Platform
                             case 2: cond = 12; amount = 0; break; //100% complete mission
                             case 3: cond = 4; amount = 0; break; //100% captured
                             case 4: cond = 6; amount = 0; break; //100% be boarded
-                            case 5: cond = 2; amount = 6; break; //special craft destroyed
-                            case 6: cond = 12; amount = 6; break; //special craft complete mission
-                            case 7: cond = 4; amount = 6; break; //special craft captured
-                            case 8: cond = 6; amount = 6; break; //special craft be boarded
-                            case 9: cond = 2; amount = 2; break; //50% destroyed
-                            case 10: cond = 12; amount = 2; break; //50% complete mission
-                            case 11: cond = 4; amount = 2; break; //50% captured
-                            case 12: cond = 6; amount = 2; break; //50% be boarded
+                            case 5: cond = 2; amount = 4; break; //special craft destroyed
+                            case 6: cond = 12; amount = 4; break; //special craft complete mission
+                            case 7: cond = 4; amount = 4; break; //special craft captured
+                            case 8: cond = 6; amount = 4; break; //special craft be boarded
+                            case 9: cond = 2; amount = 1; break; //50% destroyed
+                            case 10: cond = 12; amount = 1; break; //50% complete mission
+                            case 11: cond = 4; amount = 1; break; //50% captured
+                            case 12: cond = 6; amount = 1; break; //50% be boarded
                             case 13: cond = 5; amount = 0; break; //100% inspected
-                            case 14: cond = 5; amount = 6; break; //special craft inspected
-                            case 15: cond = 5; amount = 2; break; //50% inspected
+                            case 14: cond = 5; amount = 4; break; //special craft inspected
+                            case 15: cond = 5; amount = 1; break; //50% inspected
                             case 16: cond = 1; amount = 0; break; //100% arrive
                         }
                         tie.FlightGroups[i].Goals.PrimaryCondition = cond;
