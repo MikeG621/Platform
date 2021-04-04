@@ -2,14 +2,18 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.3
-Date: 2021.03.28
+Version: 5.4
+Date: 2021.04.04
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.4, 04 Apr 2021
+ - (Converter) FG Goal amounts fixed when converting from XW [YOGEME#55] (Random Starfighter, JB)
+ - (Converter) Fixed an exception message
+ 
 v5.3, 28 Mar 2021
  - Several items around X-wing Briefing conversions, most related to YOGEME#51 and YOGEME#53
  -- (Converter) Fixed Description, since it wasn't always splitting out hints properly

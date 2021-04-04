@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.3
+ * Version: 5.4
  */
 
 /* CHANGELOG
+ * v5.4, 210404
+ * [FIX] TIE goal check exception type
  * [FIX YOGEME#55] FG goal amounts when converting XW [JB]
  * v5.3, 210328
  * [FIX YOGEME#53] removed zoom multiplier in XW-XWA BRF MoveMap event
@@ -482,17 +484,17 @@ namespace Idmr.Platform
                 tie.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
                 #endregion ArrDep
                 #region Goals
-                if ((miss.FlightGroups[i].Goals[0].Enabled) && miss.FlightGroups[i].Goals[0].Team == 0)
+                if (miss.FlightGroups[i].Goals[0].Enabled && miss.FlightGroups[i].Goals[0].Team == 0)
                 {
                     tie.FlightGroups[i].Goals[0] = miss.FlightGroups[i].Goals[0][1];
                     tie.FlightGroups[i].Goals[1] = miss.FlightGroups[i].Goals[0][2];
                 }
-                if ((miss.FlightGroups[i].Goals[1].Enabled) && miss.FlightGroups[i].Goals[1].Team == 0)
+                if (miss.FlightGroups[i].Goals[1].Enabled && miss.FlightGroups[i].Goals[1].Team == 0)
                 {
                     tie.FlightGroups[i].Goals[2] = miss.FlightGroups[i].Goals[1][1];
                     tie.FlightGroups[i].Goals[3] = miss.FlightGroups[i].Goals[1][2];
                 }
-                if ((miss.FlightGroups[i].Goals[2].Enabled) && miss.FlightGroups[i].Goals[2].Team == 0)
+                if (miss.FlightGroups[i].Goals[2].Enabled && miss.FlightGroups[i].Goals[2].Team == 0)
                 {
                     tie.FlightGroups[i].Goals[6] = miss.FlightGroups[i].Goals[2][1];
                     tie.FlightGroups[i].Goals[7] = miss.FlightGroups[i].Goals[2][2];
@@ -785,6 +787,7 @@ namespace Idmr.Platform
                         byte amount = 0;
                         switch (miss.FlightGroups[i].Objective)
                         {
+                            // Reminder: Goal amounts for TIE doesn't use normal trigger values
                             case 0: cond = 0; amount = 0; break; //none   (XWING95 goal conditions)
                             case 1: cond = 2; amount = 0; break; //100% destroyed
                             case 2: cond = 12; amount = 0; break; //100% complete mission
@@ -805,7 +808,6 @@ namespace Idmr.Platform
                         }
                         tie.FlightGroups[i].Goals.PrimaryCondition = cond;
                         tie.FlightGroups[i].Goals.PrimaryAmount = amount;
-                        //tieGoalsCheck("FlightGroup " + i, tie.FlightGroups[i].Goals);   //Don't need to convert the amounts, we've set them directly.
                     }
                 }
                 else  //For objects...
@@ -1291,7 +1293,6 @@ namespace Idmr.Platform
                         xvt.FlightGroups[i].Goals[0].Argument = 0;  //Must be completed
                         xvt.FlightGroups[i].Goals[0].Amount = amount;
                         xvt.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
-                        //tieGoalsCheck("FlightGroup " + i, xvt.FlightGroups[i].Goals);   //Don't need to convert the amounts, we've set them directly.
 
                         if (i == playerMothership)
                             role = "1COM";
@@ -1799,7 +1800,6 @@ namespace Idmr.Platform
                         xwa.FlightGroups[i].Goals[0].Amount = amount;
                         xwa.FlightGroups[i].Goals[0].Team = 0;
                         xwa.FlightGroups[i].Goals[0].Enabled = true;
-                        //tieGoalsCheck("FlightGroup " + i, xwa.FlightGroups[i].Goals);   //Don't need to convert the amounts, we've set them directly.
 
                         if (i == playerMothership || role > 0)   //Mothership is role 0.
                         {
@@ -2327,7 +2327,7 @@ namespace Idmr.Platform
             {
                 if (i == 4) continue;   // Secret goal, not converted
                 if (goals[i] > 24) throw triggerException(0, label + " Goal " + i, Xwa.Strings.Trigger[goals[i]]);
-                if (goals[i + 1] > 6) throw triggerException(0, label + " Goal " + i, Xwa.Strings.Amount[goals[i + 1]]);
+                if (goals[i + 1] > 6) throw triggerException(3, label + " Goal " + i, Xwa.Strings.Amount[goals[i + 1]]);
                 else if (goals[i + 1] == 1) goals[i + 1] = 0;   // 75 to 100
                 else if (goals[i + 1] > 1) goals[i + 1] -= 2;   // 25 to 50, slide everything after
             }
