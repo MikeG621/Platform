@@ -143,7 +143,7 @@ namespace Idmr.Platform.Tie
 			{
 				if (Command == 0) return "None";
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
-				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x17 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
+				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x15 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
 				{
 					string s = orderTargetString(Target1, Target1Type);
 					string s2 = orderTargetString(Target2, Target2Type);

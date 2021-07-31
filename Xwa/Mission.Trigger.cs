@@ -116,7 +116,7 @@ namespace Idmr.Platform.Xwa
 							trig += "FG:" + Variable;
 							break;
 						case 2:
-							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable + 1);
+							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable);
 							break;
 						case 3:
 							trig += "Ship class " + BaseStrings.SafeString(Strings.ShipClass, Variable);
@@ -156,7 +156,7 @@ namespace Idmr.Platform.Xwa
                             trig += "all except FG:" + Variable;
                             break;
                         case 16:
-                            trig += "all except " + BaseStrings.SafeString(Strings.CraftType, Variable + 1) + "s";
+                            trig += "all except " + BaseStrings.SafeString(Strings.CraftType, Variable) + "s";
                             break;
                         case 17:
                             trig += "all except " + BaseStrings.SafeString(Strings.ShipClass, Variable);
