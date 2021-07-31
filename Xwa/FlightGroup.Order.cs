@@ -118,7 +118,7 @@ namespace Idmr.Platform.Xwa
 						s = "FG:" + target;
 						break;
 					case 2:
-						s = BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
+						s = BaseStrings.SafeString(Strings.CraftType, target) + "s";
 						break;
 					case 3:
 						s = BaseStrings.SafeString(Strings.ShipClass, target);
@@ -160,7 +160,7 @@ namespace Idmr.Platform.Xwa
                         s = "Not FG:" + target;
                         break;
                     case 16:
-                        s = "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target + 1);
+                        s = "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target);
                         break;
                     case 17:
                         s = "Not ship class " + BaseStrings.SafeString(Strings.ShipClass, target);
@@ -209,7 +209,7 @@ namespace Idmr.Platform.Xwa
 			{
 				if (Command == 0) return "None";
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
-				if ((Command >= 7 && Command <= 18) || (Command >= 23 && Command <= 27) || Command == 31 || Command == 32 || Command == 37)	//all orders where targets are important
+				if ((Command >= 7 && Command <= 18) || (Command >= 21 && Command <= 27) || Command == 31 || Command == 32 || Command == 37) //all orders where targets are important
 				{
 					string s = orderTargetString(Target1, Target1Type);
 					string s2 = orderTargetString(Target2, Target2Type);
@@ -227,6 +227,10 @@ namespace Idmr.Platform.Xwa
 						if (T3AndOrT4) order += " or " + s2;
 						else order += " if " + s2;
 					}
+				}
+				else if (Command == 50)  // Hyper to Region
+				{
+					order += " REG:" + this.Variable1;
 				}
 				return order;
 			}
