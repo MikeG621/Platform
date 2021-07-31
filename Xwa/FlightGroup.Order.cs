@@ -206,7 +206,7 @@ namespace Idmr.Platform.Xwa
 			{
 				if (Command == 0) return "None";
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
-				if ((Command >= 7 && Command <= 18) || (Command >= 23 && Command <= 27) || Command == 31 || Command == 32 || Command == 37)	//all orders where targets are important
+				if ((Command >= 7 && Command <= 18) || (Command >= 21 && Command <= 27) || Command == 31 || Command == 32 || Command == 37) //all orders where targets are important
 				{
 					string s = orderTargetString(Target1, Target1Type);
 					string s2 = orderTargetString(Target2, Target2Type);
