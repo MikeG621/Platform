@@ -1277,6 +1277,8 @@ A maximum of 255 translates to 24:50 waiting time.
 	Var1	Position (to be expanded on at a later date)
 	Var2	Attack Player (0/1)
 0B	Disable
+	Var1	Meaningless?		[Might be weapon restriction]
+	Var2	Meaningless?		[Might be weapon restriction]
 0C	Board and Give Cargo
 	Var1	Docking Time ( 0-14 = seconds, 15 = 25s, 16 = 30s, etc)
 	Var2	Number of Dockings

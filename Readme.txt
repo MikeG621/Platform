@@ -10,6 +10,11 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - Some fixes from RandomStarfighter (JB)
+   - (All) SS Patrol and SS Await Return order strings now show target info
+   - (XWA) Hyper to Region order text updated with token
+   - (XWA) Fixed some CraftType errors in Order and Trigger strings
+   
 v5.4, 04 Apr 2021
  - (Converter) FG Goal amounts fixed when converting from XW [YOGEME#55] (Random Starfighter, JB)
  - (Converter) Fixed an exception message
