@@ -115,7 +115,7 @@ namespace Idmr.Platform.Xwa
 						s = "FG:" + target;
 						break;
 					case 2:
-						s = BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
+						s = BaseStrings.SafeString(Strings.CraftType, target) + "s";
 						break;
 					case 3:
 						s = BaseStrings.SafeString(Strings.ShipClass, target);
@@ -157,7 +157,7 @@ namespace Idmr.Platform.Xwa
                         s = "Not FG:" + target;
                         break;
                     case 16:
-                        s = "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target + 1);
+                        s = "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target);
                         break;
                     case 17:
                         s = "Not ship class " + BaseStrings.SafeString(Strings.ShipClass, target);
