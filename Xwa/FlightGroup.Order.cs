@@ -203,7 +203,7 @@ namespace Idmr.Platform.Xwa
 			}
 
 			/// <summary>Returns a representative string of the Order</summary>
-			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required</remarks>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b>, Teams are identified as <b>"TM:#"</b> and Regions are <b>"REG:#"</b> for later substitution if required</remarks>
 			/// <returns>Description of the order and targets if applicable, otherwise <b>"None"</b></returns>
 			public override string ToString()
 			{
@@ -230,7 +230,7 @@ namespace Idmr.Platform.Xwa
 				}
 				else if (Command == 50)  // Hyper to Region
 				{
-					order += " REG:" + this.Variable1;
+					order += " REG:" + Variable1;
 				}
 				return order;
 			}
