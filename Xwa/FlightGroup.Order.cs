@@ -225,6 +225,10 @@ namespace Idmr.Platform.Xwa
 						else order += " if " + s2;
 					}
 				}
+				else if (Command == 50)  // Hyper to Region
+				{
+					order += " REG:" + this.Variable1;
+				}
 				return order;
 			}
 
