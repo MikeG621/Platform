@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.0+
+ * Version: 5.5
  */
 
 /* CHANGELOG
+ * v5.5, 2108001
  * [FIX] CraftType errors in strings [JB]
  * v5.0, 201004
  * [UPD] GG references prepped for string replacement [JB]

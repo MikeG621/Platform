@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.0+
+ * Version: 5.5
  */
 
 /* CHANGELOG
+ * v5.5, 2108001
  * [UPD] SS Patrol and SS Await Return order strings now show target info [JB]
  * [FIX] CraftType errors in strings [JB]
  * [UPD] Hyper to Region order text updated with token [JB]

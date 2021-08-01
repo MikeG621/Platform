@@ -2,14 +2,15 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.4
-Date: 2021.04.04
+Version: 5.5
+Date: 2021.08.01
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.5, 01 Aug 2021
  - Some fixes from RandomStarfighter (JB)
    - (All) SS Patrol and SS Await Return order strings now show target info
    - (XWA) Hyper to Region order text updated with token
@@ -280,7 +281,7 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2020 Michael Gaisser
+Copyright © 2009-2021 Michael Gaisser
 This library file and related files are licensed under the Mozilla Public License
 v2.0 or later.  See MPL.txt for further details.
 
