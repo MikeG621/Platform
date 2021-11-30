@@ -99,7 +99,7 @@ namespace Idmr.Platform.Tie
 				{
 					trig = BaseStrings.SafeString(Strings.Amount, Amount);
 					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
-					switch (VariableType)
+					switch (VariableType) //TODO: should make an enum for this...
 					{
 						case 1:
 							trig += "FG:" + Variable;

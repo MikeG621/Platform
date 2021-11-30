@@ -644,7 +644,6 @@ namespace Idmr.Platform.Xwa
 									"No Escape Pods/Ejections",
 									"No Cargo Pods",
 									"Not Inspected",
-									"Not Identified",
 									"Inspected",
 									"Identified",
 									"Limited Targetability"

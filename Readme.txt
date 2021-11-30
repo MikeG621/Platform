@@ -2,13 +2,16 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.5
-Date: 2021.08.01
+Version: 5.5.1
+Date: 2021.11.29
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
+
+v5.5.1, 29 Nov 2021
+ - (XWA.Strings) Removed "Not Identified" from Status
 
 v5.5, 01 Aug 2021
  - Some fixes from RandomStarfighter (JB)
@@ -272,7 +275,7 @@ v2.0 - 25 May 2012
 ==========
 Additional Information
 
-Idmr.Common.dll (v1.1 or later) is a required reference
+Idmr.Common.dll (v1.3 or later) is a required reference
 
 Mission*.txt files contain file structure information per platform
 
