@@ -44,6 +44,20 @@ namespace Idmr.Platform.Xvt
 				_items = new byte[15];
 				_items[1] = 10;
 			}
+			/// <summary>Constructs a new Goal from an existing Goal. If null, a blank Goal is created.</summary>
+			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)")</remarks>
+			public Goal(Goal other)
+			{
+				_items = new byte[15];
+				_items[1] = 10;
+				if (other != null)
+				{
+					Array.Copy(other._items, _items, _items.Length);
+					_incompleteText = other._incompleteText;
+					_completeText = other._completeText;
+					_failedText = other._failedText;
+				}
+			}
 			
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 15</param>
