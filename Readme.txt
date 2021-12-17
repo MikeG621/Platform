@@ -10,6 +10,8 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - (XvT) New constructors for FG.Goal, FG.Order and Mission.Trigger
+
 v5.5.1, 29 Nov 2021
  - (XWA.Strings) Removed "Not Identified" from Status
 
