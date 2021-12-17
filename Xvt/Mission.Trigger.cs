@@ -32,6 +32,14 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[4]) { }
 
+			/// <summary>Constructs a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			public Trigger(Trigger other)
+			{
+				_items = new byte[4];
+				if (other != null)
+					Array.Copy(other._items, _items, _items.Length);
+			}
+
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, minimum Length of 4</param>
 			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>

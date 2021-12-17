@@ -43,6 +43,19 @@ namespace Idmr.Platform.Xvt
 				_items[1] = 10;	// Throttle
 				_items[10] = _items[16] = 1;	// AndOrs
 			}
+			/// <summary>Constructs a new Order from an existing Order. If null, a blank Order is created.</summary>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b></remarks>
+			public Order(Order other)
+			{
+				_items = new byte[19];
+				_items[1] = 10;	// Throttle
+				_items[10] = _items[16] = 1;    // AndOrs
+				if (other != null)
+				{
+					Array.Copy(other._items, _items, _items.Length);
+					_designation = other._designation;
+				}
+			}
 			
 			/// <summary>Initlializes a new Order from raw data</summary>
 			/// <remarks>If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
