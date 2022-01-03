@@ -2,15 +2,16 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.5.1
-Date: 2021.11.29
+Version: 5.6
+Date: 2022.01.03
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
- - (XvT) New constructors for FG.Goal, FG.Order and Mission.Trigger
+v5.6, 03 Jan 2022
+ - (XvT) New constructors for FG.Goal, FG.Order and Mission.Trigger (JB)
 
 v5.5.1, 29 Nov 2021
  - (XWA.Strings) Removed "Not Identified" from Status
@@ -286,7 +287,7 @@ Programmer's reference can be found in help/Idmr.Platform.chm
 ==========
 Copyright Information
 
-Copyright © 2009-2021 Michael Gaisser
+Copyright © 2009-2022 Michael Gaisser
 This library file and related files are licensed under the Mozilla Public License
 v2.0 or later.  See MPL.txt for further details.
 

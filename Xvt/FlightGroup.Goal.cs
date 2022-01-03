@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.0+
+ * Version: 5.6
  */
 
 /* CHANGELOG
+ * v5.6, 220103
  * [UPD] New constructor [JB]
  * v5.0, 201004
  * [UPD] Enabled, Team, Unknowns10-15 replaced with Get/SetEnabledForTeam()
@@ -45,8 +46,9 @@ namespace Idmr.Platform.Xvt
 				_items = new byte[15];
 				_items[1] = 10;
 			}
-			/// <summary>Constructs a new Goal from an existing Goal. If null, a blank Goal is created.</summary>
-			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)")</remarks>
+			/// <summary>Initializes a new Goal from an existing Goal.</summary>
+			/// <param name="other">Existing Goal to clone. If <b>null</b>, Goal will be blank.</param>
+			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)") if <paramref name="other"/> is <b>null</b>.</remarks>
 			public Goal(Goal other)
 			{
 				_items = new byte[15];
@@ -88,7 +90,7 @@ namespace Idmr.Platform.Xvt
 			/// <returns>Description of the goal if enabled, otherwise <b>"None"</b></returns>
 			public override string ToString()
 			{
-				string goal = "";
+				string goal;
 				if (Condition != 0 && Condition != 10)
 				{
 					goal = Strings.Amount[Amount] + " of Flight Group ";
@@ -134,8 +136,10 @@ namespace Idmr.Platform.Xvt
 			}
 
 			/// <summary>Gets whether the goal is enabled for the specified team.</summary>
+			/// <param name="index">Team index</param>
+			/// <returns><b>true</b> if the goal applies to the given team.</returns>
 			/// <remarks>The EnabledForTeam array encompasses 10 elements ranging from offsets 0x4 to 0xD, which formerly contained Unknown10 through Unknown 15.</remarks>
-			/// <exception cref="ArgumentOutOfRangeException">Team index is outside the bounds of the array.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Team index is not 0-9.</exception>
 			public bool GetEnabledForTeam(int index)
 			{
 				if(index < 0 || index >= 10)
@@ -143,7 +147,9 @@ namespace Idmr.Platform.Xvt
 				return (_items[4 + index] != 0);
 			}
 			/// <summary>Sets whether the goal is enabled for the specified team.</summary>
-			/// <exception cref="ArgumentOutOfRangeException">Team index is outside the bounds of the array.</exception>
+			/// <param name="index">Team index.</param>
+			/// <param name="state">The value to apply.</param>
+			/// <exception cref="ArgumentOutOfRangeException">Team index is not 0-9.</exception>
 			public void SetEnabledForTeam(int index, bool state)
 			{
 				if(index < 0 || index >= 10)

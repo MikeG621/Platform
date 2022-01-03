@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.6
  */
 
 /* CHANGELOG
+ * v5.6, 220103
  * [UPD] New constructor [JB]
  * v4.0, 200809
  * [UPD] SafeString implemented [JB]
@@ -33,7 +34,8 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[4]) { }
 
-			/// <summary>Constructs a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			/// <summary>Initializes a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			/// <param name="other">Existing Trigger to clone. If <b>null</b>, Trigger will be blank.</param>
 			public Trigger(Trigger other)
 			{
 				_items = new byte[4];
