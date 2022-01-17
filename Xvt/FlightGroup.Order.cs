@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.5
+ * Version: 5.6
  */
 
 /* CHANGELOG
+ * v5.6, 220103
+ * [UPD] New constructor [JB]
  * v5.5, 2108001
  * [UPD] SS Patrol and SS Await Return order strings now show target info [JB]
  * v4.0, 200809
@@ -43,7 +45,9 @@ namespace Idmr.Platform.Xvt
 				_items[1] = 10;	// Throttle
 				_items[10] = _items[16] = 1;	// AndOrs
 			}
-			/// <summary>Constructs a new Order from an existing Order. If null, a blank Order is created.</summary>
+			/// <summary>Initializes a new Order from an existing Order.</summary>
+			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
 			public Order(Order other) : this()
 			{
 				if (other != null)
