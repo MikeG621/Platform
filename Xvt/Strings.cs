@@ -562,6 +562,34 @@ namespace Idmr.Platform.Xvt
 												"Team mission outcome is victory",
 												"Team mission outcome is failure"
 									};
+
+		static readonly string[] _orderDesignation = {
+			"Attack",
+			"Base Attack",
+			"Base Defense",
+			"Convoy Attack",
+			"Convoy Atk",
+			"Convoy Escort",
+			"Defend",
+			"Defense",
+			"Defence",
+			"Disable",
+			"Dogfight",
+			"Escort",
+			"Heavy Attack",
+			"Hvy Attack",
+			"Hvy Strike",
+			"Inspection",
+			"Intercept",
+			"Patrol",
+			"Protect",
+			"Recon",
+			"Strike",
+			"Strike Attack",
+			"Strike Escort",
+			"Superiority",
+			"Suppression",
+		};
         #endregion
 
 		/// <summary>Replaces <see cref="CraftType"/> and <see cref="CraftAbbrv"/> with custom arrays, or restores defaults.</summary>
@@ -644,5 +672,8 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Gets of copy of the StopArrivingWhen enum used in arr/dep</summary>
 		/// <remarks>Array is Length = 4</remarks>
 		public static string[] StopArrivingWhen { get { return (string[])_stopArrivingWhen.Clone(); } }
+		/// <summary>Gets of copy of the order Designation strings displayed for a team's flightgroup roster.</summary>
+		/// <remarks>These are common strings found in existing missions. Custom strings may be used.</remarks>
+		public static string[] OrderDesignation { get { return (string[])_orderDesignation.Clone(); } }
 	}
 }
