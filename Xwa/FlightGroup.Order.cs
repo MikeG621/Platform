@@ -55,8 +55,9 @@ namespace Idmr.Platform.Xwa
 				_items[10] = _items[16] = 1;	// AndOrs
 				initialize();
 			}
-
-			/// <summary>Constructs a new Order from an existing Order. If null, a blank Order is created.</summary>
+			/// <summary>Initializes a new Order from an existing Order.</summary>
+			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
 			public Order(Order other) : this()
 			{
 				if (other != null)

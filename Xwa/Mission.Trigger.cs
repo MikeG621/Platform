@@ -43,7 +43,8 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[6]) { }
 
-			/// <summary>Constructs a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			/// <summary>Initializes a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			/// <param name="other">Existing Trigger to clone. If <b>null</b>, Trigger will be blank.</param>
 			public Trigger(Trigger other) : this()
 			{
 				if (other != null)

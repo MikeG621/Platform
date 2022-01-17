@@ -44,8 +44,9 @@ namespace Idmr.Platform.Xwa
 				_items = new byte[16];
 				_items[1] = 10;
 			}
-
-			/// <summary>Constructs a new Goal from an existing Goal. If null, a blank Goal is created.</summary>
+			/// <summary>Initializes a new Goal from an existing Goal.</summary>
+			/// <param name="other">Existing Goal to clone. If <b>null</b>, Goal will be blank.</param>
+			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)") if <paramref name="other"/> is <b>null</b>.</remarks>
 			public Goal(Goal other) : this()
 			{
 				if (other != null)
