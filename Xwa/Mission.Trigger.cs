@@ -43,6 +43,13 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[6]) { }
 
+			/// <summary>Constructs a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			public Trigger(Trigger other) : this()
+			{
+				if (other != null)
+					Array.Copy(other._items, _items, _items.Length);
+			}
+
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, minimum Length of 4</param>
 			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>

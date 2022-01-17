@@ -55,6 +55,20 @@ namespace Idmr.Platform.Xwa
 				_items[10] = _items[16] = 1;	// AndOrs
 				initialize();
 			}
+
+			/// <summary>Constructs a new Order from an existing Order. If null, a blank Order is created.</summary>
+			public Order(Order other) : this()
+			{
+				if (other != null)
+				{
+					Array.Copy(other._items, _items, _items.Length);
+					_customText = other.CustomText;
+					for (int i = 0; i < _waypoints.Length; i++)
+						_waypoints[i] = new Waypoint(other._waypoints[i]);
+					for (int i = 0; i < _skipTriggers.Length; i++)
+						_skipTriggers[i] = new Mission.Trigger(other._skipTriggers[i]);
+				}
+			}
 			
 			/// <summary>Initlializes a new Order from raw data</summary>
 			/// <remarks><see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b><br/>
