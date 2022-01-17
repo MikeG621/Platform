@@ -45,11 +45,8 @@ namespace Idmr.Platform.Xvt
 				_items[1] = 10;
 			}
 			/// <summary>Constructs a new Goal from an existing Goal. If null, a blank Goal is created.</summary>
-			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)")</remarks>
-			public Goal(Goal other)
+			public Goal(Goal other) : this()
 			{
-				_items = new byte[15];
-				_items[1] = 10;
 				if (other != null)
 				{
 					Array.Copy(other._items, _items, _items.Length);

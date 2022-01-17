@@ -33,9 +33,8 @@ namespace Idmr.Platform.Xvt
 			public Trigger() : base(new byte[4]) { }
 
 			/// <summary>Constructs a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
-			public Trigger(Trigger other)
+			public Trigger(Trigger other) : this()
 			{
-				_items = new byte[4];
 				if (other != null)
 					Array.Copy(other._items, _items, _items.Length);
 			}
