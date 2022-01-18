@@ -27,6 +27,13 @@ namespace Idmr.Platform.Xwa
 		{
 			/// <summary>Default constructor</summary>
 			public Waypoint() : base(new short[5]) { /* do nothing */ }
+
+			/// <summary>Constructs a new Waypoint from an existing Waypoint. If null, a blank Waypoint is created.</summary>
+			public Waypoint(Waypoint other) : this()
+			{
+				if (other != null)
+					Array.Copy(other._items, _items, _items.Length);
+			}
 			
 			/// <summary>Initialize a new Waypoint using raw data</summary>
 			/// <remarks><i>raw</i> must have Length of 4 or 5</remarks>

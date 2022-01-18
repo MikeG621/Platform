@@ -48,11 +48,8 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Initializes a new Order from an existing Order.</summary>
 			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
 			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
-			public Order(Order other)
+			public Order(Order other) : this()
 			{
-				_items = new byte[19];
-				_items[1] = 10;	// Throttle
-				_items[10] = _items[16] = 1;    // AndOrs
 				if (other != null)
 				{
 					Array.Copy(other._items, _items, _items.Length);

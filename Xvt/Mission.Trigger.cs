@@ -36,9 +36,8 @@ namespace Idmr.Platform.Xvt
 
 			/// <summary>Initializes a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
 			/// <param name="other">Existing Trigger to clone. If <b>null</b>, Trigger will be blank.</param>
-			public Trigger(Trigger other)
+			public Trigger(Trigger other) : this()
 			{
-				_items = new byte[4];
 				if (other != null)
 					Array.Copy(other._items, _items, _items.Length);
 			}

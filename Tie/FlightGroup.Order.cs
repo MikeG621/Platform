@@ -42,6 +42,14 @@ namespace Idmr.Platform.Tie
 				_items[10] = 1;
 				_items[16] = 1;
 			}
+			/// <summary>Initializes a new Order from an existing Order.</summary>
+			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
+			public Order(Order other) : this()
+			{
+				if (other != null)
+					Array.Copy(other._items, _items, _items.Length);
+			}
 			
 			/// <summary>Initializes the order from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>

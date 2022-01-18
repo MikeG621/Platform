@@ -1104,9 +1104,15 @@ namespace Idmr.Platform.Xwa
                     foreach (Trigger trig in goal.Triggers)
                         trig.TransformFGReferences(fgIndex, -1, false);
 
-            foreach (Message msg in Messages)
-                foreach (Trigger trig in msg.Triggers)
-                    trig.TransformFGReferences(fgIndex, -1, true);
+			foreach (Message msg in Messages)
+			{
+				foreach (Trigger trig in msg.Triggers)
+					trig.TransformFGReferences(fgIndex, -1, true);
+				if (msg.OriginatingFG == fgIndex)
+					msg.OriginatingFG = 0;
+				else if (msg.OriginatingFG > fgIndex)
+					msg.OriginatingFG--;
+			}
 
             //XWA Briefing does not use FG indexes.
 

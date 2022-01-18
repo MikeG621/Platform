@@ -44,6 +44,19 @@ namespace Idmr.Platform.Xwa
 				_items = new byte[16];
 				_items[1] = 10;
 			}
+			/// <summary>Initializes a new Goal from an existing Goal.</summary>
+			/// <param name="other">Existing Goal to clone. If <b>null</b>, Goal will be blank.</param>
+			/// <remarks><see cref="Condition"/> is set to <b>10</b> ("never (FALSE)") if <paramref name="other"/> is <b>null</b>.</remarks>
+			public Goal(Goal other) : this()
+			{
+				if (other != null)
+				{
+					Array.Copy(other._items, _items, _items.Length);
+					_incompleteText = other._incompleteText;
+					_completeText = other._completeText;
+					_failedText = other._failedText;
+				}
+			}
 
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 16</param>

@@ -55,6 +55,21 @@ namespace Idmr.Platform.Xwa
 				_items[10] = _items[16] = 1;	// AndOrs
 				initialize();
 			}
+			/// <summary>Initializes a new Order from an existing Order.</summary>
+			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
+			public Order(Order other) : this()
+			{
+				if (other != null)
+				{
+					Array.Copy(other._items, _items, _items.Length);
+					_customText = other.CustomText;
+					for (int i = 0; i < _waypoints.Length; i++)
+						_waypoints[i] = new Waypoint(other._waypoints[i]);
+					for (int i = 0; i < _skipTriggers.Length; i++)
+						_skipTriggers[i] = new Mission.Trigger(other._skipTriggers[i]);
+				}
+			}
 			
 			/// <summary>Initlializes a new Order from raw data</summary>
 			/// <remarks><see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b><br/>

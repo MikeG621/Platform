@@ -30,6 +30,14 @@ namespace Idmr.Platform.Tie
 		{
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[4]) { }
+
+			/// <summary>Initializes a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
+			/// <param name="other">Existing Trigger to clone. If <b>null</b>, Trigger will be blank.</param>
+			public Trigger(Trigger other) : this()
+			{
+				if (other != null)
+					Array.Copy(other._items, _items, _items.Length);
+			}
 			
 			/// <summary>Initializes a new Trigger from raw data</summary>
 			/// <param name="raw">Raw data, minimum Length of 4</param>
