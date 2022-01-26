@@ -307,7 +307,7 @@ namespace Idmr.Platform.Xwing
 										"Flies to Waypoint 1 and rendezvouses with other craft|Meaningless|Meaningless",
 										"Disabled|Meaningless|Meaningless"
 									};
-		static readonly string[] _formation = { "Vic",
+		static readonly string[] _formation = { "Double Vic",
 										"Finger Four",
 										"Line Astern",
 										"Line Abreast",
@@ -317,8 +317,8 @@ namespace Idmr.Platform.Xwing
 										"Diamond",
 										"Stacked",
 										"Spread",
-										"Hi-Lo",
-										"Spiral",
+										"Undefined 1",
+										"Undefined 2",
 									};
 		static readonly string[] _formationObject = { "Floor (X-Y)",
 										"Side (Y-Z)",
