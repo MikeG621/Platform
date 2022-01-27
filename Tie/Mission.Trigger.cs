@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [NEW] cloning ctor [JB]
  * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]
@@ -68,7 +69,6 @@ namespace Idmr.Platform.Tie
 			static void checkValues(Trigger t)
 			{
 				string error = "";
-				string msg;
 				if (t.Condition > 24) error = "Condition (" + t.Condition + ")";
 				byte tempVar = t.Variable;
 				if (t.VariableType == 10)
@@ -76,7 +76,7 @@ namespace Idmr.Platform.Tie
 					t.VariableType = 0;
 					t.Variable = 0;
 				}
-				CheckTarget(t.VariableType, ref tempVar, out msg);
+				CheckTarget(t.VariableType, ref tempVar, out string msg);
 				t.Variable = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + msg;
 				if (error != "") throw new ArgumentException("Invalid values detected: " + error + ".");

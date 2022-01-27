@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [NEW] cloning ctor [JB]
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -25,20 +26,21 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Object for a single Waypoint</summary>
 		[Serializable] public class Waypoint : BaseWaypoint
 		{
-			/// <summary>Default constructor</summary>
+			/// <summary>Default constructor.</summary>
 			public Waypoint() : base(new short[5]) { /* do nothing */ }
 
 			/// <summary>Constructs a new Waypoint from an existing Waypoint. If null, a blank Waypoint is created.</summary>
+			/// <param name="other">Existing Waypoint to clone. If <b>null</b>, Waypoint will be blank.</param>
 			public Waypoint(Waypoint other) : this()
 			{
 				if (other != null)
 					Array.Copy(other._items, _items, _items.Length);
 			}
 			
-			/// <summary>Initialize a new Waypoint using raw data</summary>
-			/// <remarks><i>raw</i> must have Length of 4 or 5</remarks>
-			/// <param name="raw">Raw data</param>
-			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length</exception>
+			/// <summary>Initialize a new Waypoint using raw data.</summary>
+			/// <remarks><paramref name="raw"/> must have Length of 4 or 5.</remarks>
+			/// <param name="raw">Raw data.</param>
+			/// <exception cref="ArgumentException">Incorrect <paramref name="raw"/> length.</exception>
 			public Waypoint(short[] raw)
 			{
 				if (raw.Length == 5) _items = raw;
@@ -57,12 +59,12 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Converts a Waypoint for TIE</summary>
 			/// <remarks><see cref="Region"/> is lost in the conversion</remarks>
 			/// <param name="wp">The Waypoint to convert</param>
-			/// <returns>A copy of <i>wp</i> for use in TIE95</returns>
+			/// <returns>A copy of <paramref name="wp"/> for use in TIE95</returns>
 			public static explicit operator Tie.FlightGroup.Waypoint(Waypoint wp) { return new Tie.FlightGroup.Waypoint((short[])wp); }
 			/// <summary>Converts a Waypoint for XvT</summary>
 			/// <remarks><see cref="Region"/> is lost in the conversion</remarks>
 			/// <param name="wp">The Waypoint to convert</param>
-			/// <returns>A copy of <i>wp</i> for use in XvT</returns>
+			/// <returns>A copy of <paramref name="wp"/> for use in XvT</returns>
 			public static explicit operator Xvt.FlightGroup.Waypoint(Waypoint wp) { return new Xvt.FlightGroup.Waypoint((short[])wp); }
 			
 			/// <summary>Gets or sets the Region that the Waypoint is located in</summary>

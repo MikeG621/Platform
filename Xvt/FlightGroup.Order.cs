@@ -4,12 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.6
+ * Version: 5.6+
  */
 
 /* CHANGELOG
+ * [UPD] cloning ctor now calls base [JB]
  * v5.6, 220103
- * [UPD] New constructor [JB]
+ * [NEW] cloning ctor [JB]
  * v5.5, 2108001
  * [UPD] SS Patrol and SS Await Return order strings now show target info [JB]
  * v4.0, 200809

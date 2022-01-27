@@ -2,7 +2,7 @@
 Author: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Original Template: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2020.07.21
+Updated: 2022.01.26
 =====
 
 This is a definition for the XWING mission file (XWI) and briefing file (BRF)
@@ -672,7 +672,7 @@ Markings
 03	Green (TIE - Blue)
 
 Formation
-00	Vic
+00	Double Vic
 01	Finger Four
 02	Line Astern
 03	Line Abreast
@@ -682,8 +682,6 @@ Formation
 07	Diamond
 08	Stacked
 09	Spread
-0A	Hi-Lo
-0B	Spiral
 
 ObjectFormation   (Only for mines)
 00	Floor (X-Y plane)

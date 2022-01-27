@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.5
+ * Version: 5.5+
  */
 
 /* CHANGELOG
+ * [NEW] cloning ctor [JB]
  * v5.5, 2108001
  * [UPD] SS Patrol and SS Await Return order strings now show target info [JB]
  * v4.0, 200809
@@ -34,7 +35,7 @@ namespace Idmr.Platform.Tie
 		{
 			#region constructors
 			/// <summary>Initializes a blank order</summary>
-			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to 100%, AndOr values to <b>true</b></remarks>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to 100%, AndOr values to <b>true</b>.</remarks>
 			public Order()
 			{
 				_items = new byte[18];
@@ -51,9 +52,9 @@ namespace Idmr.Platform.Tie
 					Array.Copy(other._items, _items, _items.Length);
 			}
 			
-			/// <summary>Initializes the order from raw data</summary>
-			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <summary>Initializes the order from raw data.</summary>
+			/// <param name="raw">Raw byte data, minimum Length of 18.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length value<br/><b>-or-</b><br/>Invalid member values.</exception>
 			public Order(byte[] raw)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
@@ -62,11 +63,11 @@ namespace Idmr.Platform.Tie
 				checkValues(this);
 			}
 			
-			/// <summary>Initializes the order from raw data</summary>
-			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <summary>Initializes the order from raw data.</summary>
+			/// <param name="raw">Raw byte data, minimum Length of 18.</param>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length value<br/><b>-or-</b><br/>Invalid member values.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/>.</exception>
 			public Order(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 4", "raw");
@@ -81,7 +82,6 @@ namespace Idmr.Platform.Tie
 			static void checkValues(Order o)
 			{
 				string error = "";
-				string msg;
 				byte tempVar;
 				if (o.Command > 39) error += "Command (" + o.Command + ")";
 				if (o.Target1Type == 10) o.Target1Type = o.Target1 = 0;
@@ -90,7 +90,7 @@ namespace Idmr.Platform.Tie
 				if (o.Target4Type == 10) o.Target4Type = o.Target4 = 0;
 				if (o.Target3Type == 3 && o.Target3 > 6) { o.Target3Type = 0; o.Target3 = 0; }; //[JB] Hack to fix TIE DOS B2M3IW.TIE
 				tempVar = o.Target1;
-				Mission.CheckTarget(o.Target1Type, ref tempVar, out msg);
+				Mission.CheckTarget(o.Target1Type, ref tempVar, out string msg);
 				o.Target1 = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + "T1 " + msg;
 				tempVar = o.Target2;

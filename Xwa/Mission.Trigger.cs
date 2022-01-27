@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.5
+ * Version: 5.5+
  */
 
 /* CHANGELOG
+ * [NEW] cloning ctor [JB]
  * v5.5, 2108001
  * [FIX] CraftType errors in strings [JB]
  * v5.0, 201004

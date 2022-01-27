@@ -4,12 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.6
+ * Version: 5.6+
  */
 
 /* CHANGELOG
+ * [UPD] added ctor now calls base [JB]
  * v5.6, 220103
- * [UPD] New constructor [JB]
+ * [NEW] cloning ctor [JB]
  * v4.0, 200809
  * [UPD] SafeString implemented [JB]
  * [FIX] ToString now prevents "of of" [JB]

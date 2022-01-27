@@ -4,12 +4,13 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.6
+ * Version: 5.6+
  */
 
 /* CHANGELOG
+ * [UPD] cloning ctor now calls base [JB]
  * v5.6, 220103
- * [UPD] New constructor [JB]
+ * [NEW] cloning ctor [JB]
  * v5.0, 201004
  * [UPD] Enabled, Team, Unknowns10-15 replaced with Get/SetEnabledForTeam()
  * v3.0, 180903

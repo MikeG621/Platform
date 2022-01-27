@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.5
+ * Version: 5.5+
  */
 
 /* CHANGELOG
+ * [NEW] cloning ctor [JB]
  * v5.5, 2108001
  * [UPD] SS Patrol and SS Await Return order strings now show target info [JB]
  * [FIX] CraftType errors in strings [JB]
@@ -73,9 +74,9 @@ namespace Idmr.Platform.Xwa
 			
 			/// <summary>Initlializes a new Order from raw data</summary>
 			/// <remarks><see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b><br/>
-			/// If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
+			/// If <paramref name="raw"/> Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length</exception>
 			public Order(byte[] raw)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
@@ -87,11 +88,11 @@ namespace Idmr.Platform.Xwa
 			
 			/// <summary>Initlialize a new Order from raw data</summary>
 			/// <remarks><see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b><br/>
-			/// If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
+			/// If <paramref name="raw"/> Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length value</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
 			public Order(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");

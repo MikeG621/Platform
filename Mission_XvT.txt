@@ -2,7 +2,7 @@ XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributor: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2020.09.20
+Updated: 2022.01.26
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -849,7 +849,6 @@ Formation
 1F	Flat Hexagon
 20	Side Hexagon
 21	Front Hexagon
-22	Single Point
 
 ArrivalDifficulty
 00	All

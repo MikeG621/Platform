@@ -10,6 +10,14 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - More work from RandomStarfighter (JB)
+ -- (TIE) New ctors for FG.Order, Mission Trigger
+ -- (XvT) ctors added last rev now call the blanks prior to working
+ -- (XvT) Strings.OrderDesignation added
+ -- (XWA) New ctors for FG.Goal, FG Order, FG.Waypoint, Mission.Trigger
+ -- (XWA) Fixed a Message.OriginatingFG issue during deletes
+ -- (Xwing.Strings) Formation fixed, first is "Double Vic" and last two are Undefined.
+
 v5.6, 03 Jan 2022
  - (XvT) New constructors for FG.Goal, FG.Order and Mission.Trigger (JB)
 
