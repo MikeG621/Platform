@@ -2,14 +2,15 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.6
-Date: 2022.01.03
+Version: 5.7
+Date: 2022.01.27
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.7, 27 Jan 2022
  - More work from RandomStarfighter (JB)
  -- (TIE) New ctors for FG.Order, Mission Trigger
  -- (XvT) ctors added last rev now call the blanks prior to working

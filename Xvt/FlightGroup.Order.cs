@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.6+
+ * Version: 5.7
  */
 
 /* CHANGELOG
+ * v5.7, 220127
  * [UPD] cloning ctor now calls base [JB]
  * v5.6, 220103
  * [NEW] cloning ctor [JB]
@@ -100,11 +101,10 @@ namespace Idmr.Platform.Xvt
 			static void checkValues(Order o)
 			{
 				string error = "";
-				string msg;
 				byte tempVar;
 				if (o.Command > 39) error += "Command (" + o.Command + ")";
 				tempVar = o.Target1;
-				Mission.CheckTarget(o.Target1Type, ref tempVar, out msg);
+				Mission.CheckTarget(o.Target1Type, ref tempVar, out string msg);
 				o.Target1 = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + "T1 " + msg;
 				tempVar = o.Target2;

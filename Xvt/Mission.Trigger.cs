@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.6+
+ * Version: 5.7
  */
 
 /* CHANGELOG
+ * v5.7, 220127
  * [UPD] added ctor now calls base [JB]
  * v5.6, 220103
  * [NEW] cloning ctor [JB]
@@ -72,10 +73,9 @@ namespace Idmr.Platform.Xvt
 			static void checkValues(Trigger t)
 			{
 				string error = "";
-				string msg;
 				if (t.Condition > 46) error = "Condition (" + t.Condition + ")";
 				byte tempVar = t.Variable;
-				CheckTarget(t.VariableType, ref tempVar, out msg);
+				CheckTarget(t.VariableType, ref tempVar, out string msg);
 				t.Variable = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + msg;
 				if (error != "") throw new ArgumentException("Invalid values detected: " + error +  ".");

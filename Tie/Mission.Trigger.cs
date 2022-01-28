@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.7
  */
 
 /* CHANGELOG
+ * v5.7, 220127
  * [NEW] cloning ctor [JB]
  * v4.0, 200809
  * [UPD] SafeString implemented [JB]
