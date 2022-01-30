@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.1+
+ * Version: 5.7
  */
 
 /* CHANGELOG
+ * v5.7, 220127
  * [FIX] Message.OriginatingFG error during delete [JB]
  * v5.1, 210315
  * [UPD] Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]

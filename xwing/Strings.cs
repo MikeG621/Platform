@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.7
  */
 
 /* CHANGELOG
+ * v5.7, 220127
  * [FIX] Formation [JB]
  * v4.0, 200809
  * [UPD] FormationObject updated [JB]
