@@ -433,14 +433,14 @@ namespace Idmr.Platform.Xwa
 						Messages[i].Triggers[3][j] = buffer[0x16+j];
 					}
 					Messages[i].Unknown1 = buffer[0xC];
-					Messages[i].TrigAndOr[0] = Convert.ToBoolean(buffer[0xE] & 1);
-					Messages[i].TrigAndOr[1] = Convert.ToBoolean(buffer[0x1E] & 1);
+					Messages[i].TrigAndOr[0] = (buffer[0xE] == 1);
+					Messages[i].TrigAndOr[1] = (buffer[0x1E] == 1);
 					Messages[i].VoiceID = new string(br.ReadChars(8)).Trim('\0');
 					Messages[i].OriginatingFG = br.ReadByte();
 					stream.Position += 7;
 					stream.Read(buffer, 0, 0x16);
 					Messages[i].Delay = buffer[0];
-                    Messages[i].TrigAndOr[2] = Convert.ToBoolean(buffer[1] & 1);
+                    Messages[i].TrigAndOr[2] = (buffer[1] == 1);
 					Messages[i].Color = buffer[2];
                     Messages[i].Unknown2 = buffer[3];
 
