@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [FIX] Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
  * v5.7, 220127
  * [FIX] Message.OriginatingFG error during delete [JB]
  * v5.1, 210315
