@@ -12,7 +12,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 Version History
 
 v5.7.1, 08 Feb 2022
- - Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
+ - (XWA) Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
  
 v5.7, 27 Jan 2022
  - More work from Random Starfighter
