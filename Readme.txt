@@ -2,18 +2,20 @@ Idmr.Platform.dll
 =================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 5.7
-Date: 2022.01.27
+Contributors: Random Starfighter (JB)
+Version: 5.7.1
+Date: 2022.02.08
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.7.1, 08 Feb 2022
  - Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
  
 v5.7, 27 Jan 2022
- - More work from RandomStarfighter (JB)
+ - More work from Random Starfighter
  -- (TIE) New ctors for FG.Order, Mission Trigger
  -- (XvT) ctors added last rev now call the blanks prior to working
  -- (XvT) Strings.OrderDesignation added
@@ -28,13 +30,13 @@ v5.5.1, 29 Nov 2021
  - (XWA.Strings) Removed "Not Identified" from Status
 
 v5.5, 01 Aug 2021
- - Some fixes from RandomStarfighter (JB)
+ - Some fixes from RandomStarfighter
    - (All) SS Patrol and SS Await Return order strings now show target info
    - (XWA) Hyper to Region order text updated with token
    - (XWA) Fixed some CraftType errors in Order and Trigger strings
    
 v5.4, 04 Apr 2021
- - (Converter) FG Goal amounts fixed when converting from XW [YOGEME#55] (Random Starfighter, JB)
+ - (Converter) FG Goal amounts fixed when converting from XW [YOGEME#55] (JB)
  - (Converter) Fixed an exception message
  
 v5.3, 28 Mar 2021
@@ -53,7 +55,7 @@ v5.1 - 15 Mar 2021
 
 v5.0 - 10 Oct 2020
  - (XWA) Changed Trim to TrimEnd for craft Name and Cargos during load, as there's the potential for leading \0 which would keep the rest of the string
- - Mostly XvT-related updates by Random Starfighter (JB)
+ - Mostly XvT-related updates by Random Starfighter
  -- Mission.RndSeed discovered
  -- FlightGroup.Unknown2 is now StopArrivingWhen enum
  -- FlightGroup.Unknown3 is now RandomArrivalDelayMinutes
@@ -74,7 +76,7 @@ v4.0 - 09 Aug 2020
  - (Xwing.Briefing) Visible renamed to IsVisible
  - (Xwing.Briefing) public fields have PascalCase applied
  - (Xwing.Briefing) EventMapper now private readonly static _eventMapper
- - Lots of fixes and tweaks by Random Starfighter (JB)
+ - Lots of fixes and tweaks by Random Starfighter
  -- (BaseMessage) Message length increased to 64 from 63
  -- (BaseStrings) FormationMine added, ShipClass and ObjectType updated
  -- (*.Order) SafeString implementated
@@ -113,7 +115,7 @@ v3.0.1 - 19 Sep 2018
  - (Xwing.Mission) Add object angle conversion to/from degrees
 
 v3.0 - 03 Sep 2018
- - Lots of fixes, tweaks and new features by Random Starfighter (JB)
+ - Lots of fixes, tweaks and new features by Random Starfighter
  -- Xwing95 platform support
  -- helper functions throughout for FG/Message move/delete
  -- (All) EditorCraftNumber and DifficultyAbbrv support
@@ -190,7 +192,7 @@ v2.6 - 15 Oct 2017
  - (*.Strings) Added ability to replace craft list (YOGEME#10)
 
 v2.5 - 7 Jan 2017
- - Lots of fixes and new features by Random Starfighter (JB)
+ - Lots of fixes and new features by Random Starfighter
   -- (*.Mission) Enforced string encodings
   -- (TIE.FlightGroup.Order) Hack for _checkValues added
   -- (TIE.Mission) Added Message length check during load
