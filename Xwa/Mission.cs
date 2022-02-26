@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.1
+ * Version: 5.7.2
  */
 
 /* CHANGELOG
+ * v5.7.2, 220225
+ * [FIX] Missing squadron values from LogoEnum
  * v5.7.1, 220208
  * [FIX] Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
  * v5.7, 220127
@@ -81,6 +83,8 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Briefing <see cref="Logo"/> values</summary>
 		public enum LogoEnum : byte {
+			/// <summary>No logo shown</summary>
+			None,
 			/// <summary>Defiance logo</summary>
 			Defiance = 4,
 			/// <summary>Liberty logo</summary>
@@ -88,9 +92,16 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Independance logo</summary>
 			Independance,
 			/// <summary>Family logo</summary>
-			Family,
-			/// <summary>No logo shown</summary>
-			None
+			AzzameenBase,
+			/// <summary>Squadron 1 logo</summary>
+			PhantomSquadron,
+			/// <summary>Squadron 2 logo</summary>
+			VectorSquadron,
+			/// <summary>Squadron 3 logo</summary>
+			RogueSquadron,
+			/// <summary>Squadron 4 logo</summary>
+			FamilyTransport,
+			Unknown_C
 		}
 		/// <summary>Mission starting <see cref="MissionType"/> (aka Hangar)</summary>
 		public enum HangarEnum : byte {

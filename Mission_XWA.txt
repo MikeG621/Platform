@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2022.01.26
+Updated: 2022.02.25
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -746,6 +746,10 @@ BriefingLogo
 06	Independence
 07	Family
 08	Phantom Squadron	[will only see "Squadron", no logo]
+09	Vector Squadron
+0A	Rogue Squadron
+0B	Family Transport
+0C	Unknown
 
 Designation
 00	Command Ship

@@ -3,13 +3,16 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 5.7.1
-Date: 2022.02.08
+Version: 5.7.2
+Date: 2022.02.25
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
+
+v5.7.2, 25 Feb 2022
+ - (XWA) Added missing Squadron log options in Mission.LogoEnum
 
 v5.7.1, 08 Feb 2022
  - (XWA) Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
