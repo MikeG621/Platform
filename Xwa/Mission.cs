@@ -4,10 +4,15 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.1+
+ * Version: 5.7.2
  */
 
 /* CHANGELOG
+ * v5.7.2, 220225
+ * [FIX] Missing squadron values from LogoEnum
+ * v5.7.1, 220208
+ * [FIX] Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
+ * v5.7, 220127
  * [FIX] Message.OriginatingFG error during delete [JB]
  * v5.1, 210315
  * [UPD] Trigger And/Or values now read XWA's method of (value & 1) = TRUE. Still only writes 0/1 [Related to YOGEME#48]
@@ -78,6 +83,8 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Briefing <see cref="Logo"/> values</summary>
 		public enum LogoEnum : byte {
+			/// <summary>No logo shown</summary>
+			None,
 			/// <summary>Defiance logo</summary>
 			Defiance = 4,
 			/// <summary>Liberty logo</summary>
@@ -85,9 +92,16 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Independance logo</summary>
 			Independance,
 			/// <summary>Family logo</summary>
-			Family,
-			/// <summary>No logo shown</summary>
-			None
+			AzzameenBase,
+			/// <summary>Squadron 1 logo</summary>
+			PhantomSquadron,
+			/// <summary>Squadron 2 logo</summary>
+			VectorSquadron,
+			/// <summary>Squadron 3 logo</summary>
+			RogueSquadron,
+			/// <summary>Squadron 4 logo</summary>
+			FamilyTransport,
+			Unknown_C
 		}
 		/// <summary>Mission starting <see cref="MissionType"/> (aka Hangar)</summary>
 		public enum HangarEnum : byte {
@@ -432,14 +446,14 @@ namespace Idmr.Platform.Xwa
 						Messages[i].Triggers[3][j] = buffer[0x16+j];
 					}
 					Messages[i].Unknown1 = buffer[0xC];
-					Messages[i].TrigAndOr[0] = Convert.ToBoolean(buffer[0xE] & 1);
-					Messages[i].TrigAndOr[1] = Convert.ToBoolean(buffer[0x1E] & 1);
+					Messages[i].TrigAndOr[0] = (buffer[0xE] == 1);
+					Messages[i].TrigAndOr[1] = (buffer[0x1E] == 1);
 					Messages[i].VoiceID = new string(br.ReadChars(8)).Trim('\0');
 					Messages[i].OriginatingFG = br.ReadByte();
 					stream.Position += 7;
 					stream.Read(buffer, 0, 0x16);
 					Messages[i].Delay = buffer[0];
-                    Messages[i].TrigAndOr[2] = Convert.ToBoolean(buffer[1] & 1);
+                    Messages[i].TrigAndOr[2] = (buffer[1] == 1);
 					Messages[i].Color = buffer[2];
                     Messages[i].Unknown2 = buffer[3];
 
