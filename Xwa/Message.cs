@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.7.3
  */
 
 /* CHANGELOG
+ * v5.7.3, 220619
  * [UPD] length limit to 68
  * v4.0, 200809
  * [UPD] auto-properties

@@ -3,14 +3,15 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 5.7.2
-Date: 2022.02.25
+Version: 5.7.3
+Date: 2022.06.19
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.7.3, 19 Jun 2022
  - (XWA) Message length limit increased to 68.
 
 v5.7.2, 25 Feb 2022

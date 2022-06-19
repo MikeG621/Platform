@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.7.3
  */
 
 /* CHANGELOG
+ * v5.7.3, 220619
  * [UPD] length limit pulled out to a variable
  * v4.0, 200809
  * [UPD] Message length increased to 64 [JB]
@@ -27,6 +28,8 @@ namespace Idmr.Platform
 		/// <summary>The message shown in-flight</summary>
 		private protected string _messageString = "New Message";
 
+		/// <summary>The length of <see cref="MessageString"/>.</summary>
+		/// <remarks>Defaults to <b>64</b>.</remarks>
 		protected int _lengthLimit = 0x40;
 
 		/// <summary>Gets or sets the in-flight message string</summary>
