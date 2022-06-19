@@ -11,6 +11,8 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - (XWA) Message length limit increased to 68.
+
 v5.7.2, 25 Feb 2022
  - (XWA) Added missing Squadron logo options in Mission.LogoEnum
 

@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2022.02.25
+Updated: 2022.06.18
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -299,7 +299,7 @@ struct GoalFG (size 0x50)
 struct Message (size 0xA2)
 {
 	0x00	SHORT	MessageIndex
-	0x02	STR(64)	Message
+	0x02	STR(68)	Message
 	0x52	BYTE[10] SetToTeam
 	0x5C	Trigger	Trigger1
 	0x62	Trigger	Trigger2

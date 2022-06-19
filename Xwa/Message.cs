@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [UPD] length limit to 68
  * v4.0, 200809
  * [UPD] auto-properties
  * v3.0, 180903
@@ -33,6 +34,7 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Sent to Team 1 by default</remarks>
 		public Message()
 		{
+			_lengthLimit = 0x44;
 			for (int i = 0; i < 6; i++) Triggers[i] = new Mission.Trigger();
 			SentTo[0] = true;
 		}
@@ -86,7 +88,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets or sets the delay after trigger is fired.</summary>
 		/// <remarks>Default is <b>zero</b>. Unlike TIE and XvT, it contains unusual formatting and isn't in increments of 5 seconds.  Use <see cref="Mission.GetDelaySeconds"/> to convert the delay into total seconds.</remarks>
 		public byte Delay { get; set; }
-        /// <summary>Unknown value.  Formerlay DelayMinutes, but that was incorrect.</summary>
+        /// <summary>Unknown value.  Formerly DelayMinutes.</summary>
         /// <remarks>Offset 0x8D</remarks>
         public byte Unknown2 { get; set; }
 		/// <summary>Unknown value</summary>
