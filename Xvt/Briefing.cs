@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 5.7.4
  */
 
 /* CHANGELOG
+ * v5.7.4, 220827
+ * [FIX] TicksPerSecond from 0x14 to 0x15
  * v4.0, 200809
  * [UPD] Teams now auto-property
  * v3.0, 180903
@@ -28,8 +30,8 @@ namespace Idmr.Platform.Xvt
 	public class Briefing : BaseBriefing
 	{
 		/// <summary>Frames per second for briefing animation</summary>
-		/// <remarks>Value is <b>20 (0x14)</b></remarks>
-		public const int TicksPerSecond = 0x14;
+		/// <remarks>Value is <b>21 (0x15)</b></remarks>
+		public const int TicksPerSecond = 0x15;
 		/// <summary>Maximum number of events that can be held</summary>
 		/// <remarks>Value is <b>202 (0xCA)</b></remarks>
 		public const int EventQuantityLimit = 0xCA;
@@ -39,7 +41,7 @@ namespace Idmr.Platform.Xvt
 		{	//initialize
 			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.XvT;
-			Length = 0x384;	// default to 45 seconds
+			Length = 0x3B1;	// default to 45 seconds
 			_events = new short[0x190];
 			_briefingTags = new string[0x20];
 			_briefingStrings = new string[0x20];

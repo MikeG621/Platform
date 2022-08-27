@@ -101,6 +101,7 @@ namespace Idmr.Platform.Xwa
 			RogueSquadron,
 			/// <summary>Squadron 4 logo</summary>
 			FamilyTransport,
+			/// <summary>Unknown logo</summary>
 			Unknown_C
 		}
 		/// <summary>Mission starting <see cref="MissionType"/> (aka Hangar)</summary>
