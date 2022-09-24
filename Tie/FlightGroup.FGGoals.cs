@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [DEL #12] SecretCondition and Secret amount, still accesible via the Indexer
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -80,19 +81,6 @@ namespace Idmr.Platform.Tie
 			{
 				get { return _items[3]; }
 				set { _items[3] = value; }
-			}
-			/// <summary>Gets or sets the hidden goal</summary>
-			/// <remarks>Use of this goal is unknown, entirely hidden</remarks>
-			public byte SecretCondition
-			{
-				get { return _items[4]; }
-				set { _items[4] = value; }
-			}
-			/// <summary>Gets or sets the amount of the FlightGroup required to meet <see cref="SecretCondition"/></summary>
-			public byte SecretAmount
-			{
-				get { return _items[5]; }
-				set { _items[5] = value; }
 			}
 			/// <summary>Gets or sets the Bonus goal</summary>
 			public byte BonusCondition

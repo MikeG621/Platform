@@ -11,6 +11,14 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - Updates for TIE. Deleted items are those confirmed to have zero effect in the exectuable. [Issue #12]
+   - "Captured on Ejection" and "Secret Goals" removed
+   - Trigger "Unknown (arrive?)" now "cannon subsystem disabled"
+   - Trigger Type "Craft When" fixed
+   - Trigger Type "Misc" now "Adjusted AI Skill", added "Status" and "All Craft" types to match XvT
+   - Status "No Lasers" now "No Turrets", everything past "Hyperdrive Added" deleted
+   - Orders after "Board to Repair" deleted
+
 v5.7.4, 27 Aug 2022
  - (XxT) Briefing TicksPerSecond updated to 21 (0x15) instead of 20.
 

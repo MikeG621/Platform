@@ -1,13 +1,19 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [UPD #12] Trigger 0x18 now "have cannon subsystem disabled"
+ * [UPD #12] TriggerType Misc now "Adjusted AI Skill"
+ * [DEL #12] Misc array
+ * [NEW #12] TriggerType Status and "All Craft"
+ * [UPD #12] "No Lasers" to "No Turrets", everything after "Hyperdrive added" deleted
+ * [DEL #12] All orders past Board to Repair
  * v4.0, 200809
  * [UPD] IFF numbers removed
  * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
@@ -242,33 +248,22 @@ namespace Idmr.Platform.Tie
         static readonly string[] _status = { "Normal",
 									 "2x Warheads",
 									 "1/2 Warheads",
-									 "No Shields",   //[JB] Wasn't Disabled
+									 "No Shields",
 									 "1/2 Shields",
-									 "No Lasers",
+									 "No Turrets",
 									 "No Hyperdrive",
 									 "Shields 0%, charging",
 									 "Shields added",
-									 "Hyperdrive added",
-									 "10",
-									 "11",
-									 "12",
-									 "13",
-									 "14",
-									 "15",
-									 "16",
-									 "17",
-									 "18",
-									 "19",
-									 "Invincible"
+									 "Hyperdrive added"
 								 };
 		static readonly string[] _trigger = { "always (TRUE)",
-									  "have arrived",				//[JB] was "be created"
+									  "have arrived",
 									  "be destroyed",
 									  "be attacked",
 									  "be captured",
 									  "be inspected",
-									  "finish being boarded",       //[JB] was "be boarded", updated to be more intuitive
-									  "finish docking",             //[JB] was "be docked"
+									  "finish being boarded",
+									  "finish docking",
 									  "be disabled",
 									  "have survived (exist)",
 									  "none (FALSE)",
@@ -285,7 +280,7 @@ namespace Idmr.Platform.Tie
 									  "have 0% shields",
 									  "have 50% hull",
 									  "run out of missiles",
-									  "Unknown (arrive?)"
+									  "have cannon subsystem disabled"
 								  };
 		static readonly string[] _triggerType = { "none",
 										  "Flight Group",
@@ -296,7 +291,9 @@ namespace Idmr.Platform.Tie
 										  "Ship orders",
 										  "Craft when",
 										  "Global Group",
-										  "Misc",
+										  "Adjusted AI Skill",
+										  "Status",
+										  "All Craft"
 									  };
 		static readonly string[] _amount = { "100%",
 									 "75%",
@@ -353,84 +350,20 @@ namespace Idmr.Platform.Tie
 									 "SS Go Home",
 									 "SS Wait",
 									 "SS Board",
-									 "Board to Repair",
-									 "Hold Station",
-									 "Hold Steady",
-									 "Go Home",
-									 "Evade Waypoint 1",
-									 "Evade Waypoint 1",
-									 "Rendezvous II",
-									 "SS Disabled"
+									 "Board to Repair"
 								 };
-		static readonly string[] _craftWhen = { "",
-										"Boarding",
-										"Boarded",
-										"Defending",
-										"Disabled",
-										"Attacked",  //[JB] Added this, and the next.  Taken from XvT list but confirmed in TIE.
+		static readonly string[] _craftWhen = { "Captured",
+										"Inspected",
+                                        "Finished being boarded",
+                                        "Finished docking",
+                                        "Disabled",
+										"Attacked",
 										"Any hull damage",
 										"Special craft",
 										"Non-special craft",
 										"Player's craft",
-										"Non-player craft",
-										""
+										"Non-player craft"
 									};
-		static readonly string[] _misc = { "Novice craft",
-								   "Officer craft",
-								   "Veteran craft",
-								   "Ace craft",
-								   "Top Ace craft",
-								   "Jedi craft",
-								   "Stationary craft",
-								   "Craft returning to base",
-								   "Non-evading craft",
-								   "Craft in formation",
-								   "Rendezvousing craft",
-								   "Disabled craft",
-								   "Craft awaiting orders",
-								   "Attacking craft",
-								   "Craft attacking escorts",
-								   "Protecting craft",
-								   "Escorting craft",
-								   "Disabling craft",
-								   "Delivering craft",
-								   "Seizing craft",
-								   "Exchanging craft",
-								   "Capturing craft",
-								   "Craft destroying cargo",
-								   "Bagging craft",
-								   "Drop Off craft",
-								   "Waiting fighters",
-								   "Waiting starships",
-								   "Patrolling SS",
-								   "SS waiting for returns",
-								   "SS waiting to launch",
-								   "SS waiting for boarding craft",
-								   "SS waiting for boarding craft",
-								   "SS attacking",
-								   "SS disabling",
-								   "SS disabling?",
-								   "SS flying home",
-								   "Rebels",
-								   "Imperials",
-								   "",
-								   "Spacecraft",
-								   "Weapons",
-								   "Satellites/Mines",
-								   "",
-								   "",
-								   "",
-								   "",
-								   "Fighters",
-								   "Transports",
-								   "Freighters",
-								   "Utility craft",
-								   "Starships",
-								   "Platforms",
-								   "",
-								   "",
-								   "Mines"
-							   };
 		static readonly string[] _abort = { "never",
 									"0% shields",
 									"75% systems (not SS)",
@@ -455,7 +388,7 @@ namespace Idmr.Platform.Tie
 										"Boards targets (if stationary) to exchange cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to capture|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time (x5 sec)|# of dockings",
-										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|# of dockings",   //[JB] Changed Var2, was Meaningless.
+										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|# of dockings",
 										"Drops off designated Flight Group (disregards targets)|Deploy time? (x5 sec)|Flight Group #",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
@@ -470,14 +403,7 @@ namespace Idmr.Platform.Tie
 										"Fly to Mothership, or Hyperspace. Attacks targets, returns fire|Meaningless|Meaningless",
 										"Waits for designated time before continuing. Does not return fire|Wait time (x5 sec)|Meaningless",
 										"Boards targets (if stationary)|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to repair systems|Docking time (x5 sec)|# of dockings",
-										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless",
-										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless",
-										"Enters Hyperspace|Meaningless|Meaningless",
-										"Circles Waypoint 1|Meaningless|Meaningless",
-										"Circles Waypoint 1|Meaningless|Meaningless",
-										"Flies to Waypoint 1 and rendezvouses with other craft|Meaningless|Meaningless",
-										"Disabled|Meaningless|Meaningless"
+										"Boards targets (if stationary) to repair systems|Docking time (x5 sec)|# of dockings"
 									};
 		static readonly string[] _formation = { "Vic",
 										"Finger Four",
@@ -531,13 +457,13 @@ namespace Idmr.Platform.Tie
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] Rating { get { return (string[])_rating.Clone(); } }
 		/// <summary>Gets a copy of the Flight Group initial state parameters</summary>
-		/// <remarks>Array is Length = 21</remarks>
+		/// <remarks>Array is Length = 11</remarks>
 		public static string[] Status { get { return (string[])_status.Clone(); } }
 		/// <summary>Gets a copy of the Conditions required to complete trigger</summary>
 		/// <remarks>Array is Length = 25</remarks>
 		public static string[] Trigger { get { return (string[])_trigger.Clone(); } }
 		/// <summary>Gets a copy of the Categories that the Trigger Parameter belongs to</summary>
-		/// <remarks>Array is Length = 10</remarks>
+		/// <remarks>Array is Length = 12</remarks>
 		public static string[] VariableType { get { return (string[])_triggerType.Clone(); } }
 		/// <summary>Gets a copy of the quantities of applicable conditions that must be met</summary>
 		/// <remarks>Array is Length = 16</remarks>
@@ -546,19 +472,16 @@ namespace Idmr.Platform.Tie
 		/// <remarks>Array is Length = 5</remarks>
 		public static string[] GoalAmount { get { return (string[])_goalAmount.Clone(); } }
 		/// <summary>Gets a copy of the FlightGroup orders</summary>
-		/// <remarks>Array is Length = 40</remarks>
+		/// <remarks>Array is Length = 33</remarks>
 		public static string[] Orders { get { return (string[])_orders.Clone(); } }
 		/// <summary>Gets a copy of the craft behaviour to be used in triggers</summary>
 		/// <remarks>Array is Length = 12</remarks>
 		public static string[] CraftWhen { get { return (string[])_craftWhen.Clone(); } }
-		/// <summary>Gets a copy of miscellaneous triggers</summary>
-		/// <remarks>Array is Length = 55</remarks>
-		public static string[] Misc { get { return (string[])_misc.Clone(); } }
 		/// <summary>Gets a copy of the individual craft abort conditions</summary>
 		/// <remarks>Array is Length = 6</remarks>
 		public static string[] Abort { get { return (string[])_abort.Clone(); } }
 		/// <summary>Gets a copy of the descriptions of orders and variables</summary>
-		/// <remarks>Array is Length = 40</remarks>
+		/// <remarks>Array is Length = 33</remarks>
 		public static string[] OrderDesc { get { return (string[])_orderDesc.Clone(); } }
 		/// <summary>Gets a copy of the FlightGroup formations</summary>
 		/// <remarks>Array is Length = 13, replaces BaseStrings.Formation</remarks>

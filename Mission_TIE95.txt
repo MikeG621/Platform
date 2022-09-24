@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2020.10.10
+Updated: 2022.09.22
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -77,7 +77,7 @@ struct FileHeader (size 0x1CA)
 	0x008	BYTE	Unknown1
 	0x009	BOOL	Unknown2
 	0x00A	BYTE	BriefingOfficers
-	0x00D	BOOL	CapturedOnEject
+	0x00D	BOOL	Unknown (Formerly CapturedOnEject)
 	0x018	CHAR[64][6]	EndOfMissionMessages
 	0x19A	CHAR[12][4]	IffNames3-6
 }
@@ -274,9 +274,7 @@ present in the room before you launch into a mission.
 03	Secret Order
 (No other values used, but evaluate to Both Officers)
 
-CapturedOnEject will send you to a prison planet when true, rescued by Imperial
-forces when false. Of course, death is always an option, and is seemingly
-random. The next six strings are the messages you see after the given goals are
+The next six strings are the messages you see after the given goals are
 completed or failed. The array is really [3,2], two messages each for
 PrimaryComplete, SecondaryComplete and PrimaryFailed in that order. Following
 that, we have the name of the extra IFFs. IFF1 and IFF2 are hard-coded as Rebel
@@ -345,8 +343,7 @@ different orders take different amounts for different reasons. Target and
 TargetType are the same as Trigger.Variable and VariableType.
 
 Goals are for that specific flight group. The array is comprised of Primary,
-Secondary, Secret and Bonus, in that order. The Secret goal as far I can tell
-is simply hidden and really doesn't affect anything.  For BonusGoalPoints, the
+Secondary, Unused, and Bonus, in that order. For BonusGoalPoints, the
 stored value is expressed as (Points / 50), so 01 is 50pts, 02 is 100pts, etc.
 Because the value is an SBYTE, this yields a point range of [-6400, +6350].
 By the Force use these goals instead of Global Goals when possible.
@@ -565,12 +562,11 @@ Status
 02	1/2 Warheads
 03	No Shields
 04	1/2 Shields
-05	No Lasers
+05	No Turrets
 06	No Hyperdrive
 07	Shields 0%, charging
 08	Shields added or 200%
 09	Hyperdrive added
-14	Invincible
 
 Warhead
 00	None
@@ -649,7 +645,7 @@ Condition
 15	0% Shields
 16	50% Hull
 17	Out of Warheads
-18	Unknown (arrive?)
+18	Cannon system disabled
 
 VariableType
 00	None
@@ -661,11 +657,9 @@ VariableType
 06	Order (enum)
 07	CraftWhen (enum)
 08	Global Group
-09	Misc (enum)
-0A	Unknown*
-
-* Appears to be nothing, probably due to sloppiness with the format
-Only seen as "100% of 0A 01 must TRUE" and "Hold Steady, T3: 0A None"
+09	Adjusted AI skill level (enum)
+0A	Status (enum)
+0B	All Craft
 
 CraftCategory
 00	Starfighters
@@ -786,18 +780,12 @@ Order
 20	Board to Repair
 	Var1	Docking Time (seconds x 5)
 	Var2	Number of Dockings
-21	Hold Station
-22	Hold Steady
-23	SS Hold Station
-24	SS Kamikaze?
-25	SS Kamikaze?
-26	SS Disabled
-27	SS Disabled
 
 CraftWhen
-01	Boarding
-02	Boarded
-03	Defence
+00	Captured
+01	Inspected
+02	Finish being boarded
+03	Finished docking
 04	Disabled
 05	Attacked
 06	Any hull damage
@@ -805,56 +793,6 @@ CraftWhen
 08	Non-special craft
 09	Player's craft
 0A	Non-player's craft
-
-Misc
-00	Rookie craft
-01	Novice craft
-02	Officer craft
-03	Veteran craft
-04	Ace craft
-05	Top Ace craft
-06	Stationary craft
-07	Craft returning to base
-08	Non-evading craft
-09	Craft in formation
-0A	Rendezvousing craft
-0B	Disabled craft
-0C	Craft awaiting boarding
-0D	Attacking craft
-0E	Craft atatcking escorts
-0F	Protecting craft
-10	Escorting craft
-11	Disabling craft
-12	Delivering craft
-13	Siezing craft
-14	Exchanging craft
-15	Capturing craft
-16	Craft destroying cargo
-17	Picked up craft
-18	Dropped off craft
-19	Waiting fighters
-1A	Waiting starships
-1B	Patrolling starships
-1C	SS awaiting returns
-1D	SS waiting to launch
-1E	SS waiting to be boarded
-1F	SS witing for boarding craft to appear
-20	SS attacking
-21	SS disabling
-22	SS disabling?
-23	SS flying home
-24	Rebels
-25	Imperials
-27	Spacecraft
-28	Weapons
-29	Space objects
-2E	Fighters
-2F	Transports
-30	Freighters
-31	Utility craft
-32	Startships
-33	Platforms
-36	Mines
 
 EventType
 03	Page Break

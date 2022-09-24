@@ -1,13 +1,15 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [DEL #12] CapturedOnEjection
+ * [UPD #12] Status reset if out of bounds during load
  * v4.0, 200809
  * [UPD] PermaDeath changed to bool
  * [FIX] Handling to load incomplete briefing questions [JB]
@@ -137,8 +139,6 @@ namespace Idmr.Platform.Tie
 			stream.Position = 0xA;
 			try { OfficersPresent = (BriefingOfficers)br.ReadByte(); }
 			catch { OfficersPresent = BriefingOfficers.Both; }
-			stream.Position = 0xD;
-			CapturedOnEjection = br.ReadBoolean();
 			stream.Position = 0x18;
 			for (i = 0; i < 6; i++)
 			{
@@ -178,6 +178,7 @@ namespace Idmr.Platform.Tie
 					else FlightGroups[i].SpecialCargoCraft++;
 				}
 				FlightGroups[i].Status1 = buffer[4];
+				if (FlightGroups[i].Status1 > 9 || (FlightGroups[i].Status1 > 7 && FlightGroups[i].CraftType == 0x70)) FlightGroups[i].Status1 = 0;
 				FlightGroups[i].Missile = buffer[5];
 				FlightGroups[i].Beam = buffer[6];
 				FlightGroups[i].IFF = buffer[7];
@@ -431,8 +432,6 @@ namespace Idmr.Platform.Tie
 				bw.Write((short)3);
 				fs.Position = 0xA;
 				fs.WriteByte((byte)OfficersPresent);
-				fs.Position = 0xD;
-				bw.Write(CapturedOnEjection);
 				fs.Position = 0x18;
 				for (int i = 0; i < 6; i++)
 				{
@@ -777,9 +776,6 @@ namespace Idmr.Platform.Tie
 		/// <summary>Gets or sets the officers present before and after the mission</summary>
 		/// <remarks>Defaults to <b>FlightOfficer</b></remarks>
 		public BriefingOfficers OfficersPresent { get; set; }
-		/// <summary>Gets or sets if the pilot is captured upon ejection or destruction</summary>
-		/// <remarks><b>true</b> results in capture, <b>false</b> results in rescue (default)</remarks>
-		public bool CapturedOnEjection { get; set; }
 
 		/// <summary>Gets or sets the FlightGroups for the mission</summary>
 		/// <remarks>Defaults to one FlightGroup</remarks>

@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [UPD #12] ToString update for Ai Rating, Status and All Craft
  * v5.7, 220127
  * [NEW] cloning ctor [JB]
  * v4.0, 200809
@@ -135,9 +136,15 @@ namespace Idmr.Platform.Tie
 							trig += "Global Group " + Variable;
 							break;
 						case 9:
-							trig += "Misc " + BaseStrings.SafeString(Strings.Misc, Variable);
+							trig += "AI Rating " + BaseStrings.SafeString(Strings.Rating, Variable);
 							break;
-						default:
+                        case 0xA:
+                            trig += "Craft with status: " + BaseStrings.SafeString(Strings.Status, Variable);
+                            break;
+                        case 0xB:
+                            trig += "All craft";
+                            break;
+                        default:
 							trig += VariableType + " " + Variable;
 							break;
 					}

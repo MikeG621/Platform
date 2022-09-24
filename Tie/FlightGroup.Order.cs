@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [UPD #12] Importing order values past Board to Repair (0x20) will reset to zero to match TIE behavior
  * v5.7, 220127
  * [NEW] cloning ctor [JB]
  * v5.5, 2108001
@@ -84,7 +85,7 @@ namespace Idmr.Platform.Tie
 			{
 				string error = "";
 				byte tempVar;
-				if (o.Command > 39) error += "Command (" + o.Command + ")";
+				if (o.Command > 32) o.Command = 0;	// How TIE does it, also bypasses error in HI1W
 				if (o.Target1Type == 10) o.Target1Type = o.Target1 = 0;
 				if (o.Target2Type == 10) o.Target2Type = o.Target2 = 0;
 				if (o.Target3Type == 10) o.Target3Type = o.Target3 = 0;
@@ -202,6 +203,5 @@ namespace Idmr.Platform.Tie
 				set { _items[4] = value; }
 			}
 		}
-		
 	}
 }
