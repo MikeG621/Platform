@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.7.5
  */
 
 /* CHANGELOG
+ * v5.7.5, 230116
  * [UPD #12] Trigger 0x18 now "have cannon subsystem disabled"
  * [UPD #12] TriggerType Misc now "Adjusted AI Skill"
  * [DEL #12] Misc array

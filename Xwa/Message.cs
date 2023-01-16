@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.3
+ * Version: 5.7.5
  */
 
 /* CHANGELOG
+ * v5.7.5, 230116
+ * [UPD] LengthLimit name
  * v5.7.3, 220619
  * [UPD] length limit to 68
  * v4.0, 200809
@@ -35,7 +37,7 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Sent to Team 1 by default</remarks>
 		public Message()
 		{
-			_lengthLimit = 0x44;
+			LengthLimit = 0x44;
 			for (int i = 0; i < 6; i++) Triggers[i] = new Mission.Trigger();
 			SentTo[0] = true;
 		}

@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1+
+ * Version: 5.7.5
  */
 
 /* CHANGELOG
+ * v5.7.5, 230116
  * [DEL #12] SecretCondition and Secret amount, still accesible via the Indexer
  * v2.1, 141214
  * [UPD] change to MPL

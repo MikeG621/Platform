@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 5.7.5
  */
 
 /* CHANGELOG
+ * v5.7.5, 230116
  * [DEL #12] CapturedOnEjection
  * [UPD #12] Status reset if out of bounds during load
  * v4.0, 200809

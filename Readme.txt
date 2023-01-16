@@ -3,14 +3,16 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 5.7.4
-Date: 2022.08.27
+Version: 5.7.5
+Date: 2023.01.16
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.7.5, 16 Jan 2023
+ - (XWA) Fixed Message reading after length increased in 5.7.3
  - Updates for TIE. Deleted items are those confirmed to have zero effect in the exectuable. [Issue #12]
    - "Captured on Ejection" and "Secret Goals" removed
    - Trigger "Unknown (arrive?)" now "cannon subsystem disabled"

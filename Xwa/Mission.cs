@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.2
+ * Version: 5.7.5
  */
 
 /* CHANGELOG
+ * v5.7.5, 230116
+ * [FIX] Message read now uses LengthLimit
  * v5.7.2, 220225
  * [FIX] Missing squadron values from LogoEnum
  * v5.7.1, 220208
@@ -433,9 +435,9 @@ namespace Idmr.Platform.Xwa
 				for (i=0;i<numMessages;i++)
 				{
 					stream.Position += 2;
-					Messages[i].MessageString = new string(br.ReadChars(0x40));
+					Messages[i].MessageString = new string(br.ReadChars(Message.LengthLimit));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
-					stream.Position += 0x10;
+					stream.Position += 0x0C;
 					stream.Read(buffer, 0, 0xA);
 					for (j=0;j<10;j++) Messages[i].SentTo[j] = Convert.ToBoolean(buffer[j]);
 					stream.Read(buffer, 0, 0x20);
