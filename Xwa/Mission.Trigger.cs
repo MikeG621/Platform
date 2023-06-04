@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [NEW] Region references prepped for string replacement
  * v5.7, 220127
  * [NEW] cloning ctor [JB]
  * v5.5, 2108001
@@ -220,7 +221,7 @@ namespace Idmr.Platform.Xwa
 					trig += dist + " km of FG2:" + Parameter1;
 				}
 				else trig += BaseStrings.SafeString(Strings.Trigger, Condition);
-				if (trig.Contains("Region")) trig += " " + Parameter1;
+				if (trig.Contains("Region")) trig += " REG:" + Parameter1;
 				return trig;
 			}
 			
