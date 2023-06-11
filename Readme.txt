@@ -11,7 +11,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
- - (XWA) Region references in Triggers prepped for string replacement similar to FGs and Teams
+ - (XWA) Region references in Triggers and Orders prepped for string replacement similar to FGs and Teams [Issue #82]
 
 v5.7.5, 16 Jan 2023
  - (XWA) Fixed Message reading after length increased in 5.7.3
