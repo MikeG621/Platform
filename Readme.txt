@@ -11,6 +11,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - (BaseBriefing) New "Skip Marker" event, for TIE and XvT
  - (XWA) Region references in Triggers and Orders prepped for string replacement similar to FGs and Teams [Issue #82]
 
 v5.7.5, 16 Jan 2023

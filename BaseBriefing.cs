@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [NEW] SkipMarker command
  * v3.0, 180309
  * [UPD] EventParameterCount changed to function, made virtual [JB]
  * [NEW] virtual helper functions [JB]
@@ -44,6 +45,8 @@ namespace Idmr.Platform
 		public enum EventType : byte {
 			/// <summary>No type defined</summary>
 			None,
+			/// <summary>Creates breakpoint for briefing interface <b>Next</b> command (TIE/XvT only)</summary>
+			SkipMarker,
 			/// <summary>Clears Title and Caption text, creates breakpoint for briefing interface <b>Next</b> command</summary>
 			PageBreak = 3,
 			/// <summary>Displays the specified text at the top of the briefing</summary>

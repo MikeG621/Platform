@@ -204,7 +204,7 @@ struct GlobalGoal (size 0x1C)
 struct Briefing
 {
 	0x000	SHORT	RunningTime
-	0x002	SHORT	Unknown
+	0x002	SHORT	CurrentTime
 	0x004	SHORT	StartLength
 	0x006	INT	EventsLength
 	0x00A	Event[]
@@ -393,6 +393,10 @@ they are not used for a given command. The last four active bytes in the Event
 array is always 0F 27 22 00, which is the EndBriefing command at time 9999, and
 usually isn't the last four bytes in the section (that would be a rather busy
 briefing).
+
+The CurrentTime value is actually ignored from the file, as it's reset to zero
+every time the briefing restarts anyway, and is what TIE uses to keep track of
+where it is.
 
 The StartsLength value is the number of SHORTs, Variables included, that occur
 at Time=0. EventsLength is the total number of SHORTs occupied in the Events
@@ -795,6 +799,7 @@ CraftWhen
 0A	Non-player's craft
 
 EventType
+01	Skip Marker
 03	Page Break
 04	Title Text
 	Var1	String#
