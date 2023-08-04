@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7+
+ * Version: 5.8
  */
 
 /* CHANGELOG
+ * v5.8, 230804
  * [NEW] Region references prepped for string replacement
  * v5.7, 220127
  * [NEW] cloning ctor [JB]

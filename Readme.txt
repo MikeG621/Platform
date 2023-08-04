@@ -3,16 +3,17 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 5.7.5
-Date: 2023.01.16
+Version: 5.8
+Date: 2023.08.04
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v5.8, 04 Aug 2023
  - (BaseBriefing) New "Skip Marker" event, for TIE and XvT
- - (XWA) Region references in Triggers and Orders prepped for string replacement similar to FGs and Teams [Issue #82]
+ - (XWA) Region references in Triggers and Orders prepped for string replacement similar to FGs and Teams [YOGEME#82]
 
 v5.7.5, 16 Jan 2023
  - (XWA) Fixed Message reading after length increased in 5.7.3
