@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2022.06.18
+Updated: 2023.10.14
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -1157,8 +1157,8 @@ Condition
 23	25% Shields
 24	75% Hull
 25	25% Hull
-26	Unknown
-27	Unknown
+26	Always failed
+27	Be picked up for team
 28	Unknown
 29	Be all Player Craft
 2A	Reinforced by AI?
@@ -1170,15 +1170,99 @@ Condition
 30	Departed Region
 31	Be in proximity of
 32	NOT be in proxmity of
-33	Unknown
+33	All captured
 34	Defect
 35	Be in convoy
-36	Be delivered?
-37	Unknown
+36	Be delivered
+37	All disabled
 38	Be shown (message)
 39	Be ID'ed
-3A	Unknown
+3A	NOT be ID'ed
 3B	Exist?
+
+Notes (from XvT):
+0x09 (Survived) Checks the number of craft that have survived at the moment the
+trigger is evaluated. Includes craft that haven't arrived yet. Excludes craft
+that have been destroyed by any means.
+
+0x0D/0x0E (Completed/Failed Primary Goals) and 0x11/0x12 (Completed/Failed
+Bonus Goals) If VariableType is Team, it checks the mission outcome for that
+team. In all other cases, it is true if any team has achieved victory.
+0x0F and 0x10 (Completed/Failed Secondary Goals) don't do anything.
+
+0x18 (Cannon system disabled) is true when the cannons are missing or disabled.
+Capital ships don't have a cannon subsystem, so it will always be true for
+them. Mag pulse does not damage the cannon subsystem of AI craft, but it will
+for players, so it can be used to detect a mag pulse hit on a player craft.
+
+0x19 (Be dropped off) Never seems be be true, either as a trigger or goal.
+
+0x1A (Destroyed in 1 hit) A broken condition. It's supposed to be "come and
+go without being attacked" but the implementation is broken in a few ways. For
+trigger purposes, when it comes-and-goes, it will still evaluate to true even
+if attacked by the player. It is only false if attacked by AI, and only AI.
+When used as a goal, being attacked by anything (player or AI) is an anti-
+condition and will be immediately detected, resulting in instant failure. But
+there's another bug. If the player destroys the craft very quickly ("in 1 hit" 
+such as when using warheads), then "come-and-go" takes precendence over
+"attacked" and evaluates to success, even though it was attacked. But this bug
+only applies if the FG is one craft of one wave.
+
+0x1B (Not be disabled) A "come and go" condition, but is half broken. For
+triggers, it will activate even if the craft was disabled. However it does seem
+to work correctly as a goal, since being disabled is an anti-condition.
+
+0x1C (Not be captured) A "come and go" condition that actually seems to work
+correctly.
+
+0x1D (Come and go w/o Inspection) Not as straightforward as it would seem.
+Statistics per team are only tracked if the craft actually arrives, then leaves
+or is destroyed. Global statistics are only tracked if the craft comes and goes
+by proxy (mothership destroyed prior to launch, or departure ship destroyed
+after landing).
+If evaluated as a FG goal, or as a trigger paired with Condition 0x27, it uses
+the per-team statistic. Otherwise it uses the global statistic.
+
+0x1F (Not being boarded) A "come and go" condition that is tracked if the craft
+was never finished being boarded by another craft.
+
+0x21 (Not begin docking) A "come and go" condition that is tracked if the craft
+never finished boarding another craft.
+
+0x26 (Always Failed) Evaluates to failure, as opposed to merely false. If used
+for a goal, it will cause immediate failure.
+
+0x27 (Inspect/Pickup team modifier) The game tracks Inspection/Pickup
+statistics in two ways. The default way is a grand total, which all teams
+contribute to. If any one team inspects a neutral, it's considered inspected by
+everyone for the purposes of all basic triggers. This modifier lets you check
+a specific team, and how much. It can only be used for particular conditions:
+Inspection, Come and Go Without Inspection, or Be Picked Up.
+
+Triggers operate in pairs (A:B). This condition is intended to be used in the B
+trigger, which modifies the A trigger to access statistics for a specific team
+instead the grand total. Trigger B's VariableType must be set to Team. Variable
+must be set to the team index. Amount doesn't matter. The and/or boolean
+doesn't matter.
+
+FG Goals don't operate in pairs, instead they automatically use the team they
+check against. It's basically an implicit team modifier, for the few conditions
+that accept them.
+
+0x29 (be all Player Craft) and 0x2A (be all AI Craft) When combined with a
+VariableType of IFF or Team, has a special interaction. Instead of counting all
+craft, it counts the number of active player slots out of the total number of
+playable FGs. This allows mission design to tailor difficulty based on number
+of active players.
+
+0x2C (bagged) Similar to capture. The distinction is that capture is logged
+instantaneously, but being bagged requires the captured craft to enter hangar
+or hyperspace out. If a craft is picked up (such as by a Heavy Lifter), it is
+captured by the craft carrying it.
+
+0x2E (be carried away) This is a pick-up condition, but is distinct from bagged
+that it can only operate on friendly craft. They must not be captured.
+
 
 VariableType
 00	None
@@ -1388,8 +1472,10 @@ A maximum of 255 translates to 24:50 waiting time.
 	Var2	Direction (0 = clockwise, 1  = counter-clockwise)
 
 CraftWhen
+00	Captured
 01	Inspected
-02	Finished docking?
+02	Finished being boarded
+03	Finished docking
 04	Disabled
 05	Attacked
 06	Any hull damage

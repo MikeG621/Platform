@@ -1,13 +1,16 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 5.8.1
  */
 
 /* CHANGELOG
+ * v5.8.1, 231014
+ * [UPD] Added missing CraftWhen [YOGEME#90]
+ * [UPD] Defined unknown Triggers [YOGEME#89]
  * v4.0, 200809
  * [UPD] RoleTeams updated [JB]
  * [NEW] Ability to reset _craftType and _craftAbbrv to defaults [JB]
@@ -686,8 +689,8 @@ namespace Idmr.Platform.Xwa
 										"have 25% shields",
 										"have 75% hull",
 										"have 25% hull",
-										"Unknown",
-										"Unknown",
+										"(always failed)",
+										"be picked up for Team",
 										"Unknown",
 										"be all Player Craft",
 										"reinforced by AI?",
@@ -699,14 +702,14 @@ namespace Idmr.Platform.Xwa
 										"have departed Region",
 										"be nearby",
 										"NOT be nearby",
-										"Unknown",
+										"all captured",
 										"defect to",
 										"be in convoy",
 										"be delivered",
-										"Unknown",
+										"all disabled",
 										"be shown (message)",
 										"be identified",
-										"Unknown",
+										"NOT be identified",
 										"exist?"
 								  };
 		static readonly string[] _triggerType = { "none",
@@ -828,10 +831,10 @@ namespace Idmr.Platform.Xwa
 									"Follow Targets",
 									"Home In"
 								 };
-		static readonly string[] _craftWhen = { "",
+		static readonly string[] _craftWhen = { "Captured",
 										"Inspected",
-										"Boarded",
-										"",
+										"Finished being boarded",
+										"Finished docking",
 										"Disabled",
 										"Attacked",
 										"Any hull damage",  //[JB] was "0% shields?", confirmed actual effect

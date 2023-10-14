@@ -3,13 +3,16 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 5.8
-Date: 2023.08.04
+Version: 5.8.1
+Date: 2023.10.14
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
+
+v5.8.1, 14 Oct 2023
+ - (XWA) Added missing CraftWhen [YOGEME#90] and defined unknown Triggers [YOGEME#89]
 
 v5.8, 04 Aug 2023
  - (BaseBriefing) New "Skip Marker" event, for TIE and XvT
