@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [FIX] Arr/Dep Method1 to byte
  * v4.0, 200809
  * [UPD] auto-properties
  * v3.0, 180903
@@ -34,7 +35,6 @@ namespace Idmr.Platform.Xwa
 	[Serializable]
 	public partial class FlightGroup : BaseFlightGroup
 	{
-		// offsets are local within FG
 		string _role = "";
 		readonly bool[] _optLoadout = new bool[18]; //[JB] Added Energy Beam and Cluster Mine
 		string _pilotID = "";
@@ -64,7 +64,7 @@ namespace Idmr.Platform.Xwa
 			AllFlyable,
 			/// <summary>All Rebel craft set to 'Flyable' are available</summary>
 			AllRebelFlyable,
-			/// <summary>All Imperial craft set tp 'Flyable' are available</summary>
+			/// <summary>All Imperial craft set to 'Flyable' are available</summary>
 			AllImperialFlyable,
 			/// <summary>Available craft are determined by <see cref="OptCraft"/></summary>
 			Custom
@@ -84,8 +84,6 @@ namespace Idmr.Platform.Xwa
 			Waypoints[0].Enabled = true;
 			Unknowns.Unknown1 = 2;
 			OptLoadout = new LoadoutIndexer(_optLoadout);
-            EnableDesignation1 = 255; //[JB] Set to disabled
-            EnableDesignation2 = 255;
 		}
 
 		/// <summary>Gets a string representation of the FlightGroup</summary>
@@ -138,9 +136,9 @@ namespace Idmr.Platform.Xwa
             }
 
             //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-            if (ArrivalCraft1 == srcIndex) { change = true; ArrivalCraft1 = dst; if (delete) { ArrivalMethod1 = false; } } else if (ArrivalCraft1 > srcIndex && delete == true) { change = true; ArrivalCraft1--; }
+            if (ArrivalCraft1 == srcIndex) { change = true; ArrivalCraft1 = dst; if (delete) { ArrivalMethod1 = 0; } } else if (ArrivalCraft1 > srcIndex && delete == true) { change = true; ArrivalCraft1--; }
             if (ArrivalCraft2 == srcIndex) { change = true; ArrivalCraft2 = dst; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { change = true; ArrivalCraft2--; }
-            if (DepartureCraft1 == srcIndex) { change = true; DepartureCraft1 = dst; if (delete) { DepartureMethod1 = false; } } else if (DepartureCraft1 > srcIndex && delete == true) { change = true; DepartureCraft1--; }
+            if (DepartureCraft1 == srcIndex) { change = true; DepartureCraft1 = dst; if (delete) { DepartureMethod1 = 0; } } else if (DepartureCraft1 > srcIndex && delete == true) { change = true; DepartureCraft1--; }
             if (DepartureCraft2 == srcIndex) { change = true; DepartureCraft2 = dst; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { change = true; DepartureCraft2--; }
             for (int i = 0; i < ArrDepTriggers.Length; i++)
             {
@@ -177,12 +175,12 @@ namespace Idmr.Platform.Xwa
 
             return change;
         }
-		
+
 		#region craft
 		/// <summary>Determines if <see cref="Designation1"/> is used, and which teams it applies to.</summary>
-		public byte EnableDesignation1 { get; set; }   //[JB] Changed designations from bool to byte, since it usually stores teams.
-        /// <summary>Determines if <see cref="Designation2"/> is used, and which teams it applies to.</summary>
-		public byte EnableDesignation2 { get; set; }
+		public byte EnableDesignation1 { get; set; } = 255;
+		/// <summary>Determines if <see cref="Designation2"/> is used, and which teams it applies to.</summary>
+		public byte EnableDesignation2 { get; set; } = 255;
 		/// <summary>Primary craft role, such as Command Ship or Strike Craft. Also used for Hyper Buoys</summary>
 		public byte Designation1 { get; set; }
 		/// <summary>Secondary craft role, such as Command Ship or Strike Craft. Also used for Hyper Buoys</summary>
@@ -250,6 +248,12 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets which <see cref="ArrDepTriggers"/> must be completed</summary>
 		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}</remarks>
 		public bool[] ArrDepAndOr { get; } = new bool[4];
+        /// <summary>Gets or sets the primary method of arrival</summary>
+        /// <remarks>When <b>1</b> FlightGroup will attempt arrive via mothership, hyperspace when <b>0</b>. When <b>2</b>, hypers in to same region as mothership.</remarks>
+        new public byte ArrivalMethod1 { get; set; }
+        /// <summary>Gets or sets the primary method of departure</summary>
+        /// <remarks>When <b>1</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>0</b>. Unknown effect if <b>2</b>.</remarks>
+        new public byte DepartureMethod1 { get; set; }
 		#endregion
 		/// <summary>Gets the FlightGroup objective commands</summary>
 		/// <remarks>Array is [Region, OrderIndex]</remarks>

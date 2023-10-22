@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.8.1
+ * Version: 5.8.1+
  */
 
 /* CHANGELOG
+ * [UPD] Role unk uncovered [YOGEME#91]
  * v5.8.1, 231014
  * [UPD] Added missing CraftWhen [YOGEME#90]
  * [UPD] Defined unknown Triggers [YOGEME#89]
@@ -93,8 +94,8 @@ namespace Idmr.Platform.Xwa
 									"HYP to Region 2",
 									"HYP to Region 3",
 									"HYP to Region 4",
-									"Unknown",
-									"Unknown"	//[JB] needed for 1B6M7FB
+									"HYP from Any Region",
+									"Unknown"	//[JB] needed for 1B6M7FB, though the role is disabled
 								};
 		static readonly string[] _radio = { "None",
 										"Team 1",

@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2021 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.4
+ * Version: 5.4+
  */
 
 /* CHANGELOG
+ * [UPD] Changes due to XWA Arr/Dep Method1
  * v5.4, 210404
  * [FIX] TIE goal check exception type
  * [FIX YOGEME#55] FG goal amounts when converting XW [JB]
@@ -235,6 +236,7 @@ namespace Idmr.Platform
         /// <remarks>Maximum CraftType of 91. Triggers will update.<br/>
         /// For Triggers, maximum Trigger index of 46, maximum VariableType of 23, Amounts will be adjusted as "each special" to "100% special"<br/>
         /// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br/>
+        /// Arr/Dep Method1 type 2 (HYP to region of motherhsip) replaced with HYP.<br/>
         /// For the Briefing, first 32 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br/>
         /// Filename will end in "_XvT.tie" or "_.BoP.tie"</remarks>
         /// <param name="miss">XWA mission to convert</param>
@@ -304,11 +306,11 @@ namespace Idmr.Platform
                 xvt.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
                 xvt.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
                 xvt.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-                xvt.FlightGroups[i].ArrivalMethod1 = miss.FlightGroups[i].ArrivalMethod1;
+                xvt.FlightGroups[i].ArrivalMethod1 = (miss.FlightGroups[i].ArrivalMethod1 == 1);
                 xvt.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
                 xvt.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
                 xvt.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-                xvt.FlightGroups[i].DepartureMethod1 = miss.FlightGroups[i].DepartureMethod1;
+                xvt.FlightGroups[i].DepartureMethod1 = (miss.FlightGroups[i].DepartureMethod1 == 1);
                 xvt.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
                 xvt.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
                 #endregion ArrDep
@@ -411,6 +413,7 @@ namespace Idmr.Platform
         /// Maximum Abort index of 5<br/>
         /// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
         /// First two Arrival triggers used, first Departure trigger used. First three Region 1 Orders used, max index of 38.<br/>
+        /// Arr/Dep Method1 type 2 (HYP to region of motherhsip) replaced with HYP.<br/>
         /// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br/>
         /// For Messages, first two triggers used.<br/>
         /// For the Briefing, first 16 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br/>
@@ -475,11 +478,11 @@ namespace Idmr.Platform
                 if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xwa.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
                 else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
                 tie.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-                tie.FlightGroups[i].ArrivalMethod1 = miss.FlightGroups[i].ArrivalMethod1;
+                tie.FlightGroups[i].ArrivalMethod1 = (miss.FlightGroups[i].ArrivalMethod1 == 1);
                 tie.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
                 tie.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
                 tie.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-                tie.FlightGroups[i].DepartureMethod1 = miss.FlightGroups[i].DepartureMethod1;
+                tie.FlightGroups[i].DepartureMethod1 = (miss.FlightGroups[i].DepartureMethod1 == 1);
                 tie.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
                 tie.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
                 #endregion ArrDep
@@ -1752,17 +1755,17 @@ namespace Idmr.Platform
                 xwa.FlightGroups[i].DepartureTimerSeconds = 0;
                 xwa.FlightGroups[i].AbortTrigger = 0;
                 xwa.FlightGroups[i].ArrivalCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-                xwa.FlightGroups[i].ArrivalMethod1 = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+                xwa.FlightGroups[i].ArrivalMethod1 = (byte)(miss.FlightGroups[i].ArrivalHyperspace == 1 ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
                 xwa.FlightGroups[i].ArrivalCraft2 = 0;
                 xwa.FlightGroups[i].ArrivalMethod2 = false;
                 xwa.FlightGroups[i].DepartureCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-                xwa.FlightGroups[i].DepartureMethod1 = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+                xwa.FlightGroups[i].DepartureMethod1 = (byte)(miss.FlightGroups[i].DepartureHyperspace == 1 ? 0 : 1);
                 xwa.FlightGroups[i].DepartureCraft2 = 0;
                 xwa.FlightGroups[i].DepartureMethod2 = false;
                 if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
                 {
-                    xwa.FlightGroups[i].ArrivalMethod1 = false;
-                    xwa.FlightGroups[i].DepartureMethod1 = false;
+                    xwa.FlightGroups[i].ArrivalMethod1 = 0;
+                    xwa.FlightGroups[i].DepartureMethod1 = 0;
                 }
                 if (xwingCanWithdraw(miss.FlightGroups[i].CraftType))
                     xwa.FlightGroups[i].AbortTrigger = 9;  //25% hull

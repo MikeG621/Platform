@@ -772,7 +772,7 @@ Designation
 11	HYP to Region 2
 12	HYP to Region 3
 13	HYP to Region 4
-14	Unknown
+14	HYP from Any Region
 15  Unknown
 
 CraftType

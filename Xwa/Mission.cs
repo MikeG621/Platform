@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.5
+ * Version: 5.7.5+
  */
 
 /* CHANGELOG
+ * [UPD] Changes due to XWA Arr/Dep Method1
  * v5.7.5, 230116
  * [FIX] Message read now uses LengthLimit
  * v5.7.2, 220225
@@ -311,9 +312,9 @@ namespace Idmr.Platform.Xwa
 				FlightGroups[i].Unknowns.Unknown8 = buffer[0x3A];
 				stream.Read(buffer, 0, 8);
 				FlightGroups[i].ArrivalCraft1 = buffer[0];
-				FlightGroups[i].ArrivalMethod1 = Convert.ToBoolean(buffer[1]);
-                FlightGroups[i].DepartureCraft1 = buffer[2];   //[JB] Fixed this section
-                FlightGroups[i].DepartureMethod1 = Convert.ToBoolean(buffer[3]);
+				FlightGroups[i].ArrivalMethod1 = buffer[1];
+                FlightGroups[i].DepartureCraft1 = buffer[2];
+                FlightGroups[i].DepartureMethod1 = buffer[3];
                 FlightGroups[i].ArrivalCraft2 = buffer[4];
 				FlightGroups[i].ArrivalMethod2 = Convert.ToBoolean(buffer[5]);
 				FlightGroups[i].DepartureCraft2 = buffer[6];
@@ -771,9 +772,9 @@ namespace Idmr.Platform.Xwa
 					fs.WriteByte(FlightGroups[i].Unknowns.Unknown8);
 					fs.Position++;
 					fs.WriteByte(FlightGroups[i].ArrivalCraft1);
-					bw.Write(FlightGroups[i].ArrivalMethod1);
-                    fs.WriteByte(FlightGroups[i].DepartureCraft1); //[JB] Fixed order
-                    bw.Write(FlightGroups[i].DepartureMethod1);
+                    fs.WriteByte(FlightGroups[i].ArrivalMethod1);
+                    fs.WriteByte(FlightGroups[i].DepartureCraft1);
+                    fs.WriteByte(FlightGroups[i].DepartureMethod1);
                     fs.WriteByte(FlightGroups[i].ArrivalCraft2);
 					bw.Write(FlightGroups[i].ArrivalMethod2);
 					fs.WriteByte(FlightGroups[i].DepartureCraft2);

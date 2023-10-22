@@ -11,6 +11,9 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region" [YOGEME#91]
+ - (XWA) Arr/Dep Method1 changed to byte to handle value of 2, "HYP to region of mothership"
+
 v5.8.1, 14 Oct 2023
  - (XWA) Added missing CraftWhen [YOGEME#90] and defined unknown Triggers [YOGEME#89]
 
