@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 6.0
  */
 
 /* CHANGELOG
+ * v6.0, 231027
  * [FIX] Arr/Dep Method1 to byte
  * v4.0, 200809
  * [UPD] auto-properties

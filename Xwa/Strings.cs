@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.8.1+
+ * Version: 6.0
  */
 
 /* CHANGELOG
+ * v6.0, 231027
  * [UPD] Role unk uncovered [YOGEME#91]
  * v5.8.1, 231014
  * [UPD] Added missing CraftWhen [YOGEME#90]

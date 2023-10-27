@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.5+
+ * Version: 6.0
  */
 
 /* CHANGELOG
+ * v6.0, 231027
  * [UPD] Changes due to XWA Arr/Dep Method1
  * v5.7.5, 230116
  * [FIX] Message read now uses LengthLimit

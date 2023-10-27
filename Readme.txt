@@ -3,16 +3,17 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 5.8.1
-Date: 2023.10.14
+Version: 6.0
+Date: 2023.10.27
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v6.0, 27 Oct 2023
  - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region" [YOGEME#91]
- - (XWA) Arr/Dep Method1 changed to byte to handle value of 2, "HYP to region of mothership"
+ - (XWA) Arr/Dep Method1 changed to byte to handle value of 2, "HYP to region of mothership" **BREAKING CHANGE**
 
 v5.8.1, 14 Oct 2023
  - (XWA) Added missing CraftWhen [YOGEME#90] and defined unknown Triggers [YOGEME#89]

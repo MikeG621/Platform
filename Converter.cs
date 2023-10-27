@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.4+
+ * Version: 6.0
  */
 
 /* CHANGELOG
+ * v6.0, 231027
  * [UPD] Changes due to XWA Arr/Dep Method1
  * v5.4, 210404
  * [FIX] TIE goal check exception type
@@ -43,8 +44,7 @@ using System.Collections.Generic;
 namespace Idmr.Platform
 {
     /// <summary>Object for Mission Platform conversions</summary>
-    /// <remarks>Primarily handles downgrading of platforms, due to existing utilities for upgrading<br/>
-    /// Converted files will use same MissionPath with platform included ("test.tie" to "test_Xvt.tie")</remarks>
+    /// <remarks>Converted files will use same MissionPath with platform included ("test.tie" to "test_Xvt.tie")</remarks>
     public static class Converter
     {
         /// <summary>Downgrades XvT and BoP missions to TIE95</summary>
@@ -83,7 +83,7 @@ namespace Idmr.Platform
                 tie.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
                 tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
                 tie.FlightGroups[i].CraftType = Tie.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
-                if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+                if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xvt.Strings.CraftType[miss.FlightGroups[i].CraftType]);
                 tie.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
                 tie.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
                 tie.FlightGroups[i].Missile = miss.FlightGroups[i].Missile;
@@ -92,7 +92,7 @@ namespace Idmr.Platform
                 tie.FlightGroups[i].AI = miss.FlightGroups[i].AI;
                 if (tie.FlightGroups[i].AI > 4) tie.FlightGroups[i].AI = 4;  //[JB] Jedi in XvT should be Top Ace in TIE, not invul.
                 tie.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
-                if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, Xwa.Strings.Formation[miss.FlightGroups[i].Formation]);
+                if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, BaseStrings.Formation[miss.FlightGroups[i].Formation]);
                 else tie.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
                 tie.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
                 tie.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
@@ -115,7 +115,7 @@ namespace Idmr.Platform
                 tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
                 tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
                 tie.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
-                if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xwa.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
+                if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xvt.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
                 else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
                 tie.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
                 tie.FlightGroups[i].ArrivalMethod1 = miss.FlightGroups[i].ArrivalMethod1;
@@ -230,6 +230,123 @@ namespace Idmr.Platform
             #endregion Questions
             tie.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", "_TIE.tie");
             return tie;
+        }
+
+        /// <summary>Upgrades TIE missions to XvT/BoP</summary>
+        /// <param name="miss">TIE mission to convert</param>
+        /// <param name="bop">Determines if mission is to be ocnverted to BoP isntead of XvT</param>
+        /// <returns>Upgraded mission</returns>
+        public static Xvt.Mission TieToXvtBop(Tie.Mission miss, bool bop)
+        {
+            throw new NotImplementedException();
+
+            Xvt.Mission xvt = new Xvt.Mission { IsBop = bop };
+
+            if (miss.FlightGroups.Count > Xvt.Mission.FlightGroupLimit) throw maxException(false, true, Xvt.Mission.FlightGroupLimit);
+            xvt.FlightGroups = new Xvt.FlightGroupCollection(miss.FlightGroups.Count);
+            if (miss.Messages.Count > 0) xvt.Messages = new Xvt.MessageCollection(miss.Messages.Count);
+
+            #region FGs
+            // Before we can start processing FGs, we need to first determine if the player craft is Imperial or Rebel (probably Imp, but still)
+            bool playerIsImperial = true;
+            for (int i = 0; i < xvt.FlightGroups.Count; i++)
+            {
+                if (miss.FlightGroups[i].PlayerCraft != 0)
+                {
+                    playerIsImperial = (miss.FlightGroups[i].IFF == 1);
+                    break;
+                }
+            }
+            for (int i = 0; i < xvt.FlightGroups.Count; i++)
+            {
+                #region Craft
+                xvt.FlightGroups[i].Name = miss.FlightGroups[i].Name;
+                xvt.FlightGroups[i].Cargo = miss.FlightGroups[i].Cargo;
+                xvt.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
+                xvt.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
+                xvt.FlightGroups[i].CraftType = miss.FlightGroups[i].CraftType;
+                xvt.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
+                xvt.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
+                xvt.FlightGroups[i].Missile = miss.FlightGroups[i].Missile;
+                xvt.FlightGroups[i].Beam = miss.FlightGroups[i].Beam;
+                xvt.FlightGroups[i].IFF = miss.FlightGroups[i].IFF;
+                switch (miss.FlightGroups[i].IFF)
+                {
+                    // if player is Imperial, have to switch Team/IFF values, since Imps have to be Team 1 (0) and Rebs are Team 2 (1)
+                    case 0:
+                        if (playerIsImperial) xvt.FlightGroups[i].Team = 1;
+                        else xvt.FlightGroups[i].Team = 0;
+                        break;
+                    case 1:
+                        if (playerIsImperial) xvt.FlightGroups[i].Team = 0;
+                        else xvt.FlightGroups[i].Team = 1;
+                        break;
+                    default:
+                        xvt.FlightGroups[i].Team = miss.FlightGroups[i].IFF;
+                        break;
+                }
+                xvt.FlightGroups[i].AI = miss.FlightGroups[i].AI;
+                xvt.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
+                xvt.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
+                xvt.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
+                xvt.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
+                xvt.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
+                xvt.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
+                if (miss.FlightGroups[i].PlayerCraft != 0)
+                {
+                    xvt.FlightGroups[i].PlayerNumber = 1;
+                    xvt.FlightGroups[i].PlayerCraft = (byte)(miss.FlightGroups[i].PlayerCraft - 1);
+                }
+                xvt.FlightGroups[i].Yaw = miss.FlightGroups[i].Yaw;
+                xvt.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
+                xvt.FlightGroups[i].Roll = miss.FlightGroups[i].Roll;
+                #endregion
+                #region ArrDep
+                xvt.FlightGroups[i].Difficulty = miss.FlightGroups[i].Difficulty;
+                for (int j = 0; j < 3; j++)
+                {
+                    try { xvt.FlightGroups[i].ArrDepTriggers[j] = (Xvt.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[j]; }
+                    catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
+                }
+                xvt.FlightGroups[i].ArrDepAO[0] = miss.FlightGroups[i].AT1AndOrAT2;
+                xvt.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
+                xvt.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
+                xvt.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
+                xvt.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
+                xvt.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
+                xvt.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
+                xvt.FlightGroups[i].ArrivalMethod1 = miss.FlightGroups[i].ArrivalMethod1;
+                xvt.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
+                xvt.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
+                xvt.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
+                xvt.FlightGroups[i].DepartureMethod1 = miss.FlightGroups[i].DepartureMethod1;
+                xvt.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
+                xvt.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
+                #endregion
+                #region Goals
+                # endregion
+                for (int j = 0; j < 3; j++)
+                {
+                    try { xvt.FlightGroups[i].Orders[j] = (Xvt.FlightGroup.Order)miss.FlightGroups[i].Orders[j]; }
+                    catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
+                }
+                for (int j = 0; j < 15; j++)
+                    xvt.FlightGroups[i].Waypoints[j] = miss.FlightGroups[i].Waypoints[j];
+            }
+            #endregion
+            #region Messages
+            #endregion
+            #region Briefing
+            #endregion
+            #region Globals
+            #endregion
+            #region IFF/Team
+            #endregion
+            #region Questions
+            #endregion
+
+            xvt.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", (bop ? "_BoP.tie" : "_XvT.tie"));
+            return xvt;
         }
 
         /// <summary>Downgrades XWA missions to XvT and BoP</summary>
