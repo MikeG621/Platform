@@ -11,6 +11,8 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - (Converter) Added TieToXvt() and TieToXvtBop()
+
 v6.0, 27 Oct 2023
  - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region" [YOGEME#91]
  - (XWA) Arr/Dep Method1 changed to byte to handle value of 2, "HYP to region of mothership" **BREAKING CHANGE**

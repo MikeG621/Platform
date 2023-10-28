@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.0
+ * Version: 6.0+
  */
 
 /* CHANGELOG
+ * [NEW] TieToXvt and TieToXvtBop
+ * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
  * v6.0, 231027
  * [UPD] Changes due to XWA Arr/Dep Method1
  * v5.4, 210404
@@ -57,7 +59,7 @@ namespace Idmr.Platform
         /// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
         /// First two Arrival triggers used, first Departure trigger used. First three Orders used. All standard WPs and first Briefing WP used.<br/>
         /// For Messages, first two triggers used.<br/>
-        /// For the Briefing, entire thing should be able to be used unless the original actually uses close to 200 commands (yikes). There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
+        /// For the Briefing, entire thing should be able to be used unless the original actually uses close to 200 commands (yikes).<br/>
         /// Primary Global goals used, XvT Secondary goals converted to Bonus goals. Prevent goals ignored<br/>
         /// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br/>
         /// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br/>
@@ -131,17 +133,32 @@ namespace Idmr.Platform
                 {
                     tie.FlightGroups[i].Goals.PrimaryCondition = miss.FlightGroups[i].Goals[0].Condition;
                     tie.FlightGroups[i].Goals.PrimaryAmount = miss.FlightGroups[i].Goals[0].Amount;
+                    if (miss.FlightGroups[i].Goals[0].Argument == 1 || miss.FlightGroups[i].Goals[0].Argument == 3) // must NOT or BONUS must NOT
+                    {
+                        if (miss.FlightGroups[i].Goals[0].Condition == 2) tie.FlightGroups[i].Goals.PrimaryCondition = 9;
+                        else throw new ArgumentException("Cannot convert \"must NOT\" Flightgroup Goal (FG: " + i + ")");
+                    }
                 }
                 if (miss.FlightGroups[i].Goals[1].GetEnabledForTeam(0))
                 {
                     tie.FlightGroups[i].Goals.SecondaryCondition = miss.FlightGroups[i].Goals[1].Condition;
                     tie.FlightGroups[i].Goals.SecondaryAmount = miss.FlightGroups[i].Goals[1].Amount;
+                    if (miss.FlightGroups[i].Goals[1].Argument == 1 || miss.FlightGroups[i].Goals[1].Argument == 3)
+                    {
+                        if (miss.FlightGroups[i].Goals[1].Condition == 2) tie.FlightGroups[i].Goals.SecondaryCondition = 9;
+                        else throw new ArgumentException("Cannot convert \"must NOT\" Flightgroup Goal (FG: " + i + ")");
+                    }
                 }
                 if (miss.FlightGroups[i].Goals[2].GetEnabledForTeam(0))
                 {
                     tie.FlightGroups[i].Goals.BonusCondition = miss.FlightGroups[i].Goals[2].Condition;
                     tie.FlightGroups[i].Goals.BonusAmount = miss.FlightGroups[i].Goals[2].Amount;
                     tie.FlightGroups[i].Goals.RawBonusPoints = miss.FlightGroups[i].Goals[2].RawPoints;
+                    if (miss.FlightGroups[i].Goals[2].Argument == 1 || miss.FlightGroups[i].Goals[2].Argument == 3)
+                    {
+                        if (miss.FlightGroups[i].Goals[2].Condition == 2) tie.FlightGroups[i].Goals.BonusCondition = 9;
+                        else throw new ArgumentException("Cannot convert \"must NOT\" Flightgroup Goal (FG: " + i + ")");
+                    }
                 }
                 tieGoalsCheck("FlightGroup " + i, tie.FlightGroups[i].Goals);
                 #endregion Goals
@@ -179,7 +196,7 @@ namespace Idmr.Platform
                 short time = miss.Briefings[0].Events[i];
                 short evnt = miss.Briefings[0].Events[i + 1];
                 tie.Briefing.Events[i + 1] = evnt;
-                if (time == 9999 && evnt == 0x22)
+                if (time == 9999 && evnt == (short)BaseBriefing.EventType.EndBriefing)
                 {
                     tie.Briefing.Events[i] = time;
                     break;
@@ -233,13 +250,17 @@ namespace Idmr.Platform
         }
 
         /// <summary>Upgrades TIE missions to XvT/BoP</summary>
+        /// <remarks> FG.Radio is not converted, since TIE behaviour is different<br/>
+        /// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
+        /// For the Briefing, entire thing should be able to be used. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
+        /// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
+        /// MissionSucc/Fail/Desc generated using Pre- and Post-briefing Questions.<br/>
+        /// Filename will end in "_XvT.tie" or "_BoP.tie", depending on <paramref name="bop"/>.</remarks>
         /// <param name="miss">TIE mission to convert</param>
-        /// <param name="bop">Determines if mission is to be ocnverted to BoP isntead of XvT</param>
+        /// <param name="bop">Determines if mission is to be converted to BoP instead of XvT</param>
         /// <returns>Upgraded mission</returns>
         public static Xvt.Mission TieToXvtBop(Tie.Mission miss, bool bop)
         {
-            throw new NotImplementedException();
-
             Xvt.Mission xvt = new Xvt.Mission { IsBop = bop };
 
             if (miss.FlightGroups.Count > Xvt.Mission.FlightGroupLimit) throw maxException(false, true, Xvt.Mission.FlightGroupLimit);
@@ -323,31 +344,169 @@ namespace Idmr.Platform
                 xvt.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
                 xvt.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
                 #endregion
-                #region Goals
-                # endregion
                 for (int j = 0; j < 3; j++)
                 {
                     try { xvt.FlightGroups[i].Orders[j] = (Xvt.FlightGroup.Order)miss.FlightGroups[i].Orders[j]; }
                     catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
                 }
+                #region Goals
+                if (miss.FlightGroups[i].Goals.PrimaryCondition == 9) // if EXIST
+                {
+                    xvt.FlightGroups[i].Goals[0].Argument = 1; // must NOT
+                    xvt.FlightGroups[i].Goals[0].Condition = 2; // be destroyed
+                }
+                else xvt.FlightGroups[i].Goals[0].Condition = miss.FlightGroups[i].Goals.PrimaryCondition;
+                if (miss.FlightGroups[i].Goals.PrimaryAmount == 1)
+                    xvt.FlightGroups[i].Goals[0].Amount = 2; // 50%
+                else if (miss.FlightGroups[i].Goals.PrimaryAmount >= 2)
+                    xvt.FlightGroups[i].Goals[0].Amount = (byte)(miss.FlightGroups[i].Goals.PrimaryAmount + 2);    // at least 1...
+                if (miss.FlightGroups[i].Goals.PrimaryCondition != 10 && miss.FlightGroups[i].Goals.PrimaryCondition != 9)
+                    xvt.FlightGroups[i].Goals[0].Points = 250;
+                if (miss.FlightGroups[i].Goals.PrimaryCondition != 10)
+                    xvt.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
+
+                if (miss.FlightGroups[i].Goals.SecondaryCondition == 9) // if EXIST
+                {
+                    xvt.FlightGroups[i].Goals[1].Argument = 3; // BONUS must NOT
+                    xvt.FlightGroups[i].Goals[1].Condition = 2; // be destroyed
+                }
+                else
+                {
+                    xvt.FlightGroups[i].Goals[1].Argument = 2; // BONUS must
+                    xvt.FlightGroups[i].Goals[1].Condition = miss.FlightGroups[i].Goals.SecondaryCondition;
+                }
+                if (miss.FlightGroups[i].Goals.SecondaryAmount == 1)
+                    xvt.FlightGroups[i].Goals[1].Amount = 2; // 50%
+                else if (miss.FlightGroups[i].Goals.SecondaryAmount >= 2)
+                    xvt.FlightGroups[i].Goals[1].Amount = (byte)(miss.FlightGroups[i].Goals.SecondaryAmount + 2);    // at least 1...
+                if (miss.FlightGroups[i].Goals.SecondaryCondition != 10 && miss.FlightGroups[i].Goals.SecondaryCondition != 9)
+                    xvt.FlightGroups[i].Goals[1].Points = 250;
+                if (miss.FlightGroups[i].Goals.SecondaryCondition != 10)
+                    xvt.FlightGroups[i].Goals[1].SetEnabledForTeam(0, true);
+
+                if (miss.FlightGroups[i].Goals.BonusCondition == 9) // if EXIST
+                {
+                    xvt.FlightGroups[i].Goals[2].Argument = 3; // BONUS must NOT
+                    xvt.FlightGroups[i].Goals[2].Condition = 2; // be destroyed
+                }
+                else
+                {
+                    xvt.FlightGroups[i].Goals[2].Argument = 2; // BONUS must
+                    xvt.FlightGroups[i].Goals[2].Condition = miss.FlightGroups[i].Goals.BonusCondition;
+                }
+                if (miss.FlightGroups[i].Goals.BonusAmount == 1)
+                    xvt.FlightGroups[i].Goals[2].Amount = 2; // 50%
+                else if (miss.FlightGroups[i].Goals.BonusAmount >= 2)
+                    xvt.FlightGroups[i].Goals[2].Amount = (byte)(miss.FlightGroups[i].Goals.BonusAmount + 2);    // at least 1...
+                if (miss.FlightGroups[i].Goals.BonusCondition != 10 && miss.FlightGroups[i].Goals.BonusCondition != 9)
+                    xvt.FlightGroups[i].Goals[2].RawPoints = miss.FlightGroups[i].Goals.RawBonusPoints;
+                if (miss.FlightGroups[i].Goals.BonusCondition != 10)
+                    xvt.FlightGroups[i].Goals[2].SetEnabledForTeam(0, true);
+                #endregion
                 for (int j = 0; j < 15; j++)
                     xvt.FlightGroups[i].Waypoints[j] = miss.FlightGroups[i].Waypoints[j];
             }
             #endregion
             #region Messages
-            #endregion
-            #region Briefing
+            for (int i = 0; i < xvt.Messages.Count; i++)
+            {
+                xvt.Messages[i].MessageString = miss.Messages[i].MessageString;
+                xvt.Messages[i].Color = miss.Messages[i].Color;
+                xvt.Messages[i].Delay = miss.Messages[i].Delay;
+                xvt.Messages[i].Note = miss.Messages[i].Short;
+                xvt.Messages[i].T1AndOrT2 = miss.Messages[i].Trig1AndOrTrig2;
+                for (int j = 0; j < 2; j++)
+                {
+                    try { xvt.Messages[i].Triggers[j] = (Xvt.Mission.Trigger)miss.Messages[i].Triggers[j]; }
+                    catch (Exception x) { throw new ArgumentException("Mess[" + i + "] T[" + j + "]: " + x.Message, x); }
+                }
+            }
             #endregion
             #region Globals
+            xvt.Globals[0].Goals[0].Triggers[0].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[0].Triggers[0];
+            xvt.Globals[0].Goals[0].Triggers[1].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[0].Triggers[1];
+            xvt.Globals[0].Goals[0].T1AndOrT2 = miss.GlobalGoals.Goals[0].T1AndOrT2;    // Primary
+            xvt.Globals[0].Goals[2].Triggers[0].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[1].Triggers[0];
+            xvt.Globals[0].Goals[2].Triggers[1].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[1].Triggers[1];
+            xvt.Globals[0].Goals[2].T1AndOrT2 = miss.GlobalGoals.Goals[1].T1AndOrT2;    // Secondary
+            xvt.Globals[0].Goals[2].Triggers[2].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[2].Triggers[0];
+            xvt.Globals[0].Goals[2].Triggers[3].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[2].Triggers[1];
+            xvt.Globals[0].Goals[2].T3AndOrT4 = miss.GlobalGoals.Goals[2].T1AndOrT2;    // Bonus as additional Secondary
             #endregion
             #region IFF/Team
+            xvt.Teams[0].Name = (playerIsImperial ? "Imperial" : "Rebel");
+            xvt.Teams[1].Name = (playerIsImperial ? "Rebel" : "Imperial");
+            for (int i = 2; i < 6; i++)
+            {
+                xvt.Teams[i].Name = miss.IFFs[i];
+                xvt.Teams[0].AlliedWithTeam[i] = !miss.IffHostile[i];
+            }
+            for (int i = 0; i < 6; i++) xvt.Teams[0].EndOfMissionMessages[i] = miss.EndOfMissionMessages[i];
+            #endregion
+            #region Briefing
+            for (int i = 0; i < xvt.Briefings[0].BriefingTag.Length; i++) xvt.Briefings[0].BriefingTag[i] = miss.Briefing.BriefingTag[i];
+            for (int i = 0; i < xvt.Briefings[0].BriefingString.Length; i++) xvt.Briefings[0].BriefingString[i] = miss.Briefing.BriefingString[i];
+            xvt.Briefings[0].Unknown1 = miss.Briefing.Unknown1;
+            xvt.Briefings[0].Length = (short)(miss.Briefing.Length * Xvt.Briefing.TicksPerSecond / Tie.Briefing.TicksPerSecond);
+            for (int i = 0; i < xvt.Briefings[0].Events.Length;)
+            {
+                short time = miss.Briefing.Events[i];
+                short evnt = miss.Briefing.Events[i + 1];
+                xvt.Briefings[0].Events[i + 1] = evnt;
+                if (time == 9999 && evnt == (short)BaseBriefing.EventType.EndBriefing)
+                {
+                    xvt.Briefings[0].Events[i] = time;
+                    break;
+                }
+                xvt.Briefings[0].Events[i] = (short)(time * Xvt.Briefing.TicksPerSecond / Tie.Briefing.TicksPerSecond);
+                i += 2;
+                for (int j = 0; j < xvt.Briefings[0].EventParameterCount(evnt); j++, i++)
+                    xvt.Briefings[0].Events[i] = miss.Briefing.Events[i];
+                if (evnt == (short)BaseBriefing.EventType.ZoomMap)
+                {
+                    xvt.Briefings[0].Events[i - 2] = (short)(xvt.Briefings[0].Events[i - 2] * 58 / 47); // X
+                    xvt.Briefings[0].Events[i - 1] = (short)(xvt.Briefings[0].Events[i - 1] * 88 / 47); // Y
+                }
+            }
             #endregion
             #region Questions
+            for (int i = 0; i < 10; i++)
+            {
+                if (miss.BriefingQuestions.PreMissQuestions[i].Length != 0)
+                {
+                    if (xvt.MissionDescription != "") xvt.MissionDescription += "\r\n\r\n";
+                    xvt.MissionDescription += miss.BriefingQuestions.PreMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PreMissAnswers[i];
+                }
+
+                if (miss.BriefingQuestions.PostMissQuestions[i].Length != 0)
+                {
+                    if (miss.BriefingQuestions.PostTrigger[i] == 4)
+                    {
+                        if (xvt.MissionSuccessful != "") xvt.MissionSuccessful += "\r\n\r\n";
+                        xvt.MissionSuccessful += miss.BriefingQuestions.PostMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PostMissAnswers[i];
+                    }
+                    else if (miss.BriefingQuestions.PostTrigger[i] == 4)
+                    {
+                        if (xvt.MissionFailed != "") xvt.MissionFailed += "\r\n\r\n";
+                        xvt.MissionFailed += miss.BriefingQuestions.PostMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PostMissAnswers[i];
+                    }
+                }
+            }
             #endregion
 
             xvt.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", (bop ? "_BoP.tie" : "_XvT.tie"));
             return xvt;
         }
+        /// <summary>Upgrades TIE missions to XvT</summary>
+        /// <remarks> FG.Radio is not converted, since TIE behaviour is different<br/>
+        /// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
+        /// For the Briefing, entire thing should be able to be used. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
+        /// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
+        /// MissionDesc generated using Pre-briefing Questions.<br/>
+        /// Filename will end in "_XvT.tie".</remarks>
+        /// <param name="miss">TIE mission to convert</param>
+        /// <returns>Upgraded mission</returns>
+        public static Xvt.Mission TieToXvt(Tie.Mission miss) { return TieToXvtBop(miss, false); }
 
         /// <summary>Downgrades XWA missions to XvT and BoP</summary>
         /// <remarks>Maximum CraftType of 91. Triggers will update.<br/>
@@ -1105,13 +1264,12 @@ namespace Idmr.Platform
             List<string> preText = new List<string>();
             List<string> failText = new List<string>();
 
-            List<string> captionText;
             bool hintPage = false;
             for (int i = 0; i < miss.Briefing.Pages.Count; i++)
             {
                 if (!miss.Briefing.IsMapPage(i))
                 {
-                    miss.Briefing.GetCaptionText(i, out captionText);
+                    miss.Briefing.GetCaptionText(i, out List<string> captionText);
                     foreach (string s in captionText)
                     {
                         if (s == "") continue;
@@ -1620,13 +1778,12 @@ namespace Idmr.Platform
             //Extract the mission description from the briefing's text pages.
             string preText = "";
             string failText = "";
-            List<string> captionText;
             bool hintPage = false;
             for (int i = 0; i < miss.Briefing.Pages.Count; i++)
             {
                 if (!miss.Briefing.IsMapPage(i))
                 {
-                    miss.Briefing.GetCaptionText(i, out captionText);
+                    miss.Briefing.GetCaptionText(i, out List<string> captionText);
                     foreach (string s in captionText)
                     {
                         if (s == "") continue;
@@ -2112,13 +2269,12 @@ namespace Idmr.Platform
             //Extract the mission description from the briefing's text pages.
             string preText = "";
             string failText = "";
-            List<string> captionText;
             bool hintPage = false;
             for (int i = 0; i < miss.Briefing.Pages.Count; i++)
             {
                 if (!miss.Briefing.IsMapPage(i))
                 {
-                    miss.Briefing.GetCaptionText(i, out captionText);
+                    miss.Briefing.GetCaptionText(i, out List<string> captionText);
                     foreach (string s in captionText)
                     {
                         if (s == "") continue;
