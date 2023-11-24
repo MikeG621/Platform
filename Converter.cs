@@ -8,7 +8,7 @@
  */
 
 /* CHANGELOG
- * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa
+ * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa, TieToXwa
  * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
  * [UPD] Added Countermeasures, ExplosionTime, GlobalUnit, and Optionals to XwaToXvt Flightgroups
  * v6.0, 231027
@@ -703,6 +703,10 @@ namespace Idmr.Platform
         }
 
         /// <summary>Upgrades XvT and BoP missions to XWA.</summary>
+        /// <remarks>Defaults to <see cref="Xwa.Mission.HangarEnum.MonCalCruiser"/> hangar, if <paramref name="toSkirmish"/> and multiple player craft are detected then will use <see cref="Xwa.Mission.HangarEnum.Skirmish"/>.<br/>
+        /// If <paramref name="toSkirmish"/> is <b>false</b>, only converts first Briefing, Player craft is PlayerNumber 1.<br/>
+        /// Adds two Backdrops for lighting with random graphics.<br/>
+        /// Briefing creates icons for each FG used, should carry over fine. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.</remarks>
         /// <param name="miss">XvT or BoP mission to convert.</param>
         /// <param name="toSkirmish">If the converted mission is for a multiplayer skirmish.</param>
         /// <returns>Upgraded mission</returns>
@@ -807,11 +811,7 @@ namespace Idmr.Platform
                 #endregion
                 #region Arr/Dep
                 xwa.FlightGroups[i].Difficulty = miss.FlightGroups[i].Difficulty;
-                for (int j = 0; j < 6; j++)
-                {
-                    try { xwa.FlightGroups[i].ArrDepTriggers[j] = (Xwa.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[j]; }
-                    catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
-                }
+                for (int j = 0; j < 6; j++) xwa.FlightGroups[i].ArrDepTriggers[j] = miss.FlightGroups[i].ArrDepTriggers[j];
                 for (int j = 0; j < 4; j++) xwa.FlightGroups[i].ArrDepAndOr[j] = miss.FlightGroups[i].ArrDepAO[j];
                 xwa.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
                 xwa.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
@@ -830,16 +830,11 @@ namespace Idmr.Platform
                 #region Orders
                 for (int j = 0; j < 4; j++)
                 {
-                    try { xwa.FlightGroups[i].Orders[0, j] = (Xwa.FlightGroup.Order)miss.FlightGroups[i].Orders[j]; }
-                    catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
+                    xwa.FlightGroups[i].Orders[0, j] = miss.FlightGroups[i].Orders[j];
                     for (int k = 0; k < 8; k++) xwa.FlightGroups[i].Orders[0, j].Waypoints[k] = miss.FlightGroups[i].Waypoints[k + 4];
                 }
                 xwa.FlightGroups[i].Orders[0, 3].SkipT1AndOrT2 = miss.FlightGroups[i].SkipToO4T1AndOrT2;
-                for (int j = 0; j < 2; j++)
-                {
-                    try { xwa.FlightGroups[i].Orders[0, 3].SkipTriggers[j] = (Xwa.Mission.Trigger)miss.FlightGroups[i].SkipToOrder4Trigger[j]; }
-                    catch (Exception x) { throw new ArgumentException("FG[" + i + "] SkipT[" + j + "]: " + x.Message, x); }
-                }
+                for (int j = 0; j < 2; j++) xwa.FlightGroups[i].Orders[0, 3].SkipTriggers[j] = miss.FlightGroups[i].SkipToOrder4Trigger[j];
                 #endregion
                 #region Goals
                 for (int j = 0; j < 8; j++)
@@ -871,7 +866,7 @@ namespace Idmr.Platform
                 }
                 if (toSkirmish && miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].Enabled)
                 {
-                    int offset = briefShipCount[0] * 10;
+                    int offset = briefShipCount[1] * 10;
                     xwa.Briefings[1].Events[offset] = 0;
                     xwa.Briefings[1].Events[offset + 1] = (short)BaseBriefing.EventType.XwaNewIcon;
                     fgIcons[i] = briefShipCount[1];     // store the Icon# for the FG
@@ -990,6 +985,19 @@ namespace Idmr.Platform
             xwa.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", "_XWA.tie");
             return xwa;
         }
+
+        /// <summary>Upgrades TIE missions to XWA</summary>
+        /// <remarks>Defaults to <see cref="Xwa.Mission.HangarEnum.MonCalCruiser"/> hangar.<br/>
+        /// FG.Radio is not converted, since TIE behaviour is different.<br/>
+        /// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
+        /// Adds two Backdrops for lighting with random graphics.<br/>
+        /// Briefing creates icons for each FG used, should carry over fine. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
+        /// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
+        /// MissionSucc/Fail/Desc generated using Pre- and Post-briefing Questions.<br/>
+        /// Filename will end in "_XWA.tie".</remarks>
+        /// <param name="miss">TIE mission to convert</param>
+        /// <returns>Upgraded mission</returns>
+        public static Xwa.Mission TieToXwa(Tie.Mission miss) { return XvtBopToXwa(TieToBop(miss), false); }
 
         /// <summary>Downgrades XWA missions to TIE95</summary>
         /// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br/>
