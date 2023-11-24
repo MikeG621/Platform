@@ -1,13 +1,14 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [FIX] Converting to XWA adjusts craft type properly
  * v5.7, 220127
  * [UPD] added ctor now calls base [JB]
  * v5.6, 220103
@@ -193,7 +194,12 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Converts a Trigger for use in XWA</summary>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <returns>A copy of <paramref name="trig"/> for use in XWA</returns>
-			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger((byte[])trig); }
+			public static implicit operator Xwa.Mission.Trigger(Trigger trig)
+			{
+				Xwa.Mission.Trigger t = new Xwa.Mission.Trigger((byte[])trig);
+				if (t.VariableType == 2 && t.Variable != 255) t.Variable++;
+				return t;
+			}
 		}
 	}
 }
