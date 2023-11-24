@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.4
+ * Version: 5.7.4+
  */
 
 /* CHANGELOG
+ * [FIX] EventQuantityLimit
  * v5.7.4, 220827
  * [FIX] TicksPerSecond from 0x14 to 0x15
  * v4.0, 200809
@@ -33,8 +34,8 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Value is <b>21 (0x15)</b></remarks>
 		public const int TicksPerSecond = 0x15;
 		/// <summary>Maximum number of events that can be held</summary>
-		/// <remarks>Value is <b>202 (0xCA)</b></remarks>
-		public const int EventQuantityLimit = 0xCA;
+		/// <remarks>Value is <b>200 (0xC8)</b></remarks>
+		public const int EventQuantityLimit = 0xC8;
 
 		/// <summary>Initializes a blank Briefing</summary>
 		public Briefing()
