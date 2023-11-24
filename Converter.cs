@@ -8,7 +8,7 @@
  */
 
 /* CHANGELOG
- * [NEW] TieToXvt and TieToXvtBop
+ * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa
  * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
  * [UPD] Added Countermeasures, ExplosionTime, GlobalUnit, and Optionals to XwaToXvt Flightgroups
  * v6.0, 231027
