@@ -149,7 +149,7 @@ namespace Idmr.Platform
 
 		/// <summary>Gets the number of parameters for the specified event type</summary>
 		/// <param name="eventType">The briefing event</param>
-		/// <exception cref="IndexOutOfRangeException">Invalid <i>eventType</i> value</exception>
+		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
 		/// <returns>The number of parameters</returns>
 		virtual public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
 
