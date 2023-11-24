@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [UPD] Convert times for XWA
  * v5.7, 220127
  * [UPD] cloning ctor now calls base [JB]
  * v5.6, 220103
@@ -266,7 +267,36 @@ namespace Idmr.Platform.Xvt
 				{
 					CustomText = order.Designation
 				};
-				return ord;
+                //XvT time is value*5=sec
+                //XWA time value, if 20 (decimal) or under is exact seconds, then +5 up to 15:00, then +10.
+                //21 = 25 sec, 22 = 30 sec, etc.
+                switch (ord.Command)
+                {
+                    case 0x0C:   //Board and Give Cargo
+                    case 0x0D:   //Board and Take Cargo
+                    case 0x0E:   //Board and Exchange Cargo
+                    case 0x0F:   //Board and Capture Cargo
+                    case 0x10:   //Board and Destroy Cargo
+                    case 0x11:   //Pick up
+                    case 0x12:   //Drop off   (Deploy time?)
+                    case 0x13:   //Wait
+                    case 0x14:   //SS Wait
+                    case 0x1C:   //SS Hold Steady
+                    case 0x1E:   //SS Wait
+                    case 0x1F:   //SS Board
+                    case 0x20:   //Board to Repair
+                    case 0x24:   //Self-destruct
+						if (ord.Variable1 < 4) ord.Variable1 = (byte)(ord.Variable1 * 5);
+						else if (ord.Variable1 < 180) ord.Variable1 = (byte)(ord.Variable1 + 16);
+						else ord.Variable1 = (byte)(ord.Variable1 / 2 + 106);
+                        break;
+                    default: break;
+                }
+				if (ord.Target1Type == 2 && ord.Target1 != 255) ord.Target1++;
+                if (ord.Target2Type == 2 && ord.Target2 != 255) ord.Target2++;
+                if (ord.Target3Type == 2 && ord.Target3 != 255) ord.Target3++;
+                if (ord.Target4Type == 2 && ord.Target4 != 255) ord.Target4++;
+                return ord;
 			}
 			
 			#region public properties
