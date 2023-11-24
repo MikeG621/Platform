@@ -11,7 +11,11 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
- - (Converter) Added TieToXvt() and TieToXvtBop()
+ - (Converter) Added TieToXvt(), TieToBop(), TieToXvtBop()
+ - (Converter) XvT to XWA orders convert times
+ - (Converter) XvT to XWA Triggers adjust craft type
+ - (Converter) Added Countermeasures, ExplosionTime, GlobalUnit and Optionals to Xwa to Xvt Flightgroups
+ - (XvT) Briefing EventQuantityLimit corrected to 200
 
 v6.0, 27 Oct 2023
  - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region" [YOGEME#91]

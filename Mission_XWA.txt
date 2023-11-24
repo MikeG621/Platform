@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2023.10.14
+Updated: 2023.11.24
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -310,7 +310,7 @@ struct Message (size 0xA2)
 	0x7A	BOOL	Trigger3OrTrigger4
 	0x7C	STR(8)	Voice
 	0x84	BYTE	OriginatingFG
-	0x8C	BYTE	DelaySeconds
+	0x8C	BYTE	Delay
 	0x8D	BOOL	Triggers12OrTriggers34
 	0x8E	BYTE	Color
 	0x8F	BYTE	Unknown2
@@ -620,6 +620,12 @@ etc. Not every LA mission uses it, and there doesn't appear to be any game
 mechanic behind it, as a message from a given ship will still fire even if that
 ship is destroyed. This is the "Unk" value in the lower-right in AlliED. Just
 looks like another bookkeeping value.
+
+The delay uses a segmented formula instead of a simple multiplier to determine
+the value in seconds. Up to a value of 20, it's simply seconds. Starting with
+21 (0x15), it increments in 5 seconds. So 0:20, 0:25, 0:30, etc. Once the value
+reaches 15:00 (196, 0xC4) it begins to increment in 10 second intervals. This
+results in a maximum delay time of 24:50.
 
 New to XWA is yet another function to add realism, is the Cancel trigger.  If
 this trigger fires before the message can, the message will not fire regardless

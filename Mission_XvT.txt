@@ -2,7 +2,7 @@ XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributor: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2022.01.26
+Updated: 2023.11.24
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -251,7 +251,7 @@ struct Message (size  0x74)
 	0x57	Trigger[2]
 	0x61	BOOL	Trigger3OrTrigger4
 	0x62	STR(16)	EditorNote
-	0x72	BYTE	DelaySeconds
+	0x72	BYTE	Delay
 	0x73	BOOL	Trigger12OrTrigger34
 }
 
@@ -537,6 +537,9 @@ any negative side effects. The final character is not required to be a null
 terminator. It will overflow into the SendTo* array, but most of it is null
 anyway, or is a non-printable char. Even so there's a hard limit of 70 chars
 that are copied into the actual message log.
+
+The Delay is multipled by 5 to get the number of seconds, resulting in a
+maximum delay of 1275s or 21:15.
 
 -- GlobalGoal --
 
