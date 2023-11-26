@@ -14,7 +14,6 @@
  * [NEW] GetList()
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace Idmr.Platform.Xvt

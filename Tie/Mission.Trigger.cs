@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.5
+ * Version: 5.7.5+
  */
 
 /* CHANGELOG
+ * [NEW] TypeList enum
  * v5.7.5, 230116
  * [UPD #12] ToString update for AI Rating, Status and All Craft
  * v5.7, 220127
@@ -32,6 +33,23 @@ namespace Idmr.Platform.Tie
 		/// <summary>Object for a single Trigger</summary>
 		[Serializable] public class Trigger : BaseTrigger
 		{
+			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
+			public enum TypeList : byte
+			{
+				None,
+				FlightGroup,
+				ShipType,
+				ShipClass,
+				ObjectType,
+				IFF,
+				ShipOrders,
+				CraftWhen,
+				GlobalGroup,
+				AILevel,
+				Status,
+				AllCraft
+			}
+
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[4]) { }
 
@@ -90,7 +108,7 @@ namespace Idmr.Platform.Tie
 			static byte[] craftUpgrade(Trigger t)
 			{
 				byte[] b = (byte[])t;
-				if (b[1] == 2)
+				if (b[(byte)TriggerIndex.VariableType] == (byte)TypeList.ShipType)
 				{
 					if (b[2] == 10) b[2] = 89;	// SHPYD
 					else if (b[2] == 11) b[2] = 90;	// REPYD
@@ -110,39 +128,39 @@ namespace Idmr.Platform.Tie
 				{
 					trig = BaseStrings.SafeString(Strings.Amount, Amount);
 					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
-					switch (VariableType) //TODO: should make an enum for this...
+					switch ((TypeList)VariableType)
 					{
-						case 1:
+						case TypeList.FlightGroup:
 							trig += "FG:" + Variable;
 							break;
-						case 2:
+						case TypeList.ShipType:
 							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable + 1);
 							break;
-						case 3:
+						case TypeList.ShipClass:
 							trig += "Ship class " + BaseStrings.SafeString(Strings.ShipClass, Variable);
 							break;
-						case 4:
+						case TypeList.ObjectType:
 							trig += "Object type " + BaseStrings.SafeString(Strings.ObjectType, Variable);
 							break;
-						case 5:
+						case TypeList.IFF:
 							trig += "IFF:" + Variable;
 							break;
-						case 6:
+						case TypeList.ShipOrders:
 							trig += "Ship orders " + BaseStrings.SafeString(Strings.Orders, Variable);
 							break;
-						case 7:
+						case TypeList.CraftWhen:
 							trig += "Craft When " + BaseStrings.SafeString(Strings.CraftWhen, Variable);
 							break;
-						case 8:
+						case TypeList.GlobalGroup:
 							trig += "Global Group " + Variable;
 							break;
-						case 9:
+						case TypeList.AILevel:
 							trig += "AI Rating " + BaseStrings.SafeString(Strings.Rating, Variable);
 							break;
-                        case 0xA:
+                        case TypeList.Status:
                             trig += "Craft with status: " + BaseStrings.SafeString(Strings.Status, Variable);
                             break;
-                        case 0xB:
+                        case TypeList.AllCraft:
                             trig += "All craft";
                             break;
                         default:
@@ -168,12 +186,12 @@ namespace Idmr.Platform.Tie
 			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <returns>A copy of <paramref name="trig"/> for XvT</returns>
-			public static implicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(craftUpgrade(trig)); }
+			public static implicit operator Xvt.Mission.Trigger(Trigger trig) => new Xvt.Mission.Trigger(craftUpgrade(trig));
 			/// <summary>Converts a Trigger for use in XWA</summary>
 			/// <remarks>CraftType indexes for SHPYD, REPYD, G/PLT and M/SC will be updated</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <returns>A copy of <paramref name="trig"/> for XWA</returns>
-			public static implicit operator Xwa.Mission.Trigger(Trigger trig) { return new Xwa.Mission.Trigger(craftUpgrade(trig)); }
+			public static implicit operator Xwa.Mission.Trigger(Trigger trig) => new Xwa.Mission.Trigger(craftUpgrade(trig));
 		}
 	}
 }

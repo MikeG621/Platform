@@ -1147,7 +1147,7 @@ namespace Idmr.Platform.Xwa
 		/// <param name="srcIndex">The original FG index location</param>
 		/// <param name="dstIndex">The new FG index location</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
-        /// <returns>Returns true if an adjustment was performed, false if index validation failed.</returns>
+        /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if index validation failed.</returns>
         public bool SwapFG(int srcIndex, int dstIndex)
         {
             if ((srcIndex < 0 || srcIndex >= FlightGroups.Count) || (dstIndex < 0 || dstIndex >= FlightGroups.Count) || (srcIndex == dstIndex)) return false;
@@ -1213,7 +1213,7 @@ namespace Idmr.Platform.Xwa
 		/// <param name="srcIndex">The original Message index location</param>
 		/// <param name="dstIndex">The new Message index location</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
-        /// <returns>Returns true if an adjustment was performed, false if any index or bounds errors occurred.</returns>
+        /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if any index or bounds errors occurred.</returns>
         public bool SwapMessage(int srcIndex, int dstIndex)
         {
             if ((srcIndex < 0 || srcIndex >= Messages.Count) || (dstIndex < 0 || dstIndex >= Messages.Count) || (srcIndex == dstIndex)) return false;
@@ -1251,7 +1251,7 @@ namespace Idmr.Platform.Xwa
         /// <param name="value">The raw value of the time delay.</param>
         /// <remarks>The raw value is used to encode both minutes and seconds.  Maximum range of delay times is 0:00 to 24:50</remarks>
         /// <returns>Number of seconds.</returns>
-        public int GetDelaySeconds(byte value)
+        public static int GetDelaySeconds(byte value)
         {
             int sec = value;                     //XWA calculates wait times different than XvT.
             if (value > 20)
@@ -1266,13 +1266,10 @@ namespace Idmr.Platform.Xwa
 
 		#region public properties
 		/// <summary>Maximum number of craft that can exist at one time in a single region</summary>
-		/// <remarks>Value is <b>96</b></remarks>
 		public const int CraftLimit = 96;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is <b>192</b></remarks>
 		public const int FlightGroupLimit = 192;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is <b>64</b></remarks>
 		public const int MessageLimit = 64;
 		/// <summary>Unknown FileHeader value</summary>
 		/// <remarks>Offset = 0x0B, defaults to <b>true</b></remarks>
@@ -1306,7 +1303,7 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>4096 char limit</remarks>
 		public string MissionDescription
 		{
-			get { return _missionDescription.Replace("$", "\r\n"); }
+			get => _missionDescription.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");
@@ -1318,14 +1315,14 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
 		public string DescriptionNotes
 		{
-			get { return _descriptionNote; }
-			set { _descriptionNote = StringFunctions.GetTrimmed(value, 100); }
+			get => _descriptionNote;
+			set => _descriptionNote = StringFunctions.GetTrimmed(value, 100);
 		}
 		/// <summary>Gets or sets the debriefing text</summary>
 		/// <remarks>4096 char limit</remarks>
 		public string MissionFailed
 		{
-			get { return _missionFailed.Replace("$", "\r\n"); }
+			get => _missionFailed.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");
@@ -1337,14 +1334,14 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
 		public string FailedNotes
 		{
-			get { return _failedNote; }
-			set { _failedNote = StringFunctions.GetTrimmed(value, 100); }
+			get => _failedNote;
+			set => _failedNote = StringFunctions.GetTrimmed(value, 100);
 		}
 		/// <summary>Gets or sets the debriefing text</summary>
 		/// <remarks>4096 char limit</remarks>
 		public string MissionSuccessful
 		{
-			get { return _missionSuccessful.Replace("$", "\r\n"); }
+			get => _missionSuccessful.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");
@@ -1355,14 +1352,14 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
 		public string SuccessfulNotes
 		{
-			get { return _successfulNote; }
-			set { _successfulNote = StringFunctions.GetTrimmed(value, 100); }
+			get => _successfulNote;
+			set => _successfulNote = StringFunctions.GetTrimmed(value, 100);
 		}
 		/// <summary>Editor-only notes for the mission</summary>
 		/// <remarks>6268 char limit</remarks>
 		public string MissionNotes
 		{
-			get { return _missionNote.Replace("$", "\r\n"); }
+			get => _missionNote.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");
@@ -1399,8 +1396,8 @@ namespace Idmr.Platform.Xwa
 			/// <remarks>63 character limit</remarks>
 			public string Cargo
 			{
-				get { return _cargo; }
-				set { _cargo = StringFunctions.GetTrimmed(value, 63); }
+				get => _cargo;
+				set => _cargo = StringFunctions.GetTrimmed(value, 63);
 			}
 			/// <summary>Unknown value, local 0x44</summary>
 			public bool Unknown1 { get; set; }

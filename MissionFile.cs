@@ -82,7 +82,7 @@ namespace Idmr.Platform
 		/// <remarks>Defaults to <b>"\\NewMission.tie"</b>. Will automatically add the ".tie" extension if omitted</remarks>
 		public string MissionPath
 		{
-			get { return _missionPath; }
+			get => _missionPath;
 			set
 			{
 				_missionPath = value;  //[JB] Modified.  Assumes TIE, but also checks for XWI in path name.
@@ -92,6 +92,6 @@ namespace Idmr.Platform
 		}
 		/// <summary>Gets the file name of the mission file</summary>
 		/// <remarks>Defaults to <b>"NewMission.tie"</b></remarks>
-		public string MissionFileName { get { return Common.StringFunctions.GetFileName(MissionPath, true); } }
+		public string MissionFileName => Common.StringFunctions.GetFileName(MissionPath, true);
 	}
 }

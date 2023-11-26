@@ -12,8 +12,6 @@
  * [UPD] change to MPL
  */
 
-using System;
-
 namespace Idmr.Platform.Tie
 {
 	/// <summary>Briefing object for TIE95</summary>

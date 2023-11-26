@@ -96,7 +96,7 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b></returns>
-		public override string ToString() { return ToString(false); }
+		public override string ToString() => ToString(false);
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
 		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;)"</b><br/><br/>
@@ -155,30 +155,30 @@ namespace Idmr.Platform.Tie
 		/// <remarks>Restricted to 12 characters</remarks>
 		public string Pilot
 		{
-			get { return _pilot; }
-			set { _pilot = StringFunctions.GetTrimmed(value, _stringLength); }
+			get => _pilot;
+			set => _pilot = StringFunctions.GetTrimmed(value, _stringLength);
 		}
 		/// <summary>Gets or sets if the FlightGroup responds to player's orders</summary>
 		public bool FollowsOrders { get; set; }
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for blank Arrival triggers and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds { get { return (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
+		public bool ArrivesIn30Seconds => (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30);
 		/// <summary>Gets the Arrival and Departure trigger array</summary>
 		/// <remarks>Array length is 3, use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
-		public Mission.Trigger[] ArrDepTriggers { get { return _arrDepTriggers; } }
+		public Mission.Trigger[] ArrDepTriggers => _arrDepTriggers;
 		/// <summary>Gets or sets if both triggers must be completed</summary>
 		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b></remarks>
 		public bool AT1AndOrAT2 { get; set; }
 		/// <summary>Gets or sets the FlightGroup-specific mission goals</summary>
 		public FGGoals Goals { get; set; }
 		/// <summary>Gets the Orders array used to control FlightGroup behaviour</summary>
-		public Order[] Orders { get { return _orders; } }
+		public Order[] Orders => _orders;
 		/// <summary>Gets or sets the unknown values container</summary>
 		/// <remarks>All values initialize to <b>0</b> or <b>false</b></remarks>
 		public UnknownValues Unknowns;
 		/// <summary>Gets the Waypoint array used to determine starting location and AI pathing</summary>
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes</remarks>
-		public Waypoint[] Waypoints { get { return _waypoints; } }
+		public Waypoint[] Waypoints => _waypoints;
 
 		/// <summary>If enabled, Flight Groups that die in campaign mode will not appear in later missions.  Formerly Unknown9</summary>
 		public bool PermaDeathEnabled { get; set; }
@@ -237,7 +237,7 @@ namespace Idmr.Platform.Tie
 
 			/// <summary>Array form of the Unknowns</summary>
 			/// <param name="index">Valid indexes are 0-9</param>
-			/// <exception cref="ArgumentOutOfRangeException">Invalid <i>index</i> value</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Invalid <paramref name="index"/> value</exception>
 			public byte this[int index]
 			{
 				get

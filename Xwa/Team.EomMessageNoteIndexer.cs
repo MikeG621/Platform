@@ -36,8 +36,8 @@ namespace Idmr.Platform.Xwa
 			/// <param name="index">EomMessageIndex</param>
 			public string this[EomMessageIndex index]
 			{
-				get { return _items[(int)index / 2]; }
-				set { this[(int)index / 2] = value; }
+				get => _items[(int)index / 2];
+				set => this[(int)index / 2] = value;
 			}
 		}
 	}

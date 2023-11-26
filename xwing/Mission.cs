@@ -628,7 +628,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
 		/// <param name="filePath">Full path to the new <see cref="MissionFile.MissionPath"/></param>
-		/// <exception cref="UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -718,7 +718,7 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>First checks for invalid Types, then runs through allowed values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
 		/// <param name="type">Trigger.Type or Order.TargetType</param>
 		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
-		/// <param name="errorMessage">Error description if found, otherwise <b>""</b></param>
+		/// <param name="errorMessage">Error description if found, otherwise empty</param>
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";

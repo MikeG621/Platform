@@ -618,10 +618,10 @@ namespace Idmr.Platform.Xvt
 		static readonly public string TeamPrefixes = "1234AFH";
 
 		/// <summary>Gets a copy of Arrival difficulty settings</summary>
-		/// <remarks>Array has a Length of 11</remarks>
+		/// <remarks>Array is Length = 11</remarks>
 		new public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
         /// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
-        /// <remarks>Array has a Length of 11</remarks>
+        /// <remarks>Array is Length = 11</remarks>
         new public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
         /// <summary>Gets a copy of the default team name entries that craft roles can be applied to.</summary>
         /// <remarks>Array is Length = 8</remarks>
@@ -630,7 +630,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array is Length = 13</remarks>
 		public static string[] Roles { get { return (string[])_roles.Clone(); } }
 		/// <summary>Gets of copy of the radio channels the craft uses</summary>
-		/// <remarks>Array is length = 17</remarks>
+		/// <remarks>Array is Length = 17</remarks>
 		public static string[] Radio { get { return (string[])_radio.Clone(); } }
 		/// <summary>Gets of copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 6</remarks>
@@ -675,7 +675,8 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>Array is Length = 4</remarks>
 		public static string[] StopArrivingWhen { get { return (string[])_stopArrivingWhen.Clone(); } }
 		/// <summary>Gets of copy of the order Designation strings displayed for a team's flightgroup roster.</summary>
-		/// <remarks>These are common strings found in existing missions. Custom strings may be used.</remarks>
+		/// <remarks>These are common strings found in existing missions. Custom strings may be used.<br/>
+		/// Array is Length = 25</remarks>
 		public static string[] OrderDesignation { get { return (string[])_orderDesignation.Clone(); } }
 	}
 }

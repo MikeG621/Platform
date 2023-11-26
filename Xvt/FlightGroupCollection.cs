@@ -37,7 +37,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>
 		/// <param name="quantity">Number of FlightGroups to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than 1 or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>1</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
 		public FlightGroupCollection(int quantity)
 		{
 			_itemLimit = Mission.FlightGroupLimit;
@@ -94,8 +94,8 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Expands or contracts the Collection, populating as necessary</summary>
 		/// <param name="value">The new size of the Collection. Must be greater than <b>0</b>.</param>
 		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
-		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Common.FixedSizeCollection{T}.Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException"><i>value</i> must be greater than 0.</exception>
+		/// <exception cref="InvalidOperationException"><paramref name="value"/> is smaller than <see cref="Common.FixedSizeCollection{T}.Count"/> and <paramref name="allowTruncate"/> is <b>false</b>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must be greater than 0.</exception>
 		/// <remarks>If the Collection expands, the new items will be a new <see cref="FlightGroup"/>. When truncating, items will be removed starting from the last index.</remarks>
 		public override void SetCount(int value, bool allowTruncate)
 		{

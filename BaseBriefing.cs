@@ -38,12 +38,13 @@ namespace Idmr.Platform
 		/// <summary>The captions and titles</summary>
 		private protected string[] _briefingStrings;
 		/// <summary>The briefing format</summary>
-        private protected MissionFile.Platform _platform;
+		private protected MissionFile.Platform _platform;
 		/// <summary>The number of parameters per event type</summary>
 		private protected EventParameters _eventParameters;
 
 		/// <summary>Known briefing event types</summary>
-		public enum EventType : byte {
+		public enum EventType : byte
+		{
 			/// <summary>No type defined</summary>
 			None,
 			/// <summary>Creates breakpoint for briefing interface <b>Next</b> command (TIE/XvT only)</summary>
@@ -105,24 +106,25 @@ namespace Idmr.Platform
 			/// <summary>Display the region name and transition (XWA only)</summary>
 			XwaChangeRegion,
 			/// <summary>End of briefing marker</summary>
-			EndBriefing = 0x22};
-		
+			EndBriefing = 0x22
+		};
+
 		/// <summary>Gets the Text Tags to be used on the map</summary>
 		/// <remarks>Length is determined by the derivative class</remarks>
-		public string[] BriefingTag { get { return _briefingTags; } }
+		public string[] BriefingTag => _briefingTags;
 		/// <summary>Gets the Title and Caption strings</summary>
 		/// <remarks>Length is determined by the derivative class</remarks>
-		public string[] BriefingString { get { return _briefingStrings; } }
+		public string[] BriefingString => _briefingStrings;
 		/// <summary>Gets the raw briefing event data</summary>
 		/// <remarks>Length is determined by the derivative class</remarks>
-		public short[] Events { get { return _events; } }
+		public short[] Events => _events;
 		/// <summary>Gets the number of values in <see cref="Events"/></summary>
 		public short EventsLength
 		{
 			get
 			{
 				int i;
-				for (i = 0; i < (_events.Length - 1); i++) if (_events[i] == 9999 && _events[i+1] == (int)EventType.EndBriefing) break;	// find STOP @ 9999
+				for (i = 0; i < (_events.Length - 1); i++) if (_events[i] == 9999 && _events[i + 1] == (int)EventType.EndBriefing) break;   // find STOP @ 9999
 				return (short)(i + 2);
 			}
 		}
@@ -138,7 +140,7 @@ namespace Idmr.Platform
 				for (offset = 0; offset < (_events.Length - 1); offset += 2)
 				{
 					if (_events[offset] != 0) break;
-					offset +=  _eventParameters[_events[offset + 1]];
+					offset += _eventParameters[_events[offset + 1]];
 				}
 				return offset;
 			}
@@ -151,75 +153,71 @@ namespace Idmr.Platform
 		/// <param name="eventType">The briefing event</param>
 		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
 		/// <returns>The number of parameters</returns>
-		virtual public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
+		virtual public byte EventParameterCount(int eventType) => _eventParameters[eventType];
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index</param>
 		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
-		public virtual bool IsEndEvent(int evt)
-        {
-            return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
-        }
+		public virtual bool IsEndEvent(int evt) => (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
+
 		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
 		/// <param name="evt">The event index</param>
 		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag8"/>.</returns>
-        public virtual bool IsFGTag(int evt)
-        {
-            return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
-        }
+		public virtual bool IsFGTag(int evt) => (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
+
 		/// <summary>Adjust FG references as necessary.</summary>
 		/// <param name="fgIndex">Original index</param>
 		/// <param name="newIndex">Replacement index</param>
-        public virtual void TransformFGReferences(int fgIndex, int newIndex)
-        {
-            bool deleteCommand = false;
-            if (newIndex < 0)
-                deleteCommand = true;
+		public virtual void TransformFGReferences(int fgIndex, int newIndex)
+		{
+			bool deleteCommand = false;
+			if (newIndex < 0)
+				deleteCommand = true;
 			int p = 0;
 			while (p < EventsLength)
-            {
-                int evt = Events[p + 1];
-                if (IsEndEvent(evt))
-                    break;
+			{
+				int evt = Events[p + 1];
+				if (IsEndEvent(evt))
+					break;
 
 				int advance = 2 + EventParameterCount(evt);
 				if (IsFGTag(evt))
-                {
-                    if (Events[p + 2] == fgIndex)
-                    {
-                        if (deleteCommand == false)
-                        {
-                            Events[p + 2] = (short)newIndex;
-                        }
-                        else
-                        {
-                            int len = EventsLength; //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
+				{
+					if (Events[p + 2] == fgIndex)
+					{
+						if (deleteCommand == false)
+						{
+							Events[p + 2] = (short)newIndex;
+						}
+						else
+						{
+							int len = EventsLength; //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
 							int paramCount = 2 + EventParameterCount(evt);
 							for (int i = p; i < len - paramCount; i++)
-                                Events[i] = Events[i + paramCount];  //Drop everything down
-                            for (int i = len - paramCount; i < len; i++)
-                                Events[i] = 0;  //Erase the final space
-                            advance = 0;
-                        }
-                    }
-                    else if (Events[p + 2] > fgIndex && deleteCommand == true)
-                    {
-                        Events[p + 2]--;
-                    }
-                }
-                p += advance;
-            }
-        }
+								Events[i] = Events[i + paramCount];  //Drop everything down
+							for (int i = len - paramCount; i < len; i++)
+								Events[i] = 0;  //Erase the final space
+							advance = 0;
+						}
+					}
+					else if (Events[p + 2] > fgIndex && deleteCommand == true)
+					{
+						Events[p + 2]--;
+					}
+				}
+				p += advance;
+			}
+		}
 		/// <summary>Swap FG indexes</summary>
 		/// <param name="srcIndex">First index</param>
 		/// <param name="dstIndex">Second index</param>
 		/// <remarks>Calls <see cref="TransformFGReferences(int, int)"/> with an interim value.</remarks>
-        public virtual void SwapFGReferences(int srcIndex, int dstIndex)
-        {
-            TransformFGReferences(dstIndex, 255);
-            TransformFGReferences(srcIndex, dstIndex);
-            TransformFGReferences(255, srcIndex);
-        }
+		public virtual void SwapFGReferences(int srcIndex, int dstIndex)
+		{
+			TransformFGReferences(dstIndex, 255);
+			TransformFGReferences(srcIndex, dstIndex);
+			TransformFGReferences(255, srcIndex);
+		}
 
 		/// <summary>Object to maintain a read-only array</summary>
 		public class EventParameters
@@ -229,11 +227,11 @@ namespace Idmr.Platform
 			/// <summary>Gets a parameter count</summary>
 			/// <param name="eventType">The briefing event</param>
 			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
-			public byte this[int eventType] { get { return _counts[eventType]; } }
+			public byte this[int eventType] => _counts[eventType];
 
 			/// <summary>Gets a parameter count</summary>
 			/// <param name="eventType">The briefing event</param>
-			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
+			public byte this[EventType eventType] => _counts[(int)eventType];
 		}
 	}
 }

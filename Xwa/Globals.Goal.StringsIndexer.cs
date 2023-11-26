@@ -31,10 +31,10 @@ namespace Idmr.Platform.Xwa
 				public int Length => _owner._strings.Length;
 
 				/// <summary>Gets or sets the Trigger Status strings</summary>
-				/// <remarks><i>value</i> is limited to 63 characters</remarks>
+				/// <remarks>Text is limited to 63 characters</remarks>
 				/// <param name="trigger">The Trigger index, 0-3</param>
 				/// <param name="state"><see cref="GoalState"/> index</param>
-				/// <exception cref="System.IndexOutOfRangeException">Invalid <i>trigger</i> or <i>state</i> value</exception>
+				/// <exception cref="System.IndexOutOfRangeException">Invalid <paramref name="trigger"/> or <paramref name="state"/> value</exception>
 				public string this[int trigger, int state]
 				{
 					get => _owner._strings[trigger, state];
@@ -42,10 +42,10 @@ namespace Idmr.Platform.Xwa
 				}
 
 				/// <summary>Gets or sets the Trigger Status strings</summary>
-				/// <remarks><i>value</i> is limited to 63 characters</remarks>
+				/// <remarks>Text is limited to 63 characters</remarks>
 				/// <param name="trigger">The Trigger index, 0-3</param>
 				/// <param name="state"><see cref="GoalState"/> value</param>
-				/// <exception cref="System.IndexOutOfRangeException">Invalid <i>trigger</i> value</exception>
+				/// <exception cref="System.IndexOutOfRangeException">Invalid <paramref name="trigger"/> value</exception>
 				public string this[int trigger, GoalState state]
 				{
 					get => _owner._strings[trigger, (int)state];

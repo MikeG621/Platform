@@ -12,7 +12,6 @@
  * [UPD] change to MPL
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace Idmr.Platform.Xvt

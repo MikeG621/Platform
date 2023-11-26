@@ -29,24 +29,24 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Pitch"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
 		public new short Yaw
 		{
-			get { return _yaw; }
-			set { _yaw = value; }
+			get => _yaw;
+			set => _yaw = value;
 		}
 		/// <summary>Gets or sets the object y-axis orientation at start in raw units (64 = 90 degrees).</summary>
 		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Yaw"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
 		public new short Pitch
 		{
-			get { return _pitch; }
-			set { _pitch = value; }
+			get => _pitch;
+			set => _pitch = value;
 		}
 		/// <summary>Gets or sets the object x-axis orientation at start in raw units (64 = 90 degrees).</summary>
 		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Yaw"/> and <see cref="Pitch"/>. Only applies to object groups.</remarks>
 		public new short Roll
 		{
-			get { return _roll; }
-			set { _roll = value; }
+			get => _roll;
+			set => _roll = value;
 		}
-		
+
 		//TODO: these indexes are wrong
 		/// <summary>Indexes for <see cref="Waypoints"/></summary>
 		public enum WaypointIndex : byte
@@ -106,7 +106,7 @@ namespace Idmr.Platform.Xwing
 		#region functions
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b></returns>
-		public override string ToString() { return ToString(false); }
+		public override string ToString() => ToString(false);
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/></b><br/>Long form is <b>"<see cref="BaseFlightGroup.IFF"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see>
 		/// - IsPlayer <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
@@ -257,34 +257,22 @@ namespace Idmr.Platform.Xwing
             return change;
         }
 
-        /// <summary>Gets if this craft is a FlightGroup or not.</summary>
+		/// <summary>Gets if this craft is a FlightGroup or not.</summary>
 		/// <returns><b>true</b> when <see cref="ObjectType"/> is zero</returns>
-        public bool IsFlightGroup()
-        {
-            return (ObjectType == 0);
-        }
+		public bool IsFlightGroup() => (ObjectType == 0);
 		/// <summary>Gets if this craft is a Object or not.</summary>
 		/// <returns><b>true</b> when <see cref="ObjectType"/> is non-zero</returns>
-        public bool IsObjectGroup()
-        {
-            return !IsFlightGroup();
-        }
+		public bool IsObjectGroup() => !IsFlightGroup();
 		/// <summary>Gets if this craft is one of the Training Platform Objects.</summary>
 		/// <returns><b>true</b> if <see cref="ObjectType"/> is Training Platform 1 through 12.</returns>
-        public bool IsTrainingPlatform()
-        {
-            return (ObjectType >= 58 && ObjectType <= 69);
-        }
+		public bool IsTrainingPlatform() => (ObjectType >= 58 && ObjectType <= 69);
 		/// <summary>Gets if this craft is the first Training Platform Object</summary>
 		/// <returns><b>true</b> if <see cref="ObjectType"/> is Training Platform 1.</returns>
-        public bool IsStartingGate()
-        {
-            return (ObjectType == 58);
-        }
+		public bool IsStartingGate() => (ObjectType == 58);
 		/// <summary>Gets an array for the Training Platform's gun layout as stored in <see cref="BaseFlightGroup.Formation"/></summary>
 		/// <returns>An arry where each value of <b>true</b> denotes a gun that is present</returns>
 		/// <remarks>Array length is 6</remarks>
-        public bool[] PlatformBitfieldUnpack()
+		public bool[] PlatformBitfieldUnpack()
         {
             bool[] ret = new bool[6];
             int platIndex = ObjectType - 58;  //Translate object so that Training Platform 1 is index[0];
@@ -362,7 +350,7 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets or sets the FG's primary order</summary>
 		public short Order { get; set; }
 
-		//public short ObjFormObjective { get; set; } //looks like this isn't used, read into Formation isntead
+		//public short ObjFormObjective { get; set; } //looks like this isn't used, read into Formation instead
 
 		/// <summary>Gets or sets the first target FG</summary>
 		/// <remarks>Use <b>-1</b> for "None".</remarks>

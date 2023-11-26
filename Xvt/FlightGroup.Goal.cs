@@ -64,7 +64,7 @@ namespace Idmr.Platform.Xvt
 			
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 15</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
 			public Goal(byte[] raw)
 			{
 				if (raw.Length < 15) throw new ArgumentException("Minimum length of raw is 15", "raw");
@@ -74,9 +74,9 @@ namespace Idmr.Platform.Xvt
 			
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 15</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
 			public Goal(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 15) throw new ArgumentException("Minimum length of raw is 15", "raw");
@@ -106,40 +106,40 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Values are <b>0-3</b>; must, must not (prevent), BONUS must, BONUS must not (bonus prevent)</remarks>
 			public byte Argument
 			{
-				get { return _items[0]; }
-				set { _items[0] = value; }
+				get => _items[0];
+				set => _items[0] = value;
 			}
 			/// <summary>Gets or sets the Goal trigger</summary>
 			public byte Condition
 			{
-				get { return _items[1]; }
-				set { _items[1] = value; }
+				get => _items[1];
+				set => _items[1] = value;
 			}
 			/// <summary>Gets or sets the amount of the FlightGroup required to meet <see cref="Condition"/></summary>
 			public byte Amount
 			{
-				get { return _items[2]; }
-				set { _items[2] = value; }
+				get => _items[2];
+				set => _items[2] = value;
 			}
 			/// <summary>Gets or sets the points value stored in the file</summary>
 			public sbyte RawPoints
 			{
-				get { return (sbyte)_items[3]; }
-				set { _items[3] = (byte)value; }
+				get => (sbyte)_items[3];
+				set => _items[3] = (byte)value;
 			}
 			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
 			/// <remarks>Equals <see cref="RawPoints"/> * 250, limited from <b>-32000</b> to <b>+31750</b></remarks>
 			public short Points
 			{
-				get { return (short)((sbyte)_items[3] * 250); }
-				set { _items[3] = (byte)((value > 31750 ? 31750 : (value < -32000 ? -32000 : value)) / 250); }
+				get => (short)((sbyte)_items[3] * 250);
+				set => _items[3] = (byte)((value > 31750 ? 31750 : (value < -32000 ? -32000 : value)) / 250);
 			}
 
 			/// <summary>Gets whether the goal is enabled for the specified team.</summary>
 			/// <param name="index">Team index</param>
 			/// <returns><b>true</b> if the goal applies to the given team.</returns>
 			/// <remarks>The EnabledForTeam array encompasses 10 elements ranging from offsets 0x4 to 0xD, which formerly contained Unknown10 through Unknown 15.</remarks>
-			/// <exception cref="ArgumentOutOfRangeException">Team index is not 0-9.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Team <paramref name="index"/> is not 0-9.</exception>
 			public bool GetEnabledForTeam(int index)
 			{
 				if(index < 0 || index >= 10)
@@ -149,7 +149,7 @@ namespace Idmr.Platform.Xvt
 			/// <summary>Sets whether the goal is enabled for the specified team.</summary>
 			/// <param name="index">Team index.</param>
 			/// <param name="state">The value to apply.</param>
-			/// <exception cref="ArgumentOutOfRangeException">Team index is not 0-9.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Team <paramref name="index"/> is not 0-9.</exception>
 			public void SetEnabledForTeam(int index, bool state)
 			{
 				if(index < 0 || index >= 10)
@@ -160,30 +160,30 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Time limit that goal must be finished within (seconds*5).  Previously Unknown16. Goal offset 0x0E</remarks>
 			public byte TimeLimit
 			{
-				get { return _items[14]; }
-				set { _items[14] = value; }
+				get => _items[14];
+				set => _items[14] = value;
 			}
-			
+
 			/// <summary>Gets or sets the goal text shown before completion</summary>
 			/// <remarks>String is limited to 63 char. Not used for Secondary goals</remarks>
 			public string IncompleteText
 			{
-				get { return _incompleteText; }
-				set { _incompleteText = StringFunctions.GetTrimmed(value, 63); }
+				get => _incompleteText;
+				set => _incompleteText = StringFunctions.GetTrimmed(value, 63);
 			}
 			/// <summary>Gets or sets the goal text shown after completion</summary>
 			/// <remarks>String is limited to 63 char</remarks>
 			public string CompleteText
 			{
-				get { return _completeText; }
-				set { _completeText = StringFunctions.GetTrimmed(value, 63); }
+				get => _completeText;
+				set => _completeText = StringFunctions.GetTrimmed(value, 63);
 			}
 			/// <summary>Gets or sets the goal text shown after failure</summary>
 			/// <remarks>String is limited to 63 char. Not used for Secondary or Prevent goals</remarks>
 			public string FailedText
 			{
-				get { return _failedText; }
-				set { _failedText = StringFunctions.GetTrimmed(value, 63); }
+				get => _failedText;
+				set => _failedText = StringFunctions.GetTrimmed(value, 63);
 			}
 			#endregion public properties
 		}

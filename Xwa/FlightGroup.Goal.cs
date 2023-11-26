@@ -62,7 +62,7 @@ namespace Idmr.Platform.Xwa
 
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 16</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
 			public Goal(byte[] raw)
 			{
 				if (raw.Length < 16) throw new ArgumentException("Minimum length of raw is 16", "raw");
@@ -72,9 +72,9 @@ namespace Idmr.Platform.Xwa
 
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 16</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
 			public Goal(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 16) throw new ArgumentException("Minimum length of raw is 16", "raw");

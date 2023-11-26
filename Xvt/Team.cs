@@ -43,7 +43,7 @@ namespace Idmr.Platform.Xvt
 		}
 		
 		/// <summary>Initializes a new team</summary>
-		/// <remarks><see cref="Name"/> initializes according to <i>teamNumber</i>; <b>0</b> = "Imperial", <b>1</b> = "Rebel", other = "Team #"</remarks>
+		/// <remarks><see cref="Name"/> initializes according to <paramref name="teamNumber"/>; <b>0</b> = "Imperial", <b>1</b> = "Rebel", other = "Team #"</remarks>
 		/// <param name="teamNumber">Team index being initialized. Corrects to <b>0-9</b> as required</param>
 		public Team(int teamNumber)
 		{

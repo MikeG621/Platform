@@ -89,9 +89,9 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>Defaults to <b>zero</b>, there appears to be no game mechanic or consequence for using this value</remarks>
 		public byte OriginatingFG { get; set; }	// TODO: test this in-game for highlighting
 		/// <summary>Gets or sets the delay after trigger is fired.</summary>
-		/// <remarks>Default is <b>zero</b>. Unlike TIE and XvT, it contains unusual formatting and isn't in increments of 5 seconds.  Use <see cref="Mission.GetDelaySeconds"/> to convert the delay into total seconds.</remarks>
+		/// <remarks>Default is <b>zero</b>. Unlike TIE and XvT, it isn't a simple multiplier.  Use <see cref="Mission.GetDelaySeconds"/> to convert the delay into total seconds.</remarks>
 		public byte Delay { get; set; }
-        /// <summary>Unknown value.  Formerly DelayMinutes.</summary>
+        /// <summary>Unknown value. Formerly DelayMinutes.</summary>
         /// <remarks>Offset 0x8D</remarks>
         public byte Unknown2 { get; set; }
 		/// <summary>Unknown value</summary>

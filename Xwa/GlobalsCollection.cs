@@ -12,13 +12,12 @@
  * [UPD] change to MPL
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace Idmr.Platform.Xwa
 {
 	/// <summary>Object to maintain all Team Global Goals</summary>
-	public class GlobalsCollection : Idmr.Common.FixedSizeCollection<Globals>
+	public class GlobalsCollection : Common.FixedSizeCollection<Globals>
 	{
 		/// <summary>Creates a new Collection of Global Goals for each team (10)</summary>
 		public GlobalsCollection()

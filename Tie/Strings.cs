@@ -239,14 +239,14 @@ namespace Idmr.Platform.Tie
 										 "Planet"
 									 };
 		static readonly string[] _defaultCraftAbbrv = (string[])_craftAbbrv.Clone();  //Backup to preserve original when overriding.
-        static readonly string[] _rating = { "Novice",    //[JB] Fixed to mirror names in HD1W.TIE
+		static readonly string[] _rating = { "Novice",    //[JB] Fixed to mirror names in HD1W.TIE
 									 "Officer",
 									 "Veteran",
 									 "Ace",
 									 "Top Ace",
 									 "Jedi (invul)"
 								 };
-        static readonly string[] _status = { "Normal",
+		static readonly string[] _status = { "Normal",
 									 "2x Warheads",
 									 "1/2 Warheads",
 									 "No Shields",
@@ -355,9 +355,9 @@ namespace Idmr.Platform.Tie
 								 };
 		static readonly string[] _craftWhen = { "Captured",
 										"Inspected",
-                                        "Finished being boarded",
-                                        "Finished docking",
-                                        "Disabled",
+										"Finished being boarded",
+										"Finished docking",
+										"Disabled",
 										"Attacked",
 										"Any hull damage",
 										"Special craft",
@@ -444,48 +444,48 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Gets a copy of the default IFF Names</summary>
 		/// <remarks>Array is Length = 6</remarks>
-		public static string[] IFF	{ get { return (string[])_iff.Clone(); } }
+		public static string[] IFF => (string[])_iff.Clone();
 		/// <summary>Gets a copy of the beam weapons for craft use</summary>
 		/// <remarks>Array is Length = 3</remarks>
-		public static string[] Beam { get { return (string[])_beam.Clone(); } }
+		public static string[] Beam => (string[])_beam.Clone();
 		/// <summary>Gets a copy of the long names for ship types</summary>
 		/// <remarks>Array is Length = 88</remarks>
-		public static string[] CraftType { get { return (string[])_craftType.Clone(); } }
+		public static string[] CraftType => (string[])_craftType.Clone();
 		/// <summary>Gets a copy of the short names for ship types</summary>
 		/// <remarks>Array is Length = 88</remarks>
-		public static string[] CraftAbbrv { get { return (string[])_craftAbbrv.Clone(); } }
+		public static string[] CraftAbbrv => (string[])_craftAbbrv.Clone();
 		/// <summary>Gets a copy of the craft AI settings</summary>
 		/// <remarks>Array is Length = 6</remarks>
-		public static string[] Rating { get { return (string[])_rating.Clone(); } }
+		public static string[] Rating => (string[])_rating.Clone();
 		/// <summary>Gets a copy of the Flight Group initial state parameters</summary>
 		/// <remarks>Array is Length = 11</remarks>
-		public static string[] Status { get { return (string[])_status.Clone(); } }
+		public static string[] Status => (string[])_status.Clone();
 		/// <summary>Gets a copy of the Conditions required to complete trigger</summary>
 		/// <remarks>Array is Length = 25</remarks>
-		public static string[] Trigger { get { return (string[])_trigger.Clone(); } }
+		public static string[] Trigger => (string[])_trigger.Clone();
 		/// <summary>Gets a copy of the Categories that the Trigger Parameter belongs to</summary>
 		/// <remarks>Array is Length = 12</remarks>
-		public static string[] VariableType { get { return (string[])_triggerType.Clone(); } }
+		public static string[] VariableType => (string[])_triggerType.Clone();
 		/// <summary>Gets a copy of the quantities of applicable conditions that must be met</summary>
 		/// <remarks>Array is Length = 16</remarks>
-		public static string[] Amount { get { return (string[])_amount.Clone(); } }
+		public static string[] Amount => (string[])_amount.Clone();
 		/// <summary>Gets a copy of the quantities of applicable conditions that must be met for FlightGroup Goals</summary>
 		/// <remarks>Array is Length = 5</remarks>
-		public static string[] GoalAmount { get { return (string[])_goalAmount.Clone(); } }
+		public static string[] GoalAmount => (string[])_goalAmount.Clone();
 		/// <summary>Gets a copy of the FlightGroup orders</summary>
 		/// <remarks>Array is Length = 33</remarks>
-		public static string[] Orders { get { return (string[])_orders.Clone(); } }
+		public static string[] Orders => (string[])_orders.Clone();
 		/// <summary>Gets a copy of the craft behaviour to be used in triggers</summary>
 		/// <remarks>Array is Length = 12</remarks>
-		public static string[] CraftWhen { get { return (string[])_craftWhen.Clone(); } }
+		public static string[] CraftWhen => (string[])_craftWhen.Clone();
 		/// <summary>Gets a copy of the individual craft abort conditions</summary>
 		/// <remarks>Array is Length = 6</remarks>
-		public static string[] Abort { get { return (string[])_abort.Clone(); } }
+		public static string[] Abort => (string[])_abort.Clone();
 		/// <summary>Gets a copy of the descriptions of orders and variables</summary>
 		/// <remarks>Array is Length = 33</remarks>
-		public static string[] OrderDesc { get { return (string[])_orderDesc.Clone(); } }
+		public static string[] OrderDesc => (string[])_orderDesc.Clone();
 		/// <summary>Gets a copy of the FlightGroup formations</summary>
 		/// <remarks>Array is Length = 13, replaces BaseStrings.Formation</remarks>
-		new public static string[] Formation { get { return (string[])_formation.Clone(); } }
+		new public static string[] Formation => (string[])_formation.Clone();
 	}
 }

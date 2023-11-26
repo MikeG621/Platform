@@ -8,6 +8,8 @@
  */
 
 /* CHANGELOG
+ * [FIX] byte[] ctor now trims properly
+ * [NEW] TypeList enum
  * [FIX] Converting to XWA adjusts craft type properly
  * v5.7, 220127
  * [UPD] added ctor now calls base [JB]
@@ -34,6 +36,36 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Object for a single Trigger</summary>
 		[Serializable] public class Trigger	: BaseTrigger
 		{
+			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
+			public enum TypeList : byte
+			{
+				None,
+				FlightGroup,
+				ShipType,
+				ShipClass,
+				ObjectType,
+				IFF,
+				ShipOrders,
+				CraftWhen,
+				GlobalGroup,
+				AILevel,
+				Status,
+				AllCraft,
+				Team,
+				PlayerNum,
+				BeforeTime,
+				NotFG,
+				NotShipType,
+				NotShipClass,
+				NotObjectType,
+				NotIFF,
+				NotGlobalGroup,
+				NotTeam,
+				NotPlayerNum,
+				GlobalUnit,
+				NotGlobalUnit
+			}
+
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[4]) { }
 
@@ -52,7 +84,7 @@ namespace Idmr.Platform.Xvt
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
 				_items = new byte[4];
-				_items = raw;
+				ArrayFunctions.TrimArray(raw, 0, _items);
 				checkValues(this);
 			}
 
@@ -93,78 +125,78 @@ namespace Idmr.Platform.Xvt
 				{
 					trig = BaseStrings.SafeString(Strings.Amount, Amount);
 					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
-					switch (VariableType)
+					switch ((TypeList)VariableType)
 					{
-						case 1:
+						case TypeList.FlightGroup:
 							trig += "FG:" + Variable;
 							break;
-						case 2:
+						case TypeList.ShipType:
 							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable + 1);
 							break;
-						case 3:
+						case TypeList.ShipClass:
 							trig += "Ship class " + BaseStrings.SafeString(Strings.ShipClass, Variable);
 							break;
-						case 4:
+						case TypeList.ObjectType:
 							trig += "Object type " + BaseStrings.SafeString(Strings.ObjectType, Variable);
 							break;
-						case 5:
+						case TypeList.IFF:
 							trig += "IFF:" + Variable;
 							break;
-						case 6:
+						case TypeList.ShipOrders:
 							trig += "Craft with " + BaseStrings.SafeString(Strings.Orders, Variable) + " starting orders";
 							break;
-						case 7:
+						case TypeList.CraftWhen:
 							trig += "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, Variable);
 							break;
-						case 8:
+						case TypeList.GlobalGroup:
 							trig += "Global Group " + Variable;
 							break;
-						case 9:
+						case TypeList.AILevel:
 							trig += "Craft with " + BaseStrings.SafeString(Strings.Rating, Variable) + " adjusted skill";
 							break;
-						case 0xA:
+						case TypeList.Status:
 							trig += "Craft with primary status: " + BaseStrings.SafeString(Strings.Status, Variable);
 							break;
-						case 0xB:
+						case TypeList.AllCraft:
 							trig += "All craft";
 							break;
-						case 0xC:
+						case TypeList.Team:
 							trig += "TM:" + Variable;
 							break;
-						case 0xD:
+						case TypeList.PlayerNum:
 							trig += "(Player #" + Variable + ")";
 							break;
-						case 0xE:
+						case TypeList.BeforeTime:
 							trig += "(Before elapsed time " + string.Format("{0}:{1:00}", Variable * 5 / 60, Variable * 5 % 60) + ")";
 							break;
-						case 0xF:
+						case TypeList.NotFG:
 							trig += "All except FG:" + Variable;
 							break;
-						case 0x10:
+						case TypeList.NotShipType:
 							trig += "All except " + BaseStrings.SafeString(Strings.CraftType, Variable + 1) + "s";
 							break;
-						case 0x11:
+						case TypeList.NotShipClass:
 							trig += "All except " + BaseStrings.SafeString(Strings.ShipClass, Variable);
 							break;
-						case 0x12:
+						case TypeList.NotObjectType:
 							trig += "All except " + BaseStrings.SafeString(Strings.ObjectType, Variable);
 							break;
-						case 0x13:
+						case TypeList.NotIFF:
 							trig += "All except IFF:" + Variable;
 							break;
-						case 0x14:
+						case TypeList.NotGlobalGroup:
 							trig += "All except GG " + Variable;
 							break;
-						case 0x15:
+						case TypeList.NotTeam:
 							trig += "All except TM:" + Variable;
 							break;
-						case 0x16:
+						case TypeList.NotPlayerNum:
 							trig += "(All except Player #" + (Variable + 1) + ")";
 							break;
-						case 0x17:
+						case TypeList.GlobalUnit:
 							trig += "Global Unit " + Variable;
 							break;
-						case 0x18:
+						case TypeList.NotGlobalUnit:
 							trig += "All except Global Unit " + Variable;
 							break;
 						default:
@@ -197,7 +229,7 @@ namespace Idmr.Platform.Xvt
 			public static implicit operator Xwa.Mission.Trigger(Trigger trig)
 			{
 				Xwa.Mission.Trigger t = new Xwa.Mission.Trigger((byte[])trig);
-				if (t.VariableType == 2 && t.Variable != 255) t.Variable++;
+				if (t.VariableType == (byte)TypeList.ShipType && t.Variable != 255) t.Variable++;
 				return t;
 			}
 		}

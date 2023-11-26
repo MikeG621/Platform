@@ -316,10 +316,7 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets a string without the highlighting brackets.</summary>
 		/// <param name="text">The string to convert.</param>
 		/// <returns><paramref name="text"/> without the "[" or "]" characters.</returns>
-		public string RemoveBrackets(string text)
-		{
-			return text.Replace("[", string.Empty).Replace("]", string.Empty);
-		}
+		public string RemoveBrackets(string text) => text.Replace("[", string.Empty).Replace("]", string.Empty);
 
 		private short getEventMapperIndex(int eventID)
 		{
@@ -390,7 +387,7 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets the indicated page.</summary>
 		/// <param name="index">The page index</param>
 		/// <returns>The indicated page.</returns>
-		/// <exception cref="IndexOutOfRangeException"><i>index</i> is not valid.</exception>
+		/// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is not valid.</exception>
 		public BriefingPage GetBriefingPage(int index)
 		{
 			if (index < 0 || index >= Pages.Count) throw new IndexOutOfRangeException("Briefing page index out of range.");
@@ -541,31 +538,22 @@ namespace Idmr.Platform.Xwing
 		/// <param name="captionText">The text to check</param>
 		/// <returns><b>true</b> if <paramref name="captionText"/> contains "&lt;STRATEGY AND TACTICS" or "&lt;MISSION COMPLETION HINTS".</returns>
 		/// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
-		public bool ContainsHintText(string captionText)
-		{
-			return captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0;
-		}
+		public bool ContainsHintText(string captionText) => captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0;
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index</param>
 		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
-		public override bool IsEndEvent(int evt)
-		{
-			return (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
-		}
+		public override bool IsEndEvent(int evt) => (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
 		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
 		/// <param name="evt">The event index</param>
 		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag4"/>.</returns>
-		public override bool IsFGTag(int evt)
-		{
-			return (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag4);
-		}
+		public override bool IsFGTag(int evt) => (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag4);
 
 		/// <summary>Gets the number of parameters for the specified event type</summary>
 		/// <param name="eventType">The briefing event</param>
 		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
 		/// <returns>The number of parameters</returns>
-		override public byte EventParameterCount(int eventType) { return _eventParameters[eventType]; }
+		override public byte EventParameterCount(int eventType) => _eventParameters[eventType];
 		#endregion public methods
 
 		/// <summary>DO NOT USE. Will always throw an exception</summary>
@@ -579,11 +567,9 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Frames per second for briefing animation</summary>
-		/// <remarks>Value is <b>8 (0x8)</b></remarks>
-		public const int TicksPerSecond = 0x8;
+		public const int TicksPerSecond = 8;
 		/// <summary>Maximum number of events that can be held</summary>
-		/// <remarks>Value is <b>200 (0xC8)</b></remarks>
-		public const int EventQuantityLimit = 0xC8;
+		public const int EventQuantityLimit = 200;
 
 		/// <summary>The number of CoordinateSets in the Briefing.</summary>
 		/// <remarks>Defaults to <b>2</b>.</remarks>
@@ -658,10 +644,7 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets the item via the enumerated value</summary>
 		/// <param name="item">The specified element value</param>
 		/// <returns>The requested item</returns>
-		public BriefingUIItem GetElement(Elements item)
-		{
-			return Items[(int)item];
-		}
+		public BriefingUIItem GetElement(Elements item) => Items[(int)item];
 		/// <summary>Gets the type of page</summary>
 		/// <returns>If the <see cref="Elements.Map"/> viewport is visible, "Map", otherwise "Text".</returns>
 		public string GetPageDesc() => Items[(int)Elements.Map].IsVisible ? "Map" : "Text";
@@ -690,7 +673,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Saves the array data to the items</summary>
 		/// <param name="data">A [5,5] array of viewport settings</param>
-		/// <exception cref="ArgumentException"><i>data</i>'s dimensions are not at least [5,5].</exception>
+		/// <exception cref="ArgumentException"><paramref name="data"/>'s dimensions are not at least [5,5].</exception>
 		void setRawData(short[,] data)
 		{
 			if (data.GetLength(0) < 5 || data.GetLength(1) < 5) //~MG was 0 and 0
@@ -725,12 +708,12 @@ namespace Idmr.Platform.Xwing
 		{
 			CoordSet = 1;
 			Length = 0x21C; //default 45 seconds
-			Events[1] = 15;  //Center map
-			Events[5] = 16;  //Move
+			Events[1] = (short)Briefing.EventType.MoveMap;
+			Events[5] = (short)Briefing.EventType.ZoomMap;
 			Events[6] = 0x30;
 			Events[7] = 0x30;
 			Events[8] = 9999;
-			Events[9] = 41;  //End marker
+			Events[9] = (short)Briefing.EventType.EndBriefing;
 		}
 
 		/// <summary>Gets the raw event data</summary>

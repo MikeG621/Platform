@@ -50,35 +50,35 @@ namespace Idmr.Platform
 		/// <summary>Gets or sets the Trigger itself</summary>
 		public byte Condition
 		{
-			get { return _items[0]; }
-			set { _items[0] = value; }
+			get => _items[0];
+			set => _items[0] = value;
 		}
 		/// <summary>Gets or sets the category <see cref="Variable"/> belongs to</summary>
 		public byte VariableType
 		{
-			get { return _items[1]; }
-			set { _items[1] = value; }
+			get => _items[1];
+			set => _items[1] = value;
 		}
 		/// <summary>Gets or sets the Trigger subject</summary>
 		public byte Variable
 		{
-			get { return _items[2]; }
-			set { _items[2] = value; }
+			get => _items[2];
+			set => _items[2] = value;
 		}
 		/// <summary>Gets or sets the amount required to fire the Trigger</summary>
 		public byte Amount
 		{
-			get { return _items[3]; }
-			set { _items[3] = value; }
+			get => _items[3];
+			set => _items[3] = value;
 		}
 
 		/// <summary>Helper function that changes Flight Group indexes during a FG Move or Delete operation.</summary>
 		/// <remarks>Should not be called directly unless part of a larger FG Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
 		/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
-		/// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-		/// <param name="delCond">Ignored unless FG is deleted.  If True, condition is set to ALWAYS (true) otherwise NEVER (false).</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>dstIndex</i> is greater than <b>255</b>.</exception>
-		/// <returns>Returns true if anything was changed.</returns>
+		/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or <b>zero</b> or above to Move.</param>
+		/// <param name="delCond">Ignored unless FG is deleted.  If <b>true</b>, condition is set to "Always (true)" otherwise "Never (false)".</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="dstIndex"/> is greater than <b>255</b>.</exception>
+		/// <returns>Returns <b>true</b> if anything was changed.</returns>
 		public bool TransformFGReferences(int srcIndex, int dstIndex, bool delCond)
 		{
 			bool change = false;
@@ -114,14 +114,11 @@ namespace Idmr.Platform
 		}
 		/// <summary>This allows overrides to check additional properties without needing to override the base function.</summary>
 		/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
-		/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or zero or above to Move.</param>
+		/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or <b>zero</b> or above to Move.</param>
 		/// <param name="delete">Whether or not to delete the FG</param>
-		/// <param name="delCond">Ignored unless FG is deleted.  If True, condition is set to ALWAYS (true) otherwise NEVER (false).</param>
+		/// <param name="delCond">Ignored unless FG is deleted.  If <b>true</b>, condition is set to "Always (true)" otherwise "Never (false)".</param>
 		/// <returns>Always returns <b>false</b></returns>
-		protected virtual bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
-		{
-			return false;  /* do nothing */
-		}
+		protected virtual bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond) => false;  /* do nothing */
 
 		/// <summary>Helper function that changes Flight Group indexes during a Move (index swap) operation.</summary>
 		/// <remarks>Should not be called directly unless part of a larger FG Move operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>

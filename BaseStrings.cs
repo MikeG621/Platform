@@ -21,12 +21,10 @@
  * [NEW] Warheads.(Ion Pulse)
  */
 
-using System;
-
 namespace Idmr.Platform
 {
-	/// <summary>Contains strings shared between all platforms</summary>
-	public abstract class BaseStrings
+    /// <summary>Contains strings shared between all platforms</summary>
+    public abstract class BaseStrings
 	{
 		#region array declarations
 		static readonly string[] _warheads = { "None",
@@ -116,34 +114,34 @@ namespace Idmr.Platform
 		#endregion
 		/// <summary>Gets a copy of FlightGroup craft markings</summary>
 		/// <remarks>Array has a Length of 4</remarks>
-		public static string[] Color { get { return (string[])_color.Clone(); } }
+		public static string[] Color => (string[])_color.Clone();
 		/// <summary>Gets a copy of Arrival difficulty settings</summary>
 		/// <remarks>Array has a Length of 7</remarks>
-		public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
-        /// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
-        /// <remarks>Array has a Length of 7</remarks>
-        public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
-        /// <summary>Gets a copy of FlightGroup formations</summary>
+		public static string[] Difficulty => (string[])_difficulty.Clone();
+		/// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
+		/// <remarks>Array has a Length of 7</remarks>
+		public static string[] DifficultyAbbrv => (string[])_difficultyAbbrv.Clone();
+		/// <summary>Gets a copy of FlightGroup formations</summary>
 		/// <remarks>Array has a Length of 34</remarks>
-		public static string[] Formation { get { return (string[])_formation.Clone(); } }
-        /// <summary>Gets a copy of formations only used by mine space objects</summary>
+		public static string[] Formation => (string[])_formation.Clone();
+		/// <summary>Gets a copy of formations only used by mine space objects</summary>
 		/// <remarks>Array has a Length of 4</remarks>
-		public static string[] FormationMine { get { return (string[])_formationMine.Clone(); } }
+		public static string[] FormationMine => (string[])_formationMine.Clone();
 		/// <summary>Gets a copy of Trigger Types for solid objects</summary>
 		/// <remarks>Array has a Length of 3</remarks>
-		public static string[] ObjectType { get { return (string[])_objectType.Clone(); } }
+		public static string[] ObjectType => (string[])_objectType.Clone();
 		/// <summary>Gets a copy of Trigger Types for ships</summary>
 		/// <remarks>Array has a Length of 7</remarks>
-		public static string[] ShipClass { get { return (string[])_shipClass.Clone(); } }
+		public static string[] ShipClass => (string[])_shipClass.Clone();
 		/// <summary>Gets a copy of Warhead types for FlightGroup usage</summary>
 		/// <remarks>Array has a Length of 9</remarks>
-		public static string[] Warheads { get { return (string[])_warheads.Clone(); } }
+		public static string[] Warheads => (string[])_warheads.Clone();
 
-        /// <summary>Checks whether an index into a given string array is valid before accessing that element.</summary>
+		/// <summary>Checks whether an index into a given string array is valid before accessing that element.</summary>
 		/// <param name="array">The strings to pull from</param>
 		/// <param name="index">The desired entry</param>
-        /// <remarks>Avoids exceptions when requesting strings of associated values.</remarks>
-        /// <returns>A string from the index, or a string indicating an unknown value.</returns>
+		/// <remarks>Avoids exceptions when requesting strings of associated values.</remarks>
+		/// <returns>A string from the index, or a string indicating an unknown value.</returns>
 		public static string SafeString(string[] array, int index)
 		{
             if(array == null) return "Invalid Array";

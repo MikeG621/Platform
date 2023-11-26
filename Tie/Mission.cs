@@ -669,26 +669,26 @@ namespace Idmr.Platform.Tie
 		/// <remarks>First checks for invalid Types, then runs through allowed values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
 		/// <param name="type">Trigger.Type or Order.TargetType</param>
 		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
-		/// <param name="errorMessage">Error description if found, otherwise <b>""</b></param>
+		/// <param name="errorMessage">Error description if found, otherwise empty</param>
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";
-			if (type > 9)
+			if (type > (byte)Trigger.TypeList.AILevel)
 			{
 				errorMessage = "Type (" + type + ")";
 				return;
 			}
 			// can't check FG
-			else if (type == 2)
+			else if (type == (byte)Trigger.TypeList.ShipType)
 			{
 				byte newCraft = CraftCheck(variable);
 				if (newCraft == 255) errorMessage = "CraftType";
 				else variable = newCraft;
 			}
-			else if (type == 3) if (variable > 6) errorMessage = "CraftCategory";
-				else if (type == 4) if (variable > 2) errorMessage = "ObjectCategory";
-					else if (type == 5) if (variable > 5) errorMessage = "IFF";
-						else if (type == 6) if (variable > 39) errorMessage = "Order";
+			else if (type == (byte)Trigger.TypeList.ShipClass && variable > 6) errorMessage = "CraftCategory";
+			else if (type == (byte)Trigger.TypeList.ObjectType && variable > 2) errorMessage = "ObjectCategory";
+			else if (type == (byte)Trigger.TypeList.IFF && variable > 5) errorMessage = "IFF";
+			else if (type == (byte)Trigger.TypeList.ShipOrders && variable > 39) errorMessage = "Order";
 			// don't want to check CraftWhen
 			// can't check GlobalGroup
 			// don't want to check Misc
@@ -765,13 +765,10 @@ namespace Idmr.Platform.Tie
 		public Indexer<string> EndOfMissionMessages { get; private set; }
 
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
-		/// <remarks>Value is <b>28</b></remarks>
 		public const int CraftLimit = 28;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is <b>48</b></remarks>
 		public const int FlightGroupLimit = 48;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is <b>16</b></remarks>
 		public const int MessageLimit = 16;
 
 		/// <summary>Gets or sets the officers present before and after the mission</summary>

@@ -31,11 +31,9 @@ namespace Idmr.Platform.Xvt
 	public class Briefing : BaseBriefing
 	{
 		/// <summary>Frames per second for briefing animation</summary>
-		/// <remarks>Value is <b>21 (0x15)</b></remarks>
-		public const int TicksPerSecond = 0x15;
+		public const int TicksPerSecond = 21;
 		/// <summary>Maximum number of events that can be held</summary>
-		/// <remarks>Value is <b>200 (0xC8)</b></remarks>
-		public const int EventQuantityLimit = 0xC8;
+		public const int EventQuantityLimit = 200;
 
 		/// <summary>Initializes a blank Briefing</summary>
 		public Briefing()

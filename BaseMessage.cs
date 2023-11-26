@@ -38,8 +38,8 @@ namespace Idmr.Platform
 		/// <remarks>Restricted to 64 characters for TIE/XvT, 68 for XWA, defaults to <b>"New Message"</b></remarks>
 		public string MessageString
 		{
-			get { return _messageString; }
-			set { _messageString = Common.StringFunctions.GetTrimmed(value, LengthLimit); }
+			get => _messageString;
+			set => _messageString = Common.StringFunctions.GetTrimmed(value, LengthLimit);
 		}
 		/// <summary>Gets or sets the message color index</summary>
 		public byte Color { get; set; }

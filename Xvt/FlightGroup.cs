@@ -136,7 +136,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <returns>Short representation of the FlightGroup as <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b></returns>
-		public override string ToString() { return ToString(false); }
+		public override string ToString() => ToString(false);
 		/// <summary>Gets a string representation of the FlightGroup</summary>
 		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
 		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;)"</b><br/><br/>
@@ -230,8 +230,8 @@ namespace Idmr.Platform.Xvt
 		#region arr/dep
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds { get { return (ArrDepTriggers[0].Condition == 0 && ArrDepTriggers[1].Condition == 0 && ArrDepTriggers[2].Condition == 0 && ArrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
-		
+		public bool ArrivesIn30Seconds => (ArrDepTriggers[0].Condition == 0 && ArrDepTriggers[1].Condition == 0 && ArrDepTriggers[2].Condition == 0 && ArrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30);
+
 		/// <summary>Gets the Arrival and Departure triggers</summary>
 		/// <remarks>Use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
 		public Mission.Trigger[] ArrDepTriggers { get; } = new Mission.Trigger[6];

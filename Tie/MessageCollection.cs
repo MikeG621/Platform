@@ -32,7 +32,7 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Creates a new Collection with multiple initial Messages</summary>
 		/// <param name="quantity">Number of Messages to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than <b>0</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>0</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
 		public MessageCollection(int quantity)
 		{
 			_itemLimit = Mission.MessageLimit;
@@ -109,8 +109,8 @@ namespace Idmr.Platform.Tie
 		/// <summary>Expands or contracts the Collection, populating as necessary</summary>
 		/// <param name="value">The new size of the Collection. Must not be negative.</param>
 		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
-		/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Common.FixedSizeCollection{T}.Count"/> and <i>allowTruncate</i> is <b>false</b>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException"><i>value</i> must not be negative.</exception>
+		/// <exception cref="InvalidOperationException"><paramref name="value"/> is smaller than <see cref="Common.FixedSizeCollection{T}.Count"/> and <paramref name="allowTruncate"/> is <b>false</b>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must not be negative.</exception>
 		/// <remarks>If the Collection expands, the new items will be a blank <see cref="Message"/>. When truncating, items will be removed starting from the last index.</remarks>
 		public override void SetCount(int value, bool allowTruncate)
 		{

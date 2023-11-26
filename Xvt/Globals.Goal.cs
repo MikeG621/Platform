@@ -34,7 +34,7 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>All <see cref="Triggers"/> set to <b>10</b>, "never (FALSE)". <see cref="AndOr"/> values set to <b>true</b>, "OR"</remarks>
 			public Goal()
 			{
-				for (int i = 0; i < 4; i++) Triggers[i] = new Trigger(this);
+				for (int i = 0; i < 4; i++) Triggers[i] = new Trigger();
 				for (int i = 0; i < 3; i++) AndOr[i] = true;
 			}
 			
@@ -67,8 +67,8 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Equal to <see cref="RawPoints"/> * 250, limited from <b>-32000</b> to <b>+31750</b></remarks>
 			public short Points
 			{
-				get { return (short)(RawPoints * 250); }
-				set { RawPoints = (sbyte)(value > 31750 ? 31750 : (value < -32000 ? -32000 : value) / 250); }
+				get => (short)(RawPoints * 250);
+				set => RawPoints = (sbyte)(value > 31750 ? 31750 : (value < -32000 ? -32000 : value) / 250);
 			}
 
 			/// <summary>The Triggers that define the Goal</summary>

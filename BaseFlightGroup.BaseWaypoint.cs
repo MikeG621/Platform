@@ -33,16 +33,16 @@ namespace Idmr.Platform
 
 			/// <summary>Returns a representative string of the Waypoint</summary>
 			/// <returns>Waypoint coordinates in the form of <b>"(X, Y, Z)"</b>if enabled, otherwise <b>"Disabled"</b></returns>
-			public override string ToString() { return (Enabled ? "(" + X + ", " + Y + ", " + Z + ") " : "Disabled"); }
+			public override string ToString() => (Enabled ? "(" + X + ", " + Y + ", " + Z + ") " : "Disabled");
 
 			#region public properties
 			/// <summary>Array form of the waypoint</summary>
-			/// <remarks><see cref="Enabled"/> restricted to <b>0</b> and <b>1</b>, <see cref="Idmr.Platform.Xwa.FlightGroup.Waypoint.Region"/> restricted to <b>0-3</b>. No effect for invalid values</remarks>
+			/// <remarks><see cref="Enabled"/> restricted to <b>0</b> and <b>1</b>, <see cref="Xwa.FlightGroup.Waypoint.Region"/> restricted to <b>0-3</b>. No effect for invalid values</remarks>
 			/// <param name="index">X, Y, Z, Enabled, Region (XWA only)</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value</exception>
 			public override short this[int index]
 			{
-				get { return _items[index]; }
+				get => _items[index];
 				set
 				{
 					if (index == 3 && value != 0) _items[index] = 1;
@@ -50,52 +50,52 @@ namespace Idmr.Platform
 					else _items[index] = value;
 				}
 			}
-			
+
 			/// <summary>Gets or sets if the Waypoint is active for use</summary>
 			public bool Enabled
 			{
-				get { return Convert.ToBoolean(_items[3]); }
-				set { _items[3] = Convert.ToInt16(value); }
+				get => Convert.ToBoolean(_items[3]);
+				set => _items[3] = Convert.ToInt16(value);
 			}
 			/// <summary>Gets or sets the stored X value</summary>
 			public short RawX
 			{
-				get { return _items[0]; }
-				set { _items[0] = value; }
+				get => _items[0];
+				set => _items[0] = value;
 			}
 			/// <summary>Gets or sets the stored Y value</summary>
 			/// <remarks>Is multipled by -1 during read/write to plot as positive-Y-Up in map and briefing.</remarks>
 			public short RawY
 			{
-				get { return _items[1]; }
-				set { _items[1] = value; }
+				get => _items[1];
+				set => _items[1] = value;
 			}
 			/// <summary>Gets or sets the stored Z value</summary>
 			public short RawZ
 			{
-				get { return _items[2]; }
-				set { _items[2] = value; }
+				get => _items[2];
+				set => _items[2] = value;
 			}
 			/// <summary>Gets or sets the X value in kilometers</summary>
 			/// <remarks>Equals <see cref="RawX"/> divided by 160</remarks>
 			public double X
 			{
-				get { return (double)RawX / 160; }
-				set { RawX = (short)(value * 160); }
+				get => (double)RawX / 160;
+				set => RawX = (short)(value * 160);
 			}
 			/// <summary>Gets or sets the Y value in kilometers</summary>
 			/// <remarks>Equals <see cref="RawY"/> divided by 160</remarks>
 			public double Y
 			{
-				get { return (double)RawY / 160; }
-				set { RawY = (short)(value * 160); }
+				get => (double)RawY / 160;
+				set => RawY = (short)(value * 160);
 			}
 			/// <summary>Gets or sets the Z value in kilometers</summary>
 			/// <remarks>Equals <see cref="RawZ"/> divided by 160</remarks>
 			public double Z
 			{
-				get { return (double)RawZ / 160; }
-				set { RawZ = (short)(value * 160); }
+				get => (double)RawZ / 160;
+				set => RawZ = (short)(value * 160);
 			}
 			#endregion public properties
 

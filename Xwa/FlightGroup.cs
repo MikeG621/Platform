@@ -79,9 +79,9 @@ namespace Idmr.Platform.Xwa
 			for (int i = 0; i < 4; i++) Waypoints[i] = new Waypoint();
 			for (int i = 0; i < 16; i++) Orders[i / 4, i % 4] = new Order();
 			for (int i = 0; i < 8; i++) Goals[i] = new Goal();
-			_optLoadout[0] = true;
-            _optLoadout[9] = true;  //[JB] Adjusted these indexes for added Energy Beam, Cluster Mine
-			_optLoadout[14] = true;
+			_optLoadout[(int)LoadoutIndexer.Indexes.NoWarheads] = true;
+			_optLoadout[(int)LoadoutIndexer.Indexes.NoBeam] = true;
+			_optLoadout[(int)LoadoutIndexer.Indexes.NoCountermeasures] = true;
 			Waypoints[0].Enabled = true;
 			Unknowns.Unknown1 = 2;
 			OptLoadout = new LoadoutIndexer(_optLoadout);
@@ -102,80 +102,81 @@ namespace Idmr.Platform.Xwa
 		public string ToString(bool verbose)
 		{
 			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-            if (EditorCraftNumber > 0) //[JB] Added numbering information.
-                longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
-            if (!verbose) return longName;
+			if (EditorCraftNumber > 0) //[JB] Added numbering information.
+				longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+			if (!verbose) return longName;
 
-            //[JB] Added player position and difficulty tags, by feature request.
-            string plr = "";
-            if (PlayerNumber > 0 || ArriveOnlyIfHuman == true)
-            {
-                if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
-                if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
-                if (plr.Length > 0) plr = " [" + plr + "]";
-            }
-            string ret = (Team + 1) + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
-            if (Difficulty >= 1 && Difficulty <= 6)
-                ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+			//[JB] Added player position and difficulty tags, by feature request.
+			string plr = "";
+			if (PlayerNumber > 0 || ArriveOnlyIfHuman == true)
+			{
+				if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
+				if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
+				if (plr.Length > 0) plr = " [" + plr + "]";
+			}
+			string ret = (Team + 1) + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
+			if (Difficulty >= 1 && Difficulty <= 6)
+				ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
 
-            return ret;
+			return ret;
 		}
-        /// <summary>Changes all Flight Group indexes, to be used during a FG Swap (Move) or Delete operation.</summary>
-        /// <remarks>FG references may exist in other mission properties, ensure those properties are adjusted too.</remarks>
-        /// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
-        /// <param name="dstIndex">The FG index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-        /// <returns>True if something was changed.</returns>
-        public bool TransformFGReferences(int srcIndex, int dstIndex)
-        {
-            bool change = false;
-            bool delete = false;
-            byte dst = (byte)dstIndex;
-            if (dstIndex < 0)
-            {
-                dst = 0;
-                delete = true;
-            }
+		/// <summary>Changes all Flight Group indexes, to be used during a FG Swap (Move) or Delete operation.</summary>
+		/// <remarks>FG references may exist in other mission properties, ensure those properties are adjusted too.</remarks>
+		/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
+		/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or <b>zero</b> or above to Move.</param>
+		/// <returns><b>True</b> if something was changed.</returns>
+		public bool TransformFGReferences(int srcIndex, int dstIndex)
+		{
+			bool change = false;
+			bool delete = false;
+			byte dst = (byte)dstIndex;
+			if (dstIndex < 0)
+			{
+				dst = 0;
+				delete = true;
+			}
 
-            //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-            if (ArrivalCraft1 == srcIndex) { change = true; ArrivalCraft1 = dst; if (delete) { ArrivalMethod1 = 0; } } else if (ArrivalCraft1 > srcIndex && delete == true) { change = true; ArrivalCraft1--; }
-            if (ArrivalCraft2 == srcIndex) { change = true; ArrivalCraft2 = dst; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { change = true; ArrivalCraft2--; }
-            if (DepartureCraft1 == srcIndex) { change = true; DepartureCraft1 = dst; if (delete) { DepartureMethod1 = 0; } } else if (DepartureCraft1 > srcIndex && delete == true) { change = true; DepartureCraft1--; }
-            if (DepartureCraft2 == srcIndex) { change = true; DepartureCraft2 = dst; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { change = true; DepartureCraft2--; }
-            for (int i = 0; i < ArrDepTriggers.Length; i++)
-            {
-                Mission.Trigger adt = ArrDepTriggers[i];
-                change |= adt.TransformFGReferences(srcIndex, dstIndex, true);  //First 2 are arrival.  Set those to true.
-            }
+			//If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
+			if (ArrivalCraft1 == srcIndex) { change = true; ArrivalCraft1 = dst; if (delete) { ArrivalMethod1 = 0; } } else if (ArrivalCraft1 > srcIndex && delete == true) { change = true; ArrivalCraft1--; }
+			if (ArrivalCraft2 == srcIndex) { change = true; ArrivalCraft2 = dst; if (delete) { ArrivalMethod2 = false; } } else if (ArrivalCraft2 > srcIndex && delete == true) { change = true; ArrivalCraft2--; }
+			if (DepartureCraft1 == srcIndex) { change = true; DepartureCraft1 = dst; if (delete) { DepartureMethod1 = 0; } } else if (DepartureCraft1 > srcIndex && delete == true) { change = true; DepartureCraft1--; }
+			if (DepartureCraft2 == srcIndex) { change = true; DepartureCraft2 = dst; if (delete) { DepartureMethod2 = false; } } else if (DepartureCraft2 > srcIndex && delete == true) { change = true; DepartureCraft2--; }
+			for (int i = 0; i < ArrDepTriggers.Length; i++)
+			{
+				Mission.Trigger adt = ArrDepTriggers[i];
+				change |= adt.TransformFGReferences(srcIndex, dstIndex, true);  //First 2 are arrival.  Set those to true.
+			}
 
-            //Skip triggers are part of the Order in XWA, don't need to handle them here.
+			//Skip triggers are part of the Order in XWA, don't need to handle them here.
 
-            foreach (FlightGroup.Order order in Orders)
-                change |= order.TransformFGReferences(srcIndex, dstIndex);
-            return change;
-        }
-        /// <summary>Changes all Message indexes, to be used during a Message Swap (Move) or Delete operation.</summary>
-        /// <remarks>Same concept as for Flight Groups.  Triggers may depend on Message indexes, and this function helps ensure indexes are not broken.</remarks>
-        /// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
-        /// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
-        /// <returns>True if something was changed.</returns>
-        public bool TransformMessageReferences(int srcIndex, int dstIndex)
-        {
-            bool change = false;
+			foreach (FlightGroup.Order order in Orders)
+				change |= order.TransformFGReferences(srcIndex, dstIndex);
+			return change;
+		}
+		/// <summary>Changes all Message indexes, to be used during a Message Swap (Move) or Delete operation.</summary>
+		/// <remarks>Same concept as for Flight Groups.  Triggers may depend on Message indexes, and this function helps ensure indexes are not broken.</remarks>
+		/// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
+		/// <param name="dstIndex">The Message index to replace with.  Specify <b>-1</b> to Delete, or <b>zero</b> or above to Move.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="dstIndex"/> is <b>256</b> or more.</exception>
+		/// <returns><b>True</b> if something was changed.</returns>
+		public bool TransformMessageReferences(int srcIndex, int dstIndex)
+		{
+			bool change = false;
 
-            for (int i = 0; i < ArrDepTriggers.Length; i++)
-            {
-                Mission.Trigger adt = ArrDepTriggers[i];
-                change |= adt.TransformMessageRef(srcIndex, dstIndex);
-            }
+			for (int i = 0; i < ArrDepTriggers.Length; i++)
+			{
+				Mission.Trigger adt = ArrDepTriggers[i];
+				change |= adt.TransformMessageRef(srcIndex, dstIndex);
+			}
 
-            foreach(FlightGroup.Order order in Orders)
-            {
-                foreach(Mission.Trigger trig in order.SkipTriggers)
-                    change |= trig.TransformMessageRef(srcIndex, dstIndex);
-            }
+			foreach (FlightGroup.Order order in Orders)
+			{
+				foreach (Mission.Trigger trig in order.SkipTriggers)
+					change |= trig.TransformMessageRef(srcIndex, dstIndex);
+			}
 
-            return change;
-        }
+			return change;
+		}
 
 		#region craft
 		/// <summary>Determines if <see cref="Designation1"/> is used, and which teams it applies to.</summary>
@@ -249,12 +250,12 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets which <see cref="ArrDepTriggers"/> must be completed</summary>
 		/// <remarks>Array is {Arr1AOArr2, Arr3AOArr4, Arr12AOArr34, Dep1AODep2}</remarks>
 		public bool[] ArrDepAndOr { get; } = new bool[4];
-        /// <summary>Gets or sets the primary method of arrival</summary>
-        /// <remarks>When <b>1</b> FlightGroup will attempt arrive via mothership, hyperspace when <b>0</b>. When <b>2</b>, hypers in to same region as mothership.</remarks>
-        new public byte ArrivalMethod1 { get; set; }
-        /// <summary>Gets or sets the primary method of departure</summary>
-        /// <remarks>When <b>1</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>0</b>. Unknown effect if <b>2</b>.</remarks>
-        new public byte DepartureMethod1 { get; set; }
+		/// <summary>Gets or sets the primary method of arrival</summary>
+		/// <remarks>When <b>1</b> FlightGroup will attempt arrive via mothership, hyperspace when <b>0</b>. When <b>2</b>, hypers in to same region as mothership.</remarks>
+		new public byte ArrivalMethod1 { get; set; }
+		/// <summary>Gets or sets the primary method of departure</summary>
+		/// <remarks>When <b>1</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>0</b>. Unknown effect if <b>2</b>.</remarks>
+		new public byte DepartureMethod1 { get; set; }
 		#endregion
 		/// <summary>Gets the FlightGroup objective commands</summary>
 		/// <remarks>Array is [Region, OrderIndex]</remarks>
@@ -264,7 +265,7 @@ namespace Idmr.Platform.Xwa
 		public Goal[] Goals { get; } = new Goal[8];
 
 		/// <summary>Gets the FlightGroup start location markers</summary>
-		/// <remarks>Array is length 4</remarks>
+		/// <remarks>Array is Length = 4</remarks>
 		public Waypoint[] Waypoints { get; } = new Waypoint[4];
 		#region Unks and Option
 		/// <summary>Determines if the FlightGroup should share numbering across the <see cref="GlobalUnit"/></summary>
@@ -301,9 +302,10 @@ namespace Idmr.Platform.Xwa
 		/// <remarks>All values except <see cref="UnknownValues.Unknown1"/> initialize to <b>0</b> or <b>false</b>, Unknown1 initializes to <b>2</b>. <see cref="Orders"/> contain Unknown9-14, <see cref="Goals"/> contain Unknown15</remarks>
 		public UnknownValues Unknowns;
 		#endregion
-		
+
 		/// <summary>Container for the optional craft settings</summary>
-		[Serializable] public struct OptionalCraft
+		[Serializable]
+		public struct OptionalCraft
 		{
 			/// <summary>The Craft Type</summary>
 			public byte CraftType { get; set; }
@@ -312,138 +314,139 @@ namespace Idmr.Platform.Xwa
 			/// <summary>The number of waves available</summary>
 			public byte NumberOfWaves { get; set; }
 		}
-		
+
 		/// <summary>Container for unknown values</summary>
-		[Serializable] public struct UnknownValues
+		[Serializable]
+		public struct UnknownValues
 		{
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0018, in Craft section</remarks>
 			public byte Unknown1 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x007B, in Craft section</remarks>
 			public byte Unknown3 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0084, in Craft section</remarks>
 			public byte Unknown4 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0087, in Arr/Dep section</remarks>
 			public byte Unknown5 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0097, in Arr/Dep section</remarks>
 			public bool Unknown6 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x00BF, in Arr/Dep section</remarks>
 			public byte Unknown7 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x00C0, in Arr/Dep section</remarks>
 			public byte Unknown8 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DAE, in Unks/Options section</remarks>
 			public byte Unknown16 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DAF, in Unks/Options section</remarks>
 			public byte Unknown17 { get; set; }
-		
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB0, in Unks/Options section</remarks>
 			public byte Unknown18 { get; set; }
-		
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB1, in Unks/Options section</remarks>
 			public byte Unknown19 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB2, in Unks/Options section</remarks>
 			public byte Unknown20 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB3, in Unks/Options section</remarks>
 			public byte Unknown21 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB4, in Unks/Options section</remarks>
 			public bool Unknown22 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB6, in Unks/Options section</remarks>
 			public byte Unknown23 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB7, in Unks/Options section</remarks>
 			public byte Unknown24 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB8, in Unks/Options section</remarks>
 			public byte Unknown25 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DB9, in Unks/Options section</remarks>
 			public byte Unknown26 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DBA, in Unks/Options section</remarks>
 			public byte Unknown27 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DBB, in Unks/Options section</remarks>
 			public byte Unknown28 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DBC, in Unks/Options section</remarks>
 			public bool Unknown29 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DC0, in Unks/Options section</remarks>
 			public bool Unknown30 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DC1, in Unks/Options section</remarks>
 			public bool Unknown31 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DC5, in Unks/Options section</remarks>
 			public byte Unknown32 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0DC6, in Unks/Options section</remarks>
 			public byte Unknown33 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E29, in Unks/Options section</remarks>
 			public bool Unknown34 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E2B, in Unks/Options section</remarks>
 			public bool Unknown35 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E2D, in Unks/Options section</remarks>
 			public bool Unknown36 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E2F, in Unks/Options section</remarks>
 			public bool Unknown37 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E31, in Unks/Options section</remarks>
 			public bool Unknown38 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E33, in Unks/Options section</remarks>
 			public bool Unknown39 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E35, in Unks/Options section</remarks>
 			public bool Unknown40 { get; set; }
-			
+
 			/// <summary>Unknown value</summary>
 			/// <remarks>Offset 0x0E37, in Unks/Options section</remarks>
 			public bool Unknown41 { get; set; }

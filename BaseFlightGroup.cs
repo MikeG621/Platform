@@ -61,29 +61,29 @@ namespace Idmr.Platform
 		/// <remarks>Length is restricted to 0x13 for XvT and XWA, 0xC for TIE. Defaults to <b>"New Ship"</b></remarks>
 		public string Name
 		{
-			get { return _name; }
+			get => _name;
 			set
 			{
 				_name = StringFunctions.GetTrimmed(value, _stringLength);
-				if (_name.IndexOf('\0') != -1) _name = _name.Substring(0, _name.IndexOf('\0'));	// mitigates partial overwrites
+				if (_name.IndexOf('\0') != -1) _name = _name.Substring(0, _name.IndexOf('\0')); // mitigates partial overwrites
 			}
 		}
 		/// <summary>Gets or sets the default cargo assigned to entire FlightGroup</summary>
 		/// <remarks>Length is restricted to 0x13 for XvT and XWA, 0xC for TIE</remarks>
 		public string Cargo
 		{
-			get { return _cargo; }
+			get => _cargo;
 			set
 			{
 				_cargo = StringFunctions.GetTrimmed(value, _stringLength);
-				if (_cargo.IndexOf('\0') != -1) _cargo = _cargo.Substring(0, _cargo.IndexOf('\0'));	// mitigates partial overwrites
+				if (_cargo.IndexOf('\0') != -1) _cargo = _cargo.Substring(0, _cargo.IndexOf('\0')); // mitigates partial overwrites
 			}
 		}
 		/// <summary>Gets or sets the cargo string for Special Craft</summary>
 		/// <remarks>Length is restricted to 0x13 for XvT and XWA, 0xC for TIE</remarks>
 		public string SpecialCargo
 		{
-			get { return _specialCargo; }
+			get => _specialCargo;
 			set
 			{
 				_specialCargo = StringFunctions.GetTrimmed(value, _stringLength);
@@ -94,8 +94,8 @@ namespace Idmr.Platform
 		/// <remarks>One-indexed, zero is <b>"none"</b> (default). Raw Data is zero-indexed, "none" value is <see cref="NumberOfCraft"/>. Setting to a non-zero value sets <see cref="RandSpecCargo"/> to <b>false</b></remarks>
 		public byte SpecialCargoCraft
 		{
-			get { return _specialCargoCraft; }
-			set 
+			get => _specialCargoCraft;
+			set
 			{
 				_specialCargoCraft = value;
 				if (_specialCargoCraft != 0) _randSpecCargo = false;
@@ -105,7 +105,7 @@ namespace Idmr.Platform
 		/// <remarks>Defaults to <b>false</b>. Setting to <b>true</b> sets <see cref="SpecialCargoCraft"/> to 0</remarks>
 		public bool RandSpecCargo
 		{
-			get { return _randSpecCargo; }
+			get => _randSpecCargo;
 			set
 			{
 				_randSpecCargo = value;
@@ -153,7 +153,7 @@ namespace Idmr.Platform
 		/// <remarks>Calculated before <see cref="Pitch"/> and <see cref="Roll"/>, in TIE only applies to SpaceObjects</remarks>
 		public short Yaw
 		{
-			get { return _yaw; }
+			get => _yaw;
 			set { if (value >= -180 && value < 180) _yaw = value; }
 		}
 		/// <summary>Gets or sets the craft y-axis orientation at start in degrees, -180 to 179</summary>
@@ -161,14 +161,14 @@ namespace Idmr.Platform
 		/// Flight engine adds -90 (nose down) pitch angle, automatically adjusted during Load/Save</remarks>
 		public short Pitch
 		{
-			get { return _pitch; }
+			get => _pitch;
 			set { if (value >= -180 && value < 180) _pitch = value; }
 		}
 		/// <summary>Gets or sets the craft x-axis orientation at start in degrees, -180 to 179</summary>
 		/// <remarks>Calculated after <see cref="Yaw"/> and <see cref="Pitch"/>, in TIE only applies to SpaceObjects</remarks>
 		public short Roll
 		{
-			get { return _roll; }
+			get => _roll;
 			set { if (value >= -180 && value < 180) _roll = value; }
 		}
 		#endregion
@@ -215,9 +215,9 @@ namespace Idmr.Platform
 		/// <summary>Gets or sets the descriptive craft number.</summary>
 		/// <remarks>This is used to help tell multiple Flight Groups apart when they have multiple names.  It is specific to YOGEME and not part of the file format.</remarks>
 		public int EditorCraftNumber { get; set; }
-        /// <summary>Gets or sets whether the actual numbering (including craft per wave) is listed or just duplicate names.</summary>
-        /// <remarks>This will be TRUE for XvT and XWA style Global Unit numbering, FALSE for TIE and X-wing or if XvT/XWA's GU numbering is disabled.  It is specific to YOGEME and not part of the file format.</remarks>
-        public bool EditorCraftExplicit { get; set; }
-        
+		/// <summary>Gets or sets whether the actual numbering (including craft per wave) is listed or just duplicate names.</summary>
+		/// <remarks>This will be TRUE for XvT and XWA style Global Unit numbering, FALSE for TIE and X-wing or if XvT/XWA's GU numbering is disabled.  It is specific to YOGEME and not part of the file format.</remarks>
+		public bool EditorCraftExplicit { get; set; }
+
 	}
 }

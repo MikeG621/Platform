@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.8
+ * Version: 5.8+
  */
 
 /* CHANGELOG
+ * [NEW] TypeList enum
  * v5.8, 230804
  * [NEW] Region references prepped for string replacement
  * v5.7, 220127
@@ -44,6 +45,39 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Object for a single Trigger</summary>
 		[Serializable] public class Trigger : BaseTrigger
 		{
+			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
+			public enum TypeList : byte
+			{
+				None,
+				FlightGroup,
+				ShipType,
+				ShipClass,
+				ObjectType,
+				IFF,
+				ShipOrders,
+				CraftWhen,
+				GlobalGroup,
+				AILevel,
+				Status,
+				AllCraft,
+				Team,
+				PlayerNum,
+				BeforeTime,
+				NotFG,
+				NotShipType,
+				NotShipClass,
+				NotObjectType,
+				NotIFF,
+				NotGlobalGroup,
+				NotTeam,
+				NotPlayerNum,
+				GlobalUnit,
+				NotGlobalUnit,
+				GlobalCargo,
+				NotGlobalCargo,
+				MessageNum
+			}
+
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[6]) { }
 
@@ -115,7 +149,7 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/ && VariableType != 14 /*Delay*/)
+				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/ && VariableType != (byte)TypeList.BeforeTime)
 				{
 					if (Condition == 0x31 /*Prox*/ || Condition == 0x32 /*NOT Prox*/) trig = "Any of ";
 					else
@@ -124,85 +158,85 @@ namespace Idmr.Platform.Xwa
 						trig = BaseStrings.SafeString(Strings.Amount, Amount);
 						trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";
 					}
-					switch (VariableType)
+					switch ((TypeList)VariableType)
 					{
-						case 1:
+						case TypeList.FlightGroup:
 							trig += "FG:" + Variable;
 							break;
-						case 2:
+						case TypeList.ShipType:
 							trig += "Ship type " + BaseStrings.SafeString(Strings.CraftType, Variable);
 							break;
-						case 3:
+						case TypeList.ShipClass:
 							trig += "Ship class " + BaseStrings.SafeString(Strings.ShipClass, Variable);
 							break;
-						case 4:
+						case TypeList.ObjectType:
 							trig += "Object type " + BaseStrings.SafeString(Strings.ObjectType, Variable);
 							break;
-						case 5:
+						case TypeList.IFF:
 							trig += "IFF:" + Variable;
 							break;
-						case 6:
+						case TypeList.ShipOrders:
 							trig += "Ship orders " + BaseStrings.SafeString(Strings.Orders, Variable);
 							break;
-						case 7:
+						case TypeList.CraftWhen:
 							trig += "Craft When " + BaseStrings.SafeString(Strings.CraftWhen, Variable);
 							break;
-						case 8:
+						case TypeList.GlobalGroup:
 							trig += "GG:" + Variable;
 							break;
-                        case 9:
+                        case TypeList.AILevel:
                             trig += "Rating " + BaseStrings.SafeString(Strings.Rating, Variable);
                             break;
-                        case 10:
+                        case TypeList.Status:
                             trig += "Craft with status: " + BaseStrings.SafeString(Strings.Status, Variable);
                             break;
-                        case 11:
+                        case TypeList.AllCraft:
                             trig += "All craft";
                             break;
-                        case 12:
+                        case TypeList.Team:
                             trig += "TM:" + Variable;
                             break;
-                        case 13:
+                        case TypeList.PlayerNum:
                             trig += "Player #" + Variable;
                             break;
                         //case 14: omitted, special case after the switch
-                        case 15:
+                        case TypeList.NotFG:
                             trig += "all except FG:" + Variable;
                             break;
-                        case 16:
+                        case TypeList.NotShipType:
                             trig += "all except " + BaseStrings.SafeString(Strings.CraftType, Variable) + "s";
                             break;
-                        case 17:
+                        case TypeList.NotShipClass:
                             trig += "all except " + BaseStrings.SafeString(Strings.ShipClass, Variable);
                             break;
-                        case 18:
+                        case TypeList.NotObjectType:
                             trig += "all except " + BaseStrings.SafeString(Strings.ObjectType, Variable);
                             break;
-                        case 19:
+                        case TypeList.NotIFF:
                             trig += "all except IFF:" + Variable;
 							break;
-                        case 20:
+                        case TypeList.NotGlobalGroup:
                             trig += "all except GG:" + Variable;
                             break;
-                        case 21:
+                        case TypeList.NotTeam:
                             trig += "all except TM:" + Variable;
                             break;
-                        case 22:
+                        case TypeList.NotPlayerNum:
                             trig += "all except Player #" + Variable;
                             break;
-                        case 23:
+                        case TypeList.GlobalUnit:
                             trig += "Global Unit " + Variable;
                             break;
-                        case 24:
+                        case TypeList.NotGlobalUnit:
                             trig += "all except Global Unit " + Variable;
                             break;
-                        case 25:
+                        case TypeList.GlobalCargo:
                             trig += "Global Cargo " + Variable;
                             break;
-                        case 26:
+                        case TypeList.NotGlobalCargo:
                             trig += "all except Global Cargo " + Variable;
                             break;
-                        case 27:
+                        case TypeList.MessageNum:
 							trig += "Message #" + (Variable + 1);  //[JB] One-based for display purposes.
 							break;
 						default:
@@ -211,7 +245,7 @@ namespace Idmr.Platform.Xwa
 					}
 					trig += " must ";
 				}
-				if (VariableType == 14) trig = "After " + string.Format("{0}:{1:00}", Variable * 5 / 60, Variable * 5 % 60) + " delay";
+				if (VariableType == (byte)TypeList.BeforeTime) trig = "After " + string.Format("{0}:{1:00}", GetDelaySeconds(Variable) / 60, GetDelaySeconds(Variable) % 60) + " delay";
 				else if (Condition == 0x31 || Condition == 0x32)
 				{
 					trig += (Condition == 0x32 ? "NOT " : "") + "be within ";
@@ -251,24 +285,24 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Gets or sets the first additional setting</summary>
 			public byte Parameter1
 			{
-				get { return _items[4]; }
-				set { _items[4] = value; }
+				get => _items[4];
+				set => _items[4] = value;
 			}
 			/// <summary>Gets or sets the second additional setting</summary>
 			public byte Parameter2
 			{
-				get { return _items[5]; }
-				set { _items[5] = value; }
+				get => _items[5];
+				set => _items[5] = value;
 			}
 
-            /// <summary>This allows checking XWA's new properties.</summary>
+			/// <summary>This allows checking XWA's new properties.</summary>
 			/// <param name="srcIndex">The original FG index location</param>
 			/// <param name="dstIndex">The new FG index location</param>
 			/// <param name="delete">Whether or not to delete the FG</param>
 			/// <param name="delCond">The condition to reset references to after a delete operation</param>
 			/// <returns><b>true</b> on a successful change</returns>
-            /// <remarks>Extension for BaseTrigger to process additional properties found only in XWA</remarks>
-            protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
+			/// <remarks>Extension for BaseTrigger to process additional properties found only in XWA</remarks>
+			protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
             {
                 bool change = false;
                 if ((Parameter1 == 5 + srcIndex) || (Parameter1 == srcIndex && Parameter1 == 255)) //255 is used as temp while swapping.  Ensure if we're swapping temp back to normal.
@@ -285,7 +319,7 @@ namespace Idmr.Platform.Xwa
                     Parameter1--;
                 }
 
-                if (VariableType == 15 && Variable == srcIndex)
+                if (VariableType == (byte)TypeList.NotFG && Variable == srcIndex)
                 {
                     change = true;
                     Variable = (byte)dstIndex;
@@ -297,7 +331,7 @@ namespace Idmr.Platform.Xwa
                         Condition = (byte)(delCond ? 0 : 10); //this will expand the bool true/false into the condition true/false
                     }
                 }
-                else if (VariableType == 15 && Variable > srcIndex && delete == true)
+                else if (VariableType == (byte)TypeList.NotFG && Variable > srcIndex && delete == true)
                 {
                     change = true;
                     Variable--;  //If deleting, decrement FG index to maintain
@@ -323,11 +357,12 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Helper function that changes Message indexes during a Message Move or Delete operation.</summary>
 			/// <remarks>Should not be called directly unless part of a larger Message Move or Delete operation.  FG references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
 			/// <param name="srcIndex">The Message index to match and replace (Move), or match and Delete.</param>
-			/// <param name="dstIndex">The Message index to replace with.  Specify -1 to Delete, or zero or above to Move.</param>
+			/// <param name="dstIndex">The Message index to replace with.  Specify <b>-1</b> to Delete, or <b>zero</b> or above to Move.</param>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="dstIndex"/> is <b>256</b> or more.</exception>
 			/// <returns><b>true</b> on a successful change</returns>
 			public bool TransformMessageRef(int srcIndex, int dstIndex)
             {
-                if (VariableType != 27) return false;  //Must be a message trigger.
+                if (VariableType != (byte)TypeList.MessageNum) return false;
 
                 bool change = false;
                 bool delete = false;
@@ -336,7 +371,7 @@ namespace Idmr.Platform.Xwa
                     dstIndex = 0;
                     delete = true;
                 }
-                else if (dstIndex > 255) throw new Exception("TransformMessageRef: dstIndex out of range.");
+                else if (dstIndex > 255) throw new ArgumentOutOfRangeException("TransformMessageRef: dstIndex out of range.");
 
                 if (delete)
                 {

@@ -55,24 +55,24 @@ namespace Idmr.Platform.Xwa
 
 			/// <summary>Returns a representative string of the Waypoint</summary>
 			/// <returns>Waypoint coordinates in the form of <b>"(<see cref="BaseFlightGroup.BaseWaypoint.X"/>, <see cref="BaseFlightGroup.BaseWaypoint.Y"/>, <see cref="BaseFlightGroup.BaseWaypoint.Z"/>) <see cref="Region"/> #"</b>if enabled, otherwise <b>"Disabled"</b></returns>
-			public override string ToString() { return (Enabled ? "(" + X + ", " + Y + ", " + Z + ") Region " + Region : "Disabled"); }
+			public override string ToString() => (Enabled ? "(" + X + ", " + Y + ", " + Z + ") Region " + Region : "Disabled");
 
 			/// <summary>Converts a Waypoint for TIE</summary>
 			/// <remarks><see cref="Region"/> is lost in the conversion</remarks>
 			/// <param name="wp">The Waypoint to convert</param>
 			/// <returns>A copy of <paramref name="wp"/> for use in TIE95</returns>
-			public static explicit operator Tie.FlightGroup.Waypoint(Waypoint wp) { return new Tie.FlightGroup.Waypoint((short[])wp); }
+			public static explicit operator Tie.FlightGroup.Waypoint(Waypoint wp) => new Tie.FlightGroup.Waypoint((short[])wp);
 			/// <summary>Converts a Waypoint for XvT</summary>
 			/// <remarks><see cref="Region"/> is lost in the conversion</remarks>
 			/// <param name="wp">The Waypoint to convert</param>
 			/// <returns>A copy of <paramref name="wp"/> for use in XvT</returns>
-			public static explicit operator Xvt.FlightGroup.Waypoint(Waypoint wp) { return new Xvt.FlightGroup.Waypoint((short[])wp); }
-			
+			public static explicit operator Xvt.FlightGroup.Waypoint(Waypoint wp) => new Xvt.FlightGroup.Waypoint((short[])wp);
+
 			/// <summary>Gets or sets the Region that the Waypoint is located in</summary>
 			/// <remarks>Restricted to values <b>0-3</b></remarks>
 			public byte Region
 			{
-				get { return (byte)_items[4]; }
+				get => (byte)_items[4];
 				set { if (value < 4 && value >= 0) _items[4] = value; }
 			}
 		}

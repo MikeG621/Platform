@@ -77,7 +77,7 @@ namespace Idmr.Platform.Xwa
 			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
 			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
 			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value.</remarks>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/>value</exception>
 			public override bool this[int index]
 			{
 				get { return _items[index]; }
@@ -118,7 +118,6 @@ namespace Idmr.Platform.Xwa
 			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
 			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
 			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value.</remarks>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public bool this[Indexes index]
 			{
 				get { return _items[(int)index]; }

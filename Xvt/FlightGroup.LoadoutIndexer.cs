@@ -76,52 +76,51 @@ namespace Idmr.Platform.Xvt
 			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
 			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
 			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value</exception>
 			public override bool this[int index]
 			{
-				get { return _items[index]; }
-				set
-                {
-                    if ((index == 0 || index == 9 || index == 14) && !value) return;
-                    _items[index] = value;
-                    if (index == 0 && value) for (int i = 1; i < 9; i++) _items[i] = false;	// set NoWarheads, clear warheads
-                    else if (index == 9 && value) for (int i = 10; i < 14; i++) _items[i] = false;	// set NoBeam, clear beams
-                    else if (index == 14 && value) for (int i = 15; i < 18; i++) _items[i] = false;	// set NoCMs, clear CMs
-                    else if (index < 9 && value) _items[0] = false;	// set a warhead, clear NoWarheads
-                    else if (index < 14 && value) _items[9] = false;	// set a beam, clear NoBeam
-                    else if (index < 18 && value) _items[14] = false;	// set a CM, clear NoCMs
-                    else if (index < 9)
-                    {
-                        bool used = false;
-                        for (int i = 1; i < 9; i++) used |= _items[i];
-                        if (!used) _items[0] = true;	// cleared last warhead, set NoWarheads
-                    }
-                    else if (index < 14)
-                    {
-                        bool used = false;
-                        for (int i = 10; i < 14; i++) used |= _items[i];
-                        if (!used) _items[9] = true;	// cleared last beam, set NoBeam
-                    }
-                    else
-                    {
-                        bool used = false;
-                        for (int i = 15; i < 18; i++) used |= _items[i];
-                        if (!used) _items[14] = true;	// cleared last CM, set NoCMs
-                    }
-                }
-            }
-			
+				get => _items[index];
+				set => this[(Indexes)index] = value;    // make the other indexer do the work
+			}
+
 			/// <summary>Gets or sets the Loadout values</summary>
 			/// <param name="index">LoadoutIndex enumerated value</param>
 			/// <remarks>Cannot manually clear <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> indexes<br/>
 			/// Setting <i>NoWarheads</i>, <i>NoBeam</i> or <i>NoCountermeasures</i> will clear the appropriate indexes.<br/>
 			/// Setting any warhead, beam or countermeasure will clear the appropriate <i>No*</i> value.<br/>
 			/// Manually clearing all warheads, beams or countermeasures will set the appropriate <i>No*</i> value</remarks>
-			/// <exception cref="IndexOutOfRangeException">Invalid <i>index</i> value</exception>
 			public bool this[Indexes index]
 			{
-				get { return _items[(int)index]; }
-				set { this[(int)index] = value; }	// make the other indexer do the work
+				get => _items[(int)index];
+				set
+				{
+					if ((index == Indexes.NoWarheads || index == Indexes.NoBeam || index == Indexes.NoCountermeasures) && !value) return;
+					_items[(int)index] = value;
+					if (index == Indexes.NoWarheads) for (int i = (int)Indexes.SpaceBomb; i <= (int)Indexes.IonPulse; i++) _items[i] = false;
+					else if (index == Indexes.NoBeam) for (int i = (int)Indexes.TractorBeam; i <= (int)Indexes.EnergyBeam; i++) _items[i] = false;
+					else if (index == Indexes.NoCountermeasures) for (int i = (int)Indexes.Chaff; i <= (int)Indexes.ClusterMine; i++) _items[i] = false;
+					else if ((int)index <= (int)Indexes.IonPulse && value) _items[(int)Indexes.NoWarheads] = false;
+					else if ((int)index <= (int)Indexes.EnergyBeam && value) _items[(int)Indexes.NoBeam] = false;
+					else if ((int)index <= (int)Indexes.ClusterMine && value) _items[(int)Indexes.NoCountermeasures] = false;
+					else if ((int)index <= (int)Indexes.IonPulse)
+					{
+						bool used = false;
+						for (int i = (int)Indexes.SpaceBomb; i <= (int)Indexes.IonPulse; i++) used |= _items[i];
+						_items[(int)Indexes.NoWarheads] = !used;
+					}
+					else if ((int)index <= (int)Indexes.EnergyBeam)
+					{
+						bool used = false;
+						for (int i = (int)Indexes.TractorBeam; i <= (int)Indexes.EnergyBeam; i++) used |= _items[i];
+						_items[(int)Indexes.NoBeam] = !used;
+					}
+					else
+					{
+						bool used = false;
+						for (int i = (int)Indexes.Chaff; i <= (int)Indexes.ClusterMine; i++) used |= _items[i];
+						_items[(int)Indexes.NoCountermeasures] = !used;
+					}
+				}
 			}
 		}
 	}

@@ -860,7 +860,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Save the mission to a new location</summary>
 		/// <param name="filePath">Full path to the new file location</param>
-		/// <exception cref="UnauthorizedAccessException">Write permissions for <i>filePath</i> are denied</exception>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -884,25 +884,25 @@ namespace Idmr.Platform.Xvt
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";
-			if (type > 9)
+			if (type > (byte)Trigger.TypeList.AILevel)
 			{
 				errorMessage = "Type (" + type + ")";
 				return;
 			}
 			// can't check FG
-			else if (type == 2)
+			else if (type == (byte)Trigger.TypeList.ShipType)
 			{
 				byte newCraft = CraftCheck(variable);
 				if (newCraft == 255) errorMessage = "CraftType";
 				else variable = newCraft;
 			}
-			else if (type == 3) if (variable > 6) errorMessage = "CraftCategory";
-			else if (type == 4) if (variable > 2) errorMessage = "ObjectCategory";
-			else if (type == 5) if (variable > 5) errorMessage = "IFF";
-			else if (type == 6) if (variable > 39) errorMessage = "Order";
+			else if (type == (byte)Trigger.TypeList.ShipClass && variable > 6) errorMessage = "CraftCategory";
+			else if (type == (byte)Trigger.TypeList.ObjectType && variable > 2) errorMessage = "ObjectCategory";
+			else if (type == (byte)Trigger.TypeList.IFF && variable > 5) errorMessage = "IFF";
+			else if (type == (byte)Trigger.TypeList.ShipOrders && variable > 39) errorMessage = "Order";
 			// don't want to check CraftWhen
 			// can't check GG
-			else if (type == 12 || type == 21) if (variable > 9) errorMessage = "Team";
+			else if (type == (byte)Trigger.TypeList.Team || type == (byte)Trigger.TypeList.NotTeam) if (variable > 9) errorMessage = "Team";
 			// can't check GU
 			if (errorMessage != "") errorMessage += " (" + variable + ")";
 		}
@@ -974,13 +974,10 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Gets the array accessor for the IFF names</summary>
 		public IffNameIndexer IFFs { get; private set; }
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
-		/// <remarks>Value is <b>32</b></remarks>
 		public const int CraftLimit = 32;
 		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
-		/// <remarks>Value is <b>48</b></remarks>
 		public const int FlightGroupLimit = 48;
 		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
-		/// <remarks>Value is <b>64</b></remarks>
 		public const int MessageLimit = 64;
 		
 		/// <summary>Gets or sets the mission platform</summary>
@@ -1025,7 +1022,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>1023 char limit for XvT, 4095 char limit for BoP</remarks>
 		public string MissionDescription
 		{
-			get { return _missionDescription.Replace("$","\r\n"); }
+			get => _missionDescription.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");
@@ -1036,7 +1033,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>4095 char limit</remarks>
 		public string MissionFailed
 		{
-			get { return _missionFailed.Replace("$", "\r\n"); }
+			get => _missionFailed.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");
@@ -1047,7 +1044,7 @@ namespace Idmr.Platform.Xvt
 		/// <remarks>4095 char limit</remarks>
 		public string MissionSuccessful
 		{
-			get { return _missionSuccessful.Replace("$", "\r\n"); }
+			get => _missionSuccessful.Replace("$", "\r\n");
 			set
 			{
 				string s = value.Replace("\r\n", "$");

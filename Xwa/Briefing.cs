@@ -30,11 +30,9 @@ namespace Idmr.Platform.Xwa
 	public class Briefing : BaseBriefing
 	{
 		/// <summary>Frames per second for briefing animation</summary>
-		/// <remarks>Value is <b>25 (0x19)</b></remarks>
-		public const int TicksPerSecond = 0x19;
+		public const int TicksPerSecond = 25;
 		/// <summary>Maximum number of events that can be held</summary>
-		/// <remarks>Value is <b>4352 (0x1100)</b></remarks>
-		public const int EventQuantityLimit = 0x1100;
+		public const int EventQuantityLimit = 4352;
 
 		/// <summary>Initializes a blank briefing</summary>
 		public Briefing()

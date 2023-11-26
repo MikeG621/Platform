@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [NEW] CommandList enum
  * [UPD] Convert times for XWA
  * v5.7, 220127
  * [UPD] cloning ctor now calls base [JB]
@@ -38,7 +39,92 @@ namespace Idmr.Platform.Xvt
 		[Serializable] public class Order : BaseOrder
 		{
 			string _designation = "";
-			
+
+			/// <summary>Available orders</summary>
+			public enum CommandList : byte
+			{
+				/// <summary>Stationary. Go Home if not first order</summary>
+				HoldSteady,
+				/// <summary>Return to Mothership or hyperspace</summary>
+				GoHome,
+				/// <summary>Loop through waypoints</summary>
+				Circle,
+				/// <summary>Loop through waypoints and evade</summary>
+				CircleEvade,
+				/// <summary>Fly to RDV and await docking</summary>
+				Rendezvous,
+				/// <summary>Disabled</summary>
+				Disabled,
+				/// <summary>Disabled, awaiting boarding</summary>
+				AwaitBoarding,
+				/// <summary>Attack targets</summary>
+				AttackTargets,
+				/// <summary>Attack target's escorts</summary>
+				AttackEscorts,
+				/// <summary>Attack target's attackers</summary>
+				Protect,
+				/// <summary>Attack target's attackers and boarding craft</summary>
+				Escort,
+				/// <summary>Attack to disable targets</summary>
+				DisableTargets,
+				/// <summary>Board targets to give cargo</summary>
+				BoardGiveCargo,
+				/// <summary>Board targets to take cargo</summary>
+				BoardTakeCargo,
+				/// <summary>Board targets to exchange cargo</summary>
+				BoardExchangeCargo,
+				/// <summary>Board to capture targets</summary>
+				BoardToCapture,
+				/// <summary>Board targets to destroy</summary>
+				BoardDestroy,
+				/// <summary>Pickup and carry target</summary>
+				PickUp,
+				/// <summary>Drops off designated FG</summary>
+				DropOff,
+				/// <summary>Wait for a time</summary>
+				Wait,
+				/// <summary>Wait for a time (Starship)</summary>
+				SSWait,
+				/// <summary>Loop through waypoints (Starship)</summary>
+				SSPatrol,
+				/// <summary>Wait for return of all craft that use FG as Mothership</summary>
+				SSAwaitReturn,
+				/// <summary>Wait for launch of all craft that use FG as Mothership</summary>
+				SSLaunch,
+				/// <summary>Loop through waypoints and attack target's attackers</summary>
+				SSProtect,
+				/// <summary>Loop through waypoints and attack target's attackers</summary>
+				SSProtect2,
+				/// <summary>Loop through waypoints and attack targets</summary>
+				SSPatrolAttack,
+				/// <summary>Loop through waypoints and attack to disable targets</summary>
+				SSPatrolDisable,
+				/// <summary>Stationary</summary>
+				Hold2,
+				/// <summary>Return to Mothership or hyperspace (Starship)</summary>
+				SSGoHome,
+				/// <summary>Stationary</summary>
+				Hold3,
+				/// <summary>Boards target (Starship)</summary>
+				SSBoard,
+				/// <summary>Boards target to repair systems</summary>
+				BoardRepair,
+				/// <summary>Stationary</summary>
+				Hold4,
+				/// <summary>Stationary</summary>
+				Hold5,
+				/// <summary>Stationary</summary>
+				Hold6,
+				/// <summary>Destroys self</summary>
+				SelfDestruct,
+				/// <summary>Rams target</summary>
+				Kamikaze,
+				/// <summary>Stationary</summary>
+				Hold7,
+				/// <summary>Stationary</summary>
+				Null
+			}
+
 			#region constructors
 			/// <summary>Initializes a blank Order</summary>
 			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b></remarks>
@@ -61,9 +147,9 @@ namespace Idmr.Platform.Xvt
 			}
 			
 			/// <summary>Initlializes a new Order from raw data</summary>
-			/// <remarks>If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
+			/// <remarks>If <paramref name="raw"/>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
 			public Order(byte[] raw)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
@@ -74,11 +160,11 @@ namespace Idmr.Platform.Xvt
 			}
 			
 			/// <summary>Initlialize a new Order from raw data</summary>
-			/// <remarks>If <i>raw</i>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
+			/// <remarks>If <paramref name="raw"/>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <param name="startIndex">Offset within <i>raw</i> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <i>raw</i>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><i>startIndex</i> results in reading outside the bounds of <i>raw</i></exception>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
 			public Order(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
@@ -103,7 +189,7 @@ namespace Idmr.Platform.Xvt
 			{
 				string error = "";
 				byte tempVar;
-				if (o.Command > 39) error += "Command (" + o.Command + ")";
+				if (o.Command > (byte)CommandList.Null) error += "Command (" + o.Command + ")";
 				tempVar = o.Target1;
 				Mission.CheckTarget(o.Target1Type, ref tempVar, out string msg);
 				o.Target1 = tempVar;
@@ -126,80 +212,80 @@ namespace Idmr.Platform.Xvt
 			static string orderTargetString(byte target, byte type)
 			{
 				string s = "";
-				switch (type)
+				switch ((Mission.Trigger.TypeList)type)
 				{
-					case 0:
+					case Mission.Trigger.TypeList.None:
 						break;
-					case 1:
+					case Mission.Trigger.TypeList.FlightGroup:
 						s += "FG:" + target;
 						break;
-					case 2:
+					case Mission.Trigger.TypeList.ShipType:
 						s += BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
-					case 3:
+					case Mission.Trigger.TypeList.ShipClass:
 						s += BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
-					case 4:
+					case Mission.Trigger.TypeList.ObjectType:
 						s += BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
-					case 5:
+					case Mission.Trigger.TypeList.IFF:
 						s += BaseStrings.SafeString(Strings.IFF, target) + "s";
 						break;
-					case 6:
+					case Mission.Trigger.TypeList.ShipOrders:
 						s += "Craft with " + BaseStrings.SafeString(Strings.Orders, target) + " starting orders";
 						break;
-					case 7:
+					case Mission.Trigger.TypeList.CraftWhen:
 						s += "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, target);
 						break;
-					case 8:
+					case Mission.Trigger.TypeList.GlobalGroup:
 						s += "Global Group " + target;
 						break;
-					case 9:
+					case Mission.Trigger.TypeList.AILevel:
 						s += "Craft with " + BaseStrings.SafeString(Strings.Rating, target) + " adjusted skill";
 						break;
-					case 0xA:
+					case Mission.Trigger.TypeList.Status:
 						s += "Craft with primary status: " + BaseStrings.SafeString(Strings.Status, target);
 						break;
-					case 0xB:
+					case Mission.Trigger.TypeList.AllCraft:
 						s += "All craft";
 						break;
-					case 0xC:
+					case Mission.Trigger.TypeList.Team:
 						s += "TM:" + target;
 						break;
-					case 0xD:
+					case Mission.Trigger.TypeList.PlayerNum:
 						s += "Player #" + (target + 1);
 						break;
-					case 0xE:
+					case Mission.Trigger.TypeList.BeforeTime:
 						s += "Before elapsed time " + string.Format("{0}:{1:00}", target * 5 / 60, target * 5 % 60);
 						break;
-					case 0xF:
+					case Mission.Trigger.TypeList.NotFG:
 						s += "Not FG:" + target;
 						break;
-					case 0x10:
+					case Mission.Trigger.TypeList.NotShipType:
 						s += "Not ship type " + BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
-					case 0x11:
+					case Mission.Trigger.TypeList.NotShipClass:
 						s += "Not ship class " + BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
-					case 0x12:
+					case Mission.Trigger.TypeList.NotObjectType:
 						s += "Not object type " + BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
-					case 0x13:
+					case Mission.Trigger.TypeList.NotIFF:
 						s += "Not IFF " + BaseStrings.SafeString(Strings.IFF, target);
 						break;
-					case 0x14:
+					case Mission.Trigger.TypeList.NotGlobalGroup:
 						s += "Not GG " + target;
 						break;
-					case 0x15:
+					case Mission.Trigger.TypeList.NotTeam:
 						s += "All teams except TM:" + target;
 						break;
-					case 0x16:
+					case Mission.Trigger.TypeList.NotPlayerNum:
 						s += "Not player #" + (target + 1);
 						break;
-					case 0x17:
+					case Mission.Trigger.TypeList.GlobalUnit:
 						s += "Global Unit " + target;
 						break;
-					case 0x18:
+					case Mission.Trigger.TypeList.NotGlobalUnit:
 						s += "Not global unit " + target;
 						break;
 					default:
@@ -216,7 +302,9 @@ namespace Idmr.Platform.Xvt
 			{
 				if (Command == 0) return "None";
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
-				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x15 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
+				if ((Command >= (byte)CommandList.AttackTargets && Command <= (byte)CommandList.DropOff)
+					|| (Command >= (byte)CommandList.SSPatrol && Command <= (byte)CommandList.SSPatrolDisable)
+					|| Command == (byte)CommandList.SSBoard || Command == (byte)CommandList.BoardRepair || Command == (byte)CommandList.Kamikaze)	//all orders where targets are important
 				{
 					string s = orderTargetString(Target1, Target1Type);
 					string s2 = orderTargetString(Target2, Target2Type);
@@ -270,32 +358,32 @@ namespace Idmr.Platform.Xvt
                 //XvT time is value*5=sec
                 //XWA time value, if 20 (decimal) or under is exact seconds, then +5 up to 15:00, then +10.
                 //21 = 25 sec, 22 = 30 sec, etc.
-                switch (ord.Command)
+                switch ((CommandList)ord.Command)
                 {
-                    case 0x0C:   //Board and Give Cargo
-                    case 0x0D:   //Board and Take Cargo
-                    case 0x0E:   //Board and Exchange Cargo
-                    case 0x0F:   //Board and Capture Cargo
-                    case 0x10:   //Board and Destroy Cargo
-                    case 0x11:   //Pick up
-                    case 0x12:   //Drop off   (Deploy time?)
-                    case 0x13:   //Wait
-                    case 0x14:   //SS Wait
-                    case 0x1C:   //SS Hold Steady
-                    case 0x1E:   //SS Wait
-                    case 0x1F:   //SS Board
-                    case 0x20:   //Board to Repair
-                    case 0x24:   //Self-destruct
+                    case CommandList.BoardGiveCargo:
+                    case CommandList.BoardTakeCargo:
+                    case CommandList.BoardExchangeCargo:
+                    case CommandList.BoardToCapture:
+                    case CommandList.BoardDestroy:
+                    case CommandList.PickUp:
+                    case CommandList.DropOff:
+                    case CommandList.Wait:
+                    case CommandList.SSWait:
+                    case CommandList.Hold2:
+                    case CommandList.Hold3:
+                    case CommandList.SSBoard:
+                    case CommandList.BoardRepair:
+                    case CommandList.SelfDestruct:
 						if (ord.Variable1 < 4) ord.Variable1 = (byte)(ord.Variable1 * 5);
 						else if (ord.Variable1 < 180) ord.Variable1 = (byte)(ord.Variable1 + 16);
 						else ord.Variable1 = (byte)(ord.Variable1 / 2 + 106);
                         break;
                     default: break;
                 }
-				if (ord.Target1Type == 2 && ord.Target1 != 255) ord.Target1++;
-                if (ord.Target2Type == 2 && ord.Target2 != 255) ord.Target2++;
-                if (ord.Target3Type == 2 && ord.Target3 != 255) ord.Target3++;
-                if (ord.Target4Type == 2 && ord.Target4 != 255) ord.Target4++;
+				if (ord.Target1Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target1 != 255) ord.Target1++;
+                if (ord.Target2Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target2 != 255) ord.Target2++;
+                if (ord.Target3Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target3 != 255) ord.Target3++;
+                if (ord.Target4Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target4 != 255) ord.Target4++;
                 return ord;
 			}
 			
@@ -304,42 +392,42 @@ namespace Idmr.Platform.Xvt
 			/// <remarks>Order offset 0x04</remarks>
 			public byte Unknown6
 			{
-				get { return _items[4]; }
-				set { _items[4] = value; }
+				get => _items[4];
+				set => _items[4] = value;
 			}
 			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x05</remarks>
 			public byte Unknown7
 			{
-				get { return _items[5]; }
-				set { _items[5] = value; }
+				get => _items[5];
+				set => _items[5] = value;
 			}
 			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x0B</remarks>
 			public byte Unknown8
 			{
-				get { return _items[11]; }
-				set { _items[11] = value; }
+				get => _items[11];
+				set => _items[11] = value;
 			}
 			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x11</remarks>
 			public byte Unknown9
 			{
-				get { return _items[17]; }
-				set { _items[17] = value; }
+				get => _items[17];
+				set => _items[17] = value;
 			}
 			/// <summary>Gets or sets the specific max velocity</summary>
 			public byte Speed
 			{
-				get { return _items[18]; }
-				set { _items[18] = value; }
+				get => _items[18];
+				set => _items[18] = value;
 			}
 			/// <summary>Gets or sets the order description</summary>
 			/// <remarks>Limited to 16 characters</remarks>
 			public string Designation
 			{
-				get { return _designation; }
-				set { _designation = StringFunctions.GetTrimmed(value, 16); }
+				get => _designation;
+				set => _designation = StringFunctions.GetTrimmed(value, 16);
 			}
 			#endregion public properties
 		}

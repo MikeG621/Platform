@@ -29,16 +29,16 @@ namespace Idmr.Platform.Tie
 			/// <summary>Initializes the indexer</summary>
 			/// <param name="parent">The parent Mission</param>
 			public IffNameIndexer(Mission parent) : base(parent._iff) { _owner = parent; }
-			
+
 			/// <summary>Gets or sets the IFF Name</summary>
 			/// <remarks>11 character limit, Rebel and Imperial are read-only</remarks>
 			/// <param name="index">IFF index</param>
 			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value</exception>
-			/// <exception cref="InvalidOperationException">Index is read-only</exception>
+			/// <exception cref="InvalidOperationException">Selected <paramref name="index"/> is read-only</exception>
 			/// <returns>The IFF name</returns>
 			public override string this[int index]
 			{
-				get { return _items[index]; }
+				get => _items[index];
 				set
 				{
 					if (index < 2) throw new InvalidOperationException("Index (" + index + ") is read-only");

@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.5
+ * Version: 5.7.5+
  */
 
 /* CHANGELOG
+ * [NEW] CommandList enum
  * v5.7.5, 230116
  * [UPD #12] Importing order values past Board to Repair (0x20) will reset to zero to match TIE behavior
  * v5.7, 220127
@@ -36,6 +37,77 @@ namespace Idmr.Platform.Tie
 		/// <summary>Object for a single Order</summary>
 		[Serializable] public class Order : BaseOrder
 		{
+			/// <summary>Available orders</summary>
+			public enum CommandList : byte
+			{
+				/// <summary>Stationary. Go Home if not first order</summary>
+				HoldSteady,
+				/// <summary>Return to Mothership or hyperspace</summary>
+				GoHome,
+				/// <summary>Loop through waypoints</summary>
+				Circle,
+				/// <summary>Loop through waypoints and evade</summary>
+				CircleEvade,
+				/// <summary>Fly to RDV and await docking</summary>
+				Rendezvous,
+				/// <summary>Disabled</summary>
+				Disabled,
+				/// <summary>Disabled, awaiting boarding</summary>
+				AwaitBoarding,
+				/// <summary>Attack targets</summary>
+				AttackTargets,
+				/// <summary>Attack target's escorts</summary>
+				AttackEscorts,
+				/// <summary>Attack target's attackers</summary>
+				Protect,
+				/// <summary>Attack target's attackers and boarding craft</summary>
+				Escort,
+				/// <summary>Attack to disable targets</summary>
+				DisableTargets,
+				/// <summary>Board targets to give cargo</summary>
+				BoardGiveCargo,
+				/// <summary>Board targets to take cargo</summary>
+				BoardTakeCargo,
+				/// <summary>Board targets to exchange cargo</summary>
+				BoardExchangeCargo,
+				/// <summary>Board to capture targets</summary>
+				BoardToCapture,
+				/// <summary>Board targets to destroy</summary>
+				BoardDestroy,
+				/// <summary>Pickup and carry target</summary>
+				PickUp,
+				/// <summary>Drops off designated FG</summary>
+				DropOff,
+				/// <summary>Wait for a time</summary>
+				Wait,
+				/// <summary>Wait for a time (Starship)</summary>
+				SSWait,
+				/// <summary>Loop through waypoints (Starship)</summary>
+				SSPatrol,
+				/// <summary>Wait for return of all craft that use FG as Mothership</summary>
+				SSAwaitReturn,
+				/// <summary>Wait for launch of all craft that use FG as Mothership</summary>
+				SSLaunch,
+				/// <summary>Loop through waypoints and attack target's attackers</summary>
+				SSProtect,
+				/// <summary>Wait and attack target's attackers</summary>
+				SSWaitProtect,
+				/// <summary>Loop through waypoints and attack targets</summary>
+				SSPatrolAttack,
+				/// <summary>Loop through waypoints and attack to disable targets</summary>
+				SSPatrolDisable,
+				/// <summary>Stationary (Starship)</summary>
+				SSHold,
+				/// <summary>Return to Mothership or hyperspace (Starship)</summary>
+				SSGoHome,
+				/// <summary>Wait for a time (Starship)</summary>
+				SSWait2,
+				/// <summary>Boards target (Starship)</summary>
+				SSBoard,
+				/// <summary>Boards target to repair systems</summary>
+				BoardRepair
+			}
+
 			#region constructors
 			/// <summary>Initializes a blank order</summary>
 			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to 100%, AndOr values to <b>true</b>.</remarks>
@@ -73,7 +145,7 @@ namespace Idmr.Platform.Tie
 			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/>.</exception>
 			public Order(byte[] raw, int startIndex)
 			{
-				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 4", "raw");
+				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
 				if (raw.Length - startIndex < 18 || startIndex < 0)
 					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 18));
 				_items = new byte[18];
@@ -86,12 +158,12 @@ namespace Idmr.Platform.Tie
 			{
 				string error = "";
 				byte tempVar;
-				if (o.Command > 32) o.Command = 0;	// How TIE does it, also bypasses error in HI1W
-				if (o.Target1Type == 10) o.Target1Type = o.Target1 = 0;
-				if (o.Target2Type == 10) o.Target2Type = o.Target2 = 0;
-				if (o.Target3Type == 10) o.Target3Type = o.Target3 = 0;
-				if (o.Target4Type == 10) o.Target4Type = o.Target4 = 0;
-				if (o.Target3Type == 3 && o.Target3 > 6) { o.Target3Type = 0; o.Target3 = 0; }; //[JB] Hack to fix TIE DOS B2M3IW.TIE
+				if (o.Command > (byte)CommandList.BoardRepair) o.Command = 0;	// How TIE does it, also bypasses error in HI1W
+				if (o.Target1Type == (byte)Mission.Trigger.TypeList.Status) o.Target1Type = o.Target1 = 0;
+				if (o.Target2Type == (byte)Mission.Trigger.TypeList.Status) o.Target2Type = o.Target2 = 0;
+				if (o.Target3Type == (byte)Mission.Trigger.TypeList.Status) o.Target3Type = o.Target3 = 0;
+				if (o.Target4Type == (byte)Mission.Trigger.TypeList.Status) o.Target4Type = o.Target4 = 0;
+				if (o.Target3Type == (byte)Mission.Trigger.TypeList.ShipClass && o.Target3 > 6) { o.Target3Type = 0; o.Target3 = 0; }; //HACK: [JB] fix TIE DOS B2M3IW.TIE
 				tempVar = o.Target1;
 				Mission.CheckTarget(o.Target1Type, ref tempVar, out string msg);
 				o.Target1 = tempVar;
@@ -114,32 +186,32 @@ namespace Idmr.Platform.Tie
 			static string orderTargetString(byte target, byte type)
 			{
 				string s = "";
-				switch (type)
+				switch ((Mission.Trigger.TypeList)type)
 				{
-					case 0:
+					case Mission.Trigger.TypeList.None:
 						break;
-					case 1:
+					case Mission.Trigger.TypeList.FlightGroup:
 						s += "FG:" + target;
 						break;
-					case 2:
+					case Mission.Trigger.TypeList.ShipType:
 						s += BaseStrings.SafeString(Strings.CraftType, target + 1) + "s";
 						break;
-					case 3:
+					case Mission.Trigger.TypeList.ShipClass:
 						s += BaseStrings.SafeString(Strings.ShipClass, target);
 						break;
-					case 4:
+					case Mission.Trigger.TypeList.ObjectType:
 						s += BaseStrings.SafeString(Strings.ObjectType, target);
 						break;
-					case 5:
+					case Mission.Trigger.TypeList.IFF:
 						s += "IFF:" + target;
 						break;
-					case 6:
+					case Mission.Trigger.TypeList.ShipOrders:
 						s += "Craft with " + BaseStrings.SafeString(Strings.Orders, target) + " orders";
 						break;
-					case 7:
+					case Mission.Trigger.TypeList.CraftWhen:
 						s += "Craft when " + BaseStrings.SafeString(Strings.CraftWhen, target);
 						break;
-					case 8:
+					case Mission.Trigger.TypeList.GlobalGroup:
 						s += "Global Group " + target;
 						break;
 					default:
@@ -156,7 +228,9 @@ namespace Idmr.Platform.Tie
 			{
 				if (Command == 0) return "None";
 				string order = BaseStrings.SafeString(Strings.Orders, Command);
-				if ((Command >= 7 && Command <= 0x12) || (Command >= 0x15 && Command <= 0x1B) || Command == 0x1F || Command == 0x20 || Command == 0x25)	//all orders where targets are important
+				if ((Command >= (byte)CommandList.AttackTargets && Command <= (byte)CommandList.DropOff)
+					|| (Command >= (byte)CommandList.SSPatrol && Command <= (byte)CommandList.SSPatrolDisable)
+					|| Command == (byte)CommandList.SSBoard || Command == (byte)CommandList.BoardRepair)	//all orders where targets are important
 				{
 					string s = orderTargetString(Target1, Target1Type);
 					string s2 = orderTargetString(Target2, Target2Type);
@@ -200,8 +274,8 @@ namespace Idmr.Platform.Tie
 			/// <remarks>Order offset 0x04</remarks>
 			public byte Unknown18
 			{
-				get { return _items[4]; }
-				set { _items[4] = value; }
+				get => _items[4];
+				set => _items[4] = value;
 			}
 		}
 	}

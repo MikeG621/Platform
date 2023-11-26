@@ -15,8 +15,12 @@ Version History
  - (Converter) XvT to XWA orders convert times
  - (Converter) XvT to XWA Triggers adjust craft type
  - (Converter) Added Countermeasures, ExplosionTime, GlobalUnit and Optionals to Xwa to Xvt Flightgroups
+ - (TIE) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums
  - (XvT) Briefing EventQuantityLimit corrected to 200
- - (XvT) Orders and Triggers convert time to XWA properly
+ - (XvT) Order and Trigger operators convert time to XWA properly
+ - (XvT) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums
+ - (XWA) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums
+ - (XWA) Fixed the time display for "Before Time" trigger/order target type text
 
 v6.0, 27 Oct 2023
  - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region" [YOGEME#91]

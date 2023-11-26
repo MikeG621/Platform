@@ -319,8 +319,8 @@ namespace Idmr.Platform.Xwing
 										"Diamond",
 										"Stacked",
 										"Spread",
-										"Undefined 1",
-										"Undefined 2",
+										"Undefined 1",	// Hi-Lo?
+										"Undefined 2",	// Spiral?
 									};
 		static readonly string[] _formationObject = { "Floor (X-Y)",
 										"Side (Y-Z)",

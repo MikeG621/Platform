@@ -14,14 +14,13 @@
  * [UPD] change to MPL
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace Idmr.Platform.Xvt
 {
 	/// <summary>Object to hold all Briefings</summary>
 	/// <remarks>Eight briefings in total, first being used for single-player</remarks>
-	public class BriefingCollection : Idmr.Common.FixedSizeCollection<Briefing>
+	public class BriefingCollection : Common.FixedSizeCollection<Briefing>
 	{
 		/// <summary>Creates a new Collection with 8 Briefings</summary>
 		public BriefingCollection()
@@ -36,7 +35,7 @@ namespace Idmr.Platform.Xvt
 
 		/// <summary>Resets selected Briefing to defaults</summary>
 		/// <param name="index">Briefing index</param>
-		public void Clear(int index) { _setItem(index, new Briefing()); }
+		public void Clear(int index) => _setItem(index, new Briefing());
 
 		/// <summary>Resets all Briefings to defaults</summary>
 		public void ClearAll() { for (int i = 0; i < Count; i++) _setItem(i, new Briefing()); }
