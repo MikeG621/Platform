@@ -12,7 +12,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 Version History
 
  - (Converter) Added TieToXvt(), TieToBop(), TieToXvtBop(), XvtBopToXwa(), TieToXwa() upgrade paths
- - (Converter) XvT to XWA orders convert times
+ - (Converter) XWA orders convert times and craft type to/from TIE and XvT
  - (Converter) XvT to XWA Triggers adjust craft type
  - (Converter) Added Countermeasures, ExplosionTime, GlobalUnit and Optionals to Xwa to Xvt Flightgroups
  - (TIE) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums

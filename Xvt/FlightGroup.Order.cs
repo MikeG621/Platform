@@ -341,17 +341,13 @@ namespace Idmr.Platform.Xvt
 			/// <remarks><see cref="Speed"/> and <see cref="Designation"/> are lost</remarks>
 			/// <param name="order">The Order to convert</param>
 			/// <returns>A copy of <paramref name="order"/> for use in TIE95</returns>
-			public static explicit operator Tie.FlightGroup.Order(Order order)
-			{
-				// Speed, Designtation are lost
-				return new Tie.FlightGroup.Order((byte[])order, 0);
-			}
+			public static explicit operator Tie.FlightGroup.Order(Order order) => new Tie.FlightGroup.Order((byte[])order);
 			/// <summary>Converts an Order for XWA</summary>
 			/// <param name="order">The Order to convert</param>
 			/// <returns>A copy of <paramref name="order"/> for use in XWA</returns>
 			public static implicit operator Xwa.FlightGroup.Order(Order order)
 			{
-				Xwa.FlightGroup.Order ord = new Xwa.FlightGroup.Order((byte[])order)
+				var ord = new Xwa.FlightGroup.Order((byte[])order)
 				{
 					CustomText = order.Designation
 				};

@@ -646,9 +646,9 @@ namespace Idmr.Platform
 			{
 				xvt.Messages[i].MessageString = miss.Messages[i].MessageString;
 				xvt.Messages[i].Color = miss.Messages[i].Color;
-				int sec = miss.GetDelaySeconds(miss.Messages[i].Delay);
-				if (sec > 1275) sec = 1275;  //[JB] Maximum seconds in XvT when delay is 255.
-				xvt.Messages[i].Delay = (byte)(sec / 5);
+				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].Delay) / 5;
+				if (delay > 255) delay = 255;
+				xvt.Messages[i].Delay = (byte)delay;
 				xvt.Messages[i].Note = miss.Messages[i].Note;
 				xvt.Messages[i].T1AndOrT2 = miss.Messages[i].TrigAndOr[0];
 				xvt.Messages[i].T3AndOrT4 = miss.Messages[i].TrigAndOr[1];
@@ -728,7 +728,9 @@ namespace Idmr.Platform
 				{"TER", 9}
 			};
 
+#pragma warning disable IDE0017 // Simplify object initialization
 			Xwa.Mission xwa = new Xwa.Mission();
+#pragma warning restore IDE0017 // Simplify object initialization
 			xwa.FlightGroups = new Xwa.FlightGroupCollection(miss.FlightGroups.Count);
 			if (miss.Messages.Count > 0) xwa.Messages = new Xwa.MessageCollection(miss.Messages.Count);
 			xwa.MissionDescription = miss.MissionDescription;
@@ -1116,9 +1118,9 @@ namespace Idmr.Platform
 			{
 				tie.Messages[i].MessageString = miss.Messages[i].MessageString;
 				tie.Messages[i].Color = miss.Messages[i].Color;
-				int sec = miss.GetDelaySeconds(miss.Messages[i].Delay);
-				if (sec > 1275) sec = 1275;  //[JB] Maximum seconds in TIE when delay is 255.
-				tie.Messages[i].Delay = (byte)(sec / 5);    // should throw if delay > 21:15
+				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].Delay) / 5;
+				if (delay > 255) delay = 255;
+				tie.Messages[i].Delay = (byte)delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
 				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].TrigAndOr[0];
 				for (int j = 0; j < 2; j++)

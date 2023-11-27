@@ -10,6 +10,7 @@
 /* CHANGELOG
  * [NEW] CommandList enum
  * [FIX] Time calculation for target string
+ * [FIX] Convert times to TIE/XvT
  * v5.8, 230804
  * [UPD] Region references fixed
  * v5.7, 220127
@@ -387,8 +388,33 @@ namespace Idmr.Platform.Xwa
 			/// <returns>A copy of <paramref name="ord"/> for use in TIE95</returns>
 			public static explicit operator Tie.FlightGroup.Order(Order ord)
 			{
-				// Speed, CustomText, WPs, Skips lost
-				return new Tie.FlightGroup.Order((byte[])ord, 0);
+				var newOrder = new Tie.FlightGroup.Order((byte[])ord);
+				switch ((CommandList)newOrder.Command)
+				{
+					case CommandList.BoardGiveCargo:
+					case CommandList.BoardTakeCargo:
+					case CommandList.BoardExchangeCargo:
+					case CommandList.BoardToCapture:
+					case CommandList.BoardDestroy:
+					case CommandList.PickUp:
+					case CommandList.DropOff:
+					case CommandList.Wait:
+					case CommandList.SSWait:
+					case CommandList.Hold2:
+					case CommandList.Hold3:
+					case CommandList.SSBoard:
+					case CommandList.BoardRepair:
+						int time = Mission.GetDelaySeconds(newOrder.Variable1) / 5;
+						if (time > 255) newOrder.Variable1 = 255;
+						else newOrder.Variable1 = (byte)time;
+						break;
+					default: break;
+				}
+				if (newOrder.Target1Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target1 != 0) newOrder.Target1--;
+				if (newOrder.Target2Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target2 != 0) newOrder.Target2--;
+				if (newOrder.Target3Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target3 != 0) newOrder.Target3--;
+				if (newOrder.Target4Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target4 != 0) newOrder.Target4--;
+				return newOrder;
 			}
 			/// <summary>Converts an Order for XvT</summary>
 			/// <remarks><see cref="Waypoints"/> and <see cref="SkipTriggers"/> are lost in the conversion. <see cref="CustomText"/> trimmed to 16 characters</remarks>
@@ -396,12 +422,36 @@ namespace Idmr.Platform.Xwa
 			/// <returns>A copy of <paramref name="ord"/> for use in XvT</returns>
 			public static explicit operator Xvt.FlightGroup.Order(Order ord)
 			{
-				// WPs, Skips lost
-				// CustomText trimmed to 16 char
-				Xvt.FlightGroup.Order newOrder = new Xvt.FlightGroup.Order((byte[])ord)
+				var newOrder = new Xvt.FlightGroup.Order((byte[])ord)
 				{
 					Designation = ord.CustomText
 				};
+				switch ((CommandList)newOrder.Command)
+				{
+					case CommandList.BoardGiveCargo:
+					case CommandList.BoardTakeCargo:
+					case CommandList.BoardExchangeCargo:
+					case CommandList.BoardToCapture:
+					case CommandList.BoardDestroy:
+					case CommandList.PickUp:
+					case CommandList.DropOff:
+					case CommandList.Wait:
+					case CommandList.SSWait:
+					case CommandList.Hold2:
+					case CommandList.Hold3:
+					case CommandList.SSBoard:
+					case CommandList.BoardRepair:
+					case CommandList.SelfDestruct:
+						int time = Mission.GetDelaySeconds(newOrder.Variable1) / 5;
+						if (time > 255) newOrder.Variable1 = 255;
+						else newOrder.Variable1 = (byte)time;
+						break;
+					default: break;
+				}
+				if (newOrder.Target1Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target1 != 0) newOrder.Target1--;
+				if (newOrder.Target2Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target2 != 0) newOrder.Target2--;
+				if (newOrder.Target3Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target3 != 0) newOrder.Target3--;
+				if (newOrder.Target4Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target4 != 0) newOrder.Target4--;
 				return newOrder;
 			}
 			
@@ -476,11 +526,14 @@ namespace Idmr.Platform.Xwa
                     dst = 0;
                     delete = true;
                 } 
-                //All FGs except
-                if (Target1Type == 15 && Target1 == srcIndex) { change = true; Target1 = dst; if (delete) Target1Type = 0; } else if (Target1Type == 15 && Target1 > srcIndex && delete == true) { change = true; Target1--; }
-                if (Target2Type == 15 && Target2 == srcIndex) { change = true; Target2 = dst; if (delete) Target2Type = 0; } else if (Target2Type == 15 && Target2 > srcIndex && delete == true) { change = true; Target2--; }
-                if (Target3Type == 15 && Target3 == srcIndex) { change = true; Target3 = dst; if (delete) Target3Type = 0; } else if (Target3Type == 15 && Target3 > srcIndex && delete == true) { change = true; Target3--; }
-                if (Target4Type == 15 && Target4 == srcIndex) { change = true; Target4 = dst; if (delete) Target4Type = 0; } else if (Target4Type == 15 && Target4 > srcIndex && delete == true) { change = true; Target4--; }
+                if (Target1Type == (byte)Mission.Trigger.TypeList.NotFG && Target1 == srcIndex) { change = true; Target1 = dst; if (delete) Target1Type = 0; }
+				else if (Target1Type == (byte)Mission.Trigger.TypeList.NotFG && Target1 > srcIndex && delete == true) { change = true; Target1--; }
+                if (Target2Type == (byte)Mission.Trigger.TypeList.NotFG && Target2 == srcIndex) { change = true; Target2 = dst; if (delete) Target2Type = 0; }
+				else if (Target2Type == (byte)Mission.Trigger.TypeList.NotFG && Target2 > srcIndex && delete == true) { change = true; Target2--; }
+                if (Target3Type == (byte)Mission.Trigger.TypeList.NotFG && Target3 == srcIndex) { change = true; Target3 = dst; if (delete) Target3Type = 0; }
+				else if (Target3Type == (byte)Mission.Trigger.TypeList.NotFG && Target3 > srcIndex && delete == true) { change = true; Target3--; }
+                if (Target4Type == (byte)Mission.Trigger.TypeList.NotFG && Target4 == srcIndex) { change = true; Target4 = dst; if (delete) Target4Type = 0; }
+				else if (Target4Type == (byte)Mission.Trigger.TypeList.NotFG && Target4 > srcIndex && delete == true) { change = true; Target4--; }
 
                 foreach (Mission.Trigger trig in SkipTriggers)
                     change |= trig.TransformFGReferences(srcIndex, dstIndex, true);
@@ -504,10 +557,14 @@ namespace Idmr.Platform.Xwa
                 }
                 else if (dstIndex > 255) throw new Exception("TransformMessagesReferences: dstIndex out of range.");
 
-                if (Target1Type == 27 && Target1 == srcIndex) { change = true; Target1 = (byte)dstIndex; if (delete) { Target1Type = 0; } } else if (Target1Type == 27 && Target1 > srcIndex && delete == true) { change = true; Target1--; }
-                if (Target2Type == 27 && Target2 == srcIndex) { change = true; Target2 = (byte)dstIndex; if (delete) { Target2Type = 0; } } else if (Target2Type == 27 && Target2 > srcIndex && delete == true) { change = true; Target2--; }
-                if (Target3Type == 27 && Target3 == srcIndex) { change = true; Target3 = (byte)dstIndex; if (delete) { Target3Type = 0; } } else if (Target3Type == 27 && Target3 > srcIndex && delete == true) { change = true; Target3--; }
-                if (Target4Type == 27 && Target4 == srcIndex) { change = true; Target4 = (byte)dstIndex; if (delete) { Target4Type = 0; } } else if (Target4Type == 27 && Target4 > srcIndex && delete == true) { change = true; Target4--; }
+                if (Target1Type == (byte)Mission.Trigger.TypeList.MessageNum && Target1 == srcIndex) { change = true; Target1 = (byte)dstIndex; if (delete) Target1Type = 0; }
+				else if (Target1Type == (byte)Mission.Trigger.TypeList.MessageNum && Target1 > srcIndex && delete == true) { change = true; Target1--; }
+                if (Target2Type == (byte)Mission.Trigger.TypeList.MessageNum && Target2 == srcIndex) { change = true; Target2 = (byte)dstIndex; if (delete) Target2Type = 0; }
+				else if (Target2Type == (byte)Mission.Trigger.TypeList.MessageNum && Target2 > srcIndex && delete == true) { change = true; Target2--; }
+                if (Target3Type == (byte)Mission.Trigger.TypeList.MessageNum && Target3 == srcIndex) { change = true; Target3 = (byte)dstIndex; if (delete) Target3Type = 0; }
+				else if (Target3Type == (byte)Mission.Trigger.TypeList.MessageNum && Target3 > srcIndex && delete == true) { change = true; Target3--; }
+                if (Target4Type == (byte)Mission.Trigger.TypeList.MessageNum && Target4 == srcIndex) { change = true; Target4 = (byte)dstIndex; if (delete) Target4Type = 0; }
+				else if (Target4Type == (byte)Mission.Trigger.TypeList.MessageNum && Target4 > srcIndex && delete == true) { change = true; Target4--; }
 
                 return change;
             }

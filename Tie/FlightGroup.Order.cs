@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] CommandList enum
+ * [FIX] Convert times for XWA
  * v5.7.5, 230116
  * [UPD #12] Importing order values past Board to Repair (0x20) will reset to zero to match TIE behavior
  * v5.7, 220127
@@ -264,11 +265,43 @@ namespace Idmr.Platform.Tie
 			/// <summary>Converts an Order for XvT</summary>
 			/// <param name="ord">The Order to convert</param>
 			/// <returns>A copy of <paramref name="ord"/> for XvT</returns>
-			public static implicit operator Xvt.FlightGroup.Order(Order ord) { return new Xvt.FlightGroup.Order((byte[])ord); }
+			public static implicit operator Xvt.FlightGroup.Order(Order ord) => new Xvt.FlightGroup.Order((byte[])ord);
 			/// <summary>Converts an Order for XWA</summary>
 			/// <param name="ord">The Order to convert</param>
 			/// <returns>A copy of <paramref name="ord"/> for XWA</returns>
-			public static implicit operator Xwa.FlightGroup.Order(Order ord) { return new Xwa.FlightGroup.Order((byte[])ord); }
+			public static implicit operator Xwa.FlightGroup.Order(Order ord)
+			{
+				var newOrder = new Xwa.FlightGroup.Order((byte[])ord);
+				//TIE time is value*5=sec
+				//XWA time value, if 20 (decimal) or under is exact seconds, then +5 up to 15:00, then +10.
+				//21 = 25 sec, 22 = 30 sec, etc.
+				switch ((CommandList)newOrder.Command)
+				{
+					case CommandList.BoardGiveCargo:
+					case CommandList.BoardTakeCargo:
+					case CommandList.BoardExchangeCargo:
+					case CommandList.BoardToCapture:
+					case CommandList.BoardDestroy:
+					case CommandList.PickUp:
+					case CommandList.DropOff:
+					case CommandList.Wait:
+					case CommandList.SSWait:
+					case CommandList.SSHold:
+					case CommandList.SSWait2:
+					case CommandList.SSBoard:
+					case CommandList.BoardRepair:
+						if (newOrder.Variable1 < 4) newOrder.Variable1 = (byte)(newOrder.Variable1 * 5);
+						else if (newOrder.Variable1 < 180) newOrder.Variable1 = (byte)(newOrder.Variable1 + 16);
+						else newOrder.Variable1 = (byte)(newOrder.Variable1 / 2 + 106);
+						break;
+					default: break;
+				}
+				if (newOrder.Target1Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target1 != 255) newOrder.Target1++;
+				if (newOrder.Target2Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target2 != 255) newOrder.Target2++;
+				if (newOrder.Target3Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target3 != 255) newOrder.Target3++;
+				if (newOrder.Target4Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target4 != 255) newOrder.Target4++;
+				return newOrder;
+			}
 			
 			/// <summary>Gets or sets the unknown value</summary>
 			/// <remarks>Order offset 0x04</remarks>
