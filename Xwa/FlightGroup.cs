@@ -243,7 +243,11 @@ namespace Idmr.Platform.Xwa
 		#region arrdep
 		/// <summary>Returns <b>true</b> if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for a blank trigger and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds { get { return (ArrDepTriggers[0].Condition == 0 && ArrDepTriggers[1].Condition == 0 && ArrDepTriggers[2].Condition == 0 && ArrDepTriggers[3].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30); } }
+		public bool ArrivesIn30Seconds => (ArrDepTriggers[0].Condition == (byte)Mission.Trigger.ConditionList.True 
+			&& ArrDepTriggers[1].Condition == (byte)Mission.Trigger.ConditionList.True
+			&& ArrDepTriggers[2].Condition == (byte)Mission.Trigger.ConditionList.True
+			&& ArrDepTriggers[3].Condition == (byte)Mission.Trigger.ConditionList.True
+			&& ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30);
 		/// <summary>Gets the Arrival and Departure trigger array</summary>
 		/// <remarks>Use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
 		public Mission.Trigger[] ArrDepTriggers { get; } = new Mission.Trigger[6];

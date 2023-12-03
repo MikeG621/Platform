@@ -165,7 +165,7 @@ namespace Idmr.Platform.Xwa
 
 			#region constructors
 			/// <summary>Initializes a blank Order</summary>
-			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b>, <see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b></remarks>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b>, <see cref="SkipTriggers"/> sets to <b>"Always AND Always"</b></remarks>
 			public Order()
 			{
 				_items = new byte[19];
@@ -175,7 +175,7 @@ namespace Idmr.Platform.Xwa
 			}
 			/// <summary>Initializes a new Order from an existing Order.</summary>
 			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
-			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b>,<see cref="SkipTriggers"/> sets to <b>"Always AND Always"</b> if <paramref name="other"/> is <b>null</b>.</remarks>
 			public Order(Order other) : this()
 			{
 				if (other != null)
@@ -188,9 +188,9 @@ namespace Idmr.Platform.Xwa
 						_skipTriggers[i] = new Mission.Trigger(other._skipTriggers[i]);
 				}
 			}
-			
+
 			/// <summary>Initlializes a new Order from raw data</summary>
-			/// <remarks><see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b><br/>
+			/// <remarks><see cref="SkipTriggers"/> sets to <b>"Always AND Always"</b><br/>
 			/// If <paramref name="raw"/> Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>
 			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length</exception>
@@ -202,9 +202,9 @@ namespace Idmr.Platform.Xwa
 				else ArrayFunctions.WriteToArray(raw, _items, 0);
 				initialize();
 			}
-			
+
 			/// <summary>Initlialize a new Order from raw data</summary>
-			/// <remarks><see cref="SkipTriggers"/> sets to <b>"never (FALSE)"</b><br/>
+			/// <remarks><see cref="SkipTriggers"/> sets to <b>"Always AND Always"</b><br/>
 			/// If <paramref name="raw"/> Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
 			/// <param name="raw">Raw byte data, minimum Length of 18</param>
 			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
@@ -234,10 +234,8 @@ namespace Idmr.Platform.Xwa
 				for (int i = 0; i < 8; i++) _waypoints[i] = new Waypoint();
 				_skipTriggers[0] = new Mission.Trigger();
 				_skipTriggers[1] = new Mission.Trigger();
-                //[JB] This modified code is redundant since everything is initialized to zero by default.
-				//_skipTriggers[0].Condition = 0;  //[JB] For some reason these must be set to always(TRUE) for the orders to function properly in game, otherwise it will skip over orders and behave unexpectedly.
-				//_skipTriggers[1].Condition = 0;  
-				SkipT1AndOrT2 = false;  //[JB] Set to AND
+                // SkipTriggers used to default to False OR False
+				//[JB] For some reason these must be set to always(TRUE) for the orders to function properly in game, otherwise it will skip over orders and behave unexpectedly.
 			}
 			#endregion constructors
 
@@ -459,28 +457,28 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Gets or sets the third order-specific setting</summary>
 			public byte Variable3
 			{
-				get { return _items[4]; }
-				set { _items[4] = value; }
+				get => _items[4];
+				set => _items[4] = value;
 			}
 			/// <summary>Unknown value</summary>
 			/// <remarks>Order offset 0x05</remarks>
 			public byte Unknown9
 			{
-				get { return _items[5]; }
-				set { _items[5] = value; }
+				get => _items[5];
+				set => _items[5] = value;
 			}
 			/// <summary>Gets or sets the specific max velocity</summary>
 			public byte Speed
 			{
-				get { return _items[18]; }
-				set { _items[18] = value; }
+				get => _items[18];
+				set => _items[18] = value;
 			}
 			/// <summary>Gets or sets the order description</summary>
 			/// <remarks>Limited to 63 characters</remarks>
 			public string CustomText
 			{
-				get { return _customText; }
-				set { _customText = StringFunctions.GetTrimmed(value, 63); }
+				get => _customText;
+				set => _customText = StringFunctions.GetTrimmed(value, 63);
 			}
 
 			/// <summary>Unknown value</summary>
@@ -499,23 +497,22 @@ namespace Idmr.Platform.Xwa
 			/// <remarks>Order offset 0x81</remarks>
 			public bool Unknown14 { get; set; }
 			/// <summary>Whether or not the Skip Triggers are exclusive</summary>
-			/// <remarks>Default is <b>"Or" (true)</b> due to default "never (FALSE)" Trigger</remarks>
 			public bool SkipT1AndOrT2 { get; set; }
 
 			/// <summary>Gets the order-specific location markers</summary>
 			/// <remarks>Array is length 8</remarks>
-			public Waypoint[] Waypoints { get { return _waypoints; } }
-			
+			public Waypoint[] Waypoints => _waypoints;
+
 			/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to the order</summary>
 			/// <remarks>Array is length 2</remarks>
-			public Mission.Trigger[] SkipTriggers { get { return _skipTriggers; } }
+			public Mission.Trigger[] SkipTriggers => _skipTriggers;
 			#endregion public properties
 
-            /// <summary>Helper function that updates FG indexes during move/delete operations.</summary>
+			/// <summary>Helper function that updates FG indexes during move/delete operations.</summary>
 			/// <param name="srcIndex">The original FG index</param>
 			/// <param name="dstIndex">The new FG index</param>
 			/// <returns><b>true</b> on successful change</returns>
-            protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex)
+			protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex)
             {
                 bool change = false;
 
@@ -598,12 +595,13 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Checks if the Skip Trigger is in a state that will never fire.</summary>
 			/// <returns><b>true</b> if the Skip is impossible</returns>
 			/// <remarks>Checks to make sure a trigger does not use a FALSE condition paired (AND) with True.</remarks>
-			public bool IsSkipTriggerBroken() => ((SkipTriggers[0].Condition == 10 || SkipTriggers[1].Condition == 10) && SkipT1AndOrT2 == false);
+			public bool IsSkipTriggerBroken() => ((SkipTriggers[0].Condition == (byte)Mission.Trigger.ConditionList.False || SkipTriggers[1].Condition == (byte)Mission.Trigger.ConditionList.False) && SkipT1AndOrT2 == false);
 
 			/// <summary>Check if the Order is used.</summary>
 			/// <returns><b>true</b> if the Order is used</returns>
 			/// <remarks>An order will not be processed AT ALL if both Skip Triggers are set to <b>false</b>.</remarks>
-			public bool IsOrderUsed() => (SkipTriggers[0].Condition == 10 && SkipTriggers[1].Condition == 10);
+			public bool IsOrderUsed() => (SkipTriggers[0].Condition == (byte)Mission.Trigger.ConditionList.False && SkipTriggers[1].Condition == (byte)Mission.Trigger.ConditionList.False);
+			//TODO: Need to verify use in YOGEME to make sure this is done right
 		}
 	}
 }

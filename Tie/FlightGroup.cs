@@ -162,7 +162,9 @@ namespace Idmr.Platform.Tie
 		public bool FollowsOrders { get; set; }
 		/// <summary>Gets if the FlightGroup is created within 30 seconds of mission start</summary>
 		/// <remarks>Looks for blank Arrival triggers and a delay of 30 seconds or less</remarks>
-		public bool ArrivesIn30Seconds => (_arrDepTriggers[0].Condition == 0 && _arrDepTriggers[1].Condition == 0 && ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30);
+		public bool ArrivesIn30Seconds => (_arrDepTriggers[0].Condition == (byte)Mission.Trigger.ConditionList.True
+			&& _arrDepTriggers[1].Condition == (byte)Mission.Trigger.ConditionList.True
+			&& ArrivalDelayMinutes == 0 && ArrivalDelaySeconds <= 30);
 		/// <summary>Gets the Arrival and Departure trigger array</summary>
 		/// <remarks>Array length is 3, use <see cref="ArrDepTriggerIndex"/> for indexes</remarks>
 		public Mission.Trigger[] ArrDepTriggers => _arrDepTriggers;

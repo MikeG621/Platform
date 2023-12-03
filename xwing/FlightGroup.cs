@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [FIX] WaypointIndex
  * v4.0, 200809
  * [NEW] Raw values for Pitch/Yaw/Roll instead of degrees [JB]
  * [UPD] _stringLength increased [JB]
@@ -47,40 +48,39 @@ namespace Idmr.Platform.Xwing
 			set => _roll = value;
 		}
 
-		//TODO: these indexes are wrong
 		/// <summary>Indexes for <see cref="Waypoints"/></summary>
 		public enum WaypointIndex : byte
 		{
 			/// <summary>Primary starting coordinate</summary>
 			Start1,
-			/// <summary>Optional starting coordinate</summary>
-			Start2,
-			/// <summary>Optional starting coordinate</summary>
-			Start3,
-			/// <summary>Optional starting coordinate</summary>
-			Start4,
 			/// <summary>First coordinate for orders and initial trajectory</summary>
 			WP1,
 			/// <summary>Second order coordinate</summary>
 			WP2,
 			/// <summary>Third order coordinate</summary>
 			WP3,
-			/// <summary>Fourth order coordinate</summary>
-			WP4,
-			/// <summary>Fifth order coordinate</summary>
-			WP5,
-			/// <summary>Sixth order coordinate</summary>
-			WP6,
-			/// <summary>Seventh order coordinate</summary>
-			WP7,
-			/// <summary>Eigth order coordinate</summary>
-			WP8,
-			/// <summary>Coordinate for Rendezvous orders</summary>
-			Rendezvous,
+			/// <summary>Optional starting coordinate</summary>
+			Start2,
+			/// <summary>Optional starting coordinate</summary>
+			Start3,
 			/// <summary>Arrival and Departure coordinate</summary>
 			Hyperspace,
-			/// <summary>Briefing coordinate</summary>
-			Briefing
+			/// <summary>Coordinate Set 1</summary>
+			CS1,
+			/// <summary>Coordinate Set 2</summary>
+			CS2,
+			/// <summary>Coordinate Set 3</summary>
+			CS3,
+			/// <summary>Coordinate Set 4</summary>
+			CS4,
+			/// <summary>Coordinate Set 5</summary>
+			CS5,
+			/// <summary>Coordinate Set 6</summary>
+			CS6,
+			/// <summary>Coordinate Set 7</summary>
+			CS7,
+			/// <summary>Coordinate Set 8</summary>
+			CS8
 		}
 
 		/// <summary>Initializes a new FlightGroup</summary>
@@ -377,7 +377,7 @@ namespace Idmr.Platform.Xwing
         }
 		/// <summary>Gets the Waypoint array used to determine starting location and AI pathing</summary>
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes</remarks>
-		public Waypoint[] Waypoints { get { return _waypoints; } }
+		public Waypoint[] Waypoints => _waypoints;
 		#endregion properties
 	}
 }

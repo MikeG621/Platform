@@ -131,7 +131,9 @@ namespace Idmr.Platform.Xwing
 				#endregion
 
 				//Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)
-				for (j = 0; j < 4; j++) for (int k = 0; k < 7; k++) FlightGroups[i].Waypoints[k][j] = (br.ReadInt16() /* (j == 1 ? -1 : 1) */ );
+				for (j = 0; j < 4; j++)
+					for (int k = (byte)FlightGroup.WaypointIndex.Start1; k <= (byte)FlightGroup.WaypointIndex.Hyperspace; k++)
+						FlightGroups[i].Waypoints[k][j] = br.ReadInt16();
 
 				//More craft info
 				FlightGroups[i].Formation = (byte)br.ReadInt16();
@@ -159,9 +161,9 @@ namespace Idmr.Platform.Xwing
 				FlightGroups[i].Formation = (byte)br.ReadInt16();
 				FlightGroups[i].NumberOfWaves = 0; //Doesn't exist in file, but setting it here just in case.
 				FlightGroups[i].NumberOfCraft = (byte)br.ReadInt16();
-				FlightGroups[i].Waypoints[0][0] = br.ReadInt16();
-				FlightGroups[i].Waypoints[0][1] = br.ReadInt16();
-				FlightGroups[i].Waypoints[0][2] = br.ReadInt16();
+				FlightGroups[i].Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawX = br.ReadInt16();
+				FlightGroups[i].Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawY = br.ReadInt16();
+				FlightGroups[i].Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawZ = br.ReadInt16();
 				FlightGroups[i].Yaw = br.ReadInt16();  //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
 				FlightGroups[i].Pitch = br.ReadInt16();
 				FlightGroups[i].Roll = br.ReadInt16();
@@ -187,10 +189,9 @@ namespace Idmr.Platform.Xwing
 			for (int i = 0; i < coordCount; i++)
 			{
 				//Just in case there too many coord sets than what the editor allows, read them but only load them if the indexes are valid.
-				if (i == 0) wp = 0;  //SP1
-				else
-					wp = 7 + i - 1;  //CS1 starts at [7], but at this point i==1 so subtract to compensate
-				if (wp >= 10)
+				if (i == 0) wp = (byte)FlightGroup.WaypointIndex.Start1;
+				else wp = (byte)FlightGroup.WaypointIndex.CS1 + i - 1;  //at this point i==1 so subtract to compensate
+				if (wp >= (byte)FlightGroup.WaypointIndex.CS4)
 					wp = -1;
 				for (int j = 0; j < shipCount; j++)
 				{
@@ -200,8 +201,8 @@ namespace Idmr.Platform.Xwing
 						if (wp >= 0)
 							FlightGroupsBriefing[j].Waypoints[wp][k] = dat;
 					}
-					if (wp >= 0 && wp < 7)
-						FlightGroupsBriefing[j].Waypoints[wp][3] = 1;
+					if (wp == (byte)FlightGroup.WaypointIndex.Start1)	// ~MG: was a range here, but only =0 was possible
+						FlightGroupsBriefing[j].Waypoints[wp].Enabled = true;
 				}
 			}
 			if (coordCount < 2) coordCount = 2;  //Sanity check for editor purposes.  All LEC missions have 2 sets.
@@ -388,7 +389,9 @@ namespace Idmr.Platform.Xwing
 					#endregion
 
 					//Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)
-					for (int j = 0; j < 4; j++) for (int k = 0; k < 7; k++) bw.Write(FlightGroups[i].Waypoints[k][j] /* * (j == 1 ? -1 : 1))*/);
+					for (int j = 0; j < 4; j++)
+						for (int k = (byte)FlightGroup.WaypointIndex.Start1; k <= (byte)FlightGroup.WaypointIndex.Hyperspace; k++)
+							bw.Write(FlightGroups[i].Waypoints[k][j]);
 
 					//More craft info
 					bw.Write((short)FlightGroups[i].Formation);
@@ -422,9 +425,9 @@ namespace Idmr.Platform.Xwing
 					//The format begins to deviate here
 					bw.Write((short)FlightGroups[i].Formation);
 					bw.Write((short)FlightGroups[i].NumberOfCraft);
-					bw.Write(FlightGroups[i].Waypoints[0][0]);
-					bw.Write(FlightGroups[i].Waypoints[0][1]);
-					bw.Write(FlightGroups[i].Waypoints[0][2]);
+					bw.Write(FlightGroups[i].Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawX);
+					bw.Write(FlightGroups[i].Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawY);
+					bw.Write(FlightGroups[i].Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawZ);
 					bw.Write(FlightGroups[i].Yaw); //Conversion to/from degrees handled in the editor. This helps preserve the exact values used by pilot proving ground platforms.
 					bw.Write(FlightGroups[i].Pitch);
 					bw.Write(FlightGroups[i].Roll);
@@ -703,7 +706,9 @@ namespace Idmr.Platform.Xwing
 					{
 						if (nameMatch == -1)
 							nameMatch = i;
-						if ((fg.Waypoints[0].RawX == bfg.Waypoints[0].RawX) && (fg.Waypoints[0].RawY == -bfg.Waypoints[0].RawY) && (fg.Waypoints[0].RawZ == bfg.Waypoints[0].RawZ))
+						if ((fg.Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawX == bfg.Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawX)
+							&& (fg.Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawY == -bfg.Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawY)
+							&& (fg.Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawZ == bfg.Waypoints[(byte)FlightGroup.WaypointIndex.Start1].RawZ))
 							waypointMatch = i;
 					}
 				}
@@ -759,7 +764,7 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>Value is <b>00</b> for normal space missions, <b>01</b> for the Death Star surface</remarks>
 		public short Location = 0;
 		/// <summary>Gets the array accessor for the EoM Messages</summary>
-		public Indexer<string> EndOfMissionMessages { get { return _endOfMissionIndexer; } }
+		public Indexer<string> EndOfMissionMessages => _endOfMissionIndexer;
 
 		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
 		/// <remarks>Value is <b>28</b></remarks>

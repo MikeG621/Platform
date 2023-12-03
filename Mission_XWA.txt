@@ -1196,11 +1196,6 @@ Bonus Goals) If VariableType is Team, it checks the mission outcome for that
 team. In all other cases, it is true if any team has achieved victory.
 0x0F and 0x10 (Completed/Failed Secondary Goals) don't do anything.
 
-0x18 (Cannon system disabled) is true when the cannons are missing or disabled.
-Capital ships don't have a cannon subsystem, so it will always be true for
-them. Mag pulse does not damage the cannon subsystem of AI craft, but it will
-for players, so it can be used to detect a mag pulse hit on a player craft.
-
 0x19 (Be dropped off) Never seems be be true, either as a trigger or goal.
 
 0x1A (Destroyed in 1 hit) A broken condition. It's supposed to be "come and

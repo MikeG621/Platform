@@ -53,7 +53,7 @@ namespace Idmr.Platform.Xwa
 			public Goal()
 			{
 				for (int i = 0; i < 12; i++) _strings[i / 3, i % 3] = "";
-				for (int i = 0; i < 4; i++) Triggers[i] = new Mission.Trigger() { Condition = 10 };
+				for (int i = 0; i < 4; i++) Triggers[i] = new Mission.Trigger() { Condition = (byte)Mission.Trigger.ConditionList.False };
 				for (int i = 0; i < 3; i++) AndOr[i] = true;
 				GoalStrings = new StringsIndexer(this);
 			}

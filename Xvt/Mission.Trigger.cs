@@ -9,7 +9,7 @@
 
 /* CHANGELOG
  * [FIX] byte[] ctor now trims properly
- * [NEW] TypeList enum
+ * [NEW] TypeList, AmountList, ConditionList enums
  * [FIX] Converting to XWA adjusts craft type properly
  * v5.7, 220127
  * [UPD] added ctor now calls base [JB]
@@ -65,6 +65,81 @@ namespace Idmr.Platform.Xvt
 				GlobalUnit,
 				NotGlobalUnit
 			}
+			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
+			public enum AmountList : byte
+			{
+				Percent100,
+				Percent75,
+				Percent50,
+				Percent25,
+				AtLeast1,
+				AllBut1,
+				AllSpecial,
+				AllNonSpecial,
+				AllNonPlayers,
+				PlayersCraft,
+				Percent100FirstWave,
+				Percent75FirstWave,
+				Percent50FirstWave,
+				Percent25FirstWave,
+				AnyFirstWave,
+				AllBut1FirstWave,
+				Percent66,
+				Percent33,
+				EachCraft,
+				EachSpecialCraft
+			}
+			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
+			public enum ConditionList : byte
+			{
+				True,
+				Arrived,
+				Destroyed,
+				Attacked,
+				Captured,
+				Inspected,
+				Boarded,
+				Docked,
+				Disabled,
+				Exist,
+				False,
+				Unused11,
+				CompletedMission,
+				CompletedPrimary,
+				FailedPrimary,
+				CompletedSecondary,
+				FailedSecondary,
+				CompletedBonus,
+				FailedBonus,
+				DroppedOff,
+				Reinforced,
+				Shields0Percent,
+				Hull50Percent,
+				NoWarheads,
+				CannonsDisabled,
+				BeDroppedOff,
+				Broken26,
+				NotDisabled,
+				NotCaptured,
+				NotInspected,
+				BeginBoarding,
+				NotBeingBoarded,
+				BeginDocking,
+				NotBeginDocking,
+				Shields50Percent,
+				Shields25Percent,
+				Hull75Percent,
+				Hull25Percent,
+				Failed,
+				TeamModifier,
+				Unused40,
+				BeAllPlayer,
+				BeAllAI,
+				ComeAndGo,
+				BeBagged,
+				Withdraw,
+				BeCarried
+			}
 
 			/// <summary>Initializes a blank Trigger</summary>
 			public Trigger() : base(new byte[4]) { }
@@ -106,13 +181,13 @@ namespace Idmr.Platform.Xvt
 			static void checkValues(Trigger t)
 			{
 				string error = "";
-				if (t.Condition > 46) error = "Condition (" + t.Condition + ")";
+				if (t.Condition > (byte)ConditionList.BeCarried) error = "Condition (" + t.Condition + ")";
 				byte tempVar = t.Variable;
 				CheckTarget(t.VariableType, ref tempVar, out string msg);
 				t.Variable = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + msg;
 				if (error != "") throw new ArgumentException("Invalid values detected: " + error +  ".");
-				if (t.Amount == 19) t.Amount = 6;	// "each special" to "100% special"
+				if (t.Amount == (byte)AmountList.EachSpecialCraft) t.Amount = (byte)AmountList.AllSpecial;
 			}
 
 			/// <summary>Returns a representative string of the Trigger</summary>
@@ -121,7 +196,7 @@ namespace Idmr.Platform.Xvt
 			public override string ToString()
 			{
 				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				if (Condition != (byte)ConditionList.True && Condition != (byte)ConditionList.False)
 				{
 					trig = BaseStrings.SafeString(Strings.Amount, Amount);
 					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";

@@ -8,7 +8,7 @@
  */
 
 /* CHANGELOG
- * [NEW] TypeList enum
+ * [NEW] TypeList, AmountList, ConditionList enums
  * v5.8, 230804
  * [NEW] Region references prepped for string replacement
  * v5.7, 220127
@@ -76,6 +76,97 @@ namespace Idmr.Platform.Xwa
 				GlobalCargo,
 				NotGlobalCargo,
 				MessageNum
+			}
+			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
+			public enum AmountList : byte
+			{
+				Percent100,
+				Percent75,
+				Percent50,
+				Percent25,
+				AtLeast1,
+				AllBut1,
+				AllSpecial,
+				AllNonSpecial,
+				AllNonPlayers,
+				PlayersCraft,
+				Percent100FirstWave,
+				Percent75FirstWave,
+				Percent50FirstWave,
+				Percent25FirstWave,
+				AnyFirstWave,
+				AllBut1FirstWave,
+				Percent66,
+				Percent33,
+				EachCraft,
+				EachSpecialCraft,
+				Unknown1,
+				Unknown2,
+				Unknown3
+			}
+			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
+			public enum ConditionList : byte
+			{
+				True,
+				Created,
+				Destroyed,
+				Attacked,
+				Captured,
+				Inspected,
+				Boarded,
+				Docked,
+				Disabled,
+				Exist,
+				False,
+				Unused11,
+				CompletedMission,
+				CompletedPrimary,
+				FailedPrimary,
+				CompletedSecondary,
+				FailedSecondary,
+				CompletedBonus,
+				FailedBonus,
+				DroppedOff,
+				Reinforced,
+				Shields0Percent,
+				Hull50Percent,
+				NoWarheads,
+				Unknown24,
+				BeDroppedOff,
+				Broken26,
+				NotDisabled,
+				NotCaptured,
+				NotInspected,
+				IsDocking,
+				NotDocking,
+				IsBoarding,
+				NotBoarding,
+				Shields50Percent,
+				Shields25Percent,
+				Hull75Percent,
+				Hull25Percent,
+				Failed,
+				TeamModifier,
+				Unknown40,
+				BeAllPlayer,
+				BeAllAI,
+				ComeAndGo,
+				BeBagged,
+				Withdraw,
+				BeCarried,
+				ArrivedInRegion,
+				DepartedRegion,
+				InProximity,
+				NotInProximity,
+				AllCaptured,
+				Defect,
+				InConvoy,
+				Delivered,
+				AllDisabled,
+				MessageShown,
+				Identified,
+				NotIdentified,
+				Exist59
 			}
 
 			/// <summary>Initializes a blank Trigger</summary>
@@ -149,9 +240,9 @@ namespace Idmr.Platform.Xwa
 			public override string ToString()
 			{
 				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/ && VariableType != (byte)TypeList.BeforeTime)
+				if (Condition != (byte)ConditionList.True && Condition != (byte)ConditionList.False && VariableType != (byte)TypeList.BeforeTime)
 				{
-					if (Condition == 0x31 /*Prox*/ || Condition == 0x32 /*NOT Prox*/) trig = "Any of ";
+					if (Condition == (byte)ConditionList.InProximity || Condition == (byte)ConditionList.NotInProximity) trig = "Any of ";
 					else
 					{
 						if (Amount > Strings.Amount.Length) Amount = 0; //can occur switching away from high-distance prox triggers
@@ -246,9 +337,9 @@ namespace Idmr.Platform.Xwa
 					trig += " must ";
 				}
 				if (VariableType == (byte)TypeList.BeforeTime) trig = "After " + string.Format("{0}:{1:00}", GetDelaySeconds(Variable) / 60, GetDelaySeconds(Variable) % 60) + " delay";
-				else if (Condition == 0x31 || Condition == 0x32)
+				else if (Condition == (byte)ConditionList.InProximity || Condition == (byte)ConditionList.NotInProximity)
 				{
-					trig += (Condition == 0x32 ? "NOT " : "") + "be within ";
+					trig += (Condition == (byte)ConditionList.NotInProximity ? "NOT " : "") + "be within ";
 					double dist;
 					if (Amount == 0) dist = 0.05;
 					else if (Amount <= 10) dist = 0.1 * Amount;
@@ -274,14 +365,14 @@ namespace Idmr.Platform.Xwa
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
 			/// <returns>A copy of <paramref name="trig"/> for use in TIE95</returns>
-			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger(craftDowngrade(trig)); }	// Parameters lost
+			public static explicit operator Tie.Mission.Trigger(Trigger trig) => new Tie.Mission.Trigger(craftDowngrade(trig));     // Parameters lost
 			/// <summary>Converts a Trigger for use in XvT</summary>
 			/// <remarks>Parameters are lost in the conversion</remarks>
 			/// <param name="trig">The Trigger to convert</param>
 			/// <exception cref="ArgumentException">Invalid values detected</exception>
 			/// <returns>A copy of <paramref name="trig"/> for use in XvT</returns>
-			public static explicit operator Xvt.Mission.Trigger(Trigger trig) { return new Xvt.Mission.Trigger(craftDowngrade(trig)); }	// Parameters lost
-			
+			public static explicit operator Xvt.Mission.Trigger(Trigger trig) => new Xvt.Mission.Trigger(craftDowngrade(trig));     // Parameters lost
+
 			/// <summary>Gets or sets the first additional setting</summary>
 			public byte Parameter1
 			{
@@ -328,7 +419,7 @@ namespace Idmr.Platform.Xwa
                         Amount = 0;
                         VariableType = 0;
                         Variable = 0;
-                        Condition = (byte)(delCond ? 0 : 10); //this will expand the bool true/false into the condition true/false
+                        Condition = (byte)(delCond ? ConditionList.True : ConditionList.False);
                     }
                 }
                 else if (VariableType == (byte)TypeList.NotFG && Variable > srcIndex && delete == true)

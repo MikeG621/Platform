@@ -15,11 +15,12 @@ Version History
  - (Converter) XWA orders convert times and craft type to/from TIE and XvT
  - (Converter) XvT to XWA Triggers adjust craft type
  - (Converter) Added Countermeasures, ExplosionTime, GlobalUnit and Optionals to Xwa to Xvt Flightgroups
- - (TIE) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums
+ - (Xwing) Fixed up FlightGroup.WaypointIndex
+ - (TIE) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and .ConditionList enums
  - (XvT) Briefing EventQuantityLimit corrected to 200
  - (XvT) Order and Trigger operators convert time to XWA properly
- - (XvT) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums
- - (XWA) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList enums
+ - (XvT) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and .ConditionList enums
+ - (XWA) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and .ConditionList enums
  - (XWA) Fixed the time display for "Before Time" trigger/order target type text
 
 v6.0, 27 Oct 2023

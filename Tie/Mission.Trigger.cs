@@ -8,7 +8,7 @@
  */
 
 /* CHANGELOG
- * [NEW] TypeList enum
+ * [NEW] TypeList, AmountList, ConditionList enums
  * v5.7.5, 230116
  * [UPD #12] ToString update for AI Rating, Status and All Craft
  * v5.7, 220127
@@ -48,6 +48,57 @@ namespace Idmr.Platform.Tie
 				AILevel,
 				Status,
 				AllCraft
+			}
+
+			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
+			public enum AmountList : byte
+			{
+				Percent100,
+				Percent75,
+				Percent50,
+				Percent25,
+				AtLeast1,
+				AllBut1,
+				AllSpecial,
+				AllNonSpecial,
+				AllNonPlayers,
+				PlayersCraft,
+				Percent100FirstWave,
+				Percent75FirstWave,
+				Percent50FirstWave,
+				Percent25FirstWave,
+				AnyFirstWave,
+				AllBut1FirstWave
+			}
+
+			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
+			public enum ConditionList : byte
+			{
+				True,
+				Created,
+				Destroyed,
+				Attacked,
+				Captured,
+				Inspected,
+				Boarded,
+				Docked,
+				Disabled,
+				Exist,
+				False,
+				Unknown11,
+				CompletedMission,
+				CompletedPrimary,
+				FailedPrimary,
+				CompletedSecondary,
+				FailedSecondary,
+				CompletedBonus,
+				FailedBonus,
+				DroppedOff,
+				Reinforced,
+				NoShields,
+				HalfHull,
+				NoWarheads,
+				CannonsDisabled
 			}
 
 			/// <summary>Initializes a blank Trigger</summary>
@@ -90,9 +141,9 @@ namespace Idmr.Platform.Tie
 			static void checkValues(Trigger t)
 			{
 				string error = "";
-				if (t.Condition > 24) error = "Condition (" + t.Condition + ")";
+				if (t.Condition > (byte)ConditionList.CannonsDisabled) error = "Condition (" + t.Condition + ")";
 				byte tempVar = t.Variable;
-				if (t.VariableType == 10)
+				if (t.VariableType == (byte)TypeList.Status)
 				{
 					t.VariableType = 0;
 					t.Variable = 0;
@@ -101,8 +152,11 @@ namespace Idmr.Platform.Tie
 				t.Variable = tempVar;
 				if (msg != "") error += (error != "" ? ", " : "") + msg;
 				if (error != "") throw new ArgumentException("Invalid values detected: " + error + ".");
-				// 66% to 75%, 33% to 50%, "each" to 100%, "each special" to "100% special"
-				t.Amount = (byte)(t.Amount == 16 ? 1 : (t.Amount == 17 ? 2 : (t.Amount == 18 ? 0 : (t.Amount == 19 ? 6 : t.Amount))));
+				t.Amount = (t.Amount == (byte)Xvt.Mission.Trigger.AmountList.Percent66 ? (byte)AmountList.Percent75 :
+					(t.Amount == (byte)Xvt.Mission.Trigger.AmountList.Percent33 ? (byte)AmountList.Percent50 :
+					(t.Amount == (byte)Xvt.Mission.Trigger.AmountList.EachCraft ? (byte)AmountList.Percent100 :
+					(t.Amount == (byte)Xvt.Mission.Trigger.AmountList.EachSpecialCraft ? (byte)AmountList.AllSpecial :
+					t.Amount))));
 			}
 			
 			static byte[] craftUpgrade(Trigger t)
@@ -124,7 +178,7 @@ namespace Idmr.Platform.Tie
 			public override string ToString()
 			{
 				string trig = "";
-				if (Condition != 0 /*TRUE*/ && Condition != 10 /*FALSE*/)
+				if (Condition != (byte)ConditionList.True && Condition != (byte)ConditionList.False)
 				{
 					trig = BaseStrings.SafeString(Strings.Amount, Amount);
 					trig += (trig.IndexOf(" of") >= 0 || trig.IndexOf(" in") >= 0) ? " " : " of ";

@@ -136,7 +136,7 @@ namespace Idmr.Platform
 					tie.FlightGroups[i].Goals.PrimaryAmount = miss.FlightGroups[i].Goals[0].Amount;
 					if (miss.FlightGroups[i].Goals[0].Argument == 1 || miss.FlightGroups[i].Goals[0].Argument == 3) // must NOT or BONUS must NOT
 					{
-						if (miss.FlightGroups[i].Goals[0].Condition == 2) tie.FlightGroups[i].Goals.PrimaryCondition = 9;
+						if (miss.FlightGroups[i].Goals[0].Condition == (byte)Xvt.Mission.Trigger.ConditionList.Destroyed) tie.FlightGroups[i].Goals.PrimaryCondition = (byte)Tie.Mission.Trigger.ConditionList.Exist;
 						else throw new ArgumentException("Cannot convert \"must NOT\" Flightgroup Goal (FG: " + i + ")");
 					}
 				}
@@ -146,7 +146,7 @@ namespace Idmr.Platform
 					tie.FlightGroups[i].Goals.SecondaryAmount = miss.FlightGroups[i].Goals[1].Amount;
 					if (miss.FlightGroups[i].Goals[1].Argument == 1 || miss.FlightGroups[i].Goals[1].Argument == 3)
 					{
-						if (miss.FlightGroups[i].Goals[1].Condition == 2) tie.FlightGroups[i].Goals.SecondaryCondition = 9;
+						if (miss.FlightGroups[i].Goals[1].Condition == (byte)Xvt.Mission.Trigger.ConditionList.Destroyed) tie.FlightGroups[i].Goals.SecondaryCondition = (byte)Tie.Mission.Trigger.ConditionList.Exist;
 						else throw new ArgumentException("Cannot convert \"must NOT\" Flightgroup Goal (FG: " + i + ")");
 					}
 				}
@@ -157,7 +157,7 @@ namespace Idmr.Platform
 					tie.FlightGroups[i].Goals.RawBonusPoints = miss.FlightGroups[i].Goals[2].RawPoints;
 					if (miss.FlightGroups[i].Goals[2].Argument == 1 || miss.FlightGroups[i].Goals[2].Argument == 3)
 					{
-						if (miss.FlightGroups[i].Goals[2].Condition == 2) tie.FlightGroups[i].Goals.BonusCondition = 9;
+						if (miss.FlightGroups[i].Goals[2].Condition == (byte)Xvt.Mission.Trigger.ConditionList.Destroyed) tie.FlightGroups[i].Goals.BonusCondition = (byte)Tie.Mission.Trigger.ConditionList.Exist;
 						else throw new ArgumentException("Cannot convert \"must NOT\" Flightgroup Goal (FG: " + i + ")");
 					}
 				}
@@ -351,25 +351,25 @@ namespace Idmr.Platform
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
 				}
 				#region Goals
-				if (miss.FlightGroups[i].Goals.PrimaryCondition == 9) // if EXIST
+				if (miss.FlightGroups[i].Goals.PrimaryCondition == (byte)Tie.Mission.Trigger.ConditionList.Exist)
 				{
 					xvt.FlightGroups[i].Goals[0].Argument = 1; // must NOT
-					xvt.FlightGroups[i].Goals[0].Condition = 2; // be destroyed
+					xvt.FlightGroups[i].Goals[0].Condition = (byte)Xvt.Mission.Trigger.ConditionList.Destroyed;
 				}
 				else xvt.FlightGroups[i].Goals[0].Condition = miss.FlightGroups[i].Goals.PrimaryCondition;
 				if (miss.FlightGroups[i].Goals.PrimaryAmount == 1)
-					xvt.FlightGroups[i].Goals[0].Amount = 2; // 50%
+					xvt.FlightGroups[i].Goals[0].Amount = (byte)Xvt.Mission.Trigger.AmountList.Percent50;
 				else if (miss.FlightGroups[i].Goals.PrimaryAmount >= 2)
 					xvt.FlightGroups[i].Goals[0].Amount = (byte)(miss.FlightGroups[i].Goals.PrimaryAmount + 2);    // at least 1...
-				if (miss.FlightGroups[i].Goals.PrimaryCondition != 10 && miss.FlightGroups[i].Goals.PrimaryCondition != 9)
+				if (miss.FlightGroups[i].Goals.PrimaryCondition != (byte)Tie.Mission.Trigger.ConditionList.False && miss.FlightGroups[i].Goals.PrimaryCondition != (byte)Tie.Mission.Trigger.ConditionList.Exist)
 					xvt.FlightGroups[i].Goals[0].Points = 250;
-				if (miss.FlightGroups[i].Goals.PrimaryCondition != 10)
+				if (miss.FlightGroups[i].Goals.PrimaryCondition != (byte)Tie.Mission.Trigger.ConditionList.False)
 					xvt.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
 
-				if (miss.FlightGroups[i].Goals.SecondaryCondition == 9) // if EXIST
+				if (miss.FlightGroups[i].Goals.SecondaryCondition == (byte)Tie.Mission.Trigger.ConditionList.Exist)
 				{
 					xvt.FlightGroups[i].Goals[1].Argument = 3; // BONUS must NOT
-					xvt.FlightGroups[i].Goals[1].Condition = 2; // be destroyed
+					xvt.FlightGroups[i].Goals[1].Condition = (byte)Xvt.Mission.Trigger.ConditionList.Destroyed;
 				}
 				else
 				{
@@ -377,18 +377,18 @@ namespace Idmr.Platform
 					xvt.FlightGroups[i].Goals[1].Condition = miss.FlightGroups[i].Goals.SecondaryCondition;
 				}
 				if (miss.FlightGroups[i].Goals.SecondaryAmount == 1)
-					xvt.FlightGroups[i].Goals[1].Amount = 2; // 50%
+					xvt.FlightGroups[i].Goals[1].Amount = (byte)Xvt.Mission.Trigger.AmountList.Percent50;
 				else if (miss.FlightGroups[i].Goals.SecondaryAmount >= 2)
 					xvt.FlightGroups[i].Goals[1].Amount = (byte)(miss.FlightGroups[i].Goals.SecondaryAmount + 2);    // at least 1...
-				if (miss.FlightGroups[i].Goals.SecondaryCondition != 10 && miss.FlightGroups[i].Goals.SecondaryCondition != 9)
+				if (miss.FlightGroups[i].Goals.SecondaryCondition != (byte)Tie.Mission.Trigger.ConditionList.False && miss.FlightGroups[i].Goals.SecondaryCondition != (byte)Tie.Mission.Trigger.ConditionList.Exist)
 					xvt.FlightGroups[i].Goals[1].Points = 250;
-				if (miss.FlightGroups[i].Goals.SecondaryCondition != 10)
+				if (miss.FlightGroups[i].Goals.SecondaryCondition != (byte)Tie.Mission.Trigger.ConditionList.False)
 					xvt.FlightGroups[i].Goals[1].SetEnabledForTeam(0, true);
 
-				if (miss.FlightGroups[i].Goals.BonusCondition == 9) // if EXIST
+				if (miss.FlightGroups[i].Goals.BonusCondition == (byte)Tie.Mission.Trigger.ConditionList.Exist)
 				{
 					xvt.FlightGroups[i].Goals[2].Argument = 3; // BONUS must NOT
-					xvt.FlightGroups[i].Goals[2].Condition = 2; // be destroyed
+					xvt.FlightGroups[i].Goals[2].Condition = (byte)Xvt.Mission.Trigger.ConditionList.Destroyed;
 				}
 				else
 				{
@@ -396,12 +396,12 @@ namespace Idmr.Platform
 					xvt.FlightGroups[i].Goals[2].Condition = miss.FlightGroups[i].Goals.BonusCondition;
 				}
 				if (miss.FlightGroups[i].Goals.BonusAmount == 1)
-					xvt.FlightGroups[i].Goals[2].Amount = 2; // 50%
+					xvt.FlightGroups[i].Goals[2].Amount = (byte)Xvt.Mission.Trigger.AmountList.Percent50;
 				else if (miss.FlightGroups[i].Goals.BonusAmount >= 2)
 					xvt.FlightGroups[i].Goals[2].Amount = (byte)(miss.FlightGroups[i].Goals.BonusAmount + 2);    // at least 1...
-				if (miss.FlightGroups[i].Goals.BonusCondition != 10 && miss.FlightGroups[i].Goals.BonusCondition != 9)
+				if (miss.FlightGroups[i].Goals.BonusCondition != (byte)Tie.Mission.Trigger.ConditionList.False && miss.FlightGroups[i].Goals.BonusCondition != (byte)Tie.Mission.Trigger.ConditionList.Exist)
 					xvt.FlightGroups[i].Goals[2].RawPoints = miss.FlightGroups[i].Goals.RawBonusPoints;
-				if (miss.FlightGroups[i].Goals.BonusCondition != 10)
+				if (miss.FlightGroups[i].Goals.BonusCondition != (byte)Tie.Mission.Trigger.ConditionList.False)
 					xvt.FlightGroups[i].Goals[2].SetEnabledForTeam(0, true);
 				#endregion
 				for (int j = 0; j < 15; j++)
@@ -1226,9 +1226,9 @@ namespace Idmr.Platform
 					Delay = 1   // 5 sec
 				};
 				msg.Triggers[0].Amount = 0;
-				msg.Triggers[0].VariableType = 5; //IFF
+				msg.Triggers[0].VariableType = (byte)Tie.Mission.Trigger.TypeList.IFF;
 				msg.Triggers[0].Variable = 0;
-				msg.Triggers[0].Condition = 13; //complete primary mission
+				msg.Triggers[0].Condition = (byte)Tie.Mission.Trigger.ConditionList.CompletedPrimary;
 				tie.Messages.Add(msg);
 			}
 			//Not doing mission time.
@@ -1332,11 +1332,11 @@ namespace Idmr.Platform
 				arr.Amount = 0;
 				arr.Condition = Convert.ToByte(miss.FlightGroups[i].ArrivalEvent);
 				if (arr.Condition == 6) //"Disabled" condition has a different ID in TIE
-					arr.Condition = 8;
+					arr.Condition = (byte)Tie.Mission.Trigger.ConditionList.Disabled;
 
 				if (miss.FlightGroups[i].ArrivalFG >= 0)
 				{
-					arr.VariableType = 1;
+					arr.VariableType = (byte)Tie.Mission.Trigger.TypeList.FlightGroup;
 					arr.Variable = (byte)miss.FlightGroups[i].ArrivalFG;
 				}
 				else
@@ -1345,17 +1345,17 @@ namespace Idmr.Platform
 					arr.Variable = 0;
 					arr.Condition = 0;
 				}
-				if (arr.VariableType == 1 && arr.Condition == 0 && arr.Variable == 0)  //Replace with always (TRUE)
+				if (arr.VariableType == (byte)Tie.Mission.Trigger.TypeList.FlightGroup && arr.Condition == 0 && arr.Variable == 0)  //Replace with always (TRUE)
 					arr.VariableType = 0;
 
-				if (arr.Condition != 2)   //All conditions except Destroyed trigger when "at least one" fulfills the condition.  Destroyed requires at least one, and the rest to "come and go" (like XvT and XWA) but TIE doesn't have that.
+				if (arr.Condition != (byte)Tie.Mission.Trigger.ConditionList.Destroyed)   //All conditions except Destroyed trigger when "at least one" fulfills the condition.  Destroyed requires at least one, and the rest to "come and go" (like XvT and XWA) but TIE doesn't have that.
 				{
-					arr.Amount = 4;  //At least one
+					arr.Amount = (byte)Tie.Mission.Trigger.AmountList.AtLeast1;
 
 					int fg = miss.FlightGroups[i].ArrivalFG;
-					if (arr.VariableType == 1 && fg >= 0 && fg < miss.FlightGroups.Count)
+					if (arr.VariableType == (byte)Tie.Mission.Trigger.TypeList.FlightGroup && fg >= 0 && fg < miss.FlightGroups.Count)
 						if (miss.FlightGroups[fg].NumberOfWaves == 0 && miss.FlightGroups[fg].NumberOfCraft == 1)
-							arr.Amount = 0;   //But if the craft only has 1 wave of 1 ship, go ahead and call it 100% to make it more intuitive.
+							arr.Amount = (byte)Tie.Mission.Trigger.AmountList.Percent100;   //But if the craft only has 1 wave of 1 ship, go ahead and call it 100% to make it more intuitive.
 				}
 
 
@@ -1481,16 +1481,15 @@ namespace Idmr.Platform
 				}
 				#endregion Orders
 
-				//XWING95 waypoints: 0=Start1, 1=WayPt1, 2=WayPt2, 3=WayPt3, 4=Start2, 5=Start3, 6=Hyper
-				tie.FlightGroups[i].Waypoints[0] = miss.FlightGroups[i].Waypoints[0]; //Start1
-				tie.FlightGroups[i].Waypoints[1] = miss.FlightGroups[i].Waypoints[4]; //Start2
-				tie.FlightGroups[i].Waypoints[2] = miss.FlightGroups[i].Waypoints[5]; //Start3
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Start1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start1];
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Start2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start2];
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Start3] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start3];
 
-				tie.FlightGroups[i].Waypoints[4] = miss.FlightGroups[i].Waypoints[1]; //WayPt1
-				tie.FlightGroups[i].Waypoints[5] = miss.FlightGroups[i].Waypoints[2]; //WayPt2
-				tie.FlightGroups[i].Waypoints[6] = miss.FlightGroups[i].Waypoints[3]; //WayPt3
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.WP1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP1];
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.WP2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP2];
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.WP3] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP3];
 
-				tie.FlightGroups[i].Waypoints[13] = miss.FlightGroups[i].Waypoints[6]; //Hyper
+				tie.FlightGroups[i].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Hyperspace] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Hyperspace];
 			}
 			#endregion FGs
 			#region Briefing
@@ -1500,18 +1499,18 @@ namespace Idmr.Platform
 
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
 			int cs = pg.CoordSet;
-			int wpIndex = 0; //Default to Start1
+			int wpIndex = (byte)Xwing.FlightGroup.WaypointIndex.Start1;
 			if (cs >= 1 && cs <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
-				wpIndex = 7 + cs - 1;
+				wpIndex = (byte)Xwing.FlightGroup.WaypointIndex.CS1 + cs - 1;
 			for (int i = 0; i < miss.FlightGroupsBriefing.Count; i++)
 			{
 				Xwing.FlightGroup bfg = miss.FlightGroupsBriefing[i];
 				int found = miss.GetMatchingXWIFlightGroup(i);
 				if (found >= 0)
 				{
-					tie.FlightGroups[found].Waypoints[14] = bfg.Waypoints[wpIndex];
-					tie.FlightGroups[found].Waypoints[14].RawY *= -1;  //Axis inversion?
-					tie.FlightGroups[found].Waypoints[14].Enabled = true;
+					tie.FlightGroups[found].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Briefing] = bfg.Waypoints[wpIndex];
+					tie.FlightGroups[found].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Briefing].RawY *= -1;  //Axis inversion?
+					tie.FlightGroups[found].Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Briefing].Enabled = true;
 				}
 				else if (tie.FlightGroups.Count < Tie.Mission.FlightGroupLimit)   //Create a new FG solely for a briefing icon, if there's space.
 				{
@@ -1525,12 +1524,12 @@ namespace Idmr.Platform
 						IFF = bfg.GetTIEIFF(),
 						Difficulty = 0
 					};
-					newFG.ArrDepTriggers[0].Condition = 10; //False so it never arrives.
-					newFG.ArrDepTriggers[1].Condition = 10; //False
+					newFG.ArrDepTriggers[0].Condition = (byte)Tie.Mission.Trigger.ConditionList.False; //False so it never arrives.
+					newFG.ArrDepTriggers[1].Condition = (byte)Tie.Mission.Trigger.ConditionList.False;
 
-					newFG.Waypoints[14] = bfg.Waypoints[wpIndex];
-					newFG.Waypoints[14].RawY *= -1;   //Axis inversion?
-					newFG.Waypoints[14].Enabled = true;
+					newFG.Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Briefing] = bfg.Waypoints[wpIndex];
+					newFG.Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Briefing].RawY *= -1;   //Axis inversion?
+					newFG.Waypoints[(byte)Tie.FlightGroup.WaypointIndex.Briefing].Enabled = true;
 
 					tie.FlightGroups.Add(newFG);
 					found = tie.FlightGroups.Count - 1;
@@ -1692,9 +1691,9 @@ namespace Idmr.Platform
 					Delay = 1   //5 sec
 				};
 				msg.Triggers[0].Amount = 0;
-				msg.Triggers[0].VariableType = 12; //Team
+				msg.Triggers[0].VariableType = (byte)Xvt.Mission.Trigger.TypeList.Team;
 				msg.Triggers[0].Variable = 0;
-				msg.Triggers[0].Condition = 13; //complete primary mission
+				msg.Triggers[0].Condition = (byte)Xvt.Mission.Trigger.ConditionList.CompletedPrimary; //complete primary mission
 				xvt.Messages.Add(msg);
 			}
 			xvt.MissionType = bop ? Xvt.Mission.MissionTypeEnum.MPTraining : Xvt.Mission.MissionTypeEnum.Training;
@@ -1805,12 +1804,12 @@ namespace Idmr.Platform
 				Xvt.Mission.Trigger arr = xvt.FlightGroups[i].ArrDepTriggers[0];
 				arr.Amount = 0;
 				arr.Condition = Convert.ToByte(miss.FlightGroups[i].ArrivalEvent);
-				if (arr.Condition == 6) //"Disabled" condition has a different ID in TIE
-					arr.Condition = 8;
+				if (arr.Condition == 6) //"Disabled" condition has a different ID in XvT
+					arr.Condition = (byte)Xvt.Mission.Trigger.ConditionList.Disabled;
 
 				if (miss.FlightGroups[i].ArrivalFG >= 0)
 				{
-					arr.VariableType = 1;
+					arr.VariableType = (byte)Xvt.Mission.Trigger.TypeList.FlightGroup;
 					arr.Variable = (byte)miss.FlightGroups[i].ArrivalFG;
 				}
 				else
@@ -1819,24 +1818,24 @@ namespace Idmr.Platform
 					arr.Variable = 0;
 					arr.Condition = 0;
 				}
-				if (arr.VariableType == 1 && arr.Condition == 0 && arr.Variable == 0)  //Replace with always (TRUE)
+				if (arr.VariableType == (byte)Xvt.Mission.Trigger.TypeList.FlightGroup && arr.Condition == 0 && arr.Variable == 0)  //Replace with always (TRUE)
 					arr.VariableType = 0;
 
 				//All conditions except Destroyed trigger when "at least one" fulfills the condition.  Destroyed requires at least one, and the rest to "come and go" (like XvT and XWA) but TIE doesn't have that.
-				arr.Amount = 4;  //At least one
+				arr.Amount = (byte)Xvt.Mission.Trigger.AmountList.AtLeast1;
 
 				int fg = miss.FlightGroups[i].ArrivalFG;
-				if (arr.VariableType == 1 && fg >= 0 && fg < miss.FlightGroups.Count)
+				if (arr.VariableType == (byte)Xvt.Mission.Trigger.TypeList.FlightGroup && fg >= 0 && fg < miss.FlightGroups.Count)
 					if (miss.FlightGroups[fg].NumberOfWaves == 0 && miss.FlightGroups[fg].NumberOfCraft == 1)
-						arr.Amount = 0;   //But if the craft only has 1 wave of 1 ship, go ahead and call it 100% to make it more intuitive.
+						arr.Amount = (byte)Xvt.Mission.Trigger.AmountList.Percent100;   //But if the craft only has 1 wave of 1 ship, go ahead and call it 100% to make it more intuitive.
 
-				if (arr.Condition == 2)
+				if (arr.Condition == (byte)Xvt.Mission.Trigger.ConditionList.Destroyed)
 				{
 					Xvt.Mission.Trigger arr2 = xvt.FlightGroups[i].ArrDepTriggers[1];
 					arr2.Amount = 0;
-					arr2.VariableType = 1;
+					arr2.VariableType = (byte)Xvt.Mission.Trigger.TypeList.FlightGroup;
 					arr2.Variable = arr.Variable;
-					arr2.Condition = 43;  //come and go
+					arr2.Condition = (byte)Xvt.Mission.Trigger.ConditionList.ComeAndGo;
 					xvt.FlightGroups[i].ArrDepAO[0] = false;  //AND
 				}
 
@@ -1991,16 +1990,15 @@ namespace Idmr.Platform
 				}
 				#endregion Orders
 
-				//XWING95 waypoints: 0=Start1, 1=WayPt1, 2=WayPt2, 3=WayPt3, 4=Start2, 5=Start3, 6=Hyper
-				xvt.FlightGroups[i].Waypoints[0] = miss.FlightGroups[i].Waypoints[0]; //Start1
-				xvt.FlightGroups[i].Waypoints[1] = miss.FlightGroups[i].Waypoints[4]; //Start2
-				xvt.FlightGroups[i].Waypoints[2] = miss.FlightGroups[i].Waypoints[5]; //Start3
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Start1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start1];
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Start2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start2];
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Start3] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start3];
 
-				xvt.FlightGroups[i].Waypoints[4] = miss.FlightGroups[i].Waypoints[1]; //WayPt1
-				xvt.FlightGroups[i].Waypoints[5] = miss.FlightGroups[i].Waypoints[2]; //WayPt2
-				xvt.FlightGroups[i].Waypoints[6] = miss.FlightGroups[i].Waypoints[3]; //WayPt3
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.WP1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP1];
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.WP2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP2];
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.WP3] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP3];
 
-				xvt.FlightGroups[i].Waypoints[13] = miss.FlightGroups[i].Waypoints[6]; //Hyper
+				xvt.FlightGroups[i].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Hyperspace] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Hyperspace];
 			}
 			#endregion FGs
 			#region Briefing
@@ -2019,9 +2017,9 @@ namespace Idmr.Platform
 				int found = miss.GetMatchingXWIFlightGroup(i);
 				if (found >= 0)
 				{
-					xvt.FlightGroups[found].Waypoints[14] = bfg.Waypoints[wpIndex];
-					xvt.FlightGroups[found].Waypoints[14].RawY *= -1;  //Axis inversion?
-					xvt.FlightGroups[found].Waypoints[14].Enabled = true;
+					xvt.FlightGroups[found].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Briefing1] = bfg.Waypoints[wpIndex];
+					xvt.FlightGroups[found].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Briefing1].RawY *= -1;  //Axis inversion?
+					xvt.FlightGroups[found].Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Briefing1].Enabled = true;
 				}
 				else if (xvt.FlightGroups.Count < Xvt.Mission.FlightGroupLimit)   //Create a new FG solely for a briefing icon, if there's space.
 				{
@@ -2035,12 +2033,12 @@ namespace Idmr.Platform
 						IFF = bfg.GetTIEIFF(),
 						Difficulty = 0
 					};
-					newFG.ArrDepTriggers[0].Condition = 10; //False so it never arrives.
-					newFG.ArrDepTriggers[1].Condition = 10; //False
+					newFG.ArrDepTriggers[0].Condition = (byte)Xvt.Mission.Trigger.ConditionList.False; //False so it never arrives.
+					newFG.ArrDepTriggers[1].Condition = (byte)Xvt.Mission.Trigger.ConditionList.False;
 
-					newFG.Waypoints[14] = bfg.Waypoints[wpIndex];
-					newFG.Waypoints[14].RawY *= -1;   //Axis inversion?
-					newFG.Waypoints[14].Enabled = true;
+					newFG.Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Briefing1] = bfg.Waypoints[wpIndex];
+					newFG.Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Briefing1].RawY *= -1;   //Axis inversion?
+					newFG.Waypoints[(byte)Xvt.FlightGroup.WaypointIndex.Briefing1].Enabled = true;
 
 					xvt.FlightGroups.Add(newFG);
 					found = xvt.FlightGroups.Count - 1;
@@ -2194,9 +2192,9 @@ namespace Idmr.Platform
 					Delay = 5
 				};
 				msg.Triggers[0].Amount = 0;
-				msg.Triggers[0].VariableType = 12; //Team
+				msg.Triggers[0].VariableType = (byte)Xwa.Mission.Trigger.TypeList.Team;
 				msg.Triggers[0].Variable = 0;
-				msg.Triggers[0].Condition = 13; //complete primary mission
+				msg.Triggers[0].Condition = (byte)Xwa.Mission.Trigger.ConditionList.CompletedPrimary;
 				xwa.Messages.Add(msg);
 			}
 			xwa.MissionType = Xwa.Mission.HangarEnum.MonCalCruiser;
@@ -2311,11 +2309,11 @@ namespace Idmr.Platform
 				arr.Amount = 0;
 				arr.Condition = Convert.ToByte(miss.FlightGroups[i].ArrivalEvent);
 				if (arr.Condition == 6) //"Disabled" condition has a different ID in TIE
-					arr.Condition = 8;
+					arr.Condition = (byte)Xwa.Mission.Trigger.ConditionList.Disabled;
 
 				if (miss.FlightGroups[i].ArrivalFG >= 0)
 				{
-					arr.VariableType = 1;
+					arr.VariableType = (byte)Xwa.Mission.Trigger.TypeList.FlightGroup;
 					arr.Variable = (byte)miss.FlightGroups[i].ArrivalFG;
 				}
 				else
@@ -2324,24 +2322,24 @@ namespace Idmr.Platform
 					arr.Variable = 0;
 					arr.Condition = 0;
 				}
-				if (arr.VariableType == 1 && arr.Condition == 0 && arr.Variable == 0)  //Replace with always (TRUE)
+				if (arr.VariableType == (byte)Xwa.Mission.Trigger.TypeList.FlightGroup && arr.Condition == 0 && arr.Variable == 0)  //Replace with always (TRUE)
 					arr.VariableType = 0;
 
 				//All conditions except Destroyed trigger when "at least one" fulfills the condition.  Destroyed requires at least one, and the rest to "come and go" (like XvT and XWA) but TIE doesn't have that.
-				arr.Amount = 4;  //At least one
+				arr.Amount = (byte)Xwa.Mission.Trigger.AmountList.AtLeast1;
 
 				int fg = miss.FlightGroups[i].ArrivalFG;
-				if (arr.VariableType == 1 && fg >= 0 && fg < miss.FlightGroups.Count)
+				if (arr.VariableType == (byte)Xwa.Mission.Trigger.TypeList.FlightGroup && fg >= 0 && fg < miss.FlightGroups.Count)
 					if (miss.FlightGroups[fg].NumberOfWaves == 0 && miss.FlightGroups[fg].NumberOfCraft == 1)
-						arr.Amount = 0;   //But if the craft only has 1 wave of 1 ship, go ahead and call it 100% to make it more intuitive.
+						arr.Amount = (byte)Xwa.Mission.Trigger.AmountList.Percent100;   //But if the craft only has 1 wave of 1 ship, go ahead and call it 100% to make it more intuitive.
 
-				if (arr.Condition == 2)
+				if (arr.Condition == (byte)Xwa.Mission.Trigger.ConditionList.Destroyed)
 				{
 					Xwa.Mission.Trigger arr2 = xwa.FlightGroups[i].ArrDepTriggers[1];
 					arr2.Amount = 0;
-					arr2.VariableType = 1;
+					arr2.VariableType = (byte)Xwa.Mission.Trigger.TypeList.FlightGroup;
 					arr2.Variable = arr.Variable;
-					arr2.Condition = 43;  //come and go
+					arr2.Condition = (byte)Xwa.Mission.Trigger.ConditionList.ComeAndGo;
 					xwa.FlightGroups[i].ArrDepAndOr[0] = false;  //AND
 				}
 
@@ -2460,8 +2458,8 @@ namespace Idmr.Platform
 						xwa.FlightGroups[i].Orders[0, 0].Throttle = 0;
 
 						BaseFlightGroup.BaseOrder order3 = xwa.FlightGroups[i].Orders[0, 2];
-						order3.Command = 20;  //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1AndOrT2 = true;
+						order3.Command = (byte)Xwa.FlightGroup.Order.CommandList.SSWait;  //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
+						order3.Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF; order3.Target1 = oppositeIFF; order3.T1AndOrT2 = true;
 						order3.Variable1 = 255; //Maximum wait time, 21:15
 						order3.Throttle = 0;
 					}
@@ -2481,8 +2479,8 @@ namespace Idmr.Platform
 					{
 						Xwa.FlightGroup.Order order = new Xwa.FlightGroup.Order
 						{
-							Command = 7,           //Attack targets
-							Target1Type = 0x5,     //IFF
+							Command = (byte)Xwa.FlightGroup.Order.CommandList.AttackTargets,
+							Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF,
 							Target1 = oppositeIFF,
 							T1AndOrT2 = true      //OR   (none)
 						};
@@ -2491,16 +2489,15 @@ namespace Idmr.Platform
 				}
 				#endregion Orders
 
-				//XWING95 waypoints: 0=Start1, 1=WayPt1, 2=WayPt2, 3=WayPt3, 4=Start2, 5=Start3, 6=Hyper
-				xwa.FlightGroups[i].Waypoints[0] = miss.FlightGroups[i].Waypoints[0]; //Start1
-				xwa.FlightGroups[i].Waypoints[1] = miss.FlightGroups[i].Waypoints[4]; //Start2
-				xwa.FlightGroups[i].Waypoints[2] = miss.FlightGroups[i].Waypoints[5]; //Start3
+				xwa.FlightGroups[i].Waypoints[0] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start1];
+				xwa.FlightGroups[i].Waypoints[1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start2];
+				xwa.FlightGroups[i].Waypoints[2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start3];
 
-				xwa.FlightGroups[i].Orders[0, 0].Waypoints[0] = miss.FlightGroups[i].Waypoints[1]; //WayPt1
-				xwa.FlightGroups[i].Orders[0, 0].Waypoints[1] = miss.FlightGroups[i].Waypoints[2]; //WayPt2
-				xwa.FlightGroups[i].Orders[0, 0].Waypoints[2] = miss.FlightGroups[i].Waypoints[3]; //WayPt3
+				xwa.FlightGroups[i].Orders[0, 0].Waypoints[0] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP1];
+				xwa.FlightGroups[i].Orders[0, 0].Waypoints[1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP2];
+				xwa.FlightGroups[i].Orders[0, 0].Waypoints[2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP3];
 
-				xwa.FlightGroups[i].Waypoints[3] = miss.FlightGroups[i].Waypoints[6]; //Hyper
+				xwa.FlightGroups[i].Waypoints[3] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Hyperspace];
 			}
 			#endregion FGs
 			#region Briefing

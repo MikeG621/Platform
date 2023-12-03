@@ -35,7 +35,7 @@ namespace Idmr.Platform.Xvt
 				{
 					GoalTrigger = new Mission.Trigger
 					{
-						Condition = 10
+						Condition = (byte)Mission.Trigger.ConditionList.False
 					};
 					for (int i = 0; i < 3; i++) GoalStrings[i] = "";
 				}
