@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7+
+ * Version: 6.1
  */
 
 /* CHANGELOG
+ * v6.1, 231208
  * [NEW] CommandList enum
  * [UPD] Convert times for XWA
  * v5.7, 220127

@@ -3,14 +3,15 @@ Idmr.Platform.dll
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributors: Random Starfighter (JB)
-Version: 6.0
-Date: 2023.10.27
+Version: 6.1
+Date: 2023.12.08
 
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA
 
 =========
 Version History
 
+v6.1, 08 Dec 2023
  - (Converter) Added TieToXvt(), TieToBop(), TieToXvtBop(), XvtBopToXwa(), TieToXwa() upgrade paths
  - (Converter) XWA orders convert times and craft type to/from TIE and XvT
  - (Converter) XvT to XWA Triggers adjust craft type

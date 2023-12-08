@@ -20,6 +20,6 @@ using System.Reflection;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("5.8.1.*")]
-[assembly: AssemblyFileVersion("5.8.1.0")]
-[assembly: AssemblyInformationalVersion("5.8 final")]
+[assembly: AssemblyVersion("6.1.*")]
+[assembly: AssemblyFileVersion("6.1.0.0")]
+[assembly: AssemblyInformationalVersion("6.1 final")]

@@ -1,14 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 6.1
  */
 
 /* CHANGELOG
+ * v6.1, 231208
  * [FIX] WaypointIndex
  * v4.0, 200809
  * [NEW] Raw values for Pitch/Yaw/Roll instead of degrees [JB]

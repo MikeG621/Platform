@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.0+
+ * Version: 6.1
  */
 
 /* CHANGELOG
+ * v6.1, 231208
  * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa, TieToXwa
  * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
  * [UPD] Added Countermeasures, ExplosionTime, GlobalUnit, and Optionals to XwaToXvt Flightgroups
@@ -728,11 +729,9 @@ namespace Idmr.Platform
 				{"TER", 9}
 			};
 
-#pragma warning disable IDE0017 // Simplify object initialization
 			Xwa.Mission xwa = new Xwa.Mission();
-#pragma warning restore IDE0017 // Simplify object initialization
-			xwa.FlightGroups = new Xwa.FlightGroupCollection(miss.FlightGroups.Count);
 			if (miss.Messages.Count > 0) xwa.Messages = new Xwa.MessageCollection(miss.Messages.Count);
+			xwa.FlightGroups = new Xwa.FlightGroupCollection(miss.FlightGroups.Count);
 			xwa.MissionDescription = miss.MissionDescription;
 			xwa.MissionFailed = miss.MissionFailed;
 			xwa.MissionSuccessful = miss.MissionSuccessful;

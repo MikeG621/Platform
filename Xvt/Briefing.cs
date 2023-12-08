@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.4+
+ * Version: 6.1
  */
 
 /* CHANGELOG
+ * v6.1, 231208
  * [FIX] EventQuantityLimit
  * v5.7.4, 220827
  * [FIX] TicksPerSecond from 0x14 to 0x15

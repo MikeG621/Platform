@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.8+
+ * Version: 6.1
  */
 
 /* CHANGELOG
+ * v6.1, 231208
  * [NEW] TypeList, AmountList, ConditionList enums
  * v5.8, 230804
  * [NEW] Region references prepped for string replacement

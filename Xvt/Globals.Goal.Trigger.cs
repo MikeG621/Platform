@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
+ * Version: 6.1
  */
 
 /* CHANGELOG
+ * v6.1, 231208
  * [UPD] Removed _owner, since it wasn't used anyway
  * v4.0, 200809
  * [UPD] auto-properties
