@@ -136,31 +136,55 @@ namespace Idmr.Platform.Xwa
 				Orbit,
 				/// <summary>Stationary</summary>
 				ReleaseCarried,
+				/// <summary>Drop off specific FG</summary>
 				Deliver,
+				/// <summary>Unknown</summary>
 				Unknown,
+				/// <summary>Unknown</summary>
 				Attack2,
+				/// <summary>Unknown</summary>
 				LoadObject,
+				/// <summary>Wait and return fire</summary>
 				SitAndFire,
+				/// <summary>Repaired after an amount of time</summary>
 				RepairSelf,
 				/// <summary>Changes IFF</summary>
 				Defect,
+				/// <summary>Changes IFF and considered Captured</summary>
 				Surrender,
+				/// <summary>Unknown</summary>
 				Make,
+				/// <summary>Hyperbuoy order</summary>
 				Beacon,
+				/// <summary>Hyper to region via appropriate hyperbuoy</summary>
 				HyperToRegion,
+				/// <summary>Unknown</summary>
 				Relaunch,
+				/// <summary>Unknown</summary>
 				TransferCargo,
+				/// <summary>Unknown</summary>
 				InspectTargets,
+				/// <summary>Unknown</summary>
 				AwaitAssembly,
+				/// <summary>Unknown</summary>
 				AwaitDisassembly,
+				/// <summary>Unknown</summary>
 				ConstructTrain,
+				/// <summary>Unknown</summary>
 				Park,
+				/// <summary>Unknown</summary>
 				BoardToDefuse,
+				/// <summary>Unknown</summary>
 				StartOver,
+				/// <summary>Unknown</summary>
 				TakeApartTrain,
+				/// <summary>Unknown</summary>
 				WorkOn,
+				/// <summary>Unknown</summary>
 				DockToLoad,
+				/// <summary>Unknown</summary>
 				FollowTargets,
+				/// <summary>Unknown</summary>
 				HomeIn
 			}
 

@@ -49,124 +49,239 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
 			public enum TypeList : byte
 			{
+				/// <summary>No Target</summary>
 				None,
+				/// <summary>Target is FlightGroup</summary>
 				FlightGroup,
+				/// <summary>Target is a specific craft type</summary>
 				ShipType,
+				/// <summary>Target is a specific class (starfighter, transport, etc)</summary>
 				ShipClass,
+				/// <summary>Target is a specific type of object (craft, weapon, object)</summary>
 				ObjectType,
+				/// <summary>Target is a specific IFF</summary>
 				IFF,
+				/// <summary>Target has a specific order</summary>
 				ShipOrders,
+				/// <summary>Target has a special condition or state</summary>
 				CraftWhen,
+				/// <summary>Target is a member of a GG</summary>
 				GlobalGroup,
+				/// <summary>Target has a specific AI rating</summary>
 				AILevel,
+				/// <summary>Target has a specific Status</summary>
 				Status,
+				/// <summary>All craft</summary>
 				AllCraft,
+				/// <summary>Target is Team</summary>
 				Team,
+				/// <summary>Target is specific player</summary>
 				PlayerNum,
+				/// <summary>Trigger completed before mission time</summary>
 				BeforeTime,
+				/// <summary>All FGs except target</summary>
 				NotFG,
+				/// <summary>All craft types except target</summary>
 				NotShipType,
+				/// <summary>All ship classes except target</summary>
 				NotShipClass,
+				/// <summary>All object tpyes except target</summary>
 				NotObjectType,
+				/// <summary>All IFFs except target</summary>
 				NotIFF,
+				/// <summary>All GGs except target</summary>
 				NotGlobalGroup,
+				/// <summary>All Teams except target</summary>
 				NotTeam,
+				/// <summary>All players except target</summary>
 				NotPlayerNum,
+				/// <summary>Target is a GU</summary>
 				GlobalUnit,
+				/// <summary>All GUs except target</summary>
 				NotGlobalUnit,
+				/// <summary>Target has a specific GC</summary>
 				GlobalCargo,
+				/// <summary>Target does not have the GC</summary>
 				NotGlobalCargo,
+				/// <summary>Message index</summary>
 				MessageNum
 			}
 			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
 			public enum AmountList : byte
 			{
+				/// <summary>100% of target</summary>
 				Percent100,
+				/// <summary>75% of target</summary>
 				Percent75,
+				/// <summary>50% of target</summary>
 				Percent50,
+				/// <summary>25% of target</summary>
 				Percent25,
+				/// <summary>At least 1 of target</summary>
 				AtLeast1,
+				/// <summary>All but 1 of target</summary>
 				AllBut1,
+				/// <summary>All Special Craft of the target</summary>
 				AllSpecial,
+				/// <summary>All non-Special Craft of the target</summary>
 				AllNonSpecial,
+				/// <summary>All AI craft of the target</summary>
 				AllNonPlayers,
+				/// <summary>The Player's craft of the target</summary>
 				PlayersCraft,
+				/// <summary>100% of the first wave of target</summary>
 				Percent100FirstWave,
+				/// <summary>75% of the first wave of target</summary>
 				Percent75FirstWave,
+				/// <summary>50% of the first wave of target</summary>
 				Percent50FirstWave,
+				/// <summary>25% of the first wave of target</summary>
 				Percent25FirstWave,
+				/// <summary>At least 1 of the first wave of target</summary>
 				AnyFirstWave,
+				/// <summary>All but 1 of the first wave of target</summary>
 				AllBut1FirstWave,
+				/// <summary>66% of target</summary>
 				Percent66,
+				/// <summary>33% of target</summary>
 				Percent33,
+				/// <summary>Each craft of target, individually</summary>
 				EachCraft,
+				/// <summary>Each Special Craft of target, individually</summary>
 				EachSpecialCraft,
+				/// <summary>Unknown</summary>
 				Unknown1,
+				/// <summary>Unknown</summary>
 				Unknown2,
+				/// <summary>Unknown</summary>
 				Unknown3
 			}
 			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
 			public enum ConditionList : byte
 			{
+				/// <summary>Always true</summary>
 				True,
+				/// <summary>Target spawned</summary>
 				Created,
+				/// <summary>Target destroyed</summary>
 				Destroyed,
+				/// <summary>Target damaged</summary>
 				Attacked,
+				/// <summary>Target captured</summary>
 				Captured,
+				/// <summary>Target inspected</summary>
 				Inspected,
+				/// <summary>Target is boarded</summary>
 				Boarded,
+				/// <summary>Target is docked</summary>
 				Docked,
+				/// <summary>Target disabled</summary>
 				Disabled,
+				/// <summary>Target is present, not destroyed</summary>
 				Exist,
+				/// <summary>Never true</summary>
 				False,
+				/// <summary>Unknown</summary>
 				Unused11,
+				/// <summary>Mission complete</summary>
 				CompletedMission,
+				/// <summary>Primary goals complete</summary>
 				CompletedPrimary,
+				/// <summary>Primary goals failed</summary>
 				FailedPrimary,
+				/// <summary>Secondary goals complete</summary>
 				CompletedSecondary,
+				/// <summary>Secondary goals failed</summary>
 				FailedSecondary,
+				/// <summary>Bonus goals complete</summary>
 				CompletedBonus,
+				/// <summary>Bonus goals failed</summary>
 				FailedBonus,
+				/// <summary>Dropped off from mothership</summary>
 				DroppedOff,
+				/// <summary>Called for reinforcements</summary>
 				Reinforced,
+				/// <summary>Shields down</summary>
 				Shields0Percent,
+				/// <summary>Hull damaged to 50%</summary>
 				Hull50Percent,
+				/// <summary>Out of warheads</summary>
 				NoWarheads,
-				Unknown24,
+				/// <summary>Cannon subsystem disabled or missing</summary>
+				CannonsDisabled,
+				/// <summary>Broken</summary>
 				BeDroppedOff,
-				Broken26,
+				/// <summary>Come and Go without being attacked. For Triggers, player action is ignored.</summary>
+				/// <remarks>If the player manages to destroy the target in a single hit, the engine incorrectly registers "Come and Go" instead of "Attacked"</remarks>
+				NotAttacked,
+				/// <summary>For Triggers, simple Come and Go. For Goals, Come and Go without being disabled.</summary>
 				NotDisabled,
+				/// <summary>Come and Go without being captured</summary>
 				NotCaptured,
+				/// <summary>Come and Go without inspection</summary>
+				/// <remarks>If used as FG Goal, or paired with <see cref="TeamModifier"/>, then craft must arrive, then leave or be destroyed.<br/>
+				/// Otherwise, "Come and Go" is determined by proxy such as mothership destruction</remarks>
 				NotInspected,
+				/// <summary>Started docking process</summary>
 				IsDocking,
+				/// <summary>Come and go without completing the boarding of another craft</summary>
 				NotDocking,
+				/// <summary>Started boarding process</summary>
 				IsBoarding,
+				/// <summary>Come and Go without completely being boarded</summary>
 				NotBoarding,
+				/// <summary>Shields down to 50%</summary>
 				Shields50Percent,
+				/// <summary>Shields down to 25%</summary>
 				Shields25Percent,
+				/// <summary>Hull down to 75%</summary>
 				Hull75Percent,
+				/// <summary>Hull down to 25%</summary>
 				Hull25Percent,
+				/// <summary>Explicit failure, not just "false"</summary>
 				Failed,
+				/// <summary>Modifies specific triggers to use Team statistics instead of Global</summary>
+				/// <remarks>To be used as Trigger2 or 4. <see cref="BaseTrigger.VariableType"/> must be <b>Team</b>, <see cref="BaseTrigger.Amount"/> ignored.</remarks>
 				TeamModifier,
+				/// <summary>Unused</summary>
 				Unknown40,
+				/// <summary>Target is all players</summary>
 				BeAllPlayer,
+				/// <summary>Target is all non-players</summary>
 				BeAllAI,
+				/// <summary>Arrive and then depart</summary>
 				ComeAndGo,
+				/// <summary>Captured and successfully depart</summary>
 				BeBagged,
+				/// <summary>Target aborts mission</summary>
 				Withdraw,
+				/// <summary>Picked up by friendly craft</summary>
 				BeCarried,
+				/// <summary>Arrived in specific region</summary>
 				ArrivedInRegion,
+				/// <summary>Departed the region</summary>
 				DepartedRegion,
+				/// <summary>Within certain range of target</summary>
 				InProximity,
+				/// <summary>Not within certain range of target</summary>
 				NotInProximity,
+				/// <summary>100% target captured</summary>
 				AllCaptured,
+				/// <summary>Switch IFF</summary>
 				Defect,
+				/// <summary>Part of a convy train</summary>
 				InConvoy,
+				/// <summary>Carried item released</summary>
 				Delivered,
+				/// <summary>100% target disabled</summary>
 				AllDisabled,
+				/// <summary>Message fired and displayed</summary>
 				MessageShown,
+				/// <summary>Target ID'ed</summary>
 				Identified,
+				/// <summary>Come and GO without being ID'ed</summary>
 				NotIdentified,
+				/// <summary>Unknown</summary>
 				Exist59
 			}
 

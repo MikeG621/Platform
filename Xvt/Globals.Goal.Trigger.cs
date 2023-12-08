@@ -30,7 +30,6 @@ namespace Idmr.Platform.Xvt
 			public class Trigger
 			{
 				/// <summary>Initializes a new Trigger</summary>
-				/// <param name="parent">The <see cref="Goal"/> to which this object belongs.</param>
 				/// <remarks>Trigger set to <b>10</b>, "never (FALSE)".</remarks>
 				public Trigger()
 				{

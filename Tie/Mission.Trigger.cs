@@ -37,68 +37,121 @@ namespace Idmr.Platform.Tie
 			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
 			public enum TypeList : byte
 			{
+				/// <summary>No Target</summary>
 				None,
+				/// <summary>Target is FlightGroup</summary>
 				FlightGroup,
+				/// <summary>Target is a specific craft type</summary>
 				ShipType,
+				/// <summary>Target is a specific class (starfighter, transport, etc)</summary>
 				ShipClass,
+				/// <summary>Target is a specific type of object (craft, weapon, object)</summary>
 				ObjectType,
+				/// <summary>Target is a specific IFF</summary>
 				IFF,
+				/// <summary>Target has a specific order</summary>
 				ShipOrders,
+				/// <summary>Target has a special condition or state</summary>
 				CraftWhen,
+				/// <summary>Target is a member of a GG</summary>
 				GlobalGroup,
+				/// <summary>Target has a specific AI rating</summary>
 				AILevel,
+				/// <summary>Target has a specific Status</summary>
 				Status,
+				/// <summary>All craft</summary>
 				AllCraft
 			}
 
 			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
 			public enum AmountList : byte
 			{
+				/// <summary>100% of target</summary>
 				Percent100,
+				/// <summary>75% of target</summary>
 				Percent75,
+				/// <summary>50% of target</summary>
 				Percent50,
+				/// <summary>25% of target</summary>
 				Percent25,
+				/// <summary>At least 1 of target</summary>
 				AtLeast1,
+				/// <summary>All but 1 of target</summary>
 				AllBut1,
+				/// <summary>All Special Craft of the target</summary>
 				AllSpecial,
+				/// <summary>All non-Special Craft of the target</summary>
 				AllNonSpecial,
+				/// <summary>All AI craft of the target</summary>
 				AllNonPlayers,
+				/// <summary>The Player's craft of the target</summary>
 				PlayersCraft,
+				/// <summary>100% of the first wave of target</summary>
 				Percent100FirstWave,
+				/// <summary>75% of the first wave of target</summary>
 				Percent75FirstWave,
+				/// <summary>50% of the first wave of target</summary>
 				Percent50FirstWave,
+				/// <summary>25% of the first wave of target</summary>
 				Percent25FirstWave,
+				/// <summary>At least 1 of the first wave of target</summary>
 				AnyFirstWave,
+				/// <summary>All but 1 of the first wave of target</summary>
 				AllBut1FirstWave
 			}
 
 			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
 			public enum ConditionList : byte
 			{
+				/// <summary>Always true</summary>
 				True,
+				/// <summary>Target arrived</summary>
 				Created,
+				/// <summary>Target destroyed</summary>
 				Destroyed,
+				/// <summary>Target damaged</summary>
 				Attacked,
+				/// <summary>Target captured</summary>
 				Captured,
+				/// <summary>Target inspected</summary>
 				Inspected,
+				/// <summary>Target is boarded</summary>
 				Boarded,
+				/// <summary>Target is docked</summary>
 				Docked,
+				/// <summary>Target disabled</summary>
 				Disabled,
+				/// <summary>Target is present, not destroyed</summary>
 				Exist,
+				/// <summary>Never true</summary>
 				False,
+				/// <summary>Unknown</summary>
 				Unknown11,
+				/// <summary>Mission complete</summary>
 				CompletedMission,
+				/// <summary>Primary goals complete</summary>
 				CompletedPrimary,
+				/// <summary>Primary goals failed</summary>
 				FailedPrimary,
+				/// <summary>Secondary goals complete</summary>
 				CompletedSecondary,
+				/// <summary>Secondary goals failed</summary>
 				FailedSecondary,
+				/// <summary>Bonus goals complete</summary>
 				CompletedBonus,
+				/// <summary>Bonus goals failed</summary>
 				FailedBonus,
+				/// <summary>Dropped off from mothership</summary>
 				DroppedOff,
+				/// <summary>Called for reinforcements</summary>
 				Reinforced,
+				/// <summary>Shields down</summary>
 				NoShields,
+				/// <summary>Hull damaged to 50%</summary>
 				HalfHull,
+				/// <summary>Out of warheads</summary>
 				NoWarheads,
+				/// <summary>Cannon subsystem disabled or missing</summary>
 				CannonsDisabled
 			}
 
