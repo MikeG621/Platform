@@ -486,7 +486,7 @@ namespace Idmr.Platform
 						if (xvt.MissionSuccessful != "") xvt.MissionSuccessful += "\r\n\r\n";
 						xvt.MissionSuccessful += miss.BriefingQuestions.PostMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PostMissAnswers[i];
 					}
-					else if (miss.BriefingQuestions.PostTrigger[i] == 4)
+					else if (miss.BriefingQuestions.PostTrigger[i] == 5)
 					{
 						if (xvt.MissionFailed != "") xvt.MissionFailed += "\r\n\r\n";
 						xvt.MissionFailed += miss.BriefingQuestions.PostMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PostMissAnswers[i];
@@ -507,7 +507,7 @@ namespace Idmr.Platform
 		/// Filename will end in "_XvT.tie".</remarks>
 		/// <param name="miss">TIE mission to convert</param>
 		/// <returns>Upgraded mission</returns>
-		public static Xvt.Mission TieToXvt(Tie.Mission miss) { return TieToXvtBop(miss, false); }
+		public static Xvt.Mission TieToXvt(Tie.Mission miss) => TieToXvtBop(miss, false);
 		/// <summary>Upgrades TIE missions to BoP</summary>
 		/// <remarks> FG.Radio is not converted, since TIE behaviour is different<br/>
 		/// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
@@ -517,7 +517,7 @@ namespace Idmr.Platform
 		/// Filename will end in "_BoP.tie".</remarks>
 		/// <param name="miss">TIE mission to convert</param>
 		/// <returns>Upgraded mission</returns>
-		public static Xvt.Mission TieToBop(Tie.Mission miss) { return TieToXvtBop(miss, true); }
+		public static Xvt.Mission TieToBop(Tie.Mission miss) => TieToXvtBop(miss, true);
 
 		/// <summary>Downgrades XWA missions to XvT and BoP</summary>
 		/// <remarks>Maximum CraftType of 91. Triggers will update.<br/>
@@ -737,7 +737,7 @@ namespace Idmr.Platform
 			xwa.MissionFailed = miss.MissionFailed;
 			xwa.MissionSuccessful = miss.MissionSuccessful;
 			xwa.TimeLimitMin = miss.TimeLimitMin;
-			for (int i = 0; i < 4; i++) xwa.IFFs[i] = miss.IFFs[i];
+			for (int i = 2; i < 6; i++) xwa.IFFs[i] = miss.IFFs[i];
 			#region Flightgroups
 			short[] briefShipCount = new short[2];
 			short[] fgIcons = new short[xwa.FlightGroups.Count];
@@ -746,37 +746,43 @@ namespace Idmr.Platform
 			{
 				#region craft
 				xwa.FlightGroups[i].Name = miss.FlightGroups[i].Name;
-				roleMap.TryGetValue(miss.FlightGroups[i].Roles[0].Substring(1, 3), out byte role);
-				xwa.FlightGroups[i].Designation1 = role;
-				switch (miss.FlightGroups[i].Roles[0][0])
+				if (miss.FlightGroups[i].Roles[0].Length == 4)
 				{
-					case '1': xwa.FlightGroups[i].EnableDesignation1 = 0; break;
-					case '2': xwa.FlightGroups[i].EnableDesignation1 = 1; break;
-					case '3': xwa.FlightGroups[i].EnableDesignation1 = 2; break;
-					case '4': xwa.FlightGroups[i].EnableDesignation1 = 3; break;
-					case 'A':
-					case 'H':
-						xwa.FlightGroups[i].EnableDesignation1 = 10;
-						xwa.FlightGroups[i].EnableDesignation2 = 11;
-						xwa.FlightGroups[i].Designation2 = role;
-						break;
-					default: xwa.FlightGroups[i].EnableDesignation1 = 0; break;
+					roleMap.TryGetValue(miss.FlightGroups[i].Roles[0].Substring(1, 3), out byte role);
+					xwa.FlightGroups[i].Designation1 = role;
+					switch (miss.FlightGroups[i].Roles[0][0])
+					{
+						case '1': xwa.FlightGroups[i].EnableDesignation1 = 0; break;
+						case '2': xwa.FlightGroups[i].EnableDesignation1 = 1; break;
+						case '3': xwa.FlightGroups[i].EnableDesignation1 = 2; break;
+						case '4': xwa.FlightGroups[i].EnableDesignation1 = 3; break;
+						case 'A':
+						case 'H':
+							xwa.FlightGroups[i].EnableDesignation1 = 10;
+							xwa.FlightGroups[i].EnableDesignation2 = 11;
+							xwa.FlightGroups[i].Designation2 = role;
+							break;
+						default: xwa.FlightGroups[i].EnableDesignation1 = 0; break;
+					}
 				}
-				roleMap.TryGetValue(miss.FlightGroups[i].Roles[1].Substring(1, 3), out role);
-				xwa.FlightGroups[i].Designation2 = role;
-				switch (miss.FlightGroups[i].Roles[1][0])
+				if (miss.FlightGroups[i].Roles[1].Length == 4)
 				{
-					case '1': xwa.FlightGroups[i].EnableDesignation2 = 0; break;
-					case '2': xwa.FlightGroups[i].EnableDesignation2 = 1; break;
-					case '3': xwa.FlightGroups[i].EnableDesignation2 = 2; break;
-					case '4': xwa.FlightGroups[i].EnableDesignation2 = 3; break;
-					case 'A':
-					case 'H':
-						xwa.FlightGroups[i].EnableDesignation1 = 10;
-						xwa.FlightGroups[i].EnableDesignation2 = 11;
-						xwa.FlightGroups[i].Designation1 = role;
-						break;
-					default: xwa.FlightGroups[i].EnableDesignation2 = 0; break;
+					roleMap.TryGetValue(miss.FlightGroups[i].Roles[1].Substring(1, 3), out byte role);
+					xwa.FlightGroups[i].Designation2 = role;
+					switch (miss.FlightGroups[i].Roles[1][0])
+					{
+						case '1': xwa.FlightGroups[i].EnableDesignation2 = 0; break;
+						case '2': xwa.FlightGroups[i].EnableDesignation2 = 1; break;
+						case '3': xwa.FlightGroups[i].EnableDesignation2 = 2; break;
+						case '4': xwa.FlightGroups[i].EnableDesignation2 = 3; break;
+						case 'A':
+						case 'H':
+							xwa.FlightGroups[i].EnableDesignation1 = 10;
+							xwa.FlightGroups[i].EnableDesignation2 = 11;
+							xwa.FlightGroups[i].Designation1 = role;
+							break;
+						default: xwa.FlightGroups[i].EnableDesignation2 = 0; break;
+					}
 				}
 				xwa.FlightGroups[i].Cargo = miss.FlightGroups[i].Cargo;
 				xwa.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
@@ -863,7 +869,7 @@ namespace Idmr.Platform
 					xwa.Briefings[0].Events[offset + 6] = (short)BaseBriefing.EventType.XwaMoveIcon;
 					xwa.Briefings[0].Events[offset + 7] = briefShipCount[0];
 					xwa.Briefings[0].Events[offset + 8] = miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawX;
-					xwa.Briefings[0].Events[offset + 9] = miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawY;
+					xwa.Briefings[0].Events[offset + 9] = (short)(miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawY * -1);
 					briefShipCount[0]++;
 				}
 				if (toSkirmish && miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].Enabled)
@@ -879,7 +885,7 @@ namespace Idmr.Platform
 					xwa.Briefings[1].Events[offset + 6] = (short)BaseBriefing.EventType.XwaMoveIcon;
 					xwa.Briefings[0].Events[offset + 7] = briefShipCount[0];
 					xwa.Briefings[1].Events[offset + 8] = miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawX;
-					xwa.Briefings[1].Events[offset + 9] = miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawY;
+					xwa.Briefings[1].Events[offset + 9] = (short)(miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawY * -1);
 					briefShipCount[1]++;
 				}
 				for (int j = 1; j < 9; j++) xwa.FlightGroups[i].OptLoadout[j] = miss.FlightGroups[i].OptLoadout[j];
@@ -894,6 +900,7 @@ namespace Idmr.Platform
 				}
 			}
 			xwa.FlightGroups.Add(new Xwa.FlightGroup());
+			xwa.FlightGroups[xwa.FlightGroups.Count - 1].CraftType = 0xB7;
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Name = "1.0 1.0 1.0";
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Brightness = "1.0";
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].BackdropSize = "1.9";
@@ -904,13 +911,14 @@ namespace Idmr.Platform
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Waypoints[0][rnd.Next(0, 2)] = 1;
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Backdrop = (byte)rnd.Next(1, 59);
 			xwa.FlightGroups.Add(new Xwa.FlightGroup());
+			xwa.FlightGroups[xwa.FlightGroups.Count - 1].CraftType = 0xB7;
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Name = "1.0 1.0 1.0";
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Brightness = "1.0";
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].BackdropSize = "1.0";
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].IFF = 4;
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Team = 9;
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].GlobalGroup = 31;
-			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Waypoints[0][rnd.Next(0, 2)] = 1;
+			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Waypoints[0][rnd.Next(0, 2)] = -1;
 			xwa.FlightGroups[xwa.FlightGroups.Count - 1].Backdrop = (byte)rnd.Next(63, 102);
 			#endregion
 			if (toSkirmish && playerCount > 1) xwa.MissionType = Xwa.Mission.HangarEnum.Skirmish;
@@ -988,6 +996,14 @@ namespace Idmr.Platform
 			xwa.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", "_XWA.tie");
 			return xwa;
 		}
+		/// <summary>Upgrades XvT and BoP missions to XWA.</summary>
+		/// <remarks>Defaults to <see cref="Xwa.Mission.HangarEnum.MonCalCruiser"/> hangar.<br/>
+		/// Only converts first Briefing, Player craft is PlayerNumber 1.<br/>
+		/// Adds two Backdrops for lighting with random graphics.<br/>
+		/// Briefing creates icons for each FG used, should carry over fine. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.</remarks>
+		/// <param name="miss">XvT or BoP mission to convert.</param>
+		/// <returns>Upgraded mission</returns>
+		public static Xwa.Mission XvtBopToXwa(Xvt.Mission miss) => XvtBopToXwa(miss, false);
 
 		/// <summary>Upgrades TIE missions to XWA</summary>
 		/// <remarks>Defaults to <see cref="Xwa.Mission.HangarEnum.MonCalCruiser"/> hangar.<br/>
@@ -1000,7 +1016,7 @@ namespace Idmr.Platform
 		/// Filename will end in "_XWA.tie".</remarks>
 		/// <param name="miss">TIE mission to convert</param>
 		/// <returns>Upgraded mission</returns>
-		public static Xwa.Mission TieToXwa(Tie.Mission miss) => XvtBopToXwa(TieToBop(miss), false);
+		public static Xwa.Mission TieToXwa(Tie.Mission miss) => XvtBopToXwa(TieToBop(miss));
 
 		/// <summary>Downgrades XWA missions to TIE95</summary>
 		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br/>
@@ -2674,10 +2690,7 @@ namespace Idmr.Platform
 		/// <summary>Determines if the player can issue orders to this craft in XWING95.</summary>
 		/// <param name="xwingCraftType">Must be an XWING95 craft type ID.</param>
 		/// <returns>Returns <b>true</b> if the player is capable of issuing orders to this craft in XWING95.</returns>
-		static bool xwingPlayerCommand(int xwingCraftType)
-		{
-			return (xwingCraftType >= 1 && xwingCraftType <= 10) || (xwingCraftType == 17);  //(X-W, Y-W/B-W, A-W, T/F, T/I, T/B, GUN, TRN, SHU, TUG) || (T/A)
-		}
+		static bool xwingPlayerCommand(int xwingCraftType) => (xwingCraftType >= 1 && xwingCraftType <= 10) || (xwingCraftType == 17);  //(X-W, Y-W/B-W, A-W, T/F, T/I, T/B, GUN, TRN, SHU, TUG) || (T/A)
 
 		/// <summary>Converts XWING95 primary and secondary targets into a default BaseOrder.</summary>
 		/// <remarks>Does not handle the order command itself.</remarks>
@@ -2940,23 +2953,17 @@ namespace Idmr.Platform
 		/// <param name="index">0 for Trigger condition, 1 for Trigger Type, 2 for Trigger Craft Type, 3 for Amount</param>
 		/// <param name="label">Trigger indentifier string</param>
 		/// <param name="id">String for the invalid value</param>
-		static ArgumentException triggerException(byte index, string label, string id)
-		{
-			return new ArgumentException("Invalid Trigger "
+		static ArgumentException triggerException(byte index, string label, string id) => new ArgumentException("Invalid Trigger "
 				+ (index == 0 ? "Condition" : (index == 1 ? "VariableType" : (index == 2 ? "Craft" : "Amount")))
 				+ " detected (" + id + "). " + label);
-		}
 
 		/// <summary>Returns an ArgumentException formatted for FlightGroups based on the inputs</summary>
 		/// <param name="mode">0 for Status, 1 for Formation, 2 for Abort, 3 for Order, 4 for CraftType</param>
 		/// <param name="index">FG index</param>
 		/// <param name="id">String for the invalid value</param>
-		static ArgumentException flightException(byte mode, int index, string id)
-		{
-			return new ArgumentException("Invalid FlightGroup "
+		static ArgumentException flightException(byte mode, int index, string id) => new ArgumentException("Invalid FlightGroup "
 			+ (mode == 0 ? "Status" : (mode == 1 ? "Formation" : (mode == 2 ? "Abort condition" : (mode == 3 ? "Order" : "CraftType"))))
 			+ " detected. FG " + index + ", " + (mode == 3 ? "Order: " : "") + id);
-		}
 		#endregion
 	}
 }
