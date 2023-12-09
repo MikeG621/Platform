@@ -23,6 +23,7 @@ v6.1, 08 Dec 2023
  - (XvT) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and .ConditionList enums
  - (XWA) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and .ConditionList enums
  - (XWA) Fixed the time display for "Before Time" trigger/order target type text
+ - (XWA) Mission.GetDelaySeconds() now static *BREAKING CHANGE*
 
 v6.0, 27 Oct 2023
  - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region" [YOGEME#91]
