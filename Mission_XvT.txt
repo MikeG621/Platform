@@ -2,7 +2,7 @@ XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributor: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2023.11.24
+Updated: 2024.03.22
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -45,7 +45,7 @@ BYTE	1	unsigned 8-bit
 SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
-INT	4	signed Int32
+DWORD	4	signed Int32
 STR(*)	*	null-terminated string, * is an integer
 
 NOTE: Any byte locations that are between defined values and are not explicitly
@@ -80,15 +80,18 @@ struct FileHeader (size 0xA4)
 	0x00	SHORT	PlatformID
 	0x02	SHORT	NumFGs
 	0x04	SHORT	NumMessages
-	0x06	BYTE	Unknown1
-	0x08	BYTE	Unknown2
-	0x09	BYTE	RndSeed
-	0x0B	BOOL	Unknown3
+	0x06	BYTE	TimeMin	(Unknown1)
+	0x07	BYTE	TimeSec
+	0x08	BYTE	WinType	(Unknown2)
+	0x09	BYTE	RndSeed [Backdrop?]
+	0x0A	BYTE	Rescue?
+	0x0B	BOOL	AllWayShown	(Unknown3)
+	0x0C	BYTE[8]	Vars
 	0x14	STR(20)[4] IffNames3-6
 	0x64	BYTE	MissionType
-	0x65	BOOL	PreventMissionOutcome
+	0x65	BOOL	PreventMissionOutcome	[GoalsUnimportant]
 	0x66	BYTE	TimeLimitMinutes
-	0x67	BYTE	TimeLimitSeconds
+	0x67	BYTE	TimeLimitSeconds	[EndImmediately?]
 }
 
 struct FlightGroup (size 0x562)
@@ -112,9 +115,9 @@ struct FlightGroup (size 0x562)
 	0x05D	BYTE	Formation (enum)
 	0x05E	BYTE	FormationSpacing
 	0x05F	BYTE	GlobalGroup
-	0x060	BYTE	LeaderSpacing
+	0x060	BYTE	(Unused)	(was LeaderSpacing)
 	0x061	BYTE	NumberOfWaves
-	0x062	BYTE	Unknown1                 From Unknown5 in TIE, seems unused
+	0x062	BYTE	WavesDelay	(was Unknown1)
 	0x063	BYTE	StopArrivingWhen (enum)  Unknown2
 	0x064	BYTE	PlayerNumber
 	0x065	BYTE	ArriveOnlyIfHuman
@@ -122,6 +125,8 @@ struct FlightGroup (size 0x562)
 	0x067	BYTE	Yaw
 	0x068	BYTE	Pitch
 	0x069	BYTE	Roll
+	0x06A	BYTE	PermaDeathEnabled
+	0x06B	BYTE	PermaDeathID
 	0x06D	BYTE	ArrivalDifficulty (enum)
 	0x06E	Trigger	Arrival1
 	0x072	Trigger	Arrival2
@@ -140,22 +145,22 @@ struct FlightGroup (size 0x562)
 	0x094	BYTE	DepartureDelaySeconds
 	0x095	BYTE	AbortTrigger (enum)
 	0x096	BYTE	RandomArrivalDelayExtraSeconds	Unknown4
-	0x098	BYTE	Unknown5
+	0x098	SHORT	CurrentMothership	(was Unknown5)
 	0x09A	BYTE	ArrivalMothership
 	0x09B	BYTE	ArriveViaMothership
 	0x09C	BYTE	DepartureMothership
 	0x09D	BYTE	DepartViaMothership
-	0x09E	BYTE	AlternateArrivalMothership
-	0x09F	BYTE	AlternateArriveViaMothership
-	0x0A0	BYTE	AlternateDepartureMothership
-	0x0A1	BYTE	AlternatDepartViaMothership
+	0x09E	BYTE	AltDepartMothership
+	0x09F	BYTE	AltDepartViaMothership
+	0x0A0	BYTE	CapturedDepartureMothership
+	0x0A1	BYTE	CapturedDepartViaMothership
 	0x0A2	Order[4]
 	0x1EA	Trigger[2] SkipToOrder4
 	0x1F4	BOOL	Skip1OrSkip2
 	0x1F5	GoalFG[8]
 	0x466	Waypt[4]
-	0x516	BOOL	Unknown17       From Unknown19 in TIE, seems unused
-	0x518	BOOL	Unknown18       From Unknown20 in TIE, seems unused
+	0x516	BOOL	WayShown	(was Unknown17)
+	0x518	BYTE[8]	WayBriefLink	(was Unknown18)
 	0x520	BOOL	PreventCraftNumbering
 	0x521	BYTE	DepartureClockMinutes	Unknown20
 	0x522	BYTE	DepartureClockSeconds	Unknown21
@@ -163,14 +168,8 @@ struct FlightGroup (size 0x562)
 	0x524	BYTE	CraftExplosionTime
 	0x525	BYTE	Status2 (enum)
 	0x526	BYTE	GlobalUnit
-	0x527	BOOL	Unknown22      From Unknown21 in TIE, seems unused
-	0x528	BOOL	Unknown23
-	0x529	BOOL	Unknown24
-	0x52A	BOOL	Unknown25
-	0x52B	BOOL	Unknown26
-	0x52C	BOOL	Unknown27
-	0x52D	BOOL	Unknown28
-	0x52E	BOOL	Unknown29
+	0x527	BYTE[8]	WayBriefStart	(was Unknown22-29)
+	0x52F	BYTE	Handicap
 	0x530	BYTE[8]	OptionalWarheads
 	0x538	BYTE[4]	OptionalBeams
 	0x53E	BYTE[3]	OptionalCountermeasures
@@ -182,7 +181,7 @@ struct FlightGroup (size 0x562)
 
 struct Role (size 0x4)
 {
-	0x0	CHAR[1]	Team
+	0x0	CHAR[1]	DesignationTeam
 	0x1	CHAR[3]	Designation (enum)
 }
 
@@ -202,22 +201,19 @@ struct Order (size 0x52)
 {
 	0x00	BYTE	Order (enum)
 	0x01	BYTE	Throttle
-	0x02	BYTE	Variable1
-	0x03	BYTE	Variable2
-	0x04	BYTE	Unknown6
-	0x05	BYTE	Unknown7
+	0x02	BYTE[4]	Variables	(contains Unknown6-7)
 	0x06	BYTE	Target3Type (enum VariableType)
 	0x07	BYTE	Target4Type (enum VariableType)
 	0x08	BYTE	Target3
 	0x09	BYTE	Target4
 	0x0A	BOOL	Target3OrTarget4
-	0x0B	BYTE	Unknown8
+	0x0B	BYTE	(Unused)	(was Unknown8)
 	0x0C	BYTE	Target1Type (enum VariableType)
 	0x0D	BYTE	Target1
 	0x0E	BYTE	Target2Type (enum VariableType)
 	0x0F	BYTE	Target2
 	0x10	BOOL	Target1OrTarget2
-	0x11	BYTE	Unknown9
+	0x11	BYTE	(Unused)	(was Unknown9)
 	0x12	BYTE	Speed
 	0x13	STR(16)	Designation
 }
@@ -267,7 +263,10 @@ struct GoalGlobal (size 0x2A)
 	0x0A	BOOL	Trigger1OrTrigger2
 	0x0B	Trigger[2]
 	0x15	BOOL	Trigger2OrTrigger3
+	0x16	STR(16)	Name
+	0x26	BYTE	Version
 	0x27	BOOL	Trigger12OrTrigger34
+	0x28	BYTE	Delay
 	0x29	SBYTE	Points
 }
 
@@ -277,6 +276,7 @@ struct Team (size 0x1E7)
 	0x002	STR(16)	Name
 	0x01A	BOOL[10] Allegiances
 	0x024	CHAR[64][6] EndOfMissionMessages
+	0x1A4	BYTE[3]	EomMessageDelays
 }
 
 struct Briefing
@@ -284,7 +284,7 @@ struct Briefing
 	0x000	SHORT	RunningTime
 	0x002	SHORT	Unknown1
 	0x004	SHORT	StartEvents
-	0x006	INT	EventsLength
+	0x006	DWORD	EventsLength
 	0x00A	Event[]
 	0x32A	BOOL[10]	ViewedByTeam
 	0x334	Tag[32]
@@ -620,6 +620,21 @@ There you have it, the XvT Mission file format. Enjoy :P
 
 =====
 List Definitions
+
+DesignationTeam
+'1'	Team1
+'2'	Team2
+'3'	Team3
+'4'	Team4
+'5'	Team5
+'6'	Team6
+'7'	Team7
+'8'	Team8
+'A'	All
+'O'	Others
+'H'	Hostiles
+'F'	Friendly
+FF	None
 
 Designation
 00	None
@@ -1000,7 +1015,6 @@ captured by the craft carrying it.
 0x2E (be carried away) This is a pick-up condition, but is distinct from bagged
 that it can only operate on friendly craft. They must not be captured.
 
-
 VariableType
 00	None
 01	Flight Group
@@ -1141,7 +1155,6 @@ abort as soon as they arrive.
 AI craft will receive subsystem damage from ions if their system strength is
 weak enough, even though it may not actually hinder their ability to use them.
 
-
 Order
 00	Hold Steady
 01	Go Home
@@ -1220,7 +1233,6 @@ behavior is functionally equivalent.
 0x13 and 0x14 both map to the same Wait order.
 0x18 and 0x19 both map to the same SS Protect order.
 
-
 CraftWhen
 00	Captured
 01	Inspected
@@ -1254,8 +1266,6 @@ Conditions 0x0B (not attacked) and 0x0E (not inspected) check all 10 teams for
 at least one to be true. This effectively makes them useless, as an unused team
 will qualify and return true.
 
-
-
 EventType
 03	Stop
 04	Title Text
@@ -1288,44 +1298,44 @@ EventType
 11	Clear Text Tags
 12	Text Tag 1
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 13	Text Tag 2
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 14	Text Tag 3
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 15	Text Tag 4
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 16	Text Tag 5
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 17	Text Tag 6
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 18	Text Tag 7
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 19	Text Tag 8
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 22	End Briefing
 
 =====

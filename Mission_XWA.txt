@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2023.11.24
+Updated: 2024.03.22
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -9,28 +9,21 @@ see portions of this write-up that look similar to the TIE95 write-up, that's
 because they're probably word-for-word.
 
 The file itself is made of up multiple sections, for the purpose of this file
-descriptions each section will will begin at '0', such that to find an offset
+each is documented as a struct beginning at '0', such that to find an offset
 in a later section you simply add the total length of the sections before it to
 get there. This is what I use in my personal notes, so this is what I am
 forcing upon you. I win. I'll try to keep the mission design comments to a
 minimum, but I promise nothing.
 
-[[you may notice that as I get into the further section details I'm a little
-briefer than usual, that's because I lost some of it in a crash and didn't
-feel like expanding it out all the way again]]
 =====
 XWA Mission Overview
 
 The mission files are found in the \MISSION directory, have the .TIE file
 extension, but require the naming convention seen in LEC missions. XWA throws
-a fit it you attempt to name it anything other than 1B#M#*.tie. # is the
-battle number the mission is in with the second being the mission number, and *
-is just that, the * wildcard. Put anything you want there, XWA doesn't give a
-damn at that point.
-
-There are already a couple editors out there for XWA missions, most notably
-AlliEd. Anyone with a lot of spare time and a hex editor can map out these
-values, and whadya know, I was bored :P
+a fit it you attempt to name it anything other than #B#M#*.tie. # is the
+number of players, B# is the battle number the mission is in, M# is the mission
+number, and * is just that, the * wildcard. Put anything you want there, XWA
+doesn't care at that point.
 
 =====
 XWA Mission Structure
@@ -44,25 +37,21 @@ BYTE	1	unsigned 8-bit
 SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
-INT	4	signed Int32
+DWORD	4	signed Int32
 STR(*)	*	null-terminated string, * is a decimal number
 
-NOTE: Any byte locations that are between defined values and are not explicitly
-defined are deemed as Reserved(0), and have only been found to have zero
-values. Unknown bytes that have non-zero values have been called out in the
-structure. Rest assured you have everything here to piece together a mission
-file from scratch, but please note offsets if creating read/write procedures.
+NOTE: All Unknown values have been defined, and all Reserved locations are
+noted. If a value is likely or known to not be used by the game engine whether
+it's due to obsolecense or dropped features, they're *Marked but they're at
+least labeled per the official format spec.  In addition, Enum values such as
+triggers or orders that could not be set or were actively re-mapped to other
+values are noted as (Mapped), unless they are known to work properly.
 
-NOTE2: Since XWA is a step up from XvT, the mission file is larger and even
-more complex. There are many sections that are repeated, and several
-additional sections that are introduced, some of which being dynamic in size.
-You'll see the appropriate notes as needed.
-
-NOTE3: **IMPORTANT** The And/Or Trigger BOOLs (and possibly all BOOLs) are
+NOTE2: **IMPORTANT** The And/Or Trigger BOOLs (and possibly all BOOLs) are
 actually checking for even/odd instead of zero/non-zero. The source does make a
 (value & 1) comparison to determine TRUE. For standard read/write this isn't an
 issue, but if you're dealing with a poorly formatted mission file, this can
-cause unexpected results.
+cause unexpected results as 2 would be FALSE but 3 is TRUE again.
 
 --
 FileHeader
@@ -71,48 +60,73 @@ Message[NumMessages]
 GlobalGoal[10]
 Team[10]
 Briefing[2]
-STR(0x187C)		EditorNotes
+STR(0x187C)			EditorNotes
 STR(100)[128]		BriefingStringNotes
 STR(100)[64]		MessageNotes
-STR(100)[10,3]			EomNotes
-0xFA0		Unknown
-STR(100)[3]		DescriptionNotes
+STR(100)[10,7]		EomNotes
+STR(100)[3]			DescriptionNotes
 STR(*)[NumFGs,8,3]	FGGoalStrings
-STR(*)[10,3,4,3]	GlobalGoalStrings
-0x1E0		Unknown
+STR(*)[10,7,4,3]	GlobalGoalStrings
 STR(*)[192,16]		OrderStrings
 STR(4096)[3]		Descriptions
 ---
 
 struct FileHeader (size 0x23F0)
 {
-	0x0000	SHORT	PlatformID (0x20)
-	0x0002	SHORT	NumFGs
-	0x0004	SHORT	NumMessages
-	0x0008	BOOL	Unknown1
-	0x000B	BOOL	Unknown2
+	0x0000	SHORT		PlatformID (0x12)
+	0x0002	SHORT		NumFGs
+	0x0004	SHORT		NumMessages
+	0x0006	BYTE		*TimeLimitMin
+	0x0007	BYTE		*TimeLimitSec
+	0x0008	BYTE		*WinType		(was Unknown1, default 1)
+	0x0009	BYTE		*Backdrop
+	0x000A	BYTE		*Rescue
+	0x000B	BYTE		*AllWayShown	(was Unknown2, probably editor only)
+	0x000C	BYTE[8]		*Vars
 	0x0014	STR(20)[4]	IffNames3-6
-	0x0064	STR(132)[4]	RegionNames
-	0x0274	GlobalCargo[16]
-	0x0B34	STR(87)[16]	GlobalGroupNames
-	0x23AC	BYTE	Hangar (enum)
-	0x23AE	BYTE	TimeLimitMinutes
-	0x23AF	BOOL	EndMissionWhenComplete
-	0x23B0	BYTE	BriefingOfficer (enum)
-	0x23B1	BYTE	BriefingLogo (enum)
-	0x23B3	BYTE	Unknown3
-	0x23B4	BYTE	Unknown4
-	0x23B5	BYTE	Unknown5
+	0x0064	Region[4]	Regions
+	0x0274	GlbCrg[16]	GlobalCargos
+	0x0B34	GlbGp[32]	GlobalGroups
+	0x1C32	GlbGp[40]	GlobalUnits
+	0x23AC	BYTE		Hangar (enum)
+	0x23AD	BOOL		GoalsUnimportant
+	0x23AE	BYTE		TimeLimitMinutes
+	0x23AF	BOOL		EndMissionWhenComplete
+	0x23B0	BYTE		BriefingOfficer (enum)
+	0x23B1	BYTE		BriefingLogo (enum)	(also known as CommandOfficer)
+	0x23B2	BYTE		BriefingOfficerEntryLine
+	0x23B3	BYTE		*SecondaryVersion (0x62 'b', was Unknown3, might be editor only)
+	0x23B4	BYTE		WinOfficer (enum) (was Unknown4)
+	0x23B5	BYTE		FailOfficer (enum) (was Unknown5)
+	0x23B6	(58)		Reserved
 }
 
-struct GlobalCargo (size 0x8C)
+struct Region (size 0x84)
 {
-	0x00	STR[64]	Cargo
-	0x44	BOOL	Unknown1
-	0x48	BYTE	Unknown2
-	0x49	BYTE	Unknown3
-	0x4A	BYTE	Unknown4
-	0x4B	BYTE	Unknown5
+	0x00	STR(64)	Name
+	0x40	DWORD	ID
+	0x44	(64)	Reserved
+}
+
+struct GlbCrg "GlobalCargo" (size 0x8C)
+{
+	0x00	STR(64)	Cargo
+	0x40	DWORD	ID
+	0x44	DWORD	Count
+	0x48	BYTE	Type	{solid, liquid, gas}
+	0x49	BYTE	Volume
+	0x4A	BYTE	Value
+	0x4B	BYTE	Volatility	{low, med, high, kaboom!}
+	0x4C	(64)	Reserved
+}
+
+struct GlbGp "GlobalGroup" (size 0x57)
+{
+	0x00	STR(64)	Name
+	0x40	BYTE	Leader
+	0x41	BYTE	SpecialCargoCraft
+	0x42	STR(20)	SpecialCargo
+	0x56	BOOL	RandSpecCraft
 }
 
 struct FlightGroup (size 0xE3E)
@@ -122,9 +136,10 @@ struct FlightGroup (size 0xE3E)
 	0x015	BYTE	EnableDesignation2
 	0x016	BYTE	Designation1 (enum)
 	0x017	BYTE	Designation2 (enum)
-	0x018	BYTE	Unknown1
+	0x018	BYTE	Comm	(was Unknown1)	{none, minimal, normal, verbose}
 	0x019	BYTE	GlobalCargoIndex
 	0x01A	BYTE	GlobalSpecialCargoIndex
+	0x1B	(13)	(Unused)
 	0x028	STR(20)	Cargo
 	0x03C	STR(20)	SpecialCargo
 	0x050	STR(20)	CraftRole
@@ -140,77 +155,64 @@ struct FlightGroup (size 0xE3E)
 	0x072	BYTE	GroupAI (enum)
 	0x073	BYTE	Markings (enum)
 	0x074	BYTE	Radio (enum)
+	0x075	BYTE	(Unused)
 	0x076	BYTE	Formation (enum)
 	0x077	BYTE	FormationSpacing
 	0x078	BYTE	GlobalGroup
-	0x079	BYTE	LeaderSpacing
+	0x079	BYTE	(Unused)	(was LeaderSpacing)
 	0x07A	BYTE	NumberOfWaves
-	0x07B	BYTE	Unknown3
+	0x07B	BYTE	WavesDelay	(was Unknown3)
+	0x07C	BYTE	StopArrivingWhen
 	0x07D	BYTE	PlayerNumber
 	0x07E	BOOL	ArriveOnlyIfHuman
 	0x07F	BYTE	PlayerCraft
 	0x080	BYTE	Yaw
 	0x081	BYTE	Pitch
 	0x082	BYTE	Roll
-	0x084	BYTE	Unknown4
-	0x086	BYTE	Unknown5
+	0x083	BYTE	(IOReserved)
+	0x084	SHORT	LinkID		(was Unknown4)
+	0x086	BYTE	(Unused)	(was Unknown5)
 	0x087	BYTE	ArrivalDifficulty (enum)
-	0x088	Trigger	Arrival1
-	0x08E	Trigger	Arrival2
-	0x096	BOOL	Arrival1OrArrival2
-	0x097	BOOL	Unknown6
-	0x098	Trigger	Arrival3
-	0x09E	Trigger	Arrival4
-	0x0A6	BOOL	Arrival3OrArrival4
+	0x088	TPair	Arrival1and2	(contained Unknown6)
+	0x098	TPair	Arrival3and4
 	0x0A8	BOOL	Arrivals12OrArrivals34
+	0x0A9	BYTE	ArrivalRandDelayMinutes
 	0x0AA	BYTE	ArrivalDelayMinutes
 	0x0AB	BYTE	ArrivalDelaySeconds
-	0x0AC	Trigger	Departure1
-	0x0B2	Trigger	Departure2
-	0x0BA	BOOL	Departure1OrDeparture2
+	0x0AC	TPair	Departure
 	0x0BC	BYTE	DepartureDelayMinutes
 	0x0BD	BYTE	DepartureDelaySeconds
 	0x0BE	BYTE	AbortTrigger (enum)
-	0x0BF	BYTE	Unknown7
-	0x0C0	BYTE	Unknown8
+	0x0BF	BYTE	ArrivalRandDelaySeconds	(was Unknown7)
+	0x0C0	SHORT	CurrentMothership	(was Unknown8, might be editor only)	{Arrival, Capture, Departure, AltMothership}
 	0x0C2	BYTE	ArrivalMothership
-	0x0C3	BOOL	ArriveViaMothership
+	0x0C3	BYTE	ArrivalMethod {Hyper, Mothership, Hyp Rgn FG}
 	0x0C4	BYTE	DepartureMothership
-	0x0C5	BOOL	DepartViaMothership
-	0x0C6	BYTE	AlternateArrivalMothership
-	0x0C7	BOOL	AlternateArriveViaMothership
-	0x0C8	BYTE	AlternateDepartureMothership
-	0x0C9	BOOL	AlternateDepartViaMothership
-	0x0CA	Order[16]
-	0xA0A	Skip[16]
-	0xB0A	GoalFG[8]
-	0xD8A	Waypt[3] StartPoints
-	0xDA2	Waypt	HyperPoint
-	0xDAA	BYTE[3]	StartPointRegions
+	0x0C5	BOOL	DepartMethod {Hyper, Mothership, Planet}
+	0x0C6	BYTE	AlternateMothership
+	0x0C7	BOOL	AlternateMothershipUsed
+	0x0C8	BYTE	CapturedDepartureMothership
+	0x0C9	BOOL	CapturedDepartViaMothership
+	0x0CA	Order[16]	Orders
+	0xA0A	TPair[16]	SkipTriggers
+	0xB0A	GoalFG[8]	FGGoals
+	0xD8A	Wypt[2] StartPoints
+	0xD9A	Wypt	CaptureHyperPoint
+	0xDA2	Wypt	HyperPoint
+	0xDAA	BYTE[2]	StartPointRegions
+	0xDAC	BYTE	CaptureHyperRegion
 	0xDAD	BYTE	HyperPointRegion
-	0xDAE	BYTE	Unknown16
-	0xDAF	BYTE	Unknown17
-	0xDB0	BYTE	Unknown18
-	0xDB1	BYTE	Unknown19
-	0xDB2	BYTE	Unknown20
-	0xDB3	BYTE	Unknown21
-	0xDB4	BOOL	Unknown22
-	0xDB6	BYTE	Unknown23
-	0xDB7	BYTE	Unknown24
-	0xDB8	BYTE	Unknown25
-	0xDB9	BYTE	Unknown26
-	0xDBA	BYTE	Unknown27
-	0xDBB	BYTE	Unknown28
-	0xDBC	BOOL	Unknown29
-	0xDC0	BOOL	Unknown30
-	0xDC1	BOOL	Unknown31
-	0xDC4	BOOL	EnableGlobalUnit
-	0xDC5	BYTE	Unknown32
-	0xDC6	BYTE	Unknown33
+	0xDAE	BYTE[20] (Unused)	[was Unks16-31]
+	0xDC2	BYTE	*WayShown (probably editor only)
+	0xDC3	BYTE	(Unused)
+	0xDC4	BOOL	DisableWaveNumbering
+	0xDC5	BYTE	DepartureClockMin	(was Unknown32)
+	0xDC6	BYTE	DepartureClockSec	(was Unknown33)
 	0xDC7	BYTE	Countermeasures
 	0xDC8	BYTE	CraftExplosionTime
 	0xDC9	BYTE	Status2
 	0xDCA	BYTE	GlobalUnit
+	0xDCB	BYTE	Handicap	{None, FavorRebels, EvenOnly, FavorImps, FavorRebsEven, FavorImpsEven}
 	0xDCC	BYTE[8]	OptionalWarheads
 	0xDD4	BYTE[4]	OptionalBeams
 	0xDDA	BYTE[3]	OptionalCountermeasures
@@ -218,68 +220,62 @@ struct FlightGroup (size 0xE3E)
 	0xDDF	BYTE[10] OptionalCraft
 	0xDE9	BYTE[10] NumberOfOptionalCraft
 	0xDF3	BYTE[10] NumberofOptionalCraftWaves
-	0xDFD	STR(16)	PilotID
-	0xE12	BYTE	Backdrop
-	0xE29	BOOL	Unknown34
-	0xE2B	BOOL	Unknown35
-	0xE2D	BOOL	Unknown36
-	0xE2F	BOOL	Unknown37
-	0xE31	BOOL	Unknown38
-	0xE33	BOOL	Unknown39
-	0xE35	BOOL	Unknown40
-	0xE37	BOOL	Unknown41
+	0xDFD	STR(20)	PilotID
+	0xE11	BYTE	(IOReserved)
+	0xE12	DWORD	Backdrop
+	0xE16	(40)	Reserved	(contains Unk34-41)
 }
 
+struct TPair "TriggerPair" (size 0x10)
+{
+	0x00	Trigger	Trigger1
+	0x06	Trigger	Trigger2
+	0x0C	BYTE[2]	(Unused)
+	0x0E	BOOL	AndOr
+	0x0F	BYTE	(IOReserved)
+}
 struct Trigger (size 0x6)
 {
 	0x0	BYTE	Condition (enum)
 	0x1	BYTE	VariableType (enum)
 	0x2	BYTE	Variable
 	0x3	BYTE	Amount (enum)
-	0x4	BYTE	Parameter
-	0x5	BYTE	Parameter2
+	0x4	SHORT	Parameter
 }
 
-struct Order (size 0x95)
+struct Order (size 0x94)
 {
 	0x00	BYTE	Order (enum)
 	0x01	BYTE	Throttle
 	0x02	BYTE	Variable1
 	0x03	BYTE	Variable2
 	0x04	BYTE	Variable3
-	0x05	BYTE	Unknown9		** retains FG Unknown numbering
+	0x05	BYTE	(UnusedVariable4)	(Unknown9)
 	0x06	BYTE	Target3Type (enum VariableType)
 	0x07	BYTE	Target4Type (enum VariableType)
 	0x08	BYTE	Target3
 	0x09	BYTE	Target4
 	0x0A	BOOL	Target3OrTarget4
+	0x0B	BYTE	(Unused)
 	0x0C	BYTE	Target1Type (enum VariableType)
 	0x0D	BYTE	Target1
 	0x0E	BYTE	Target2Type (enum VariableType)
 	0x0F	BYTE	Target2
 	0x10	BOOL	Target1OrTarget2
+	0x11	BYTE	(Unused)
 	0x12	BYTE	Speed
-	0x14	Waypt[8]
-	0x72	BYTE	Unknown10
-	0x73	BOOL	Unknown11
-	0x74	BOOL	Unknown12
-	0x7B	BOOL	Unknown13
-	0x81	BOOL	Unknown14
+	0x13	BYTE	(IOReserved)
+	0x14	Wypt[8]	Waypoints
+	0x54	(64)	Reserved
 }
 
-struct Waypt (size 0x8)
+struct Wypt (size 0x8)
 {
 	0x0	SHORT	X
 	0x2	SHORT	Y
 	0x4	SHORT	Z
-	0x6	BOOL	Enabled
-}
-
-struct Skip (size 0x10)
-{
-	0x0	Trigger	Trigger1
-	0x6	Trigger	Trigger2
-	0xE	BOOL	Trigger1OrTrigger2
+	0x6	BOOL	Enabled		[Note: this is really defined as a SHORT]
+	0x7	BYTE	(Unused)
 }
 
 struct GoalFG (size 0x50)
@@ -288,83 +284,75 @@ struct GoalFG (size 0x50)
 	0x01	BYTE	Condition
 	0x02	BYTE	Amount
 	0x03	SBYTE	Points
-	0x04	BOOL	Enabled
-	0x05	BYTE	Team
-	0x0D	BYTE	Unknown42
+	0x04	BOOL[10] EnabledForTeam
 	0x0E	BYTE	Parameter or Goal time limit depending on order
 	0x0F	BYTE	ActiveSequence
-	0x4F	BOOL	Unknown15		** retains FG Unknown numbering
+	0x10	(64)	Reserved
 }
 
 struct Message (size 0xA2)
 {
 	0x00	SHORT	MessageIndex
-	0x02	STR(68)	Message
-	0x52	BYTE[10] SetToTeam
-	0x5C	Trigger	Trigger1
-	0x62	Trigger	Trigger2
-	0x68	BYTE	Unknown1
-	0x6A	BOOL	Trigger1OrTrigger2
-	0x6C	Trigger	Trigger3
-	0x72	Trigger	Trigger4
-	0x7A	BOOL	Trigger3OrTrigger4
+	0x02	STR(80)	Message
+	0x52	BYTE[10] SentToTeam
+	0x5C	TPair	Trigger1and2 (contained Unknown1)
+	0x6C	TPair	Trigger3and4
 	0x7C	STR(8)	Voice
-	0x84	BYTE	OriginatingFG
+	0x84	DWORD	OriginatingFG
+	0x88	DWORD	Type
 	0x8C	BYTE	Delay
 	0x8D	BOOL	Triggers12OrTriggers34
-	0x8E	BYTE	Color
-	0x8F	BYTE	Unknown2
-	0x90	Trigger	Cancel1
-	0x96	Trigger	Cancel2
-	0x9E	BOOL	Cancel1OrCancel2
-	0xA0	BOOL	Unknown3
+	0x8E	BYTE	Color/IFF
+	0x8F	BOOL	SpeakerHeader	(was Unknown2)
+	0x90	TPair	Special
+	0xA0	BOOL	SpecialMeaning	(was Unknown3)	{Ignore, Stop, Finished, Both}
 }
 
 struct GlobalGoal (size 0x170)
 {
-	0x00	SHORT	Reserved (3)
+	0x00	SHORT	NumGoals (3)
 	0x02	GoalGlobal[3]
 }
 
 struct GoalGlobal (size 0x7A)
 {
-	0x0000	Trigger	Trigger1
-	0x0006	Trigger	Trigger2
-	0x000E	BOOL	Trigger1OrTrigger2
-	0x000F	BOOL	Unknown1
-	0x0010	Trigger	Trigger3
-	0x0016	Trigger	Trigger4
-	0x001E	BOOL	Trigger3OrTrigger4
-	0x0027	BOOL	Unknown2
-	0x0031	BOOL	Triggers12OrTriggers34
-	0x0032	BYTE	Unknown3
-	0x0033	SBYTE	Points
-	0x0034	BYTE	Unknown4
-	0x0035	BYTE	Unknown5
-	0x0036	BYTE	Unknown6
-	0x0038	BYTE	ActiveSquence
+	0x00	TPair	Trigger1and2	(contained Unknown1)
+	0x10	TPair	Trigger3and4
+	0x20	STR(16)	Name	(contains Unknown2)
+	0x30	BYTE	Version
+	0x31	BOOL	Triggers12OrTriggers34
+	0x32	BYTE	Delay	(was Unknown3)
+	0x33	SBYTE	Points
+	0x34	BYTE[4]	PointsPerTrigger (was Unknown4-6)
+	0x38	BYTE	ActiveSquence
+	0x39	BYTE	(IOReserved)
+	0x3A	(64)	Reserved
 }
 
 struct Team (size 0x1E7)
 {
 	0x000	SHORT		Reserved (1)
-	0x002	STR(18)		Name
+	0x002	STR(16)		Name
+	0x012	(8)			Reserved
 	0x01A	BYTE[10]	Allegiances
 	0x024	CHAR[64][6]	EndOfMissionMessages
-	0x1A4	BYTE[6]		Unknowns
+	0x1A4	BYTE[3]		EomMessageDelay (was Unknowns)
+	0x1A7	BYTE[3]		EomSourceFG	(was Unknowns)
 	0x1AA	CHAR[20][3]	EomVoiceIDs
+	0x1E6	(1)			Reserved
 }
 
 struct Briefing
 {
-	0x0000	SHORT	RunningTime
-	0x0002	SHORT	Unknown1
-	0x0004	SHORT	StartLength
-	0x0006	INT	EventsLength
-	0x000A	Event[]
-	0x440A	BOOL[10] ShowToTeams
-	0x4414	Tag[128]
-		String[128]
+	0x0000	SHORT		RunningTime
+	0x0002	SHORT		CurrentTime		(was Unknown1)
+	0x0004	SHORT		StartLength
+	0x0006	DWORD		EventsLength	[SHORT? Size, then SHORT Tile]
+	0x000A	Event[]		Events
+	0x320A	Icon[192]	Icons
+	0x440A	BOOL[10]	ShowToTeams
+	0x4414	BrfStr[128]	Tags
+			BrfStr[128]	Strings
 }
 
 struct Event
@@ -374,13 +362,17 @@ struct Event
 	0x4	SHORT[]	Variables
 }
 
-struct Tag
+struct Icon (size 0x18)
 {
-	0x0	SHORT	Length
-	0x2	CHAR[Length]
+	0x00	BYTE	Species
+	0x01	BYTE	IFF
+	0x02	SHORT	X
+	0x04	SHORT	Y
+	0x06	SHORT	Orientation
+	0x08	(16)	Reserved
 }
 
-struct String
+struct BrfStr
 {
 	0x0	SHORT	Length
 	0x2	CHAR[Length]
@@ -390,70 +382,82 @@ struct String
 XWA Mission Detail
 
 Hopefully I named the variables descriptive enough for you that you can figure
-out what they mean, but I'm going to delve into each section anyway.
-Supplementary definitions and lists follow after the detail.
+out what they mean, but I'm going to delve into each section anyway. Names may
+differ from previous editors or official documents, depending on if I think
+they made sense or not.  Supplementary definitions and enums follow after the
+writeup details.
 
 -- FileHeader --
 
-Much like TIE95, the first 6 bytes are well-defined.  After that follow the IFF
-names and the Region names, which is new in XWA.
+The first 6 bytes are standard vlues. TimeLimitMin to Rescue appear to be
+legacy values and not used. AllWayShown appears to be an editor flag only and
+not have an effect in-game, and the Vars don't seem to do anything. After that
+follows the IFF names and the Region names, which are new in XWA.  The ID value
+of the Region structs don't appear to serve a purpose in-game and normally
+aren't set, likely was used for back-end coding at one point.
 
 GlobalCargo is something I stumbled upon when I was using the New Horizons
 editor, before I started using AlliED. NH uses these values for the craft's
-normal Cargo values, not using the one in the flight group's definition. I
-only recently figured a lot of this out, this is brand new stuff. The Unknown
-values contained therein I don't have nailed down yet, but these cargoes can
-be assigned to multiple flight groups, and there is even a TrigVar/Target Type
-that can be used similar to GG and GU triggers. A more detailed explanation
-belongs in a mission design writeup instead of here.
+normal Cargo values, not using the one in the flight group's definition. These
+cargoes can be assigned to multiple flight groups, and there is even a
+TrigVar/Target Type that can be used similar to GG and GU triggers. Unknown if
+the values in the struct have a real purpose, although Volatility I believe
+changes the craft explosion when destroyed. A more detailed explanation belongs
+in a mission design writeup instead of here.
 
-After these come the Global Group strings (with an odd size of 87), which will
-show the name instead of listing out all of the craft as in previous games.
-Then we have Hangar, which determines how the mission starts.
+After those come the Global Group details. The Name will display instead of
+listing out all of the craft as in previous games. The GG has its own Special
+settings. Then there's another similar section for Global Unit as well.
 
-We get our Time limit value, the BOOL value forces the mission to end once all
-primary goals are completed, BriefingOfficer decides voice-overs within the
+We have Hangar, which determines how the mission starts, a flag for ignoring
+goals, and the true Time limit value.  XWA changed how single-value delays
+(i.e. not having separate TimerMin and TimerSec values) are interpreted.  If
+the value is 0 to 20 it's just the number of seconds.  Over 20, each increment
+adds 5 seconds. Over 196 (15:00), each increment adds 10 seconds. A maximum of
+255 translates to 24:50 waiting time.
+
+The EndMissionWhenComplete value forces the mission to end once all primary
+goals are completed, BriefingOfficer decides voice-overs within the
 briefing room, the BriefingLogo is what shows up on the first screen of the
-briefing with the craft list, and then there's a few more Unknowns for good
-measure. Unknown4 is labeled as "BriefingLogo2?" in AlliED, and Unknown5
-could be listed as number 3, but as to date I haven't seen any sort of effect
-from these values. I have seen evidence elsewhere of the file format being
-changed partway through development, these last two could be a result of the
-official structure being changed during devlopment.
+briefing with the craft list, and although I list that out as a separate enum,
+it's actually the same list as Officer. EntryLine I think is for what the
+officer says as you're walking into the briefing room.  SecondaryVersion
+should be editor-only in conjunction with PlatformID to help determine exactly
+how to read the file format, and then we have the Officers that are for the Win
+and Lose conditions, though they're effectively editor notes since they don't
+appear in-game.
 
 -- FlightGroup --
 
 The first string should be obvious. Designation roles provide an informational
-note in the HUD when the player selects them.  EnableDesignation is 0xFF
-(-1) for no role.  Enabled values include 0x00 through 0x09, the teams who will
-see that role.  0x0A and 0x0B are also possible, and seem to affect all enemy
-teams and all friendly teams, respectively.  Designation (enum) determines the
-actual role.  For example, "Command Ship" or "Primary Target".  Unlike XvT, XWA
-can only have a maximum of two roles assigned.
+note in the HUD when the player selects them and also trigger specific radio
+messages when certain actions occur.  EnableDesignation (enum) determines if
+the role is used.  Designation (enum) determines the actual role. For example,
+"Command Ship" or "Primary Target".  Unlike XvT, XWA can only have a maximum of
+two roles assigned.  The Comm value also modifies the callout when mentioned
+over the radio.
 
-The next two values determine use of GlobalCargo. As is implied by the
-variable names (I hope), the first value assigns a GC to the flight group,
-and is what you'd see in the mission instead of whatever the usual CARGO is.
-The next value is the same, but for the craft's SPECIAL_CARGO. If no GC is
-to be used, the value is 0xFF (-1). There's some interesting GC interactions,
-but again that belongs in a mission design guide.
+The next two values determine use of GlobalCargo. The first assigns a GC to the
+flight group, and is what you'd see in the mission instead of whatever the
+usual Cargo is.  The next value is the same, but for the craft's Special Cargo.
+If no GC is to be used, the value is 0xFF (-1). There's some interesting GC
+interactions during boarding operations, but again that belongs in a mission
+design guide.
 
-A lot of unknown space, and we get to both Cargo strings and the
-CraftRole. It is unknown if the string itself drives something within
-the game, or if it's just a display. I'm not even sure where it displays. Could
-be a hold-over from XvT.
+Then we get to the normal Cargo strings and the CraftRole (aka "Duty"). It is
+unknown if the string itself drives something within the game, or if it's just
+a display. I'm not even sure where it displays.
 
-Now we're back to traditional values with a bunch of familiar values you've
-seen in the other platforms.  Radio operates in XWA much like XvT, in that
-instead of a binary switch the value can be set to any team or player, 1-8.
+A bunch of values which should be pretty straightforward.  Radio operates in
+XWA much like XvT, in that instead of a binary switch the value can be set to
+any team or player, 1-8.
 
-Formation is obvious, but I'll explain the next couple. FormationSpacing is
-the spacing between the craft. GlobalGroup is a great way grouping (gasp)
-craft primarily for order and trigger use. Instead of listing out each FG
-or craft type in a order you can lump everything to a GG and use a single
-target. LeaderSpacing is how far ahead of the rest of the flight group the
-flight leader is. Having a flight leader way out front can absorb fire and let
-the rest of the group fire salvos before being attacked themselves.  
+GlobalGroup is a great way grouping craft primarily for order and trigger use.
+Instead of listing out each FG or craft type in a order you can lump everything
+to a GG and use a single target.  WavesDelay adds a bit of lag before the next
+wave comes in, and StopArrivingWhen determines the condition when waves stop
+entering the mission.  Useful to prevent say a FG from coming in, having
+orders completed, leaving, the next wave coming in, leaving, etc.
 
 Formation has no effect on mines. They use the Status1 field instead. Possible
 values are:
@@ -472,36 +476,39 @@ a human pilot behind the controls. PlayerCraft works the same as TIE, with
 00 being the default and 01 starting at position 2. Yaw, Pitch and Roll values
 work for all craft in XWA, not just objects.
 
-Another obvious value, then the Arrival Triggers. In sentence form, Triggers
-are "if Amount of VariableType Variable are Condition, then true". The Arrival
-and Departure triggers are just that. The Alternate triggers are there for if
-the originals can't be satisfied (mothership isn't in play). *Or* booleans are
-evaluated as And=false, Or=true. For the case of Triggers, determines if one or
-both Triggers must be completed to evaluate to true. The 12Or34 value likewise
-detmines if both trigger pairs must evaluate to true or not. The ArrivalDelay
+Now we're into the Arrival conditions.  In sentence form, Triggers are "if
+Amount of VariableType Variable are Condition, then true".  The Arrival and
+Departure triggers are just that.  The Alternate mothership can be used if
+the originals aren't available for whatever reason, and the Capture mothership
+is for post-capture, since it'd be silly for a captured craft to return to a
+hangar belonging to the original team.  *Or* booleans are evaluated as
+And=false, Or=true. For the case of Triggers, determines if one or both
+Triggers must be completed to evaluate to true.  The 12Or34 value likewise
+determines if both trigger pairs must evaluate to true or not. The ArrivalDelay
 countdown starts after the full Trigger has been fired, same for the
-DepartureDelay values. The AbortTrigger value applies only to individual craft,
-not the entire flight group. The Arrive/DepartViaMothership values when false
-will cause craft to use hyperspace. The only addition to XWA triggers are the
-Parameter values. Parameter is use for region-specific triggers, proximity
-triggers and a couple others. Parameter2 is used in few cases but adds just one
-more control to the trigger.
+DepartureDelay values.  The RandDelay values define the maximum amount of
+additional time that can be added on top of the ArrivalDelay.  The AbortTrigger
+value applies only to individual craft, not the entire flight group. The
+ViaMothership/Method values when false will cause craft to use hyperspace,
+though for the Arrival and Depart methods in XWA there's a third option that
+can be used, so it's no longer a BOOL.  The only addition to XWA triggers are
+the Parameter values. Parameter is used for region-specific triggers, proximity
+triggers and a couple others.
 
 Special note for VariableType 0xE (14), Delay. In this case, the Trigger takes
-the form "After Variable delay, then TRUE", where Variable is the number of
-seconds / 5. So a Variable value of 6 is 0:30. I believe this is counting from
+the form "After Variable delay, then TRUE".  I believe this is counting from
 the mission timer, but more testing needs to be done.
 
-Orders, they're what make the world go 'round. Pick the Order from the list
-and go from there. The Throttle value has been simplified from XvT, in that it
-is evaluated as (Throttle% / 10). The Variables are controlled by the order
+Orders, they're what make the world go 'round.  Pick the Order from the list
+and go from there.  The Throttle value has been simplified from XvT, in that it
+is evaluated as (Throttle% / 10).  The Variables are controlled by the order
 itself, as different orders take different amounts for different reasons.
 Target# and Target#Type are the same as a Trigger's Variable and VariableType.
-Seen in XvT is the Speed value which can override the simple Throttle method
-and set Flight Group's speed in MGLT. Helpful for convoys of differing craft.
-The value stored is not actually the MGLT value, but a fairly close
-approximation of MGLT / 2.2235 (I say fairly close because that's what I
-tweaked the multipler to get no difference up to index 100).
+The Speed value can override the simple Throttle method and set the FG's exact
+speed in MGLT.  Helpful for convoys of differing craft.  The value stored is
+not actually the MGLT value, but a fairly close approximation of MGLT / 2.2235
+(I say fairly close because that's what I tweaked the multipler to get no
+difference up to index 100).
 
 XWA stores the Waypoints in the orders themselves, so each order in each region
 has a different WP set to allow further control and realism in the mission.
@@ -513,40 +520,32 @@ trigger fires the FG will immediately jump to the appropriate order. The array
 is ordered in the same manner as the Orders, going through each order in each
 region.
 
-Goals are for that specific flight group. In XWA you have 8 for a given FG,
+Goals are for that specific flight group.  In XWA you have 8 for a given FG,
 and all can be given point values, stored as (Points / 25), yielding a range of
 [-3200, +3175].  XWA has the Argument value which can be one of these:
 00	must
 01	must NOT
 02	BONUS must
 03	BONUS must NOT
-In addition the Team can be set, as well as the ActiveSequence value, which is
-best described in a mission tutorial. NOTE: in AlliED there is a box for
-another number next to the "Use?" checkbox; that box points to the byte
-directly before the Parameter value, but every LA mission is just 00 in that
-location.  For that reason I do not have it defined explicitly.
+In addition the Teams can be set, as well as the Parameter and ActiveSequence
+value, like any other trigger.  This is the preferred method of applying
+mission goals if they only apply to a single FG.
 
-The Team values lets you assign to which team the goals apply, and the Enabled
-is just another boolean on/off switch. There are plenty of unknown spaces in
-the goals section, but this isn't something I've played with yet. For the love
-of God/Allah/FSM use these goals instead of Global Goals if possible.
+The remaining Waypts are stored next; two start points, the HYP after capture
+and the regular HYP are available here.  The Region values determine which
+region the point applies to.  Note that there are no briefing points in XWA,
+that's because XWA finally uses a true animated briefing.  More on that later.
 
-The remaining Waypts are pretty self-explanatory; three start points and HYP
-are available here. The Enable value just tells the application if it needs to
-pay attention to it or not and is boolean. Region determines which region
-the point applies to. If more than one StartPoint is enabled, the application
-will pick one to use. Note that there are no briefing points in XWA, that's
-because XWA finally uses a true animated briefing. More on that later.
-
-A lot of unknown values, a switch to activate the GlobalUnit value, and the
-long list of extra settings first seen in XvT.  Starting off with the
-Countermeasures, this is a very short list of
+A lot of unused space, a switch to disable number across multiple waves, and
+then a departure timer that is based on the mission clock, not a trigger.
+Then we have the Countermeasures, this is a very short list of
 00	None
 01	Chaff
 02	Flare
+03	ClusterMine
 
 CraftExplosionTime acts strangely, and I haven't pinned it down exactly yet.
-It does affect how long it takes for a dying craft to dissappear, but seems to
+It does affect how long it takes for a dying craft to despawn, but seems to
 act differently with different ship classes and there is an unknown multipler
 from the stored value to seconds.
 
@@ -556,9 +555,11 @@ triggers and targets. Another use is to share numbering, good for multiple
 definitions of a flight group, this keeps the numbering consistent between
 them. Flight Groups do not need the same name to share numbering.
 
+I don't know what the Handicap value does.
+
 The Optional values are the alternate loadouts that the player can select when
-going over his craft. As you can see you can list the majority of items and
-several craft at any given time. The Category value allows you to easily
+going over their craft.  As you can see you can list the majority of items and
+several craft at any given time.  The Category value allows you to easily
 select a given ship list.
 00	None
 01	All Flyable
@@ -612,38 +613,44 @@ be a note on the voice itself (RP1, Wedge, etc), and Color is the following:
 04	Red
 05	Purple
 
-OriginatingFG is a value I noticed looking over LA missions. This value is
-used as the Flight Group that the message is coming from. Zero-indexed, and 
-since the player craft is usually the first ship in the craft listing, a value
-of zero implies it's coming from your ship, a value of 1 is from the next ship,
-etc. Not every LA mission uses it, and there doesn't appear to be any game
-mechanic behind it, as a message from a given ship will still fire even if that
-ship is destroyed. This is the "Unk" value in the lower-right in AlliED. Just
-looks like another bookkeeping value.
+OriginatingFG is used as the FG that the message is coming from. Zero-indexed,
+and since the player craft is usually the first ship in the craft listing, a
+value of zero implies it's coming from your ship, a value of 1 is from the next
+ship, etc.  Not every LA mission uses it, and there doesn't appear to be any
+game mechanic behind it, as a message from a given ship will still fire even if
+that ship is destroyed.  This is the "Unk" value in the lower-right in AlliED.
+Just looks like another bookkeeping value.
 
-The delay uses a segmented formula instead of a simple multiplier to determine
-the value in seconds. Up to a value of 20, it's simply seconds. Starting with
-21 (0x15), it increments in 5 seconds. So 0:20, 0:25, 0:30, etc. Once the value
-reaches 15:00 (196, 0xC4) it begins to increment in 10 second intervals. This
-results in a maximum delay time of 24:50.
+Not sure what the "Type" really does, this might be a simple Cancel condition
+based on the speaker FG.  Don't know what SpeakerHeader does either.  Need to
+do some testing to see if they really do anything.
 
-New to XWA is yet another function to add realism, is the Cancel trigger.  If
-this trigger fires before the message can, the message will not fire regardless
-if the trigger is ever met or not, so a message won't come from a destroyed
-vessel, for example.
+New to XWA is yet another function to add realism, is the Special trigger.
+Normally, this is used as a Cancel trigger, which in effect sets all of the
+trigger conditions to "Never".  By changing the SpecialMeaning value you can
+tweak exactly what this does, but unsure of what the other settings really do.
 
 -- GlobalGoal --
 
-When FG goals just won't cut it, that's what there are for. What is there is
-self-explanatory by now. Triggers and the #Or# with ActiveSequence. Yay. The
-GoalGlobal array is comprised of the Primary, Prevent and Secondary (Bonus)
-goals in that order. This Section is repeated 10 times, once for each team.
+When FG goals just won't cut it, that's what there are for.  This Section is
+repeated 10 times, once for each team.  What is there should be mostly familiar
+by now.  The Name value I believe is just an editor note.  I don't know if the
+Version value has a real function.  The Delay should between when the triggers
+fire and when the Goal is marked as complete in the log.  In addition to the
+points for completion, there's also the ability to set points for individual
+triggers.  This can allow for different point totals based on which OR trigger
+is completed.
+
+The GoalGlobal array is comprised of the Primary, Prevent and Bonus goals in
+that order.  It is possible for more than 3 sets to exist, potentially up to 7
+though I've never seen it.  The remaining sets are MissionOver, Extra1, Extra2,
+Extra3.  For sizing in this document I've assumed there's only ever 3 sets.
 
 -- Team --
 
 This section also repeats 10 times, once for each team. In here we have
-obviously the Name, allies and the mission goal messages. The strings at
-the end are the usual Voice notes, and there's some Unknowns to boot.
+obviously the Name, allies the end-of-mission messages, and the other details
+for them.
 Allegiance can have the following values:
 00	Hostile
 01	Friendly
@@ -658,7 +665,8 @@ PrimaryFailed1, PrimaryFailed2, Outstanding1, Oustanding2.
 Okay, we finally get to the briefing. The command listing itself I'll leave
 for the list definition, that'll also have the variable listing as well. The
 first value is the duration of the briefing itself in ticks. XWA uses 0x19
-ticks per second.
+ticks per second.  CurrentTime I believe is mainly used by the game and editor,
+and is overwritten regardless of what is here.
 
 Each Event is marked by the briefing time (in ticks) and the EventType,
 followed by 0-4 additional variables. These variables are to be omitted if
@@ -670,6 +678,11 @@ briefing).
 The StartsLength value is the number of SHORTs, Variables included, that occur
 at Time=0. EventsLength is the total number of SHORTs occupied in the Events
 array up to and including the EndBriefing command.
+
+I haven't figured out how the Icons are used yet.  This appears to allow the
+use of common icons repeatedly, though the array size is the number of FGs, so
+it may be for using FG references.  It's also entirely possible that it was
+something that's now obsolete and doesn't do anything.
 
 The Tag and String arrays are not fixed sizes. They have a minimum length of
 256 bytes, which is the case of every length being zero. If a Length is zero,
@@ -707,7 +720,8 @@ for each team. As before * is 1 if 00, 64 otherwise.
 
 The array structure here is 3 strings per Trigger, 4 Triggers per goal, 3 goals
 per Team. Strings are Incomplete, Complete and Failed in that order. Goals are
-Primary, Prevent and Secondary (Bonus) in that order.
+Primary, Prevent and Secondary (Bonus) in that order.  Like the Goals
+themselves there's the potential for up to 7, but this has never been seen.
 
 Prevent Failed is always 00. Secondary Incomplete and Failed are always 00.
 
@@ -731,10 +745,10 @@ There you have it, the XWA Mission file format. Enjoy :P
 List Definitions
 
 Hangar
-00	Junkyard
-01	Quick Start 1
-02	Quick Start 2
-03	Quick Start 3
+00	Tutorial
+01	Obstacle
+02	Melee
+03	Exercise
 04	Skirmish
 05	Death Star run
 06	Calamari Cruiser
@@ -744,7 +758,17 @@ BriefingOfficer
 00	Devers
 01	Kupalo
 02	Zaletta
+03	Wedge
+04	Nammo
+05	Yamarus
+06	Ackbar
+07	Aeron
 08	Emkay
+09	Antan
+0A	Emon
+0B	Galin
+0C	Tomaas
+0D	Dunari
 
 BriefingLogo
 04	Defiance
@@ -755,7 +779,23 @@ BriefingLogo
 09	Vector Squadron
 0A	Rogue Squadron
 0B	Family Transport
-0C	Unknown
+
+DesignationTeam
+00	Team1
+01	Team2
+02	Team3
+03	Team4
+04	Team5
+05	Team6
+06	Team7
+07	Team8
+08	All
+09	Others
+0A	Hostile
+0B	Friendly
+0C	Rebel
+0D	Imperial
+FF	None
 
 Designation
 00	Command Ship
@@ -779,7 +819,7 @@ Designation
 12	HYP to Region 3
 13	HYP to Region 4
 14	HYP from Any Region
-15  Unknown
+15  HYP to Any Region
 
 CraftType
 00	None
@@ -1003,22 +1043,22 @@ Status
 01	2X Warheads
 02	1/2 Warheads
 03	No Shields
-04	1/2 Shields
-05	No Lasers
+04	1/2 Shields, Damaged
+05	Lasers Damaged
 06	No Hyperdrive
 07	Shields 0%, charging
 08	Shields added or 200%
 09	Hyperdrive added
 0A	2x Countermeasure
 0B	1/2 Countermeasures
-0C	(200% Shields)
-0D	Shields 50%, Charging
-0E	(No Lasers)
+0C	200% Shields
+0D	50% Shields, Charging
+0E	No Lasers
 0F	Engines Damaged
 10	Shields + Hyperdrive added
 11	All Systems Damaged
 12	200% Shields
-13	(50% Shields)
+13	50% Shields
 14	Invincible
 15	Infinite Warheads
 16	No Escape Pods / Ejected Pilot
@@ -1027,7 +1067,7 @@ Status
 19	Not ID'ed
 1A	Inspected
 1B	ID'ed
-1C	Limited Targetability
+1C	Hangar Object
 
 Warhead
 00	None
@@ -1039,12 +1079,15 @@ Warhead
 06	Advanced Torpedo
 07	Mag Pulse Torpedo
 08	Ion Pulse Torpedo
+09	*Adv Mag Pulse
+0A	Cluster Bomb
 
 Beam
 00	None
 01	Tractor Beam
 02	Jamming Beam
 03	Decoy Beam
+04	Energy Beam
 
 GroupAI
 00	Novice (None)
@@ -1082,38 +1125,57 @@ Radio
 Formation
 00	Vic
 01	Finger Four
-02	Line Astern
+02	Line Astern (originally not selectable, though it works)
 03	Line Abreast
 04	Echelon Right
 05	Echelon Left
-06	Double Astern
+06	Double Astern (originally not selectable, though it works)
 07	Diamond
-08	Stack
-09	High X
-0A	Vic Abreast
-0B	High Vic
-0C	Reverse High Vic
-0D	Reverse Line Astern
-0E	Stacked Low
-0F	Abreast Right
-10	Abreast Left
-11	Wing Forward
-12	Wing Back
-13	Line Astern Up
-14	Line Astern Down
-15	Abreast V
-16	Abreast Inverted V
+08	Stacked (Line Up)
+09	High X (originally not selectable, though it works)
+0A	Reverse Vic
+0B	Side Vic
+0C	Reverse Side Vic
+0D	Line Ahead
+0E	Line Down
+0F	Line Right
+10	Line Left
+11	Echelon Forward
+12	Echelon Astern
+13	Echelon Up
+14	Echelon Down
+15	Vic Up
+16	Vic Down
 17	Double Astern Mirror
-18	Double Stacked Astern
-19	Double Stacked High
-1A	Diamond 1
-1B	Diamond 2
-1C	Flat Pentagon
-1D	Side Pentagon
-1E	Front Pentagon
+18	Double Side
+19	Double Down
+1A	Side Diamond
+1B	Front Diamond
+1C	Flat Star
+1D	Side Star
+1E	Front Star
 1F	Flat Hexagon
 20	Side Hexagon
 21	Front Hexagon
+
+FormSpacing
+00	Too Tight
+01	Very Tight
+02	Tight
+03	Comfy
+04	Close
+05	Moderate
+06	Standard
+07	Safe
+08	Loose
+09	Very Loose
+0A	Distant
+
+StopArrivingWhen
+00	Never (always arrives)
+01	Mission Complete
+02	Team wins
+03	Team loses
 
 ArrivalDifficulty
 00	All
@@ -1132,16 +1194,16 @@ Condition
 04	Captured
 05	Inspected
 06	Boarded
-07	Docked
+07	Finished docking
 08	Disabled
-09	Exist
+09	Exist (not destroyed)
 0A	None (false)
-0B	Unknown (---)
+0B	--- (maps to None)
 0C	Completed mission
 0D	Completed Primary Goals
 0E	Failed Primary Goals
-0F	Completed Secondary Goals
-10	Failed Secondary Goals
+0F	(maps to None)
+10	(maps to None)
 11	Completed Bonus Goals
 12	Failed Bonus Goals
 13	Dropped off
@@ -1149,42 +1211,42 @@ Condition
 15	0% Shields
 16	50% Hull
 17	Out of Warheads
-18	Unknown (arrive?)
-19	Be dropped off
-1A	Unharmed?
+18	Lasers Down
+19	NOT created
+1A	NOT be attacked
 1B	NOT be disabled
-1C	NOT be picked up
-1D	Destroyed w/o Inspection
-1E	Be docked with
-1F	NOT be docked with
-20	Begin boarding
-21	NOT begin boarding
+1C	NOT be captured
+1D	NOT be inspected
+1E	Being boarded
+1F	NOT boarded
+20	Begun docking
+21	NOT docked
 22	50% Shields
 23	25% Shields
 24	75% Hull
 25	25% Hull
-26	Always failed
-27	Be picked up for team
-28	Unknown
-29	Be all Player Craft
-2A	Reinforced by AI?
+26	Time less than
+27	Be picked up for team ("By")
+28	NOT be picked up by team ("NOT by")
+29	Have Player craft
+2A	Not have Player craft
 2B	Come and go
-2C	Be picked up
+2C	Captured and gone
 2D	Withdraw
 2E	Be carried away
 2F	Arrived in Region
 30	Departed Region
 31	Be in proximity of
 32	NOT be in proxmity of
-33	All captured
+33	Carried
 34	Defect
 35	Be in convoy
 36	Be delivered
-37	All disabled
+37	Parked
 38	Be shown (message)
 39	Be ID'ed
 3A	NOT be ID'ed
-3B	Exist?
+3B	Support
 
 Notes (from XvT):
 0x09 (Survived) Checks the number of craft that have survived at the moment the
@@ -1194,11 +1256,10 @@ that have been destroyed by any means.
 0x0D/0x0E (Completed/Failed Primary Goals) and 0x11/0x12 (Completed/Failed
 Bonus Goals) If VariableType is Team, it checks the mission outcome for that
 team. In all other cases, it is true if any team has achieved victory.
-0x0F and 0x10 (Completed/Failed Secondary Goals) don't do anything.
 
-0x19 (Be dropped off) Never seems be be true, either as a trigger or goal.
+0x19 (NOT created) Never seems be be true, either as a trigger or goal.
 
-0x1A (Destroyed in 1 hit) A broken condition. It's supposed to be "come and
+0x1A (NOT be attacked) A broken condition. It's supposed to be "come and
 go without being attacked" but the implementation is broken in a few ways. For
 trigger purposes, when it comes-and-goes, it will still evaluate to true even
 if attacked by the player. It is only false if attacked by AI, and only AI.
@@ -1216,7 +1277,7 @@ to work correctly as a goal, since being disabled is an anti-condition.
 0x1C (Not be captured) A "come and go" condition that actually seems to work
 correctly.
 
-0x1D (Come and go w/o Inspection) Not as straightforward as it would seem.
+0x1D (Not be inspected) "Come and go", not as straightforward as it would seem.
 Statistics per team are only tracked if the craft actually arrives, then leaves
 or is destroyed. Global statistics are only tracked if the craft comes and goes
 by proxy (mothership destroyed prior to launch, or departure ship destroyed
@@ -1224,13 +1285,13 @@ after landing).
 If evaluated as a FG goal, or as a trigger paired with Condition 0x27, it uses
 the per-team statistic. Otherwise it uses the global statistic.
 
-0x1F (Not being boarded) A "come and go" condition that is tracked if the craft
+0x1F (Not boarded) A "come and go" condition that is tracked if the craft
 was never finished being boarded by another craft.
 
-0x21 (Not begin docking) A "come and go" condition that is tracked if the craft
+0x21 (Not docking) A "come and go" condition that is tracked if the craft
 never finished boarding another craft.
 
-0x26 (Always Failed) Evaluates to failure, as opposed to merely false. If used
+0x26 (Time less than) Evaluates to failure, as opposed to merely false. If used
 for a goal, it will cause immediate failure.
 
 0x27 (Inspect/Pickup team modifier) The game tracks Inspection/Pickup
@@ -1272,12 +1333,12 @@ VariableType
 03	CraftCategory (enum)
 04	ObjectCategory (enum)
 05	IFF
-06	Order (enum)
+06	Order (enum) (maps to None)
 07	CraftWhen (enum)
 08	Global Group
-09	Rating
-0A	Craft with Status1
-0B	All
+09	Rating (maps to None)
+0A	Craft with Status1 (maps to None)
+0B	All (maps to None)
 0C	Team
 0D	Player
 0E	Delay
@@ -1290,7 +1351,7 @@ VariableType
 15	All Teams except
 16	All players except
 17	Global Unit
-18	All Global Units except?
+18	All Global Units except
 19	Craft with Global Cargo
 1A	Craft without Global Cargo
 1B	Message #
@@ -1303,11 +1364,16 @@ CraftCategory
 04	Utility Craft
 05	Platforms/Facilities
 06	Mines
+07	Buoys
+08	Containers
+09	Weapon Emplacements
+0A	Droids
 
 ObjectCategory
 00	Craft
 01	Weapons
-02	Space Objects
+02	Satellites
+03	Space Defenses
 
 Amount
 00	100%
@@ -1320,55 +1386,70 @@ Amount
 07	All non-special craft
 08	All non-player craft
 09	Player's craft
-0A	Unknown
+0A	(maps to 100%)
+0B	(maps to 75%)
+0C	(maps to 50%)
+0D	(maps to 25%)
+0E	(maps to One)
+0F	(maps to All but one)
 10	66%
 11	33%
 12	Each craft
 13	Each special craft
 
+Amount:ProximityTrigger
+00	0.0
+01	0.1
+02	0.2
+...
+09	0.9
+0A	1.0
+0B	1.5
+0C	2.0
+0D	2.5
+...
+
 AbortTrigger
 00	None
 01	0% Shields
-02	Unknown
-03	Out of warheads
+02	(None)
+03	Warheads spent
 04	50% Hull
 05	Attacked
 06	50% Shields
 07	25% Shields
 08	75% Hull
 09	25% Hull
+0A	Inspected
 
 Order
-**Technical note: For waiting times: if the variable >= 0 and <= 20 it's the
-exact number of seconds.  If variable > 20, each increment over 20 is worth 5
-seconds. If variable > 196 (15:00), each increment over 196 is worth 10
-seconds.
-A maximum of 255 translates to 24:50 waiting time.
-
-00	Hold Station
+00	Stationary
 01	Go Home
+	Var1	DelayTime
 02	Circle
 	Var1	Number of Loops
 03	Circle and Evade
 	Var1	Number of Loops
-04	Rendezvous
+04	*Rendezvous (maps to Stationary)
 	Var1	Number of Dockings
 05	Disabled
-	Var1	Meaningless?        [Does not appear to be Number of Dockings]
+	Var1	Number of Dockings
 06	Await Boarding
 	Var1	Number of Dockings
 07	Attack
 	Var1	Component
+	Var2	Warheads? {L+W1, L+W1+W2, L}
+	Var3	?? {Normal, All, None}
 08	Attack Escorts
 09	Protect
 0A	Escort
 	Var1	Position (to be expanded on at a later date)
-	Var2	Attack Player (0/1)
+	Var2	Spacing	{Loose, Close, Tight, Far}
 0B	Disable
-	Var1	Meaningless?		[Might be weapon restriction]
-	Var2	Meaningless?		[Might be weapon restriction]
+	Var1	Component
+	Var2	Component2?
 0C	Board and Give Cargo
-	Var1	Docking Time ( 0-14 = seconds, 15 = 25s, 16 = 30s, etc)
+	Var1	Docking Time
 	Var2	Number of Dockings
 0D	Board and Take Cargo
 	Var1	Docking Time
@@ -1382,27 +1463,34 @@ A maximum of 255 translates to 24:50 waiting time.
 10	Board and Destroy Cargo
 	Var1	Docking Time
 	Var2	Number of Dockings
+	Var3	Delay
 11	Pick up
 	Var1	Docking Time
 	Var2	Number of Dockings
 12	Drop off
-	Var1	Deploy Time?
+	Var1	Deploy Time
 	Var2	Flight Group
 13	Wait
-	Var1	Wait time
+	Var1	Delay
 14	SS Wait
-	Var1	Wait time
+	Var1	Delay
 15	SS Patrol Loop
 	Var1	Number of Loops
 16	SS Await Return
+	Var1	Delay
 17	SS Launch
+	Var1	Delay
 18	SS Protect
-19	SS Wait and Protect
+	Var1	Delay
+19	*SS Wait and Protect (maps to Stationary)
+	Var1	Delay
 1A	SS Patrol and Attack
 1B	SS Patrol and Disable
-1C	SS Hold Steady
+1C	*SS Hold Steady (maps to Stationary)
+	Var1	Capture count
 1D	SS Go Home
-1E	SS Wait
+	Var1	Delay
+1E	*SS Wait (maps to Stationary)
 	Var1	Wait time
 1F	SS Board
 	Var1	Docking Time
@@ -1410,23 +1498,34 @@ A maximum of 255 translates to 24:50 waiting time.
 20	Board to Repair
 	Var1	Docking Time
 	Var2	Number of Dockings
-21	Hold Station
-22	Hold Steady
-23	SS Hold Station
+21	*Hold Station (maps to Stationary)
+	Var1	Time
+	Var2	Gronks	(no idea)
+22	*Hold Steady (maps to Stationary)
+	Var1	Time
+	Var2	Gronks
+23	*SS Hold Station (maps to Stationary)
+	Var1	Time
+	Var2	Gronks
 24	Self-destruct
-	Var1	Delay Time
+	Var1	Delay
 25	Kamikaze
-26	(Orbit)/Permanently disabled
-	Var1	# of loops
-27	(Release Carried Cargo)
+26	Orbit
+	Var1	# of loops	(limit 2?)
+	Var2	Direction	{Clockwise, Counter}
+27	Release Carried Cargo
 28	Deliver/Drop Off
 	Var1	Recipient FG
-29	Unknown
-2A	(Attack)
-2B	Load Objects
+29	Load
 	Var1	Objects
-2C	Sit and Fire
+2A	Standoff Attack
 	Var1	Use Missiles (0/1)
+	Var2	Time
+2B	Backup
+	Var1	Time
+	Var2	Distance	[(float)value/10]
+2C	Shutdown
+	Var1	Time
 2D	Repair Self
 	Var1	Repair Time
 2E	Defect
@@ -1434,7 +1533,7 @@ A maximum of 255 translates to 24:50 waiting time.
 	Var2	Team
 2F	Self Capture / Surrender
 	Var1	IFF
-30	*Make
+30	*Build
 	Var1	Craft Type
 31	Beacon
 32	Hyper to Region
@@ -1451,12 +1550,13 @@ A maximum of 255 translates to 24:50 waiting time.
 38	*Construct Train
 	Var1	on Flight Group
 	Var2	From Global Group
-	Var3	# of dockings
+	Var3	Length
 39	Park at
 	Var1	Wait time
-	Var2	Waypoint #
+	Var2	Location	{Outside, Inside}
 3A	*Board to Defuse
 	Var1	Docking Time
+	Var2	Number of Dockings
 3B	Start Over
 	Var1	# of loops
 3C	*Take Apart Train
@@ -1465,12 +1565,12 @@ A maximum of 255 translates to 24:50 waiting time.
 	Var1	Time
 	Var2	Component
 	Var3	# of loops
-3E	(Dock to Load)
+3E	*Dock to Load
 3F	Follow Targets
 	Var1	# of loops
 40	Home In
 	Var1	# of loops
-	Var2	Direction (0 = clockwise, 1  = counter-clockwise)
+	Var2	Direction {Clockwise, Counter}
 
 CraftWhen
 00	Captured
@@ -1484,9 +1584,29 @@ CraftWhen
 08	Non-special craft
 09	Player's craft
 0A	Non-player's craft
+0B	not attacked
 0C	not disabled
+0D	not captured
+0E	not inspected
+0F	being boarded
+10	not boarded
+11	is docking
+12	not docked
+13	Shields at 50%
+14	Shields at 25%
+15	Shields down
+16	Hull at 75%
+17	Hull at 50%
+18	Hull at 25%
+19	Missiles spent
+1A	Lasers out
+1B	ID'd
+1C	not ID'd
 
 EventType
+01	Seek
+*02	SHIP_INDEX
+	Var1	UNK
 03	Page Break
 04	Title Text
 	Var1	String#
@@ -1518,45 +1638,45 @@ EventType
 11	Clear Text Tags
 12	Text Tag 1
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 13	Text Tag 2
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 14	Text Tag 3
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 15	Text Tag 4
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 16	Text Tag 5
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 17	Text Tag 6
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 18	Text Tag 7
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	Color
 19	Text Tag 8
 	Var1	Tag#
-	Var2	Color
-	Var3	X
-	Var4	Y
-1A	New Icon
+	Var2	X
+	Var3	Y
+	Var4	Color
+1A	Set Icon
 	Var1	Icon #
 	Var2	CraftType (enum)
 	Var3	IFF
@@ -1569,9 +1689,11 @@ EventType
 	Var3	Y
 1D	Rotate Icon
 	Var1	Icon #
-	Var2	Rotation (0, 90° CCW, 180º, 90° CW, mirror)
+	Var2	Rotation (0, 90° CCW, 180°, 90° CW, mirror)
 1E	Change Region
 	Var1	Region #
+*1F	ZOOM_PARAGRAPH
+	Var1	String#
 22	End Briefing
 
 =====

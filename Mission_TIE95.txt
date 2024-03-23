@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2022.09.22
+Updated: 2024.03.22
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -32,9 +32,9 @@ There are already a few editors out there for TIE missions, most notably TFW
 (TIE Fighter Workshop). Anyone with a lot of spare time and a hex editor can
 map out these values, and whadya know, I was bored :P
 
-I have no clue what the .INV files are there for, these seem to be generated
-almost at random. The mission files starting with H are the Historical
-Missions found in the Combat Chamber.
+The .INV files are related to in-flight colors and are generated based on color
+settings. The mission files starting with H are the Historical Missions found
+in the Combat Chamber.
 
 =====
 TIE95 Mission Structure
@@ -48,7 +48,7 @@ BYTE	1	unsigned 8-bit
 SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
-INT	4	signed Int32
+DWORD	4	signed Int32
 STR(*)	*	null-terminated string, * is a decimal number
 
 NOTE: Any byte locations that are between defined values and are not explicitly
@@ -70,15 +70,21 @@ BYTE	Reserved(0xFF)
 
 struct FileHeader (size 0x1CA)
 {
-	0x000	SHORT	PlatformID (-1)
+	0x000	SHORT	PlatformID (-1)		(See special notes)
 	0x002	SHORT	NumFGs
 	0x004	SHORT	NumMessages
-	0x006	SHORT	Reserved (3)		might be # of GlobalGoals
-	0x008	BYTE	Unknown1
-	0x009	BOOL	Unknown2
+	0x006	SHORT	NumGlobalGoals (3)
+	0x008	BYTE	TimeLimitMin
+	0x009	BYTE	TimeLimitSec
 	0x00A	BYTE	BriefingOfficers
-	0x00D	BOOL	Unknown (Formerly CapturedOnEject)
+	0x00B	BYTE	RandomSeed	[Backdrop?]
+	0x00C	BYTE	Rescue?
+	0x00D	BOOL	AllWayShown? (Formerly CapturedOnEject)
+	0x00E	BYTE[8]	Vars
+	0x016	BYTE[2]	WinBonus
 	0x018	CHAR[64][6]	EndOfMissionMessages
+	0x198	BYTE	EomMessageDelay
+	0x199	BYTE	(Unused)
 	0x19A	CHAR[12][4]	IffNames3-6
 }
 
@@ -99,49 +105,50 @@ struct FlightGroup (size 0x124)
 	0x038	BYTE	GroupAI (enum)
 	0x039	BYTE	Markings (enum)
 	0x03A	BOOL	ObeyPlayerOrders
-	0x03B	BYTE	Reserved (0)			Unknown1 in TFW
+	0x03B	BYTE	(Unused)			Unknown1 in TFW
 	0x03C	BYTE	Formation (enum)
 	0x03D	BYTE	FormationSpacing		Unknown2
 	0x03E	BYTE	GlobalGroup			Unknown3
-	0x03F	BYTE	LeaderSpacing			Unknown4
+	0x03F	BYTE	(Unused)	(LeaderSpacing or Unknown4)
 	0x040	BYTE	NumberOfWaves
-	0x041	BYTE	Unknown5
+	0x041	BYTE	WavesDelay	(Unknown5)
 	0x042	BYTE	PlayerCraft
 	0x043	BYTE	Yaw				Unknown6
 	0x044	BYTE	Pitch				Unknown7
 	0x045	BYTE	Roll				Unknown8
 	0x046	BOOL	PermaDeathEnabled		Unknown9
 	0x047	BYTE	PermaDeathID			Unknown10
-	0x048	BYTE	Reserved (0)			Unknown11
+	0x048	BYTE	(Unused)			Unknown11
 	0x049	BYTE	ArrivalDifficulty (enum)
 	0x04A	Trigger	Arrival1
 	0x04E	Trigger	Arrival2
 	0x052	BOOL	Arrival1OrArrival2
-	0x053	BYTE	Reserved (0)			Unknown12
+	0x053	BYTE	(Unused)			Unknown12
 	0x054	BYTE	ArrivalDelayMinutes
 	0x055	BYTE	ArrivalDelaySeconds
 	0x056	Trigger	Departure
 	0x05A	BYTE	DepartureDelayMinutes		Unknown13
 	0x05B	BYTE	DepartureDelaySeconds		Unknown14
 	0x05C	BYTE	AbortCondition (enum)
-	0x05D	BYTE	Reserved (0)			Unknown15
-	0x05E	BYTE	Unknown16
-	0x05F	BYTE	Reserved (0)			Unknown17
+	0x05D	BYTE	(Unused)			Unknown15
+	0x05E	SHORT	CurrentMothership	(was Unknown16-17)
 	0x060	BYTE	ArrivalMothership
 	0x061	BOOL	ArriveViaMothership
 	0x062	BYTE	DepartureMothership
 	0x063	BOOL	DepartViaMothership
-	0x064	BYTE	AlternateArrivalMothership
-	0x065	BOOL	AlternateArriveViaMothership
-	0x066	BYTE	AlternateDepartureMothership
-	0x067	BOOL	AlternateDepartViaMothership
+	0x064	BYTE	AltDepartureMothership
+	0x065	BOOL	AltDepartViaMothership
+	0x066	BYTE	CaptureDepartureMothership
+	0x067	BOOL	CaptureDepartViaMothership
 	0x068	Order[3]
 	0x09E	GoalFG[4]
 	0x0A6	SBYTE	BonusGoalPoints
+	0x0A7	BYTE		(Unused)
 	0x0A8	Waypt[4]
-	0x120	BOOL	Unknown19
-	0x122	BYTE	Unknown20
-	0x123	BOOL	Unknown21
+	0x120	BOOL	WayShown	(was Unknown19)
+	0x121	BYTE	(Unused)
+	0x122	BYTE	WayBriefLink	(was Unknown20)
+	0x123	BOOL	WayBriefShown	(was Unknown21)
 }
 
 struct Trigger (size 0x4)
@@ -156,19 +163,19 @@ struct Order (size 0x12)
 {
 	0x00	BYTE	Order (enum)
 	0x01	BYTE	Throttle
-	0x02	BYTE	Variable1
-	0x03	BYTE	Variable2
-	0x04	BYTE	Unknown18
+	0x02	BYTE[4]	Variables	(includes Unknown18)
 	0x06	BYTE	Target3Type (enum VariableType)
 	0x07	BYTE	Target4Type (enum VariableType)
 	0x08	BYTE	Target3
 	0x09	BYTE	Target4
 	0x0A	BOOL	Target3OrTarget4
+	0x0B	BYTE		(Unused)
 	0x0C	BYTE	Target1Type (enum VariableType)
 	0x0D	BYTE	Target1
 	0x0E	BYTE	Target2Type (enum VariableType)
 	0x0F	BYTE	Target2
 	0x10	BOOL	Target1OrTarget2
+	0x11	BYTE		(Unused)
 }
 
 struct Waypt (size 0x1E)
@@ -197,8 +204,12 @@ struct Message (size 0x5A)
 
 struct GlobalGoal (size 0x1C)
 {
-	0x00	Trigger[2]
+	0x00	Trigger[2]	Triggers
+	0x08	Str(16)	Name
+	0x18	BYTE	Version
 	0x19	BOOL	Trigger1OrTrigger2
+	0x1A	BYTE	Delay
+	0x1B	BYTE	(Unused)
 }
 
 struct Briefing
@@ -206,7 +217,7 @@ struct Briefing
 	0x000	SHORT	RunningTime
 	0x002	SHORT	CurrentTime
 	0x004	SHORT	StartLength
-	0x006	INT	EventsLength
+	0x006	DWORD	EventsLength	(SHORT? Size then Tile?)
 	0x00A	Event[]
 	0x32A	Tag[32]
 		String[32]
@@ -263,6 +274,11 @@ The first SHORT is a marker used to identify the mission file as belonging to
 TIE95. Other platforms have different markers in this place, but it is
 unknown whether or not the application actually checks this value to determine
 if the file is valid or not.
+
+**NOTE** There is a legacy format where this value is not present. In-game,
+this is handled as if the value is not < 0, then NumFGs is actually at 0x00.
+There are other places in the format where this also has an effect, they'll be
+marked with [LEGACY] notations.
 
 The two Num values are simply that, the number of FG and Message sections that
 are contained in the file, much like any other Length value in a resource file.
@@ -343,7 +359,7 @@ different orders take different amounts for different reasons. Target and
 TargetType are the same as Trigger.Variable and VariableType.
 
 Goals are for that specific flight group. The array is comprised of Primary,
-Secondary, Unused, and Bonus, in that order. For BonusGoalPoints, the
+Secondary, Fail, and Bonus, in that order. For BonusGoalPoints, the
 stored value is expressed as (Points / 50), so 01 is 50pts, 02 is 100pts, etc.
 Because the value is an SBYTE, this yields a point range of [-6400, +6350].
 By the Force use these goals instead of Global Goals when possible.
@@ -406,6 +422,8 @@ The Tag and String arrays are not fixed sizes. They have a minimum length of
 64 bytes, which is the case of every length being zero. If a Length is zero,
 then the CHAR[] is omitted. That's the real highlight right there.
 
+[LEGACY] Tag lengths are fixed 0x28, String lengths are fixed 0xA0.
+
 Technical note: The briefing caption strings allow certain character codes.
 0x00 for a newline, 0x02 to begin highlighting, 0x01 to end highlighting.  A
 single 0x00 will act as a newline, but two in a row [0x00 0x00] will be
@@ -429,6 +447,8 @@ The array has a minimum byte length of 0x14.
 
 Technical note: There are some character control codes, and also a length
 limit.  See technical notes in PostMissionQuestion.
+
+[LEGACY] Section does not exist.
 
 -- PostMissionQuestion --
 
@@ -463,6 +483,10 @@ seem to be.
 
 Answer text allows the use of character control codes 0x02 to begin
 highlighting, 0x01 to end highlighting, or 0x0A for newline.
+
+[LEGACY] Section does not exist.
+
+----
 
 There you have it, the TIE95 Mission file format. Enjoy :P
 =====
@@ -574,8 +598,8 @@ Status
 
 Warhead
 00	None
-01	Heavy Rocket
-02	Space Bomb
+01	Space Bomb
+02	Heavy Rocket
 03	Concussion Missile
 04	Torpedo
 05	Advanced Concussion Missile
@@ -706,20 +730,16 @@ GoalAmount
 
 AbortCondition
 00	None
-01	0% Shields
-02	Systems 75% (fighters and transports only)*
-03	Out of warheads
+01	0% Shields (or shield system disabled)
+02	Cannons system disabled*
+03	Out of warheads (or warhead system disabled)
 04	50% Hull
 05	Attacked
 
-* Technical note: The system percent isn't used, but is only an estimate.
-This actually triggers when the cannon subsystem has been disabled with ions
-(mag pulse doesn't count).  Ion shots work by knocking out individual subsystem
-components in sequence (out of 10 possible subsystems that can be equipped),
-and cannons are about the third subsystem to go.  Ships that do not have
-forward cannons (typically anything that isn't a fighter or transport) don't
-possess a cannon subsystem, therefore starships will abort instantly if given
-this trigger.
+* Technical note: Approximately 75% systems, fighters and transport only.
+This triggers when the cannon subsystem is disabled by ions or not installed.
+Ships that do not have forward cannons don't possess a cannon subsystem,
+therefore starships will abort instantly if given this trigger.
 
 Order
 00	Hold Station
@@ -739,6 +759,7 @@ Order
 08	Attack Escorts
 09	Protect
 0A	Escort
+	Var1	Position?	[27 options, 3x3 postions from rear top right]
 0B	Disable
 0C	Board and Give Cargo
 	Var1	Docking Time (seconds x 5)
@@ -831,44 +852,44 @@ EventType
 11	Clear Text Tags
 12	Text Tag 1
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 13	Text Tag 2
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 14	Text Tag 3
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 15	Text Tag 4
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 16	Text Tag 5
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 17	Text Tag 6
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 18	Text Tag 7
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 19	Text Tag 8
 	Var1	Tag#
-	Var2	TextTagColor (enum)
-	Var3	X
-	Var4	Y
+	Var2	X
+	Var3	Y
+	Var4	TextTagColor (enum)
 22	End Briefing
 
 TextTagColor
