@@ -1,13 +1,14 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, XW5-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0
+ * Version: 3.0+
  */
 
 /* CHANGELOG
+ * [NEW] GetBytes, this[TriggerIndex], TriggerIndex.XwaParameter
  * v3.0, 180309
  * [NEW] helper functions for FG move/delete [JB]
  * v2.3, 150405
@@ -23,49 +24,61 @@ using System;
 
 namespace Idmr.Platform
 {
-	/// <summary>Base class for mission Triggers</summary>
+	/// <summary>Base class for mission Triggers.</summary>
 	[Serializable]
 	public abstract class BaseTrigger : Common.Indexer<byte>
 	{
-		/// <summary>Indexes within the Trigger array</summary>
+		/// <summary>Indexes within the Trigger array.</summary>
 		public enum TriggerIndex : byte
 		{
-			/// <summary>The Trigger event</summary>
+			/// <summary>The Trigger event.</summary>
 			Condition,
-			/// <summary>The category <see cref="Variable"/> belongs to</summary>
+			/// <summary>The category <see cref="Variable"/> belongs to.</summary>
 			VariableType,
-			/// <summary>The Trigger subject</summary>
+			/// <summary>The Trigger subject.</summary>
 			Variable,
-			/// <summary>The amount required to fire the event</summary>
-			Amount
+			/// <summary>The amount required to fire the event.</summary>
+			Amount,
+			/// <summary>The Region or FG paramater.</summary>
+			/// <remarks>XWA only, should only be called from <see cref="Xwa.Mission.Trigger.Parameter"/> since it's really a short.</remarks>
+			XwaParameter
 		};
 
-		/// <summary>Default constructor for derived classes</summary>
+		/// <summary>Default constructor for derived classes.</summary>
 		protected BaseTrigger() { /* do nothing */ }
 
-		/// <summary>Default constructor for derived classes</summary>
-		/// <param name="raw">Raw data</param>
+		/// <summary>Default constructor for derived classes.</summary>
+		/// <param name="raw">Raw data.</param>
 		protected BaseTrigger(byte[] raw) : base(raw) { /* do nothing */ }
 
-		/// <summary>Gets or sets the Trigger itself</summary>
+		/// <summary>Gets or sets the appropriate value.</summary>
+		/// <param name="index">The selected index.</param>
+		/// <returns>The selected value, or <b>255</b> if invalid selection.</returns>
+		public byte this[TriggerIndex index]
+		{
+			get => (_items.Length == 4 && index == TriggerIndex.XwaParameter) ? (byte)255 : _items[(byte)index];
+			set { if (_items.Length != 4 || index != TriggerIndex.XwaParameter) _items[(byte)index] = value; }
+		}
+
+		/// <summary>Gets or sets the Trigger itself.</summary>
 		public byte Condition
 		{
 			get => _items[0];
 			set => _items[0] = value;
 		}
-		/// <summary>Gets or sets the category <see cref="Variable"/> belongs to</summary>
+		/// <summary>Gets or sets the category <see cref="Variable"/> belongs to.</summary>
 		public byte VariableType
 		{
 			get => _items[1];
 			set => _items[1] = value;
 		}
-		/// <summary>Gets or sets the Trigger subject</summary>
+		/// <summary>Gets or sets the Trigger subject.</summary>
 		public byte Variable
 		{
 			get => _items[2];
 			set => _items[2] = value;
 		}
-		/// <summary>Gets or sets the amount required to fire the Trigger</summary>
+		/// <summary>Gets or sets the amount required to fire the Trigger.</summary>
 		public byte Amount
 		{
 			get => _items[3];
@@ -115,9 +128,9 @@ namespace Idmr.Platform
 		/// <summary>This allows overrides to check additional properties without needing to override the base function.</summary>
 		/// <param name="srcIndex">The FG index to match and replace (Move), or match and Delete.</param>
 		/// <param name="dstIndex">The FG index to replace with.  Specify <b>-1</b> to Delete, or <b>zero</b> or above to Move.</param>
-		/// <param name="delete">Whether or not to delete the FG</param>
+		/// <param name="delete">Whether or not to delete the FG.</param>
 		/// <param name="delCond">Ignored unless FG is deleted.  If <b>true</b>, condition is set to "Always (true)" otherwise "Never (false)".</param>
-		/// <returns>Always returns <b>false</b></returns>
+		/// <returns>Always returns <b>false</b>.</returns>
 		protected virtual bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond) => false;  /* do nothing */
 
 		/// <summary>Helper function that changes Flight Group indexes during a Move (index swap) operation.</summary>
@@ -133,5 +146,10 @@ namespace Idmr.Platform
 			change |= TransformFGReferences(255, srcIndex, false);
 			return change;
 		}
+
+		/// <summary>Gets a copy of the Trigger as a byte array.</summary>
+		/// <remarks>Length is <b>4</b> for TIE and XvT/BoP, <b>6</b> for XWA.</remarks>
+		/// <returns>The byte array equivalent.</returns>
+		public byte[] GetBytes() => (byte[])_items.Clone();
 	}
 }

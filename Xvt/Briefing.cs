@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
+ * [DEL] Unknown
  * v6.1, 231208
  * [FIX] EventQuantityLimit
  * v5.7.4, 220827
@@ -26,19 +27,19 @@ using System;
 
 namespace Idmr.Platform.Xvt
 {
-	/// <summary>Briefing object for XvT and BoP</summary>
-	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48. Class is serializable for copy/paste functionality</remarks>
+	/// <summary>Briefing object for XvT and BoP.</summary>
+	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48.</remarks>
 	[Serializable]
 	public class Briefing : BaseBriefing
 	{
-		/// <summary>Frames per second for briefing animation</summary>
+		/// <summary>Frames per second for briefing animation.</summary>
 		public const int TicksPerSecond = 21;
-		/// <summary>Maximum number of events that can be held</summary>
+		/// <summary>Maximum number of events that can be held.</summary>
 		public const int EventQuantityLimit = 200;
 
-		/// <summary>Initializes a blank Briefing</summary>
+		/// <summary>Initializes a blank Briefing.</summary>
 		public Briefing()
-		{	//initialize
+		{
 			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.XvT;
 			Length = 0x3B1;	// default to 45 seconds
@@ -56,15 +57,10 @@ namespace Idmr.Platform.Xvt
 			_events[7] = 0x30;
 			_events[8] = 9999;
 			_events[9] = (short)EventType.EndBriefing;
-            //[JB] Moved team visibility to BriefingCollection to fix a bug where the team[0] would see "every" briefing (the last team to be flagged?)
 		}
 
-		/// <summary>Gets or sets the unknown setting</summary>
-		/// <remarks>Briefing offset 0x08</remarks>
-		public short Unknown3 { get; set; }
-
-		/// <summary>Gets the briefing team visibility</summary>  
-		/// <remarks>Determines which teams view the briefing. Array length = 10</remarks>  
+		/// <summary>Gets the briefing team visibility.</summary>  
+		/// <remarks>Determines which teams view the briefing. Array length = 10.</remarks>  
 		public bool[] Team { get; } = new bool[10];
 	}
 }

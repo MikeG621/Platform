@@ -1,6 +1,6 @@
 ﻿/*
- * Idmr.Platform.dll, X-wing series mission library file, TIE95-XWA
- * Copyright (C) 2009-2014 Michael Gaisser (mjgaisser@gmail.com)
+ * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -14,20 +14,20 @@
 
 namespace Idmr.Platform.Tie
 {
-	/// <summary>Briefing object for TIE95</summary>
-	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48</remarks>
+	/// <summary>Briefing object for TIE95.</summary>
+	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48.</remarks>
 	public class Briefing : BaseBriefing
 	{
-		/// <summary>Frames per second for briefing animation</summary>
-		/// <remarks>Value is <b>12 (0xC)</b></remarks>
+		/// <summary>Frames per second for briefing animation.</summary>
+		/// <remarks>Value is <b>12 (0xC)</b>.</remarks>
 		public const int TicksPerSecond = 0xC;
-		/// <summary>Maximum number of events that can be held</summary>
-		/// <remarks>Value is <b>200 (0xC8)</b></remarks>
+		/// <summary>Maximum number of events that can be held.</summary>
+		/// <remarks>Value is <b>200 (0xC8)</b>.</remarks>
 		public const int EventQuantityLimit = 0xC8;
 
-		/// <summary>Initializes a blank Briefing</summary>
+		/// <summary>Initializes a blank Briefing.</summary>
 		public Briefing()
-		{	//initialize
+		{
 			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.TIE;
 			Length = 0x21C;	//default 45 seconds

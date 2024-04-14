@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
+ * [UPD] Format spec implemented
  * v6.1, 231208
  * [NEW] CommandList enum
  * [UPD] Convert times for XWA
@@ -36,99 +37,99 @@ namespace Idmr.Platform.Xvt
 {
 	public partial class FlightGroup : BaseFlightGroup
 	{
-		/// <summary>Object for a single Order</summary>
+		/// <summary>Object for a single Order.</summary>
 		[Serializable] public class Order : BaseOrder
 		{
 			string _designation = "";
 
-			/// <summary>Available orders</summary>
+			/// <summary>Available orders.</summary>
 			public enum CommandList : byte
 			{
-				/// <summary>Stationary. Go Home if not first order</summary>
+				/// <summary>Stationary. Go Home if not first order.</summary>
 				HoldSteady,
-				/// <summary>Return to Mothership or hyperspace</summary>
+				/// <summary>Return to Mothership or hyperspace.</summary>
 				GoHome,
-				/// <summary>Loop through waypoints</summary>
+				/// <summary>Loop through waypoints.</summary>
 				Circle,
-				/// <summary>Loop through waypoints and evade</summary>
+				/// <summary>Loop through waypoints and evade.</summary>
 				CircleEvade,
-				/// <summary>Fly to RDV and await docking</summary>
+				/// <summary>Fly to RDV and await docking.</summary>
 				Rendezvous,
-				/// <summary>Disabled</summary>
+				/// <summary>Disabled.</summary>
 				Disabled,
-				/// <summary>Disabled, awaiting boarding</summary>
+				/// <summary>Disabled, awaiting boarding.</summary>
 				AwaitBoarding,
-				/// <summary>Attack targets</summary>
+				/// <summary>Attack targets.</summary>
 				AttackTargets,
-				/// <summary>Attack target's escorts</summary>
+				/// <summary>Attack target's escorts.</summary>
 				AttackEscorts,
-				/// <summary>Attack target's attackers</summary>
+				/// <summary>Attack target's attackers.</summary>
 				Protect,
-				/// <summary>Attack target's attackers and boarding craft</summary>
+				/// <summary>Attack target's attackers and boarding craft.</summary>
 				Escort,
-				/// <summary>Attack to disable targets</summary>
+				/// <summary>Attack to disable targets.</summary>
 				DisableTargets,
-				/// <summary>Board targets to give cargo</summary>
+				/// <summary>Board targets to give cargo.</summary>
 				BoardGiveCargo,
-				/// <summary>Board targets to take cargo</summary>
+				/// <summary>Board targets to take cargo.</summary>
 				BoardTakeCargo,
-				/// <summary>Board targets to exchange cargo</summary>
+				/// <summary>Board targets to exchange cargo.</summary>
 				BoardExchangeCargo,
-				/// <summary>Board to capture targets</summary>
+				/// <summary>Board to capture targets.</summary>
 				BoardToCapture,
-				/// <summary>Board targets to destroy</summary>
+				/// <summary>Board targets to destroy.</summary>
 				BoardDestroy,
-				/// <summary>Pickup and carry target</summary>
+				/// <summary>Pickup and carry target.</summary>
 				PickUp,
-				/// <summary>Drops off designated FG</summary>
+				/// <summary>Drops off designated FG.</summary>
 				DropOff,
-				/// <summary>Wait for a time</summary>
+				/// <summary>Wait for a time.</summary>
 				Wait,
-				/// <summary>Wait for a time (Starship)</summary>
+				/// <summary>Wait for a time (Starship).</summary>
 				SSWait,
-				/// <summary>Loop through waypoints (Starship)</summary>
+				/// <summary>Loop through waypoints (Starship).</summary>
 				SSPatrol,
-				/// <summary>Wait for return of all craft that use FG as Mothership</summary>
+				/// <summary>Wait for return of all craft that use FG as Mothership.</summary>
 				SSAwaitReturn,
-				/// <summary>Wait for launch of all craft that use FG as Mothership</summary>
+				/// <summary>Wait for launch of all craft that use FG as Mothership.</summary>
 				SSLaunch,
-				/// <summary>Loop through waypoints and attack target's attackers</summary>
+				/// <summary>Loop through waypoints and attack target's attackers.</summary>
 				SSProtect,
-				/// <summary>Loop through waypoints and attack target's attackers</summary>
+				/// <summary>Loop through waypoints and attack target's attackers.</summary>
 				SSProtect2,
-				/// <summary>Loop through waypoints and attack targets</summary>
+				/// <summary>Loop through waypoints and attack targets.</summary>
 				SSPatrolAttack,
-				/// <summary>Loop through waypoints and attack to disable targets</summary>
+				/// <summary>Loop through waypoints and attack to disable targets.</summary>
 				SSPatrolDisable,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Hold2,
-				/// <summary>Return to Mothership or hyperspace (Starship)</summary>
+				/// <summary>Return to Mothership or hyperspace (Starship).</summary>
 				SSGoHome,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Hold3,
-				/// <summary>Boards target (Starship)</summary>
+				/// <summary>Boards target (Starship).</summary>
 				SSBoard,
-				/// <summary>Boards target to repair systems</summary>
+				/// <summary>Boards target to repair systems.</summary>
 				BoardRepair,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Hold4,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Hold5,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Hold6,
-				/// <summary>Destroys self</summary>
+				/// <summary>Destroys self.</summary>
 				SelfDestruct,
-				/// <summary>Rams target</summary>
+				/// <summary>Rams target.</summary>
 				Kamikaze,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Hold7,
-				/// <summary>Stationary</summary>
+				/// <summary>Stationary.</summary>
 				Null
 			}
 
 			#region constructors
-			/// <summary>Initializes a blank Order</summary>
-			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b></remarks>
+			/// <summary>Initializes a blank Order.</summary>
+			/// <remarks><see cref="BaseFlightGroup.BaseOrder.Throttle"/> set to <b>100%</b>, AndOr values set to <b>"Or"</b>.</remarks>
 			public Order()
 			{
 				_items = new byte[19];
@@ -147,25 +148,24 @@ namespace Idmr.Platform.Xvt
 				}
 			}
 			
-			/// <summary>Initlializes a new Order from raw data</summary>
+			/// <summary>Initializes a new Order from raw data.</summary>
 			/// <remarks>If <paramref name="raw"/>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
-			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			public Order(byte[] raw)
+			/// <param name="raw">Raw byte data, minimum Length of 18.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values.</exception>
+			public Order(byte[] raw) : this()
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
-				_items = new byte[19];
-				if (raw.Length >= 19) ArrayFunctions.TrimArray(raw, 0, _items);
-				else ArrayFunctions.WriteToArray(raw, _items, 0);
+				if (raw.Length >= 19) Array.Copy(raw, _items, _items.Length);
+				else Array.Copy(raw, _items, raw.Length);
 				checkValues(this);
 			}
 			
-			/// <summary>Initlialize a new Order from raw data</summary>
+			/// <summary>Initialize a new Order from raw data.</summary>
 			/// <remarks>If <paramref name="raw"/>.Length is 19 or greater, reads 19 bytes. Otherwise reads 18 bytes.</remarks>
-			/// <param name="raw">Raw byte data, minimum Length of 18</param>
-			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
+			/// <param name="raw">Raw byte data, minimum Length of 18.</param>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/>.</exception>
 			public Order(byte[] raw, int startIndex)
 			{
 				if (raw.Length < 18) throw new ArgumentException("Minimum length of raw is 18", "raw");
@@ -180,7 +180,7 @@ namespace Idmr.Platform.Xvt
 				{
 					if (startIndex != 0)
 						throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0");
-					ArrayFunctions.WriteToArray(raw, _items, 0);
+					Array.Copy(raw, _items, raw.Length);
 				}
 				checkValues(this);
 			}
@@ -296,9 +296,9 @@ namespace Idmr.Platform.Xvt
 				return s;
 			}
 
-			/// <summary>Returns a representative string of the Order</summary>
-			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required</remarks>
-			/// <returns>Description of the order and targets if applicable, otherwise <b>"None"</b></returns>
+			/// <summary>Returns a representative string of the Order.</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b> and Teams are identified as <b>"TM:#"</b> for later substitution if required.</remarks>
+			/// <returns>Description of the order and targets if applicable, otherwise <b>"None"</b>.</returns>
 			public override string ToString()
 			{
 				if (Command == 0) return "None";
@@ -327,35 +327,29 @@ namespace Idmr.Platform.Xvt
 				return order;
 			}
 
-			/// <summary>Converts an Order into a byte array</summary>
-			/// <remarks><see cref="Designation"/> is lost in the conversion</remarks>
-			/// <param name="order">The Order to convert</param>
-			/// <returns>A byte array of Length 19 containing the order data</returns>
-			public static explicit operator byte[](Order order)
+			/// <summary>Converts an Order into a byte array.</summary>
+			/// <remarks><see cref="Designation"/> is lost in the conversion.</remarks>
+			/// <param name="ord">The Order to convert.</param>
+			/// <returns>A byte array of Length 19 containing the order data.</returns>
+			public static explicit operator byte[](Order ord) => ord.GetBytes();
+			/// <summary>Converts an Order for TIE.</summary>
+			/// <remarks><see cref="Speed"/> and <see cref="Designation"/> are lost.</remarks>
+			/// <param name="ord">The Order to convert.</param>
+			/// <returns>A copy of <paramref name="ord"/> for use in TIE95.</returns>
+			public static explicit operator Tie.FlightGroup.Order(Order ord) => new Tie.FlightGroup.Order(ord.GetBytes());
+			/// <summary>Converts an Order for XWA.</summary>
+			/// <param name="ord">The Order to convert.</param>
+			/// <returns>A copy of <paramref name="ord"/> for use in XWA.</returns>
+			public static implicit operator Xwa.FlightGroup.Order(Order ord)
 			{
-				// Designation is lost
-				byte[] b = new byte[19];
-				for (int i = 0; i < 19; i++) b[i] = order[i];
-				return b;
-			}
-			/// <summary>Converts an Order for TIE</summary>
-			/// <remarks><see cref="Speed"/> and <see cref="Designation"/> are lost</remarks>
-			/// <param name="order">The Order to convert</param>
-			/// <returns>A copy of <paramref name="order"/> for use in TIE95</returns>
-			public static explicit operator Tie.FlightGroup.Order(Order order) => new Tie.FlightGroup.Order((byte[])order);
-			/// <summary>Converts an Order for XWA</summary>
-			/// <param name="order">The Order to convert</param>
-			/// <returns>A copy of <paramref name="order"/> for use in XWA</returns>
-			public static implicit operator Xwa.FlightGroup.Order(Order order)
-			{
-				var ord = new Xwa.FlightGroup.Order((byte[])order)
+				var newOrder = new Xwa.FlightGroup.Order(ord.GetBytes())
 				{
-					CustomText = order.Designation
+					CustomText = ord.Designation
 				};
                 //XvT time is value*5=sec
                 //XWA time value, if 20 (decimal) or under is exact seconds, then +5 up to 15:00, then +10.
                 //21 = 25 sec, 22 = 30 sec, etc.
-                switch ((CommandList)ord.Command)
+                switch ((CommandList)newOrder.Command)
                 {
                     case CommandList.BoardGiveCargo:
                     case CommandList.BoardTakeCargo:
@@ -371,56 +365,28 @@ namespace Idmr.Platform.Xvt
                     case CommandList.SSBoard:
                     case CommandList.BoardRepair:
                     case CommandList.SelfDestruct:
-						if (ord.Variable1 < 4) ord.Variable1 = (byte)(ord.Variable1 * 5);
-						else if (ord.Variable1 < 180) ord.Variable1 = (byte)(ord.Variable1 + 16);
-						else ord.Variable1 = (byte)(ord.Variable1 / 2 + 106);
+						if (newOrder.Variable1 < 4) newOrder.Variable1 = (byte)(newOrder.Variable1 * 5);
+						else if (newOrder.Variable1 < 180) newOrder.Variable1 = (byte)(newOrder.Variable1 + 16);
+						else newOrder.Variable1 = (byte)(newOrder.Variable1 / 2 + 106);
                         break;
                     default: break;
                 }
-				if (ord.Target1Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target1 != 255) ord.Target1++;
-                if (ord.Target2Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target2 != 255) ord.Target2++;
-                if (ord.Target3Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target3 != 255) ord.Target3++;
-                if (ord.Target4Type == (byte)Mission.Trigger.TypeList.ShipType && ord.Target4 != 255) ord.Target4++;
-                return ord;
+				if (newOrder.Target1Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target1 != 255) newOrder.Target1++;
+                if (newOrder.Target2Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target2 != 255) newOrder.Target2++;
+                if (newOrder.Target3Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target3 != 255) newOrder.Target3++;
+                if (newOrder.Target4Type == (byte)Mission.Trigger.TypeList.ShipType && newOrder.Target4 != 255) newOrder.Target4++;
+                return newOrder;
 			}
-			
+
 			#region public properties
-			/// <summary>Unknown value</summary>
-			/// <remarks>Order offset 0x04</remarks>
-			public byte Unknown6
-			{
-				get => _items[4];
-				set => _items[4] = value;
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Order offset 0x05</remarks>
-			public byte Unknown7
-			{
-				get => _items[5];
-				set => _items[5] = value;
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Order offset 0x0B</remarks>
-			public byte Unknown8
-			{
-				get => _items[11];
-				set => _items[11] = value;
-			}
-			/// <summary>Unknown value</summary>
-			/// <remarks>Order offset 0x11</remarks>
-			public byte Unknown9
-			{
-				get => _items[17];
-				set => _items[17] = value;
-			}
-			/// <summary>Gets or sets the specific max velocity</summary>
+			/// <summary>Gets or sets the specific max velocity.</summary>
 			public byte Speed
 			{
 				get => _items[18];
 				set => _items[18] = value;
 			}
-			/// <summary>Gets or sets the order description</summary>
-			/// <remarks>Limited to 16 characters</remarks>
+			/// <summary>Gets or sets the order description.</summary>
+			/// <remarks>Limited to 16 characters.</remarks>
 			public string Designation
 			{
 				get => _designation;

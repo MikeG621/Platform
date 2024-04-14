@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
@@ -18,11 +18,11 @@ using System.Collections.Generic;
 
 namespace Idmr.Platform.Xwing
 {
-	/// <summary>Object to maintain mission FG list</summary>
-	/// <remarks><see cref="Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (255)</remarks>
+	/// <summary>Object to maintain mission FG list.</summary>
+	/// <remarks><see cref="Common.ResizableCollection{T}.ItemLimit"/> is set to <see cref="Mission.FlightGroupLimit"/> (255).</remarks>
 	public class FlightGroupCollection : Common.ResizableCollection<FlightGroup>
 	{
-		/// <summary>Creates a new Collection with one FlightGroup</summary>
+		/// <summary>Creates a new Collection with one FlightGroup.</summary>
 		public FlightGroupCollection()
 		{
 			_itemLimit = Mission.FlightGroupLimit;
@@ -32,9 +32,9 @@ namespace Idmr.Platform.Xwing
 			};
 		}
 
-		/// <summary>Creates a new Collection with multiple initial FlightGroups</summary>
-		/// <param name="quantity">Number of FlightGroups to start with</param>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>1</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/></exception>
+		/// <summary>Creates a new Collection with multiple initial FlightGroups.</summary>
+		/// <param name="quantity">Number of FlightGroups to start with.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>1</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/>.</exception>
 		public FlightGroupCollection(int quantity)
 		{
 			_itemLimit = Mission.FlightGroupLimit;
@@ -43,8 +43,8 @@ namespace Idmr.Platform.Xwing
 			for (int i = 0; i < quantity; i++) _items.Add(new FlightGroup());
 		}
 
-		/// <summary>Adds a new FlightGroup to the end of the Collection</summary>
-		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b></returns>
+		/// <summary>Adds a new FlightGroup to the end of the Collection.</summary>
+		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b>.</returns>
 		public int Add()
 		{
 			int result = _add(new FlightGroup());
@@ -52,9 +52,9 @@ namespace Idmr.Platform.Xwing
 			return result;
 		}
 
-		/// <summary>Inserts a new FlightGroup at the specified index</summary>
-		/// <param name="index">Location of the FlightGroup</param>
-		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b></returns>
+		/// <summary>Inserts a new FlightGroup at the specified index.</summary>
+		/// <param name="index">Location of the FlightGroup.</param>
+		/// <returns>The index of the added FlightGroup if successfull, otherwise <b>-1</b>.</returns>
 		public int Insert(int index)
 		{
 			int result = _insert(index, new FlightGroup());
@@ -62,8 +62,8 @@ namespace Idmr.Platform.Xwing
 			return result;
 		}
 
-		/// <summary>Removes all existing entries in the Collection, creates a single new FlightGroup</summary>
-		/// <remarks>All existing FlightGroups are lost, first FG is re-initialized</remarks>
+		/// <summary>Removes all existing entries in the Collection, creates a single new FlightGroup.</summary>
+		/// <remarks>All existing FlightGroups are lost, first FG is re-initialized.</remarks>
 		public override void Clear()
 		{
 			_items.Clear();
@@ -71,10 +71,10 @@ namespace Idmr.Platform.Xwing
 			if (!_isLoading) _isModified = true;
 		}
 
-		/// <summary>Deletes the FlightGroup at the specified index</summary>
-		/// <remarks>If the first and only FlightGroup is selected, initializes it to a new FlightGroup</remarks>
-		/// <param name="index">The index of the FlightGroup to be deleted</param>
-		/// <returns>The index of the next available FlightGroup if successfull, otherwise <b>-1</b></returns>
+		/// <summary>Deletes the FlightGroup at the specified index.</summary>
+		/// <remarks>If the first and only FlightGroup is selected, initializes it to a new FlightGroup.</remarks>
+		/// <param name="index">The index of the FlightGroup to be deleted.</param>
+		/// <returns>The index of the next available FlightGroup if successfull, otherwise <b>-1</b>.</returns>
 		public int RemoveAt(int index)
 		{
             if (index >= 0 && index < Count)   //[JB] Extra cleanup and reference adjustments here.
@@ -93,9 +93,9 @@ namespace Idmr.Platform.Xwing
 			return result;
 		}
 
-		/// <summary>Expands or contracts the Collection, populating as necessary</summary>
+		/// <summary>Expands or contracts the Collection, populating as necessary.</summary>
 		/// <param name="value">The new size of the Collection. Must be greater than <b>0</b>.</param>
-		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
+		/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller.</param>
 		/// <exception cref="InvalidOperationException"><paramref name="value"/> is smaller than <see cref="Common.FixedSizeCollection{T}.Count"/> and <paramref name="allowTruncate"/> is <b>false</b>.</exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must be greater than 0.</exception>
 		/// <remarks>If the Collection expands, the new items will be a new <see cref="FlightGroup"/>. When truncating, items will be removed starting from the last index.</remarks>
@@ -111,8 +111,8 @@ namespace Idmr.Platform.Xwing
 			else while (Count < value) Add();
 		}
 		
-		/// <summary>Provides quick access to an array of FlightGroup names</summary>
-		/// <returns>A new array of short-form string representations</returns>
+		/// <summary>Provides quick access to an array of FlightGroup names.</summary>
+		/// <returns>A new array of short-form string representations.</returns>
 		public string[] GetList()
 		{
 			string[] list = new string[Count];
@@ -140,7 +140,7 @@ namespace Idmr.Platform.Xwing
                     return i;
             return -1;
         }
-		/// <summary>Retrieves the index of the first Object</summary>
+		/// <summary>Retrieves the index of the first Object.</summary>
 		/// <remarks>Flight Groups and Object Groups are distinct in-game, but are stored in the same list for editing purposes.  Some editing functions like FG re-arrangement must take care not to mix them so that Flight Group indexes and Object Group indexes don't mix.</remarks>
 		/// <returns>Returns an index, or <b>-1</b> if not found.</returns>
 		public int GetFirstOfObjectGroup()
@@ -162,7 +162,7 @@ namespace Idmr.Platform.Xwing
         }
         /// <summary>Moves the FlightGroup at the specified index up one slot.</summary>
         /// <remarks>No effect if the first FG slot.  Automatically adjusts FG references to compensate for index changes.</remarks>
-        /// <param name="index">The index of the FlightGroup to be moved</param>
+        /// <param name="index">The index of the FlightGroup to be moved.</param>
         /// <returns>Returns <b>true</b> if successful (indexes were valid).</returns>
         public bool MoveUp(int index)
         {
@@ -176,7 +176,7 @@ namespace Idmr.Platform.Xwing
 
         /// <summary>Moves the FlightGroup at the specified index down one slot.</summary>
         /// <remarks>No effect if the last FG slot.  Automatically adjusts FG references to compensate for index changes.</remarks>
-        /// <param name="index">The index of the FlightGroup to be moved</param>
+        /// <param name="index">The index of the FlightGroup to be moved.</param>
         /// <returns>Returns <b>true</b> if successful (indexes were valid).</returns>
         public bool MoveDown(int index)
         {
@@ -190,8 +190,8 @@ namespace Idmr.Platform.Xwing
 
         /// <summary>Swaps two FlightGroup objects.</summary>
         /// <remarks>Indexes are NOT verified.</remarks>
-		/// <param name="srcIndex">First FG index</param>
-		/// <param name="dstIndex">Second FG index</param>
+		/// <param name="srcIndex">First FG index.</param>
+		/// <param name="dstIndex">Second FG index.</param>
         public void Swap(int srcIndex, int dstIndex)
         {
             foreach (var fg in _items)
@@ -210,8 +210,8 @@ namespace Idmr.Platform.Xwing
             }
         }
 
-		/// <summary>Removes all references to the FlightGroup</summary>
-		/// <param name="index">FG index</param>
+		/// <summary>Removes all references to the FlightGroup.</summary>
+		/// <param name="index">FG index.</param>
         public void NullifyReferences(int index)
         {
             foreach(var fg in _items)
@@ -219,7 +219,7 @@ namespace Idmr.Platform.Xwing
         }
 
         /// <summary>Helper function to erase all references and make corrective adjustments to array indexes in preparation for a graceful delete.</summary>
-		/// <param name="index">The FG index to be removed</param>
+		/// <param name="index">The FG index to be removed.</param>
         public void DropElementsAbove(int index)
         {
             for (int i = 0; i < Count; i++)

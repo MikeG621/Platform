@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * This file authored by "JB" (Random Starfighter) (randomstarfighter@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
@@ -27,31 +27,31 @@ using Idmr.Common;
 
 namespace Idmr.Platform.Xwing
 {
-	/// <summary>Framework for XWING95</summary>
-	/// <remarks>This is the primary container object for a XWING95 mission file</remarks>
+	/// <summary>Framework for XWING95.</summary>
+	/// <remarks>This is the primary container object for a XWING95 mission file.</remarks>
 	public partial class Mission : MissionFile
 	{
 		readonly string[] _endOfMissionMessages = new string[3]; //Mission Completion messages.
 		Indexer<string> _endOfMissionIndexer;
 
 		#region constructors
-		/// <summary>Default constructor, creates a blank mission</summary>
+		/// <summary>Default constructor, creates a blank mission.</summary>
 		public Mission()
 		{
 			initialize();
 			for (int i = 0; i < 3; i++) _endOfMissionMessages[i] = "";
 		}
 
-		/// <summary>Creates a new mission from a file</summary>
-		/// <param name="filePath">Full path to the file</param>
+		/// <summary>Creates a new mission from a file.</summary>
+		/// <param name="filePath">Full path to the file.</param>
 		public Mission(string filePath)
 		{
 			initialize();
 			LoadFromFile(filePath);
 		}
 
-		/// <summary>Creates a new mission from an open FileStream</summary>
-		/// <param name="stream">Opened FileStream to mission file</param>
+		/// <summary>Creates a new mission from an open FileStream.</summary>
+		/// <param name="stream">Opened FileStream to mission file.</param>
 		public Mission(FileStream stream)
 		{
 			initialize();
@@ -69,10 +69,10 @@ namespace Idmr.Platform.Xwing
 		#endregion constructors
 
 		#region public methods
-		/// <summary>Loads a mission from a file</summary>
-		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> does not exist</exception>
-		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a X-wing mission file</exception>
+		/// <summary>Loads a mission from a file.</summary>
+		/// <param name="filePath">Full path to the file.</param>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> does not exist.</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a X-wing mission file.</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -87,9 +87,9 @@ namespace Idmr.Platform.Xwing
 			bfs.Close();
 		}
 
-		/// <summary>Loads a mission from an open FileStream</summary>
-		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission file</exception>
+		/// <summary>Loads a mission from an open FileStream.</summary>
+		/// <param name="stream">Opened FileStream to mission file.</param>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission file.</exception>
 		public void LoadFromStream(FileStream stream)
 		{
 			if (GetPlatform(stream) != Platform.Xwing) throw new InvalidDataException(_invalidError);
@@ -171,9 +171,9 @@ namespace Idmr.Platform.Xwing
 			MissionPath = stream.Name;
 		}
 
-		/// <summary>Loads a mission briefing (.BRF) file from an open FileStream</summary>
-		/// <param name="stream">Opened FileStream to mission briefing file</param>
-		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission briefing file</exception>
+		/// <summary>Loads a mission briefing (.BRF) file from an open FileStream<./summary>
+		/// <param name="stream">Opened FileStream to mission briefing file.</param>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission briefing file.</exception>
 		public void LoadBriefingFromStream(FileStream stream)
 		{
 			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
@@ -308,8 +308,8 @@ namespace Idmr.Platform.Xwing
 
 		}
 
-		/// <summary>Saves the mission to <see cref="MissionFile.MissionPath"/></summary>
-		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
+		/// <summary>Saves the mission to <see cref="MissionFile.MissionPath"/>.</summary>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied.</exception>
 		public void Save()
 		{
 			//[JB] Added backup logic.  See the TIE Save() function for comments.
@@ -629,18 +629,18 @@ namespace Idmr.Platform.Xwing
 				File.Delete(backup);
 		}
 
-		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/></summary>
-		/// <param name="filePath">Full path to the new <see cref="MissionFile.MissionPath"/></param>
-		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied</exception>
+		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/>.</summary>
+		/// <param name="filePath">Full path to the new <see cref="MissionFile.MissionPath"/>.</param>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied.</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
 			Save();
 		}
 
-		/// <summary>Checks a CraftType for valid values and adjusts if necessary</summary>
-		/// <param name="craftType">The craft index to check</param>
-		/// <returns>Resultant CraftType index, or <b>255</b> if invalid</returns>
+		/// <summary>Checks a CraftType for valid values and adjusts if necessary.</summary>
+		/// <param name="craftType">The craft index to check.</param>
+		/// <returns>Resultant CraftType index, or <b>255</b> if invalid.</returns>
 		public static byte CraftCheck(byte craftType)
 		{
 			if (craftType > 91) return 255;
@@ -652,9 +652,9 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Attempts to retrieve the XWI flightgroup from the given BRF flightgroup.</summary>
-		/// <param name="BrfIndex">The FG index within the Briefing</param>
+		/// <param name="BrfIndex">The FG index within the Briefing.</param>
 		/// <remarks>In order to convert briefings from X-wing to other platforms, it must grab the necessary coordinate set waypoints.  However, the briefing has its own set of flightgroups.  While the list is usually a match of the XWI, the BRF file-format specs do not guarantee this.  The lists may not be the same size, or items at the same index.</remarks>
-		/// <returns>Resultant XWI Flight Group index, or <b>-1</b> if not found</returns>
+		/// <returns>Resultant XWI Flight Group index, or <b>-1</b> if not found.</returns>
 		public int GetMatchingXWIFlightGroup(int BrfIndex)
 		{
 			if (BrfIndex < 0 || BrfIndex >= FlightGroupsBriefing.Count) return -1;
@@ -719,11 +719,11 @@ namespace Idmr.Platform.Xwing
 			return nameMatch;
 		}
 
-		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE</summary>
-		/// <remarks>First checks for invalid Types, then runs through allowed values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc</remarks>
-		/// <param name="type">Trigger.Type or Order.TargetType</param>
-		/// <param name="variable">Trigger.Variable or Order.Target, may be updated</param>
-		/// <param name="errorMessage">Error description if found, otherwise empty</param>
+		/// <summary>Checks Trigger.Type/Variable or Order.TargetType/Target pairs for values compatible with TIE.</summary>
+		/// <remarks>First checks for invalid Types, then runs through allowed values for each Type. Does not verify FlightGroup, CraftWhen, GlobalGroup or Misc.</remarks>
+		/// <param name="type">Trigger.Type or Order.TargetType.</param>
+		/// <param name="variable">Trigger.Variable or Order.Target, may be updated.</param>
+		/// <param name="errorMessage">Error description if found, otherwise empty.</param>
 		public static void CheckTarget(byte type, ref byte variable, out string errorMessage)
 		{
 			errorMessage = "";
@@ -751,38 +751,38 @@ namespace Idmr.Platform.Xwing
 		#endregion public methods
 
 		#region public properties
-		/// <summary>Gets or sets the allowed mission duration</summary>
+		/// <summary>Gets or sets the allowed mission duration.</summary>
 		public short TimeLimitMinutes = 0;
-		/// <summary>Gets or sets the event that occurs when the player dies and Death Star outcomes</summary>
+		/// <summary>Gets or sets the event that occurs when the player dies and Death Star outcomes.</summary>
 		/// <remarks>For player destruction, <b>00</b> is Rescued and <b>01</b> is Captured.<br/>
 		/// For Death Star outcomes, <b>01</b> is Clear Laser Tower, and <b>05</b> is Hit Exhaust Port.</remarks>
 		public short EndEvent = 0;
-		/// <summary>RndSeed value</summary>
+		/// <summary>RndSeed value.</summary>
 		/// <remarks>RndSeed is supposed to be an initializer to the pseudo-random number generator, but is not actually used.</remarks>
 		public short RndSeed = 0;
-		/// <summary>Gets or sets where the mission takes place</summary>
-		/// <remarks>Value is <b>00</b> for normal space missions, <b>01</b> for the Death Star surface</remarks>
+		/// <summary>Gets or sets where the mission takes place.</summary>
+		/// <remarks>Value is <b>00</b> for normal space missions, <b>01</b> for the Death Star surface.</remarks>
 		public short Location = 0;
-		/// <summary>Gets the array accessor for the EoM Messages</summary>
+		/// <summary>Gets the array accessor for the EoM Messages.</summary>
 		public Indexer<string> EndOfMissionMessages => _endOfMissionIndexer;
 
-		/// <summary>Maximum number of craft that can exist at one time in-game</summary>
-		/// <remarks>Value is <b>28</b></remarks>
+		/// <summary>Maximum number of craft that can exist at one time in-game.</summary>
+		/// <remarks>Value is <b>28</b>.</remarks>
 		public const int CraftLimit = 28;
-		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
+		/// <summary>Maximum number of FlightGroups that can exist in the mission file.</summary>
 		/// <remarks>XWING95 is unique in the series in how it uses separate arrays for FlightGroups and ObjectGroups. The native <b>FlightGroup</b> limit is <b>16</b>, ObjectGroup limit is <b>64</b>. For the sake of editing in YOGEME, these groups are abstracted into a single container while at the same time extending these limits for third party support.</remarks>
 		public const int FlightGroupLimit = 255;
-		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
+		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file.</summary>
 		/// <remarks>XWING95 does not have this feature.</remarks>
 		public const int MessageLimit = 0;
 
-		/// <summary>Gets or sets the FlightGroups for the mission</summary>
-		/// <remarks>Defaults to one FlightGroup</remarks>
+		/// <summary>Gets or sets the FlightGroups for the mission.</summary>
+		/// <remarks>Defaults to one FlightGroup.</remarks>
 		public FlightGroupCollection FlightGroups { get; set; }
-		/// <summary>Gets or sets the Briefing FlightGroups for the mission</summary>
-		/// <remarks>Defaults to one FlightGroup</remarks>
+		/// <summary>Gets or sets the Briefing FlightGroups for the mission.</summary>
+		/// <remarks>Defaults to one FlightGroup.</remarks>
 		public FlightGroupCollection FlightGroupsBriefing { get; set; }
-		/// <summary>Gets or sets the Briefing for the mission</summary>
+		/// <summary>Gets or sets the Briefing for the mission.</summary>
 		public Briefing Briefing { get; set; }
 		#endregion public properties
 	}

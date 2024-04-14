@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
+ * [NEW] Full format spec implemented
+ * [FIX] EoM notes R/W for other teams
  * v6.1, 231208
  * [UPD] GetDelaySeconds is now static
  * v6.0, 231027
@@ -72,13 +74,11 @@ using Idmr.Common;
 
 namespace Idmr.Platform.Xwa
 {
-	/// <summary>Framework for XWA</summary>
-	/// <remarks>This is the primary container object for XWA mission files</remarks>
+	/// <summary>Framework for XWA.</summary>
+	/// <remarks>This is the primary container object for XWA mission files.</remarks>
 	public partial class Mission : MissionFile
 	{
 		readonly string[] _iff = Strings.IFF;
-		readonly string[] _region = new string[4];
-		readonly string[] _globalGroup = new string[16];
 		string _missionDescription = "#";
 		string _missionFailed = "#";
 		string _missionSuccessful = "";
@@ -87,72 +87,70 @@ namespace Idmr.Platform.Xwa
 		string _failedNote = "";
 		string _successfulNote = "";
 
-		/// <summary>Briefing <see cref="Logo"/> values</summary>
+		/// <summary>Briefing <see cref="Logo"/> values.</summary>
 		public enum LogoEnum : byte {
-			/// <summary>No logo shown</summary>
+			/// <summary>No logo shown.</summary>
 			None,
-			/// <summary>Defiance logo</summary>
+			/// <summary>Defiance logo.</summary>
 			Defiance = 4,
-			/// <summary>Liberty logo</summary>
+			/// <summary>Liberty logo.</summary>
 			Liberty,
-			/// <summary>Independance logo</summary>
+			/// <summary>Independance logo.</summary>
 			Independance,
-			/// <summary>Family logo</summary>
+			/// <summary>Family logo.</summary>
 			AzzameenBase,
-			/// <summary>Squadron 1 logo</summary>
+			/// <summary>Squadron 1 logo.</summary>
 			PhantomSquadron,
-			/// <summary>Squadron 2 logo</summary>
+			/// <summary>Squadron 2 logo.</summary>
 			VectorSquadron,
-			/// <summary>Squadron 3 logo</summary>
+			/// <summary>Squadron 3 logo.</summary>
 			RogueSquadron,
-			/// <summary>Squadron 4 logo</summary>
+			/// <summary>Squadron 4 logo.</summary>
 			FamilyTransport,
-			/// <summary>Unknown logo</summary>
+			/// <summary>Unknown logo.</summary>
 			Unknown_C
 		}
-		/// <summary>Mission starting <see cref="MissionType"/> (aka Hangar)</summary>
+		/// <summary>Mission starting <see cref="MissionType"/> (aka Hangar).</summary>
 		public enum HangarEnum : byte {
-			/// <summary>Junkyard starting location</summary>
+			/// <summary>Junkyard starting location.</summary>
 			Junkyard,
-			/// <summary>Instant start, only through the Simulator</summary>
+			/// <summary>Instant start, only through the Simulator.</summary>
 			Simulator1,
-			/// <summary>Instant start</summary>
+			/// <summary>Instant start.</summary>
 			QuickStart,
-			/// <summary>Instant start, only through the Simulator</summary>
+			/// <summary>Instant start, only through the Simulator.</summary>
 			Simulator2,
-			/// <summary>Skirmish mission type</summary>
+			/// <summary>Skirmish mission type.</summary>
 			Skirmish,
-			/// <summary>Death Star mission type</summary>
+			/// <summary>Death Star mission type.</summary>
 			DeathStar,
-			/// <summary>Standard Rebel mission</summary>
+			/// <summary>Standard Rebel mission.</summary>
 			MonCalCruiser,
-			/// <summary>Standard Family mission</summary>
+			/// <summary>Standard Family mission.</summary>
 			FamilyTransport
 		}
 
 		#region constructors
-		/// <summary>Default constructor, creates a blank mission</summary>
+		/// <summary>Default constructor, creates a blank mission.</summary>
 		public Mission()
 		{
 			initialize();
-			for (int i=0;i<16;i++) { GlobalCargo[i].Cargo = ""; GlobalCargo[i].Unknown1 = true;  _globalGroup[i] = ""; }
-			for (int i=0;i<4;i++) { _region[i] = "Region " + (i+1).ToString(); _iff[i+2] = ""; }
-			Unknown1 = Unknown2 = true;
-			MissionType = HangarEnum.MonCalCruiser;
-			Logo = LogoEnum.None;
-			Unknown3 = 0x62;
+			for (int i = 0; i < 16; i++) { GlobalCargos[i].Cargo = ""; GlobalCargos[i].Count = 1; }
+			for (int i = 0; i < 32; i++) { GlobalGroups[i].Name = ""; GlobalGroups[i].SpecialCargo = ""; }
+			for (int i = 0; i < 40; i++) { GlobalUnits[i].Name = ""; GlobalUnits[i].SpecialCargo = ""; }
+			for (int i = 0; i < 4; i++) { Regions[i].Name = "Region " + (i + 1).ToString(); _iff[i + 2] = ""; }
 		}
 
-		/// <summary>Creates a new mission from a file</summary>
-		/// <param name="filePath">Full path to the file</param>
+		/// <summary>Creates a new mission from a file.</summary>
+		/// <param name="filePath">Full path to the file.</param>
 		public Mission(string filePath)
 		{
 			initialize();
 			LoadFromFile(filePath);
 		}
 
-		/// <summary>Creates a new mission from an open FileStream</summary>
-		/// <param name="stream">Opened FileStream to mission file</param>
+		/// <summary>Creates a new mission from an open FileStream.</summary>
+		/// <param name="stream">Opened FileStream to mission file.</param>
 		public Mission(FileStream stream)
 		{
 			initialize();
@@ -162,9 +160,7 @@ namespace Idmr.Platform.Xwa
 		void initialize()
 		{
 			_invalidError = _invalidError.Replace("{0}", "XWA");
-			GlobalGroups = new Indexer<string>(_globalGroup, 56);
-			Regions = new Indexer<string>(_region, 0x83);
-			IFFs = new Indexer<string>(_iff, 19, new bool[]{true, true, false, false, false, false});
+			IFFs = new Indexer<string>(_iff, 19, new bool[] { true, true, false, false, false, false });
 			FlightGroups = new FlightGroupCollection();
 			Messages = new MessageCollection();
 			Globals = new GlobalsCollection();
@@ -174,10 +170,10 @@ namespace Idmr.Platform.Xwa
 		#endregion constructors
 
 		#region public methods
-		/// <summary>Load a mission from a file</summary>
-		/// <param name="filePath">Full path to the file</param>
-		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> cannot be located</exception>
-		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a XWA mission file</exception>
+		/// <summary>Load a mission from a file.</summary>
+		/// <param name="filePath">Full path to the file.</param>
+		/// <exception cref="FileNotFoundException"><paramref name="filePath"/> cannot be located.</exception>
+		/// <exception cref="InvalidDataException"><paramref name="filePath"/> is not a XWA mission file.</exception>
 		public void LoadFromFile(string filePath)
 		{
 			if (!File.Exists(filePath)) throw new FileNotFoundException();
@@ -186,76 +182,96 @@ namespace Idmr.Platform.Xwa
 			fs.Close();
 		}
 
-		/// <summary>Load a mission from an open FileStream</summary>
-		/// <param name="stream">Opened FileStream to mission file</param>
-		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid XWA mission file</exception>
+		/// <summary>Load a mission from an open FileStream.</summary>
+		/// <param name="stream">Opened FileStream to mission file.</param>
+		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid XWA mission file.</exception>
 		public void LoadFromStream(FileStream stream)
 		{
 			if (GetPlatform(stream) != Platform.XWA) throw new InvalidDataException(_invalidError);
-            BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
+			BinaryReader br = new BinaryReader(stream, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
 			int i, j;
 			long p;
 			stream.Position = 2;
 			short numFlightGroups = br.ReadInt16();
 			short numMessages = br.ReadInt16();
 			#region Platform
-			stream.Position = 8;
-			Unknown1 = br.ReadBoolean();
-			stream.Position = 0xB;
-			Unknown2 = br.ReadBoolean();
-			stream.Position = 0x14;
-			for (i=2;i<6;i++) _iff[i] = new string(br.ReadChars(0x14)).Trim('\0');
-			for (i=0;i<4;i++) _region[i] = new string(br.ReadChars(0x84)).Trim('\0');
-			for (i=0;i<16;i++)
+			LegacyTimeLimitMin = br.ReadByte();
+			LegacyTimeLimitSec = br.ReadByte();
+			LegacyWinType = br.ReadByte();
+			LegacyBackdrop = br.ReadByte();
+			LegacyRescue = br.ReadByte();
+			LegacyAllWayShown = br.ReadByte();
+			LegacyVars = br.ReadBytes(LegacyVars.Length);
+			for (i = 2; i < 6; i++) _iff[i] = new string(br.ReadChars(0x14)).Trim('\0');
+			for (i = 0; i < 4; i++)
 			{
-				p = stream.Position;
-				GlobalCargo[i].Cargo = new string(br.ReadChars(0x40)).Trim('\0');
-				stream.Position += 4;
-				GlobalCargo[i].Unknown1 = br.ReadBoolean();
-				stream.Position += 3;
-				GlobalCargo[i].Unknown2 = br.ReadByte();
-				GlobalCargo[i].Unknown3 = br.ReadByte();
-				GlobalCargo[i].Unknown4 = br.ReadByte();
-				GlobalCargo[i].Unknown5 = br.ReadByte();
-				stream.Position = p + 0x8C;
+				Regions[i].Name = new string(br.ReadChars(0x40)).Trim('\0');
+				Regions[i].ID = br.ReadInt32();
+				stream.Position += 0x40;
 			}
-			for (i=0;i<16;i++) _globalGroup[i] = new string(br.ReadChars(0x57)).Trim('\0');
-			stream.Position = 0x23AC;
+			for (i = 0; i < 16; i++)
+			{
+				GlobalCargos[i].Cargo = new string(br.ReadChars(0x40)).Trim('\0');
+				GlobalCargos[i].ID = br.ReadInt32();
+				GlobalCargos[i].Count = br.ReadInt32();
+				GlobalCargos[i].Type = (GlobCarg.CargoTypes)br.ReadByte();
+				GlobalCargos[i].Volume = br.ReadByte();
+				GlobalCargos[i].Value = br.ReadByte();
+				GlobalCargos[i].Volatility = (GlobCarg.VolatilityLevels)br.ReadByte();
+				stream.Position += 0x40;
+			}
+			for (i = 0; i < 32; i++)
+			{
+				GlobalGroups[i].Name = new string(br.ReadChars(0x40)).Trim('\0');
+				GlobalGroups[i].Leader = br.ReadByte();
+				GlobalGroups[i].SpecialCraft = br.ReadByte();
+				GlobalGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).Trim('\0');
+				GlobalGroups[i].RandomSpecialCraft = br.ReadBoolean();
+			}
+			for (i = 0; i < 40; i++)
+			{
+				GlobalUnits[i].Name = new string(br.ReadChars(0x40)).Trim('\0');
+				GlobalUnits[i].Leader = br.ReadByte();
+				GlobalUnits[i].SpecialCraft = br.ReadByte();
+				GlobalUnits[i].SpecialCargo = new string(br.ReadChars(0x14)).Trim('\0');
+				GlobalUnits[i].RandomSpecialCraft = br.ReadBoolean();
+			}
 			MissionType = (HangarEnum)br.ReadByte();
-			stream.Position++;
+			GoalsUnimportant = br.ReadBoolean();
 			TimeLimitMin = br.ReadByte();
 			EndWhenComplete = br.ReadBoolean();
 			Officer = br.ReadByte();
 			Logo = (LogoEnum)br.ReadByte();
-			stream.Position++;
-			Unknown3 = br.ReadByte();
-			Unknown4 = br.ReadByte();
-			Unknown5 = br.ReadByte();
+			BriefingOfficerEntryLine = br.ReadByte();
+			SecondaryVersion = br.ReadByte();
+			WinOfficer = br.ReadByte();
+			FailOfficer = br.ReadByte();
 			stream.Position = 0x23F0;
 			#endregion
 			#region FlightGroups
 			FlightGroups = new FlightGroupCollection(numFlightGroups);
 			byte[] buffer = new byte[64];
-			for(i=0;i<numFlightGroups;i++)
+			for (i = 0; i < numFlightGroups; i++)
 			{
 				#region Craft
+				p = stream.Position;
 				FlightGroups[i].Name = new string(br.ReadChars(0x14)).Trim('\0');
 				stream.Read(buffer, 0, 7);
-				FlightGroups[i].EnableDesignation1 = buffer[0]; //[JB] Changed bool to byte since it handles multiple values.
+				FlightGroups[i].EnableDesignation1 = buffer[0];
 				FlightGroups[i].EnableDesignation2 = buffer[1];
 				FlightGroups[i].Designation1 = buffer[2];
 				FlightGroups[i].Designation2 = buffer[3];
-				FlightGroups[i].Unknowns.Unknown1 = buffer[4];
-				try { FlightGroups[i].GlobalCargo = (byte)(buffer[5]+1); }
+				FlightGroups[i].Comms = (FlightGroup.CommsVerbosity)buffer[4];
+				try { FlightGroups[i].GlobalCargo = (byte)(buffer[5] + 1); }
 				catch { FlightGroups[i].GlobalCargo = 0; }
-				try { FlightGroups[i].GlobalSpecialCargo = (byte)(buffer[6]+1); }
+				try { FlightGroups[i].GlobalSpecialCargo = (byte)(buffer[6] + 1); }
 				catch { FlightGroups[i].GlobalSpecialCargo = 0; }
 				stream.Position += 0xD;
 				FlightGroups[i].Cargo = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				FlightGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				FlightGroups[i].Role = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				stream.Position += 5;
-				stream.Read(buffer, 0, 0x1D);
+				stream.Read(buffer, 0, 0x1B);
 				FlightGroups[i].SpecialCargoCraft = buffer[0];
 				FlightGroups[i].RandSpecCargo = Convert.ToBoolean(buffer[1]);
 				FlightGroups[i].CraftType = buffer[2];
@@ -272,13 +288,13 @@ namespace Idmr.Platform.Xwa
 				FlightGroups[i].Team = buffer[8];
 				FlightGroups[i].AI = buffer[9];
 				FlightGroups[i].Markings = buffer[0xA];
-				FlightGroups[i].Radio = buffer[0xB];
+				FlightGroups[i].Radio = (FlightGroup.RadioChannel)buffer[0xB];
 				FlightGroups[i].Formation = buffer[0xD];
 				FlightGroups[i].FormDistance = buffer[0xE];
 				FlightGroups[i].GlobalGroup = buffer[0xF];
-				FlightGroups[i].FormLeaderDist = buffer[0x10];
-				FlightGroups[i].NumberOfWaves = (byte)(buffer[0x11]+1);
-				FlightGroups[i].Unknowns.Unknown3 = buffer[0x12];
+				FlightGroups[i].NumberOfWaves = (byte)(buffer[0x11] + 1);
+				FlightGroups[i].WavesDelay = buffer[0x12];
+				FlightGroups[i].StopArrivingWhen = (FlightGroup.WavesEnd)buffer[0x13];
 				FlightGroups[i].PlayerNumber = buffer[0x14];
 				FlightGroups[i].ArriveOnlyIfHuman = Convert.ToBoolean(buffer[0x15]);
 				FlightGroups[i].PlayerCraft = buffer[0x16];
@@ -286,129 +302,103 @@ namespace Idmr.Platform.Xwa
 				FlightGroups[i].Pitch = (short)Math.Round((double)(sbyte)buffer[0x18] * 360 / 0x100);
 				FlightGroups[i].Pitch += (short)(FlightGroups[i].Pitch < -90 ? 270 : -90);
 				FlightGroups[i].Roll = (short)Math.Round((double)(sbyte)buffer[0x19] * 360 / 0x100);
-				FlightGroups[i].Unknowns.Unknown4 = buffer[0x1B];
+				FlightGroups[i].LegacyPermaDeathID = br.ReadInt16();
 				#endregion
 				#region Arr/Dep
 				stream.Read(buffer, 0, 0x3C);
-                FlightGroups[i].Unknowns.Unknown5 = buffer[0];  //[JB] Swapped with difficulty, now in correct position.
-                FlightGroups[i].Difficulty = buffer[1];
-				for (j=0;j<6;j++)
+				FlightGroups[i].Difficulty = buffer[1];
+				for (j = 0; j < 6; j++)
 				{
-					FlightGroups[i].ArrDepTriggers[0][j] = buffer[2+j];	// Arr1...
-					FlightGroups[i].ArrDepTriggers[1][j] = buffer[8+j];
-					FlightGroups[i].ArrDepTriggers[2][j] = buffer[0x12+j];
-					FlightGroups[i].ArrDepTriggers[3][j] = buffer[0x18+j];
-					FlightGroups[i].ArrDepTriggers[4][j] = buffer[0x26+j];	// Dep1...
-					FlightGroups[i].ArrDepTriggers[5][j] = buffer[0x2C+j];
+					FlightGroups[i].ArrDepTriggers[0][j] = buffer[2 + j];   // Arr1...
+					FlightGroups[i].ArrDepTriggers[1][j] = buffer[8 + j];
+					FlightGroups[i].ArrDepTriggers[2][j] = buffer[0x12 + j];
+					FlightGroups[i].ArrDepTriggers[3][j] = buffer[0x18 + j];
+					FlightGroups[i].ArrDepTriggers[4][j] = buffer[0x26 + j];    // Dep1...
+					FlightGroups[i].ArrDepTriggers[5][j] = buffer[0x2C + j];
 				}
 				FlightGroups[i].ArrDepAndOr[0] = Convert.ToBoolean(buffer[0x10] & 1);
-				FlightGroups[i].Unknowns.Unknown6 = Convert.ToBoolean(buffer[0x11]);
 				FlightGroups[i].ArrDepAndOr[1] = Convert.ToBoolean(buffer[0x20] & 1);
 				FlightGroups[i].ArrDepAndOr[2] = Convert.ToBoolean(buffer[0x22] & 1);
+				FlightGroups[i].RandomArrivalDelayMinutes = buffer[0x23];
 				FlightGroups[i].ArrivalDelayMinutes = buffer[0x24];
 				FlightGroups[i].ArrivalDelaySeconds = buffer[0x25];
 				FlightGroups[i].ArrDepAndOr[3] = Convert.ToBoolean(buffer[0x34] & 1);
 				FlightGroups[i].DepartureTimerMinutes = buffer[0x36];
 				FlightGroups[i].DepartureTimerSeconds = buffer[0x37];
 				FlightGroups[i].AbortTrigger = buffer[0x38];
-				FlightGroups[i].Unknowns.Unknown7 = buffer[0x39];
-				FlightGroups[i].Unknowns.Unknown8 = buffer[0x3A];
+				FlightGroups[i].RandomArrivalDelaySeconds = buffer[0x39];
 				stream.Read(buffer, 0, 8);
-				FlightGroups[i].ArrivalCraft1 = buffer[0];
-				FlightGroups[i].ArrivalMethod1 = buffer[1];
-                FlightGroups[i].DepartureCraft1 = buffer[2];
-                FlightGroups[i].DepartureMethod1 = buffer[3];
-                FlightGroups[i].ArrivalCraft2 = buffer[4];
-				FlightGroups[i].ArrivalMethod2 = Convert.ToBoolean(buffer[5]);
-				FlightGroups[i].DepartureCraft2 = buffer[6];
-				FlightGroups[i].DepartureMethod2 = Convert.ToBoolean(buffer[7]);
+				FlightGroups[i].ArrivalMothership = buffer[0];
+				FlightGroups[i].ArrivalMethod = buffer[1];
+				FlightGroups[i].DepartureMothership = buffer[2];
+				FlightGroups[i].DepartureMethod = buffer[3];
+				FlightGroups[i].AlternateMothership = buffer[4];
+				FlightGroups[i].AlternateMothershipUsed = Convert.ToBoolean(buffer[5]);
+				FlightGroups[i].CapturedDepartureMothership = buffer[6];
+				FlightGroups[i].CapturedDepartViaMothership = Convert.ToBoolean(buffer[7]);
 				#endregion
 				#region Orders
-				for (j=0;j<16;j++)
+				for (j = 0; j < 16; j++)
 				{
-					FlightGroups[i].Orders[j/4, j%4] = new FlightGroup.Order();
+					FlightGroups[i].Orders[j / 4, j % 4] = new FlightGroup.Order();
 					stream.Read(buffer, 0, 0x14);
-					for (int h=0;h<0x13;h++) FlightGroups[i].Orders[j/4, j%4][h] = buffer[h];
-					for (int h=0;h<8;h++)
-						for (int k=0;k<4;k++) FlightGroups[i].Orders[j/4, j%4].Waypoints[h][k] = (short)(br.ReadInt16() * (k == 1 ? -1 : 1));
-					stream.Position += 0x1E;
-					FlightGroups[i].Orders[j/4, j%4].Unknown10 = br.ReadByte();
-					FlightGroups[i].Orders[j/4, j%4].Unknown11 = br.ReadBoolean();
-					FlightGroups[i].Orders[j/4, j%4].Unknown12 = br.ReadBoolean();
-					stream.Position += 6;
-					FlightGroups[i].Orders[j/4, j%4].Unknown13 = br.ReadBoolean();
-					stream.Position += 5;
-					FlightGroups[i].Orders[j/4, j%4].Unknown14 = br.ReadBoolean();
-					stream.Position += 0x12;
+					for (int h = 0; h < 0x13; h++) FlightGroups[i].Orders[j / 4, j % 4][h] = buffer[h];
+					for (int h = 0; h < 8; h++)
+						for (int k = 0; k < 4; k++) FlightGroups[i].Orders[j / 4, j % 4].Waypoints[h][k] = (short)(br.ReadInt16() * (k == 1 ? -1 : 1));
+					stream.Position += 0x40;
 				}
-				for (j=0;j<16;j++)
+				for (j = 0; j < 16; j++)
 				{
 					stream.Read(buffer, 0, 0x10);
-					for (int h=0;h<6;h++)
+					for (int h = 0; h < 6; h++)
 					{
-						FlightGroups[i].Orders[j/4, j%4].SkipTriggers[0][h] = buffer[h];
-						FlightGroups[i].Orders[j/4, j%4].SkipTriggers[1][h] = buffer[h+6];
+						FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[0][h] = buffer[h];
+						FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[1][h] = buffer[h + 6];
 					}
-					FlightGroups[i].Orders[j/4, j%4].SkipT1AndOrT2 = Convert.ToBoolean(buffer[0xE] & 1);
-                }
+					FlightGroups[i].Orders[j / 4, j % 4].SkipT1AndOrT2 = Convert.ToBoolean(buffer[0xE] & 1);
+				}
 				#endregion
 				#region Goals
-				for (j=0;j<8;j++)
+				for (j = 0; j < 8; j++)
 				{
 					byte[] temp = new byte[0x10];
 					stream.Read(temp, 0, 0x10);
 					FlightGroups[i].Goals[j] = new FlightGroup.Goal(temp);
-					stream.Position += 0x3F;
-					FlightGroups[i].Goals[j].Unknown15 = br.ReadBoolean();
+					stream.Position += 0x40;
 				}
 				#endregion
 				for (j = 0; j < 4; j++) for (int k = 0; k < 4; k++) FlightGroups[i].Waypoints[j][k] = (short)(br.ReadInt16() * (k == 1 ? -1 : 1));
-				for (j=0;j<4;j++) FlightGroups[i].Waypoints[j].Region = br.ReadByte();
+				for (j = 0; j < 4; j++) FlightGroups[i].Waypoints[j].Region = br.ReadByte();
 				#region Options/other
 				stream.Read(buffer, 0, 0x1E);
-				FlightGroups[i].Unknowns.Unknown16 = buffer[0];
-				FlightGroups[i].Unknowns.Unknown17 = buffer[1];
-				FlightGroups[i].Unknowns.Unknown18 = buffer[2];
-				FlightGroups[i].Unknowns.Unknown19 = buffer[3];
-				FlightGroups[i].Unknowns.Unknown20 = buffer[4];
-				FlightGroups[i].Unknowns.Unknown21 = buffer[5];
-				FlightGroups[i].Unknowns.Unknown22 = Convert.ToBoolean(buffer[6]);
-				FlightGroups[i].Unknowns.Unknown23 = buffer[8];
-				FlightGroups[i].Unknowns.Unknown24 = buffer[9];
-				FlightGroups[i].Unknowns.Unknown25 = buffer[0xA];
-				FlightGroups[i].Unknowns.Unknown26 = buffer[0xB];
-				FlightGroups[i].Unknowns.Unknown27 = buffer[0xC];
-				FlightGroups[i].Unknowns.Unknown28 = buffer[0xD];
-				FlightGroups[i].Unknowns.Unknown29 = Convert.ToBoolean(buffer[0xE]);
-				FlightGroups[i].Unknowns.Unknown30 = Convert.ToBoolean(buffer[0x12]);
-				FlightGroups[i].Unknowns.Unknown31 = Convert.ToBoolean(buffer[0x13]);
 				FlightGroups[i].GlobalNumbering = Convert.ToBoolean(buffer[0x16]);
-				FlightGroups[i].Unknowns.Unknown32 = buffer[0x17];
-				FlightGroups[i].Unknowns.Unknown33 = buffer[0x18];
-				FlightGroups[i].Countermeasures = buffer[0x19];
+				FlightGroups[i].DepartureClockMin = buffer[0x17];
+				FlightGroups[i].DepartureClockSec = buffer[0x18];
+				FlightGroups[i].Countermeasures = (FlightGroup.CounterTypes)buffer[0x19];
 				FlightGroups[i].ExplosionTime = buffer[0x1A];
 				FlightGroups[i].Status2 = buffer[0x1B];
 				FlightGroups[i].GlobalUnit = buffer[0x1C];
+				FlightGroups[i].Handicap = buffer[0x1D];
 
-                //[JB] Revised loading optional weapons to support Ion Pulse, Energy Beam, Cluster Mine.
-                for (j = 0; j < 8; j++)  //Warhead section, 8 bytes total.
-                {
-                    byte x = br.ReadByte();
-                    if (x != 0 && x < 9) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
-                }
-                for (j = 0; j < 4; j++)  //Beam section, 6 bytes total (reading only 4)
-                {
-                    byte x = br.ReadByte();
-                    if (x != 0 && x < 5) { FlightGroups[i].OptLoadout[9 + x] = true; FlightGroups[i].OptLoadout[9] = false; }
-                }
-                stream.Position += 2;    //skip extra beams
-                for (j = 0; j < 3; j++)  //Countermeasure section, 4 bytes total (reading only 3)
-                {
-                    byte x = br.ReadByte();
-                    if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[14 + x] = true; FlightGroups[i].OptLoadout[14] = false; }
-                }
-                stream.Position++;       //skip extra countermeasure
-                FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
+				//[JB] Revised loading optional weapons to support Ion Pulse, Energy Beam, Cluster Mine.
+				for (j = 0; j < 8; j++)  //Warhead section, 8 bytes total.
+				{
+					byte x = br.ReadByte();
+					if (x != 0 && x < 9) { FlightGroups[i].OptLoadout[x] = true; FlightGroups[i].OptLoadout[0] = false; }
+				}
+				for (j = 0; j < 4; j++)  //Beam section, 6 bytes total (reading only 4)
+				{
+					byte x = br.ReadByte();
+					if (x != 0 && x < 5) { FlightGroups[i].OptLoadout[9 + x] = true; FlightGroups[i].OptLoadout[9] = false; }
+				}
+				stream.Position += 2;    //skip extra beams
+				for (j = 0; j < 3; j++)  //Countermeasure section, 4 bytes total (reading only 3)
+				{
+					byte x = br.ReadByte();
+					if (x != 0 && x < 4) { FlightGroups[i].OptLoadout[14 + x] = true; FlightGroups[i].OptLoadout[14] = false; }
+				}
+				stream.Position++;       //skip extra countermeasure
+				FlightGroups[i].OptCraftCategory = (FlightGroup.OptionalCraftCategory)br.ReadByte();
 				stream.Read(buffer, 0, 0x1E);
 				for (int k = 0; k < 10; k++)
 				{
@@ -419,16 +409,7 @@ namespace Idmr.Platform.Xwa
 				FlightGroups[i].PilotID = new string(br.ReadChars(0x10)).Trim('\0');
 				stream.Position += 5;
 				FlightGroups[i].Backdrop = br.ReadByte();
-				stream.Position += 0x16;
-				stream.Read(buffer, 0, 0x15);
-				FlightGroups[i].Unknowns.Unknown34 = Convert.ToBoolean(buffer[0]);
-				FlightGroups[i].Unknowns.Unknown35 = Convert.ToBoolean(buffer[2]);
-				FlightGroups[i].Unknowns.Unknown36 = Convert.ToBoolean(buffer[4]);
-				FlightGroups[i].Unknowns.Unknown37 = Convert.ToBoolean(buffer[6]);
-				FlightGroups[i].Unknowns.Unknown38 = Convert.ToBoolean(buffer[8]);
-				FlightGroups[i].Unknowns.Unknown39 = Convert.ToBoolean(buffer[0xA]);
-				FlightGroups[i].Unknowns.Unknown40 = Convert.ToBoolean(buffer[0xC]);
-				FlightGroups[i].Unknowns.Unknown41 = Convert.ToBoolean(buffer[0xE]);
+				stream.Position = p + 0xE3E;
 				#endregion
 			}
 			#endregion
@@ -436,118 +417,128 @@ namespace Idmr.Platform.Xwa
 			if (numMessages != 0)
 			{
 				Messages = new MessageCollection(numMessages);
-				for (i=0;i<numMessages;i++)
+				for (i = 0; i < numMessages; i++)
 				{
 					stream.Position += 2;
 					Messages[i].MessageString = new string(br.ReadChars(Message.LengthLimit));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					stream.Position += 0x0C;
 					stream.Read(buffer, 0, 0xA);
-					for (j=0;j<10;j++) Messages[i].SentTo[j] = Convert.ToBoolean(buffer[j]);
+					for (j = 0; j < 10; j++) Messages[i].SentTo[j] = Convert.ToBoolean(buffer[j]);
 					stream.Read(buffer, 0, 0x20);
-					for (j=0;j<6;j++)
+					for (j = 0; j < 6; j++)
 					{
-						Messages[i].Triggers[0][j] = buffer[j];	// T1...
-						Messages[i].Triggers[1][j] = buffer[6+j];
-						Messages[i].Triggers[2][j] = buffer[0x10+j];
-						Messages[i].Triggers[3][j] = buffer[0x16+j];
+						Messages[i].Triggers[0][j] = buffer[j]; // T1...
+						Messages[i].Triggers[1][j] = buffer[6 + j];
+						Messages[i].Triggers[2][j] = buffer[0x10 + j];
+						Messages[i].Triggers[3][j] = buffer[0x16 + j];
 					}
-					Messages[i].Unknown1 = buffer[0xC];
 					Messages[i].TrigAndOr[0] = (buffer[0xE] == 1);
 					Messages[i].TrigAndOr[1] = (buffer[0x1E] == 1);
 					Messages[i].VoiceID = new string(br.ReadChars(8)).Trim('\0');
 					Messages[i].OriginatingFG = br.ReadByte();
-					stream.Position += 7;
+					stream.Position += 3;
+					Messages[i].Type = br.ReadInt32();
 					stream.Read(buffer, 0, 0x16);
-					Messages[i].Delay = buffer[0];
-                    Messages[i].TrigAndOr[2] = (buffer[1] == 1);
+					Messages[i].RawDelay = buffer[0];
+					Messages[i].TrigAndOr[2] = (buffer[1] == 1);
 					Messages[i].Color = buffer[2];
-                    Messages[i].Unknown2 = buffer[3];
+					Messages[i].SpeakerHeader = Convert.ToBoolean(buffer[3]);
 
-                    for (j=0;j<6;j++)
+					for (j = 0; j < 6; j++)
 					{
-						Messages[i].Triggers[4][j] = buffer[4+j];	// CancelT1...
-						Messages[i].Triggers[5][j] = buffer[0xA+j];
+						Messages[i].Triggers[4][j] = buffer[4 + j]; // CancelT1...
+						Messages[i].Triggers[5][j] = buffer[0xA + j];
 					}
 					Messages[i].TrigAndOr[3] = Convert.ToBoolean(buffer[0x12] & 1);
-					Messages[i].Unknown3 = Convert.ToBoolean(buffer[0x14]);
+					Messages[i].CancelMeaning = buffer[0x14];
 				}
 			}
 			else Messages.Clear();
 			#endregion
 			#region Globals
 			Globals.ClearAll();
-			for(i=0;i<Globals.Count;i++)
+			for (i = 0; i < Globals.Count; i++)
 			{
-				stream.Position += 2;
-				for (int k=0;k<3;k++)
+				var readCount = br.ReadInt16();
+				for (int k = 0; k < 3; k++)
 				{
+					p = stream.Position;
 					stream.Read(buffer, 0, 0xE);
-					for (j=0;j<6;j++)
+					for (j = 0; j < 6; j++)
 					{
 						Globals[i].Goals[k].Triggers[0][j] = buffer[j];
-						Globals[i].Goals[k].Triggers[1][j] = buffer[j+6];
+						Globals[i].Goals[k].Triggers[1][j] = buffer[j + 6];
 					}
 					Globals[i].Goals[k].T1AndOrT2 = Convert.ToBoolean(br.ReadByte() & 1);
-					Globals[i].Goals[k].Unknown1 = br.ReadBoolean();
+					stream.Position++;
 					stream.Read(buffer, 0, 0xE);
-					for (j=0;j<6;j++)
+					for (j = 0; j < 6; j++)
 					{
 						Globals[i].Goals[k].Triggers[2][j] = buffer[j];
-						Globals[i].Goals[k].Triggers[3][j] = buffer[j+6];
+						Globals[i].Goals[k].Triggers[3][j] = buffer[j + 6];
 					}
 					Globals[i].Goals[k].T3AndOrT4 = Convert.ToBoolean(br.ReadByte() & 1);
-					stream.Position += 8;
-					Globals[i].Goals[k].Unknown2 = br.ReadBoolean();
-					stream.Position += 9;
+					stream.Position++;
+					Globals[i].Goals[k].Name = new string(br.ReadChars(16)).Trim('\0');
+					Globals[i].Goals[k].Version = br.ReadByte();
 					Globals[i].Goals[k].T12AndOrT34 = Convert.ToBoolean(br.ReadByte() & 1);
 					stream.Read(buffer, 0, 7);
-					Globals[i].Goals[k].Unknown3 = buffer[0];
-					Globals[i].Goals[k].RawPoints=(sbyte)buffer[1];
-					Globals[i].Goals[k].Unknown4 = buffer[2];
-					Globals[i].Goals[k].Unknown5 = buffer[3];
-					Globals[i].Goals[k].Unknown6 = buffer[4];
+					Globals[i].Goals[k].RawDelay = buffer[0];
+					Globals[i].Goals[k].RawPoints = (sbyte)buffer[1];
+					for (int n = 0; n < 4; n++) Globals[i].Goals[k].RawPointsPerTrigger[n] = (sbyte)buffer[2 + n];
 					Globals[i].Goals[k].ActiveSequence = buffer[6];
-					stream.Position += 0x41;
+					stream.Position = p + 0x7A;
 				}
+				if (readCount > 3) for (int k = 3; k < readCount; k++) stream.Position += 0x7A; // account for the extras, but ignore entirely
 			}
 			#endregion
 			#region Teams
 			Teams.ClearAll();
-			for(i=0;i<Teams.Count;i++)
+			for (i = 0; i < Teams.Count; i++)
 			{
 				stream.Position += 2;
-				Teams[i].Name = new string(br.ReadChars(0x12)).Trim('\0');	// null-termed
-				stream.Position += 6;
-				for (j=0;j<10;j++) Teams[i].Allies[j] = (Team.Allegeance)br.ReadByte();
-				for (j=0;j<6;j++) Teams[i].EndOfMissionMessages[j] = new string(br.ReadChars(0x40)).Trim('\0');
-				stream.Read(Teams[i].Unknowns, 0, 6);
-				for (j=0;j<3;j++) Teams[i].VoiceIDs[j] = new string(br.ReadChars(0x14)).Trim('\0');
+				Teams[i].Name = new string(br.ReadChars(0x10)).Trim('\0');  // null-termed
+				stream.Position += 8;
+				for (j = 0; j < 10; j++) Teams[i].Allies[j] = (Team.Allegeance)br.ReadByte();
+				for (j = 0; j < 6; j++) Teams[i].EndOfMissionMessages[j] = new string(br.ReadChars(0x40)).Trim('\0');
+				stream.Read(Teams[i].EomRawDelay, 0, 3);
+				stream.Read(Teams[i].EomSourceFG, 0, 3);
+				for (j = 0; j < 3; j++) Teams[i].VoiceIDs[j] = new string(br.ReadChars(0x14)).Trim('\0');
 				stream.Position++;
 			}
 			#endregion
 			#region Briefing
 			Briefings.ClearAll();
-			for (i=0;i<2;i++)
+			for (i = 0; i < 2; i++)
 			{
 				Briefings[i].Length = br.ReadInt16();
-				Briefings[i].Unknown1 = br.ReadInt16();
-				stream.Position += 6;	// StartLength, EventsLength, Res(0)
+				stream.Position += 6;   // CurrentTime, StartLength, EventsLength
+				Briefings[i].Tile = br.ReadInt16();
 				byte[] briefBuffer = new byte[0x100];
-				for (j=0;j<0x44;j++)
+				for (j = 0; j < 0x32; j++)
 				{
 					stream.Read(briefBuffer, 0, 0x100);
 					Buffer.BlockCopy(briefBuffer, 0, Briefings[i].Events, 0x100 * j, 0x100);
 				}
+				for (j = 0; j < 192; j++)
+				{
+					Briefings[i].Icons[j].Species = br.ReadByte();
+					Briefings[i].Icons[j].IFF = br.ReadByte();
+					Briefings[i].Icons[j].X = br.ReadInt16();
+					Briefings[i].Icons[j].Y = br.ReadInt16();
+					Briefings[i].Icons[j].Orientation = br.ReadInt16();
+					stream.Position += 0x10;
+				}
 				stream.Read(buffer, 0, 0xA);
-				for (j=0;j<10;j++) Briefings[i].Team[j] = Convert.ToBoolean(buffer[j]);
-				for (j=0;j<128;j++)
+				for (j = 0; j < 10; j++) Briefings[i].Team[j] = Convert.ToBoolean(buffer[j]);
+				for (j = 0; j < 128; j++)
 				{
 					int k = br.ReadInt16();
 					Briefings[i].BriefingTag[j] = "";
-					if (k > 0) Briefings[i].BriefingTag[j] = new string(br.ReadChars(k)).Trim('\0');	// shouldn't need the trim
+					if (k > 0) Briefings[i].BriefingTag[j] = new string(br.ReadChars(k)).Trim('\0');    // shouldn't need the trim
 				}
-				for (j=0;j<128;j++)
+				for (j = 0; j < 128; j++)
 				{
 					int k = br.ReadInt16();
 					Briefings[i].BriefingString[j] = "";
@@ -563,16 +554,18 @@ namespace Idmr.Platform.Xwa
 				if (i < Messages.Count) Messages[i].Note = new string(br.ReadChars(0x64)).Trim('\0');
 				else stream.Position += 0x64;
 			}
-			for (i = 0; i < 10; i++) for (j = 0; j < 3; j++) Teams[i].EomNotes[j] = new string(br.ReadChars(0x64)).Trim('\0');
-			stream.Position += 0xFA0;	// unknown space, possibly message notes
+			for (i = 0; i < 10; i++)
+				for (j = 0; j < 7; j++)
+					if (j < 3) Teams[i].EomNotes[j] = new string(br.ReadChars(0x64)).Trim('\0');
+					else stream.Position += 0x64;
 			_descriptionNote = new string(br.ReadChars(0x64)).Trim('\0');
 			_successfulNote = new string(br.ReadChars(0x64)).Trim('\0');
 			_failedNote = new string(br.ReadChars(0x64)).Trim('\0');
 			#endregion
 			#region FG goal strings
-			for (i=0;i<FlightGroups.Count;i++)
-				for (j=0;j<8;j++)	// per goal
-					for (int k=0;k<3;k++)	// per string
+			for (i = 0; i < FlightGroups.Count; i++)
+				for (j = 0; j < 8; j++) // per goal
+					for (int k = 0; k < 3; k++) // per string
 						if (br.ReadByte() != 0)
 						{
 							stream.Position--;
@@ -582,130 +575,149 @@ namespace Idmr.Platform.Xwa
 						}
 			#endregion
 			#region Globals strings
-			for (i = 0; i < 10; i++)	// Team
-				for (j = 0; j < 12; j++)	// Goal * Trigger
-					for (int k = 0; k < 3; k++)	// State
+			for (i = 0; i < 10; i++)    // Team
+				for (j = 0; j < 28; j++)    // Goal * Trigger
+					for (int k = 0; k < 3; k++) // State
 						if (br.ReadByte() != 0)
 						{
-							if (j >= 8 && k == 0) { stream.Position += 0x3F; continue; }	// skip Sec Inc
-							if (j >= 4 && k == 2) { stream.Position += 0x3F; continue; }	// skip Prev & Sec Fail
+							if (j >= 12) { stream.Position += 0x3F; continue; } // skip the extras, unlikely
+							if (j >= 8 && k == 0) { stream.Position += 0x3F; continue; }    // skip Sec Inc
+							if (j >= 4 && k == 2) { stream.Position += 0x3F; continue; }    // skip Prev & Sec Fail
 							stream.Position--;
 							Globals[i].Goals[j / 4].GoalStrings[j % 4, k] = new string(br.ReadChars(0x40));
 						}
 			#endregion
-			stream.Position += 0x1E0;	// unknown space
 			#region Order strings
-			for (i=0;i<192;i++) // per FG (and then some)
-				for (j=0;j<16;j++) // per order
+			for (i = 0; i < 192; i++) // per FG (and then some)
+				for (j = 0; j < 16; j++) // per order
 					if (br.ReadByte() != 0)
 					{
-						if (i >= FlightGroups.Count) { stream.Position += 0x3F; continue; }	// skip if FG doesn't exist
+						if (i >= FlightGroups.Count) { stream.Position += 0x3F; continue; } // skip if FG doesn't exist
 						stream.Position--;
-						FlightGroups[i].Orders[j/4, j%4].CustomText = new string(br.ReadChars(0x40)).Trim('\0');
+						FlightGroups[i].Orders[j / 4, j % 4].CustomText = new string(br.ReadChars(0x40)).Trim('\0');
 					}
 			#endregion
-            _missionSuccessful = new string(br.ReadChars(0x1000)).TrimEnd('\0');
-            _missionFailed = new string(br.ReadChars(0x1000)).TrimEnd('\0');
-            _missionDescription = new string(br.ReadChars(0x1000)).TrimEnd('\0');    //[JB] Only trim from end, because trimming from the start might return YOGEME's signature embedded into the end of the description, or any leftover garbage data that is normally ignored by a null terminator.
+			_missionSuccessful = new string(br.ReadChars(0x1000)).TrimEnd('\0');
+			_missionFailed = new string(br.ReadChars(0x1000)).TrimEnd('\0');
+			_missionDescription = new string(br.ReadChars(0x1000)).TrimEnd('\0');
 			MissionPath = stream.Name;
 		}
 
-		/// <summary>Save the mission with the default path</summary>
-		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied</exception>
+		/// <summary>Save the mission with the default path.</summary>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <see cref="MissionFile.MissionPath"/> are denied.</exception>
 		public void Save()
 		{
 			//[JB] Rewrote the backup logic.  See the TIE Save() function for comments.
-            if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
+			if (File.Exists(MissionPath) && (File.GetAttributes(MissionPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save, existing file is read-only.");
 
 			FileStream fs = null;
-            string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
-            bool backupCreated = false, writerCreated = false;
+			string backup = MissionPath.ToLower().Replace(".tie", "_tie.bak");
+			bool backupCreated = false, writerCreated = false;
 
-            if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
-            {
-                try
-                {
-                    if (File.Exists(backup) )
-                        File.Delete(backup);
-                    File.Copy(MissionPath, backup);
-                    backupCreated = true;
-                }
-                catch { }
-            }
+			if (File.Exists(MissionPath) && MissionPath.ToLower() != backup)
+			{
+				try
+				{
+					if (File.Exists(backup))
+						File.Delete(backup);
+					File.Copy(MissionPath, backup);
+					backupCreated = true;
+				}
+				catch { }
+			}
 			try
 			{
-                if (File.Exists(MissionPath)) File.Delete(MissionPath);
+				if (File.Exists(MissionPath)) File.Delete(MissionPath);
 				fs = File.OpenWrite(MissionPath);
-                BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
-                writerCreated = true;
+				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(1252));  //[JB] Changed encoding to windows-1252 (ANSI Latin 1) to ensure proper loading of 8-bit ANSI regardless of the operating system's default code page.
+				writerCreated = true;
 				int i;
 				long p;
 				#region Platform
 				bw.Write((short)0x12);
 				bw.Write((short)FlightGroups.Count);
 				bw.Write((short)Messages.Count);
-				fs.Position = 8;
-				bw.Write(Unknown1);
-				fs.Position = 0xB;
-				bw.Write(Unknown2);
-				fs.Position = 0x14;
-				for (i=2;i<6;i++)
+				bw.Write(LegacyTimeLimitMin);
+				bw.Write(LegacyTimeLimitSec);
+				bw.Write(LegacyWinType);
+				bw.Write(LegacyBackdrop);
+				bw.Write(LegacyRescue);
+				bw.Write(LegacyAllWayShown);
+				bw.Write(LegacyVars);
+				for (i = 2; i < 6; i++)
 				{
 					p = fs.Position;
 					bw.Write(_iff[i].ToCharArray());
 					fs.Position = p + 0x14;
 				}
-				for (i=0;i<4;i++)
+				for (i = 0; i < 4; i++)
 				{
 					p = fs.Position;
-					bw.Write(_region[i].ToCharArray());
-					fs.Position = p + 0x84;
+					bw.Write(Regions[i].Name.ToCharArray());
+					fs.Position = p + 0x40;
+					bw.Write(Regions[i].ID);
+					fs.Position += 0x40;
 				}
-				for (i=0;i<16;i++)
+				for (i = 0; i < 16; i++)
 				{
 					p = fs.Position;
-					bw.Write(GlobalCargo[i].Cargo.ToCharArray());
-					fs.Position = p + 0x44;
-					bw.Write(GlobalCargo[i].Unknown1);
-					fs.Position += 3;
-					fs.WriteByte(GlobalCargo[i].Unknown2);
-					fs.WriteByte(GlobalCargo[i].Unknown3);
-					fs.WriteByte(GlobalCargo[i].Unknown4);
-					fs.WriteByte(GlobalCargo[i].Unknown5);
-					fs.Position = p + 0x8C;
+					bw.Write(GlobalCargos[i].Cargo.ToCharArray());
+					fs.Position = p + 0x40;
+					bw.Write(GlobalCargos[i].ID);
+					bw.Write(GlobalCargos[i].Count);
+					bw.Write((byte)GlobalCargos[i].Type);
+					bw.Write(GlobalCargos[i].Volume);
+					bw.Write(GlobalCargos[i].Value);
+					bw.Write((byte)GlobalCargos[i].Volatility);
+					fs.Position += 0x40;
 				}
-				for (i=0;i<16;i++)
+				for (i = 0; i < 32; i++)
 				{
 					p = fs.Position;
-					bw.Write(_globalGroup[i].ToCharArray());
-					fs.Position = p + 0x57;
+					bw.Write(GlobalGroups[i].Name.ToCharArray());
+					fs.Position = p + 0x40;
+					bw.Write(GlobalGroups[i].Leader);
+					bw.Write(GlobalGroups[i].SpecialCraft);
+					bw.Write(GlobalGroups[i].SpecialCargo.ToCharArray());
+					fs.Position = p + 0x56;
+					bw.Write(GlobalGroups[i].RandomSpecialCraft);
 				}
-				fs.Position = 0x23AC;
-				fs.WriteByte((byte)MissionType);
-				fs.Position++;
-				fs.WriteByte(TimeLimitMin);
+				for (i = 0; i < 40; i++)
+				{
+					p = fs.Position;
+					bw.Write(GlobalUnits[i].Name.ToCharArray());
+					fs.Position = p + 0x40;
+					bw.Write(GlobalUnits[i].Leader);
+					bw.Write(GlobalUnits[i].SpecialCraft);
+					bw.Write(GlobalUnits[i].SpecialCargo.ToCharArray());
+					fs.Position = p + 0x56;
+					bw.Write(GlobalUnits[i].RandomSpecialCraft);
+				}
+				bw.Write((byte)MissionType);
+				bw.Write(GoalsUnimportant);
+				bw.Write(TimeLimitMin);
 				bw.Write(EndWhenComplete);
-				fs.WriteByte(Officer);
-				fs.WriteByte((byte)Logo);
-				fs.Position++;
-				fs.WriteByte(Unknown3);
-				fs.WriteByte(Unknown4);
-				fs.WriteByte(Unknown5);
+				bw.Write(Officer);
+				bw.Write((byte)Logo);
+				bw.Write(BriefingOfficerEntryLine);
+				bw.Write(SecondaryVersion);
+				bw.Write(WinOfficer);
+				bw.Write(FailOfficer);
 				fs.Position = 0x23F0;
 				#endregion
 				#region FlightGroups
-				for(i=0;i<FlightGroups.Count;i++)
+				for (i = 0; i < FlightGroups.Count; i++)
 				{
 					p = fs.Position;
 					int j;
 					#region Craft
 					bw.Write(FlightGroups[i].Name.ToCharArray());
 					fs.Position = p + 0x14;
-                    bw.Write(FlightGroups[i].EnableDesignation1);   //[JB]Changed bool to byte
+					bw.Write(FlightGroups[i].EnableDesignation1);
 					bw.Write(FlightGroups[i].EnableDesignation2);
-					fs.WriteByte(FlightGroups[i].Designation1);
-					fs.WriteByte(FlightGroups[i].Designation2);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown1);
+					bw.Write(FlightGroups[i].Designation1);
+					bw.Write(FlightGroups[i].Designation2);
+					bw.Write((byte)FlightGroups[i].Comms);
 					bw.Write((byte)(FlightGroups[i].GlobalCargo == 0 ? 255 : FlightGroups[i].GlobalCargo - 1));
 					bw.Write((byte)(FlightGroups[i].GlobalSpecialCargo == 0 ? 255 : FlightGroups[i].GlobalSpecialCargo - 1));
 					fs.Position = p + 0x28;
@@ -715,281 +727,244 @@ namespace Idmr.Platform.Xwa
 					fs.Position = p + 0x50;
 					bw.Write(FlightGroups[i].Role.ToCharArray());
 					fs.Position = p + 0x69;
-					if (FlightGroups[i].SpecialCargoCraft == 0) fs.WriteByte(FlightGroups[i].NumberOfCraft);
-					else fs.WriteByte((byte)(FlightGroups[i].SpecialCargoCraft-1));
+					if (FlightGroups[i].SpecialCargoCraft == 0) bw.Write(FlightGroups[i].NumberOfCraft);
+					else bw.Write((byte)(FlightGroups[i].SpecialCargoCraft - 1));
 					bw.Write(FlightGroups[i].RandSpecCargo);
-					fs.WriteByte(FlightGroups[i].CraftType);
-					fs.WriteByte(FlightGroups[i].NumberOfCraft);
-					fs.WriteByte(FlightGroups[i].Status1);
-					fs.WriteByte(FlightGroups[i].Missile);
-					fs.WriteByte(FlightGroups[i].Beam);
-					fs.WriteByte(FlightGroups[i].IFF);
-					fs.WriteByte(FlightGroups[i].Team);
-					fs.WriteByte(FlightGroups[i].AI);
-					fs.WriteByte(FlightGroups[i].Markings);
-					fs.WriteByte(FlightGroups[i].Radio);
+					bw.Write(FlightGroups[i].CraftType);
+					bw.Write(FlightGroups[i].NumberOfCraft);
+					bw.Write(FlightGroups[i].Status1);
+					bw.Write(FlightGroups[i].Missile);
+					bw.Write(FlightGroups[i].Beam);
+					bw.Write(FlightGroups[i].IFF);
+					bw.Write(FlightGroups[i].Team);
+					bw.Write(FlightGroups[i].AI);
+					bw.Write(FlightGroups[i].Markings);
+					bw.Write((byte)FlightGroups[i].Radio);
 					fs.Position++;
-					fs.WriteByte(FlightGroups[i].Formation);
-					fs.WriteByte(FlightGroups[i].FormDistance);
-					fs.WriteByte(FlightGroups[i].GlobalGroup);
-					fs.WriteByte(FlightGroups[i].FormLeaderDist);
-					fs.WriteByte((byte)(FlightGroups[i].NumberOfWaves-1));
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown3);
+					bw.Write(FlightGroups[i].Formation);
+					bw.Write(FlightGroups[i].FormDistance);
+					bw.Write(FlightGroups[i].GlobalGroup);
 					fs.Position++;
-					fs.WriteByte(FlightGroups[i].PlayerNumber);
+					bw.Write((byte)(FlightGroups[i].NumberOfWaves - 1));
+					bw.Write(FlightGroups[i].WavesDelay);
+					bw.Write((byte)FlightGroups[i].StopArrivingWhen);
+					bw.Write(FlightGroups[i].PlayerNumber);
 					bw.Write(FlightGroups[i].ArriveOnlyIfHuman);
-					fs.WriteByte(FlightGroups[i].PlayerCraft);
-					fs.WriteByte((byte)(FlightGroups[i].Yaw * 0x100 / 360));
-					fs.WriteByte((byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
-					fs.WriteByte((byte)(FlightGroups[i].Roll * 0x100 / 360));
+					bw.Write(FlightGroups[i].PlayerCraft);
+					bw.Write((byte)(FlightGroups[i].Yaw * 0x100 / 360));
+					bw.Write((byte)((FlightGroups[i].Pitch >= 90 ? FlightGroups[i].Pitch - 270 : FlightGroups[i].Pitch + 90) * 0x100 / 360));
+					bw.Write((byte)(FlightGroups[i].Roll * 0x100 / 360));
 					fs.Position++;
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown4);
-					fs.Position++;
+					bw.Write(FlightGroups[i].LegacyPermaDeathID);
 					#endregion
 					#region Arr/Dep
-                    fs.WriteByte(FlightGroups[i].Unknowns.Unknown5);  //[JB] Swapped with difficulty, now in correct position
-                    fs.WriteByte(FlightGroups[i].Difficulty);
-					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[0][j]);
-					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[1][j]);
+					fs.Position++;
+					bw.Write(FlightGroups[i].Difficulty);
+					bw.Write(FlightGroups[i].ArrDepTriggers[0].GetBytes());
+					bw.Write(FlightGroups[i].ArrDepTriggers[1].GetBytes());
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAndOr[0]);
-					bw.Write(FlightGroups[i].Unknowns.Unknown6);
-					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[2][j]);
-					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[3][j]);
+					fs.Position++;
+					bw.Write(FlightGroups[i].ArrDepTriggers[2].GetBytes());
+					bw.Write(FlightGroups[i].ArrDepTriggers[3].GetBytes());
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAndOr[1]);
 					fs.Position++;
 					bw.Write(FlightGroups[i].ArrDepAndOr[2]);
-					fs.Position++;
-					fs.WriteByte(FlightGroups[i].ArrivalDelayMinutes);
-					fs.WriteByte(FlightGroups[i].ArrivalDelaySeconds);
-					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[4][j]);
-					for (j = 0; j < 6; j++) fs.WriteByte(FlightGroups[i].ArrDepTriggers[5][j]);
+					bw.Write(FlightGroups[i].RandomArrivalDelayMinutes);
+					bw.Write(FlightGroups[i].ArrivalDelayMinutes);
+					bw.Write(FlightGroups[i].ArrivalDelaySeconds);
+					bw.Write(FlightGroups[i].ArrDepTriggers[4].GetBytes());
+					bw.Write(FlightGroups[i].ArrDepTriggers[5].GetBytes());
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrDepAndOr[3]);
 					fs.Position++;
-					fs.WriteByte(FlightGroups[i].DepartureTimerMinutes);
-					fs.WriteByte(FlightGroups[i].DepartureTimerSeconds);
-					fs.WriteByte(FlightGroups[i].AbortTrigger);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown7);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown8);
-					fs.Position++;
-					fs.WriteByte(FlightGroups[i].ArrivalCraft1);
-                    fs.WriteByte(FlightGroups[i].ArrivalMethod1);
-                    fs.WriteByte(FlightGroups[i].DepartureCraft1);
-                    fs.WriteByte(FlightGroups[i].DepartureMethod1);
-                    fs.WriteByte(FlightGroups[i].ArrivalCraft2);
-					bw.Write(FlightGroups[i].ArrivalMethod2);
-					fs.WriteByte(FlightGroups[i].DepartureCraft2);
-					bw.Write(FlightGroups[i].DepartureMethod2);
+					bw.Write(FlightGroups[i].DepartureTimerMinutes);
+					bw.Write(FlightGroups[i].DepartureTimerSeconds);
+					bw.Write(FlightGroups[i].AbortTrigger);
+					bw.Write(FlightGroups[i].RandomArrivalDelaySeconds);
+					fs.Position += 2;
+					bw.Write(FlightGroups[i].ArrivalMothership);
+					bw.Write(FlightGroups[i].ArrivalMethod);
+					bw.Write(FlightGroups[i].DepartureMothership);
+					bw.Write(FlightGroups[i].DepartureMethod);
+					bw.Write(FlightGroups[i].AlternateMothership);
+					bw.Write(FlightGroups[i].AlternateMothershipUsed);
+					bw.Write(FlightGroups[i].CapturedDepartureMothership);
+					bw.Write(FlightGroups[i].CapturedDepartViaMothership);
 					#endregion
 					#region Orders
-					for (j=0;j<16;j++)
+					for (j = 0; j < 16; j++)
 					{
-						for (int h=0;h<0x13;h++) fs.WriteByte(FlightGroups[i].Orders[j/4, j%4][h]);
-						fs.Position++;
-						for (int h=0;h<8;h++)
-							for (int k=0;k<4;k++) bw.Write((short)(FlightGroups[i].Orders[j/4, j%4].Waypoints[h][k] * (k == 1 ? -1 : 1)));
-						fs.Position += 0x1E;
-						fs.WriteByte(FlightGroups[i].Orders[j/4, j%4].Unknown10);
-						bw.Write(FlightGroups[i].Orders[j/4, j%4].Unknown11);
-						bw.Write(FlightGroups[i].Orders[j/4, j%4].Unknown12);
-						fs.Position += 6;
-						bw.Write(FlightGroups[i].Orders[j/4, j%4].Unknown13);
-						fs.Position += 5;
-						bw.Write(FlightGroups[i].Orders[j/4, j%4].Unknown14);
-						fs.Position += 0x12;
+						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].GetBytes());
+						for (int h = 0; h < 8; h++)
+							for (int k = 0; k < 4; k++) bw.Write((short)(FlightGroups[i].Orders[j / 4, j % 4].Waypoints[h][k] * (k == 1 ? -1 : 1)));
+						fs.Position += 0x40;
 					}
-					for (j=0;j<16;j++)
+					for (j = 0; j < 16; j++)
 					{
-						for (int k = 0; k < 6; k++) fs.WriteByte(FlightGroups[i].Orders[j/4, j%4].SkipTriggers[0][k]);
-						for (int k = 0; k < 6; k++) fs.WriteByte(FlightGroups[i].Orders[j/4, j%4].SkipTriggers[1][k]);
+						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[0].GetBytes());
+						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[1].GetBytes());
 						fs.Position += 2;
-						bw.Write(FlightGroups[i].Orders[j/4, j%4].SkipT1AndOrT2);
+						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipT1AndOrT2);
 						fs.Position++;
 					}
 					#endregion
 					#region Goals
-					for (j=0;j<8;j++)
+					for (j = 0; j < 8; j++)
 					{
-						for (int k=0;k<6;k++) fs.WriteByte(FlightGroups[i].Goals[j][k]);
-						fs.Position += 7;  //Was 8
-                        fs.WriteByte(FlightGroups[i].Goals[j].Unknown42);  //[JB] Added unknown.
-						fs.WriteByte(FlightGroups[i].Goals[j].Parameter);
-						fs.WriteByte(FlightGroups[i].Goals[j].ActiveSequence);
-						fs.Position += 0x3F;
-						bw.Write(FlightGroups[i].Goals[j].Unknown15);
+						bw.Write(FlightGroups[i].Goals[j].GetBytes());
+						fs.Position += 0x40;
 					}
 					#endregion
 					// SP1 0,0,0 check for backdrops
 					if (FlightGroups[i].CraftType == 0xB7 && FlightGroups[i].Waypoints[0].RawX == 0 && FlightGroups[i].Waypoints[0].RawY == 0 && FlightGroups[i].Waypoints[0].RawZ == 0)
 						FlightGroups[i].Waypoints[0].RawY = 10;
 					for (j = 0; j < 4; j++) for (int k = 0; k < 4; k++) bw.Write((short)(FlightGroups[i].Waypoints[j][k] * (k == 1 ? -1 : 1)));
-					for (j = 0; j < 4; j++) fs.WriteByte(FlightGroups[i].Waypoints[j].Region);
+					for (j = 0; j < 4; j++) bw.Write(FlightGroups[i].Waypoints[j].Region);
 					#region Options/other
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown16);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown17);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown18);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown19);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown20);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown21);
-					bw.Write(FlightGroups[i].Unknowns.Unknown22);
-					fs.Position++;
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown23);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown24);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown25);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown26);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown27);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown28);
-					bw.Write(FlightGroups[i].Unknowns.Unknown29);
-					fs.Position += 3;
-					bw.Write(FlightGroups[i].Unknowns.Unknown30);
-					bw.Write(FlightGroups[i].Unknowns.Unknown31);
-					fs.Position += 2;
+					fs.Position = p + 0xDC4;
 					bw.Write(FlightGroups[i].GlobalNumbering);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown32);
-					fs.WriteByte(FlightGroups[i].Unknowns.Unknown33);
-					fs.WriteByte(FlightGroups[i].Countermeasures);
-					fs.WriteByte(FlightGroups[i].ExplosionTime);
-					fs.WriteByte(FlightGroups[i].Status2);
-					fs.WriteByte(FlightGroups[i].GlobalUnit);
-					fs.Position++;
+					bw.Write(FlightGroups[i].DepartureClockMin);
+					bw.Write(FlightGroups[i].DepartureClockSec);
+					bw.Write((byte)FlightGroups[i].Countermeasures);
+					bw.Write(FlightGroups[i].ExplosionTime);
+					bw.Write(FlightGroups[i].Status2);
+					bw.Write(FlightGroups[i].GlobalUnit);
+					bw.Write(FlightGroups[i].Handicap);
 
-                    for (j=1;j<9;j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.Position++;	// warheads
-					for (j=1;j<5;j++) if (FlightGroups[i].OptLoadout[j+9]) bw.Write((byte)j); else fs.Position++;	// CMs
-					fs.Position += 2;	// only writing 4, 2 bytes remain 
-					for (j=1;j<4;j++) if (FlightGroups[i].OptLoadout[j+14]) bw.Write((byte)j); else fs.Position++;	// beam
-					fs.Position += 1;	// only writing 3, 1 byte remains
+					for (j = 1; j < 9; j++) if (FlightGroups[i].OptLoadout[j]) bw.Write((byte)j); else fs.Position++;   // warheads
+					for (j = 1; j < 5; j++) if (FlightGroups[i].OptLoadout[j + 9]) bw.Write((byte)j); else fs.Position++;   // CMs
+					fs.Position += 2;   // only writing 4, 2 bytes remain 
+					for (j = 1; j < 4; j++) if (FlightGroups[i].OptLoadout[j + 14]) bw.Write((byte)j); else fs.Position++;  // beam
+					fs.Position += 1;   // only writing 3, 1 byte remains
 
-                    fs.WriteByte((byte)FlightGroups[i].OptCraftCategory);
-					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].CraftType);
-					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfCraft);
-					for (int k = 0; k < 10; k++) fs.WriteByte(FlightGroups[i].OptCraft[k].NumberOfWaves);
+					bw.Write((byte)FlightGroups[i].OptCraftCategory);
+					for (int k = 0; k < 10; k++) bw.Write(FlightGroups[i].OptCraft[k].CraftType);
+					for (int k = 0; k < 10; k++) bw.Write(FlightGroups[i].OptCraft[k].NumberOfCraft);
+					for (int k = 0; k < 10; k++) bw.Write(FlightGroups[i].OptCraft[k].NumberOfWaves);
 					bw.Write(FlightGroups[i].PilotID.ToCharArray());
 					fs.Position = p + 0xE12;
-					fs.WriteByte(FlightGroups[i].Backdrop);
-					fs.Position += 0x16;
-					bw.Write(FlightGroups[i].Unknowns.Unknown34); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown35); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown36); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown37); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown38); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown39); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown40); fs.Position++;
-					bw.Write(FlightGroups[i].Unknowns.Unknown41);
+					bw.Write(FlightGroups[i].Backdrop);
 					fs.Position = p + 0xE3E;
 					#endregion
 				}
 				#endregion
 				#region Messages
-				for (i=0;i<Messages.Count;i++)
+				for (i = 0; i < Messages.Count; i++)
 				{
 					p = fs.Position;
 					bw.Write((short)i);
-					bw.Write(Messages[i].MessageString.ToCharArray());
+					bw.Write(Messages[i].MessageString.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x52;
-					for (int j=0;j<10;j++) bw.Write(Messages[i].SentTo[j]);
-					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[0][j]);
-					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[1][j]);
-					fs.WriteByte(Messages[i].Unknown1);
-					fs.Position++;
+					for (int j = 0; j < 10; j++) bw.Write(Messages[i].SentTo[j]);
+					bw.Write(Messages[i].Triggers[0].GetBytes());
+					bw.Write(Messages[i].Triggers[1].GetBytes());
+					fs.Position += 2;
 					bw.Write(Messages[i].TrigAndOr[0]);
 					fs.Position++;
-					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[2][j]);
-					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[3][j]);
+					bw.Write(Messages[i].Triggers[2].GetBytes());
+					bw.Write(Messages[i].Triggers[3].GetBytes());
 					fs.Position += 2;
 					bw.Write(Messages[i].TrigAndOr[1]);
 					fs.Position++;
-					bw.Write(Messages[i].VoiceID.ToCharArray());
+					bw.Write(Messages[i].VoiceID.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x84;
-					fs.WriteByte(Messages[i].OriginatingFG);
-					fs.Position += 7;
-					fs.WriteByte(Messages[i].Delay);
-                    bw.Write(Messages[i].TrigAndOr[2]);
-					fs.WriteByte(Messages[i].Color);
-                    fs.WriteByte(Messages[i].Unknown2);
-					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[4][j]);
-					for (int j = 0; j < 6; j++) fs.WriteByte(Messages[i].Triggers[5][j]);
+					bw.Write(Messages[i].OriginatingFG);
+					fs.Position += 3;
+					bw.Write(Messages[i].Type);
+					bw.Write(Messages[i].RawDelay);
+					bw.Write(Messages[i].TrigAndOr[2]);
+					bw.Write(Messages[i].Color);
+					bw.Write(Messages[i].SpeakerHeader);
+					bw.Write(Messages[i].Triggers[4].GetBytes());
+					bw.Write(Messages[i].Triggers[5].GetBytes());
 					fs.Position += 2;
 					bw.Write(Messages[i].TrigAndOr[3]);
 					fs.Position++;
-					bw.Write(Messages[i].Unknown3);
+					bw.Write(Messages[i].CancelMeaning);
 					fs.Position++;
 				}
 				#endregion
 				#region Globals
-				for(i=0;i<Globals.Count;i++)
+				for (i = 0; i < Globals.Count; i++)
 				{
-					p = fs.Position;
 					bw.Write((short)3);
 					int j;
-					for (int k=0;k<3;k++)
+					for (int k = 0; k < 3; k++)
 					{
-						for (j = 0; j < 6; j++) fs.WriteByte(Globals[i].Goals[k].Triggers[0][j]);
-						for (j = 0; j < 6; j++) fs.WriteByte(Globals[i].Goals[k].Triggers[1][j]);
+						p = fs.Position;
+						bw.Write(Globals[i].Goals[k].Triggers[0].GetBytes());
+						bw.Write(Globals[i].Goals[k].Triggers[1].GetBytes());
 						fs.Position += 2;
 						bw.Write(Globals[i].Goals[k].T1AndOrT2);
-						bw.Write(Globals[i].Goals[k].Unknown1);
-						for (j = 0; j < 6; j++) fs.WriteByte(Globals[i].Goals[k].Triggers[2][j]);
-						for (j = 0; j < 6; j++) fs.WriteByte(Globals[i].Goals[k].Triggers[3][j]);
+						fs.Position++;
+						bw.Write(Globals[i].Goals[k].Triggers[2].GetBytes());
+						bw.Write(Globals[i].Goals[k].Triggers[3].GetBytes());
 						fs.Position += 2;
 						bw.Write(Globals[i].Goals[k].T3AndOrT4);
-						fs.Position += 8;
-						bw.Write(Globals[i].Goals[k].Unknown2);
-						fs.Position += 9;
-						bw.Write(Globals[i].Goals[k].T12AndOrT34);
-						fs.WriteByte(Globals[i].Goals[k].Unknown3);
-						fs.WriteByte((byte)Globals[i].Goals[k].RawPoints);
-						fs.WriteByte(Globals[i].Goals[k].Unknown4);
-						fs.WriteByte(Globals[i].Goals[k].Unknown5);
-						fs.WriteByte(Globals[i].Goals[k].Unknown6);
 						fs.Position++;
-						fs.WriteByte(Globals[i].Goals[k].ActiveSequence);
-						fs.Position += 0x41;
+						bw.Write(Globals[i].Goals[k].Name.ToCharArray()); bw.Write('\0');
+						fs.Position = p + 0x30;
+						bw.Write(Globals[i].Goals[k].T12AndOrT34);
+						bw.Write(Globals[i].Goals[k].RawDelay);
+						bw.Write((byte)Globals[i].Goals[k].RawPoints);
+						for (j = 0; j < 4; j++) bw.Write((byte)Globals[i].Goals[k].RawPointsPerTrigger[j]);
+						bw.Write(Globals[i].Goals[k].ActiveSequence);
+						fs.Position = p + 0x7A;
 					}
 				}
 				#endregion
 				#region Teams
-				for(i=0;i<Teams.Count;i++)
+				for (i = 0; i < Teams.Count; i++)
 				{
 					p = fs.Position;
 					bw.Write((short)1);
-					bw.Write(Teams[i].Name.ToCharArray()); fs.WriteByte(0);
+					bw.Write(Teams[i].Name.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x1A;
-					for (int j=0;j<10;j++) fs.WriteByte((byte)Teams[i].Allies[j]);
-					for (int j=0;j<6;j++)
+					for (int j = 0; j < 10; j++) bw.Write((byte)Teams[i].Allies[j]);
+					for (int j = 0; j < 6; j++)
 					{
-						bw.Write(Teams[i].EndOfMissionMessages[j].ToCharArray());
-						fs.WriteByte(0);
-						fs.Position = p + 0x24 + (j+1)*0x40;
+						bw.Write(Teams[i].EndOfMissionMessages[j].ToCharArray()); bw.Write('\0');
+						fs.Position = p + 0x24 + (j + 1) * 0x40;
 					}
-					fs.Write(Teams[i].Unknowns, 0, 6);
-					for (int j=0;j<3;j++)
+					fs.Write(Teams[i].EomRawDelay, 0, 3);
+					fs.Write(Teams[i].EomSourceFG, 0, 3);
+					for (int j = 0; j < 3; j++)
 					{
-						bw.Write(Teams[i].VoiceIDs[j].ToCharArray());
-						fs.Position = p + 0x1AA + (j+1)*0x14;
+						bw.Write(Teams[i].VoiceIDs[j].ToCharArray()); bw.Write('\0');
+						fs.Position = p + 0x1AA + (j + 1) * 0x14;
 					}
 					fs.Position = p + 0x1E7;
 				}
 				#endregion
 				#region Briefing
-				for (i=0;i<2;i++)
+				for (i = 0; i < 2; i++)
 				{
 					bw.Write(Briefings[i].Length);
-					bw.Write(Briefings[i].Unknown1);
+					bw.Write(Briefings[i].CurrentTime);
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
-					fs.Position += 2;
+					bw.Write(Briefings[i].Tile);
 					byte[] briefBuffer = new byte[Briefings[i].Events.Length * 2];
 					Buffer.BlockCopy(Briefings[i].Events, 0, briefBuffer, 0, briefBuffer.Length);
 					bw.Write(briefBuffer);
-					for (int j=0;j<10;j++) bw.Write(Briefings[i].Team[j]);
-					for (int j=0;j<128;j++)
+					for (int j = 0; j < 192; j++)
+					{
+						bw.Write(Briefings[i].Icons[j].Species);
+						bw.Write(Briefings[i].Icons[j].IFF);
+						bw.Write(Briefings[i].Icons[j].X);
+						bw.Write(Briefings[i].Icons[j].Y);
+						bw.Write(Briefings[i].Icons[j].Orientation);
+						fs.Position += 0x10;
+					}
+					for (int j = 0; j < 10; j++) bw.Write(Briefings[i].Team[j]);
+					for (int j = 0; j < 128; j++)
 					{
 						bw.Write((short)Briefings[i].BriefingTag[j].Length);
 						if (Briefings[i].BriefingTag[j].Length != 0) bw.Write(Briefings[i].BriefingTag[j].ToCharArray());
 					}
-					for (int j=0;j<128;j++)
+					for (int j = 0; j < 128; j++)
 					{
 						bw.Write((short)Briefings[i].BriefingString[j].Length);
 						if (Briefings[i].BriefingString[j].Length != 0) bw.Write(Briefings[i].BriefingString[j].ToCharArray());
@@ -1006,20 +981,19 @@ namespace Idmr.Platform.Xwa
 					bw.Write(Briefings[0].BriefingStringsNotes[i].ToCharArray());
 					fs.Position = p + 0x64;
 				}
-				for (i=0;i<64;i++)
+				for (i = 0; i < 64; i++)
 				{
 					p = fs.Position;
 					if (i < Messages.Count) bw.Write(Messages[i].Note.ToCharArray());
 					fs.Position = p + 0x64;
 				}
 				for (i = 0; i < 10; i++)
-					for (int j = 0; j < 3; j++)
+					for (int j = 0; j < 7; j++)
 					{
 						p = fs.Position;
-						bw.Write(Teams[i].EomNotes[j].ToCharArray());
+						if (j < 3) bw.Write(Teams[i].EomNotes[j].ToCharArray());
 						fs.Position = p + 0x64;
 					}
-				fs.Position += 0xFA0;	// unknown space, possibly message notes
 				p = fs.Position;
 				bw.Write(_descriptionNote.ToCharArray());
 				fs.Position = p + 0x64;
@@ -1031,9 +1005,9 @@ namespace Idmr.Platform.Xwa
 				fs.Position = p + 0x64;
 				#endregion
 				#region FG Goal Strings
-				for (i=0;i<FlightGroups.Count;i++)
-					for (int j=0;j<8;j++)	// per goal
-						for (int k=0;k<3;k++)	// per string
+				for (i = 0; i < FlightGroups.Count; i++)
+					for (int j = 0; j < 8; j++) // per goal
+						for (int k = 0; k < 3; k++) // per string
 						{
 							string s = (k == 0 ? FlightGroups[i].Goals[j].IncompleteText : (k == 1 ? FlightGroups[i].Goals[j].CompleteText : FlightGroups[i].Goals[j].FailedText));
 							if (s != "")
@@ -1046,9 +1020,11 @@ namespace Idmr.Platform.Xwa
 						}
 				#endregion
 				#region Globals strings
-				for (i=0;i<10;i++)	// Team
-					for (int j=0;j<12;j++)	// Goal * Trigger
-						for (int k=0;k<3;k++)	// State
+				for (i = 0; i < 10; i++)    // Team
+					for (int j = 0; j < 28; j++)    // Goal * Trigger, remember there's 7 even though we only use 3
+					{
+						if (j >= 12) { fs.Position += 3; continue; }    // make space
+						for (int k = 0; k < 3; k++) // State
 							if (Globals[i].Goals[j / 4].GoalStrings[j % 4, k] != "")
 							{
 								p = fs.Position;
@@ -1056,15 +1032,15 @@ namespace Idmr.Platform.Xwa
 								fs.Position = p + 0x40;
 							}
 							else fs.Position++;
+					}
 				#endregion
-				fs.Position += 0x1E0;	// unknown space
 				#region Order strings
-				for (i=0;i<192;i++) // per FG (and then some)
-					for (int j=0;j<16;j++) // per order
-						if (i < FlightGroups.Count && FlightGroups[i].Orders[j/4, j%4].CustomText != "")
+				for (i = 0; i < 192; i++) // per FG (and then some)
+					for (int j = 0; j < 16; j++) // per order
+						if (i < FlightGroups.Count && FlightGroups[i].Orders[j / 4, j % 4].CustomText != "")
 						{
 							p = fs.Position;
-							bw.Write(FlightGroups[i].Orders[j/4, j%4].CustomText.ToCharArray());
+							bw.Write(FlightGroups[i].Orders[j / 4, j % 4].CustomText.ToCharArray()); bw.Write('\0');
 							fs.Position = p + 0x40;
 						}
 						else fs.Position++;
@@ -1078,9 +1054,9 @@ namespace Idmr.Platform.Xwa
 				p = fs.Position;
 				bw.Write(_missionDescription.ToCharArray());
 				fs.Position = p + 0x1000;
-				
+
 				//[JB] Embed YOGEME signature into the empty description space (appending bytes would disrupt the text in game).  The description must have room for 3 bytes (null terminater for the briefing text, then the 2 byte signature)
-				if(_missionDescription.Length < 0x1000 - 3)
+				if (_missionDescription.Length < 0x1000 - 3)
 				{
 					fs.Position -= 2;
 					bw.Write((short)0x2106);
@@ -1091,22 +1067,22 @@ namespace Idmr.Platform.Xwa
 			}
 			catch
 			{
-                if (fs != null) fs.Close();
-                if (writerCreated && backupCreated)
-                {
-                    File.Delete(MissionPath);
-                    File.Copy(backup, MissionPath);
-                    File.Delete(backup);
-                }
-                throw;
+				fs?.Close();
+				if (writerCreated && backupCreated)
+				{
+					File.Delete(MissionPath);
+					File.Copy(backup, MissionPath);
+					File.Delete(backup);
+				}
+				throw;
 			}
-            if(backupCreated)
-			    File.Delete(backup);
+			if (backupCreated)
+				File.Delete(backup);
 		}
 
-		/// <summary>Save the mission to a new location</summary>
-		/// <param name="filePath">Full path to the new file location</param>
-		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied</exception>
+		/// <summary>Save the mission to a new location.</summary>
+		/// <param name="filePath">Full path to the new file location.</param>
+		/// <exception cref="UnauthorizedAccessException">Write permissions for <paramref name="filePath"/> are denied.</exception>
 		public void Save(string filePath)
 		{
 			MissionPath = filePath;
@@ -1114,7 +1090,7 @@ namespace Idmr.Platform.Xwa
 		}
 
         /// <summary>Deletes a Flight Group, performing all necessary cleanup to avoid broken indexes.</summary>
-		/// <param name="fgIndex">The FG index to remove</param>
+		/// <param name="fgIndex">The FG index to remove.</param>
         /// <remarks>Propagates throughout all members which may reference Flight Group indexes.</remarks>
         /// <returns>Index of the next available Flight Group.</returns>
         public int DeleteFG(int fgIndex)
@@ -1146,8 +1122,8 @@ namespace Idmr.Platform.Xwa
         }
 
         /// <summary>Swaps two FlightGroups, used to move FGs up or down in the list.</summary>
-		/// <param name="srcIndex">The original FG index location</param>
-		/// <param name="dstIndex">The new FG index location</param>
+		/// <param name="srcIndex">The original FG index location.</param>
+		/// <param name="dstIndex">The new FG index location.</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
         /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if index validation failed.</returns>
         public bool SwapFG(int srcIndex, int dstIndex)
@@ -1179,7 +1155,7 @@ namespace Idmr.Platform.Xwa
         }
 
         /// <summary>Deletes a Message, performing all necessary cleanup to avoid broken indexes.</summary>
-		/// <param name="msgIndex">The Message index to remove</param>
+		/// <param name="msgIndex">The Message index to remove.</param>
         /// <remarks>Iterates throughout all members which may reference Message indexes.</remarks>
         /// <returns>Index of the next available Message.</returns>
         public int DeleteMessage(int msgIndex)
@@ -1212,8 +1188,8 @@ namespace Idmr.Platform.Xwa
         }
 
         /// <summary>Swaps two Messages, used to move Messages up or down in the list.</summary>
-		/// <param name="srcIndex">The original Message index location</param>
-		/// <param name="dstIndex">The new Message index location</param>
+		/// <param name="srcIndex">The original Message index location.</param>
+		/// <param name="dstIndex">The new Message index location.</param>
         /// <remarks>Automatically performs bounds checking and adjusts all Flight Group indexes to prevent broken indexes in triggers, orders, etc.</remarks>
         /// <returns>Returns <b>true</b> if an adjustment was performed, <b>false</b> if any index or bounds errors occurred.</returns>
         public bool SwapMessage(int srcIndex, int dstIndex)
@@ -1251,7 +1227,7 @@ namespace Idmr.Platform.Xwa
 
         /// <summary>Converts a raw time delay into number of seconds.</summary>
         /// <param name="value">The raw value of the time delay.</param>
-        /// <remarks>The raw value is used to encode both minutes and seconds.  Maximum range of delay times is 0:00 to 24:50</remarks>
+        /// <remarks>The raw value is used to encode both minutes and seconds.  Maximum range of delay times is 0:00 to 24:50.</remarks>
         /// <returns>Number of seconds.</returns>
         public static int GetDelaySeconds(byte value)
         {
@@ -1263,46 +1239,93 @@ namespace Idmr.Platform.Xwa
 
             return sec;
         }
-        
         #endregion public methods
 
 		#region public properties
-		/// <summary>Maximum number of craft that can exist at one time in a single region</summary>
+		/// <summary>Maximum number of craft that can exist at one time in a single region.</summary>
 		public const int CraftLimit = 96;
-		/// <summary>Maximum number of FlightGroups that can exist in the mission file</summary>
+		/// <summary>Maximum number of FlightGroups that can exist in the mission file.</summary>
 		public const int FlightGroupLimit = 192;
-		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file</summary>
+		/// <summary>Maximum number of In-Flight Messages that can exist in the mission file.</summary>
 		public const int MessageLimit = 64;
-		/// <summary>Unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x0B, defaults to <b>true</b></remarks>
-		public bool Unknown2 { get; set; }
-		/// <summary>Unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x08, defaults to <b>true</b></remarks>
-		public bool Unknown1 { get; set; }
-
-		/// <summary>Gets the Global Cargos for the mission</summary>
-		public GlobCarg[] GlobalCargo { get; } = new GlobCarg[16];
-		/// <summary>Gets or sets the start mode of the player)</summary>
-		public HangarEnum MissionType { get; set; }
-		/// <summary>Gets or sets the minutes value of the time limit</summary>
+		#region header
+		/// <summary>No effect.</summary>
+		public byte LegacyTimeLimitMin { get; set; }
+		/// <summary>No effect.</summary>
+		public byte LegacyTimeLimitSec { get; set; }
+		/// <summary>Possibly no effect.</summary>
+		/// <remarks>Defaults to <b>1</b>.</remarks>
+		public byte LegacyWinType { get; set; } = 1;
+		/// <summary>Probably no effect.</summary>
+		public byte LegacyBackdrop { get; set; }
+		/// <summary>Probably no effect.</summary>
+		public byte LegacyRescue { get; set; }
+		/// <summary>Probably no effect.</summary>
+		/// <remarks>Defaults to <b>1</b>.</remarks>
+		public byte LegacyAllWayShown { get; set; } = 1;
+		/// <summary>Probably no effect.</summary>
+		public byte[] LegacyVars { get; private set; } = new byte[8];
+		/// <summary>Gets the array accessor for the IFF names.</summary>
+		/// <remarks>No custom Indexer for XWA due to no special processing of values.</remarks>
+		public Indexer<string> IFFs { get; private set; }
+		/// <summary>Gets the Regions for the mission.</summary>
+		public Region[] Regions { get; } = new Region[4];
+		/// <summary>Gets the Global Cargos for the mission.</summary>
+		public GlobCarg[] GlobalCargos { get; } = new GlobCarg[16];
+		/// <summary>Gets the Global Group details for the mission.</summary>
+		public GlobalUnit[] GlobalGroups { get; } = new GlobalUnit[32];
+		/// <summary>Gets the Globa Unit details for the mission.</summary>
+		public GlobalUnit[] GlobalUnits { get; } = new GlobalUnit[40];
+		/// <summary>Gets or sets the start mode of the player.</summary>
+		/// <remarks>Defaults to <see cref="HangarEnum.MonCalCruiser"/>.</remarks>
+		public HangarEnum MissionType { get; set; } = HangarEnum.MonCalCruiser;
+		/// <summary>Gets or sets if Goals impact Mission Complete.</summary>
+		public bool GoalsUnimportant { get; set; }
+		/// <summary>Gets or sets the minutes value of the time limit.</summary>
 		public byte TimeLimitMin { get; set; }
-		/// <summary>Gets or sets if the mission will automatically end when Primary goals are complete</summary>
+		/// <summary>Gets or sets if the mission will automatically end when Primary goals are complete.</summary>
 		public bool EndWhenComplete { get; set; }
-		/// <summary>Gets or sets the voice of in-game mission update messages</summary>
+		/// <summary>Gets or sets the voice of in-game mission update messages.</summary>
 		public byte Officer { get; set; }
-		/// <summary>Gets or sets the Briefing image</summary>
-		public LogoEnum Logo { get; set; }
-		/// <summary>Unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x23B3, default is 0x62, related to Briefings?</remarks>
-		public byte Unknown3 { get; set; }
-		/// <summary>Unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x23B4</remarks>
-		public byte Unknown4 { get; set; }
-		/// <summary>Unknown FileHeader value</summary>
-		/// <remarks>Offset = 0x23B5</remarks>
-		public byte Unknown5 { get; set; }
-		/// <summary>Gets or sets the summary of the mission</summary>
-		/// <remarks>4096 char limit</remarks>
+		/// <summary>Gets or sets the Briefing image.</summary>
+		public LogoEnum Logo { get; set; } = LogoEnum.None;
+		/// <summary>Gets or sets the Briefing String index used while walking into the briefing.</summary>
+		public byte BriefingOfficerEntryLine { get; set; }
+		/// <summary>Used in conjunction with <see cref="PlatformID"/>.</summary>
+		/// <remarks>Default is <b>0x62</b>, <b>'b'</b>, might not be used in-game.</remarks>
+		public byte SecondaryVersion { get; set; } = 0x62;
+		/// <summary>Gets or sets the voice at mission complete debrief.</summary>
+		public byte WinOfficer { get; set; }
+		/// <summary>Gets or sets the voice at the mission failed debrief.</summary>
+		public byte FailOfficer { get; set; }
+		#endregion header
+
+		/// <summary>Gets or sets the FlightGroups for the mission.</summary>
+		/// <remarks>Defaults to one FlightGroup.</remarks>
+		public FlightGroupCollection FlightGroups { get; set; }
+		/// <summary>Gets or sets the In-Flight Messages for the mission.</summary>
+		/// <remarks>Defaults to zero messages.</remarks>
+		public MessageCollection Messages { get; set; }
+		/// <summary>Gets or sets the Global Goals for the mission.</summary>
+		public GlobalsCollection Globals { get; set; }
+		/// <summary>Gets or sets the Teams for the mission.</summary>
+		public TeamCollection Teams { get; set; }
+		/// <summary>Gets or sets the Briefings for the mission.</summary>
+		public BriefingCollection Briefings { get; set; }
+
+		/// <summary>Editor-only notes for the mission.</summary>
+		/// <remarks>6268 char limit.</remarks>
+		public string MissionNotes
+		{
+			get => _missionNote.Replace("$", "\r\n");
+			set
+			{
+				string s = value.Replace("\r\n", "$");
+				_missionNote = StringFunctions.GetTrimmed(s, 0x187C);
+			}
+		}
+		/// <summary>Gets or sets the summary of the mission.</summary>
+		/// <remarks>4096 char limit.</remarks>
 		public string MissionDescription
 		{
 			get => _missionDescription.Replace("$", "\r\n");
@@ -1313,15 +1336,15 @@ namespace Idmr.Platform.Xwa
 				_missionDescription = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
-		/// <summary>Gets or sets the notes attributed to <see cref="MissionDescription"/></summary>
-		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
+		/// <summary>Gets or sets the notes attributed to <see cref="MissionDescription"/>.</summary>
+		/// <remarks>100 char limit. Used as voice actor instructions.</remarks>
 		public string DescriptionNotes
 		{
 			get => _descriptionNote;
 			set => _descriptionNote = StringFunctions.GetTrimmed(value, 100);
 		}
-		/// <summary>Gets or sets the debriefing text</summary>
-		/// <remarks>4096 char limit</remarks>
+		/// <summary>Gets or sets the debriefing text.</summary>
+		/// <remarks>4096 char limit.</remarks>
 		public string MissionFailed
 		{
 			get => _missionFailed.Replace("$", "\r\n");
@@ -1332,15 +1355,15 @@ namespace Idmr.Platform.Xwa
 				_missionFailed = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
-		/// <summary>Gets or sets the notes attributed to <see cref="MissionFailed"/></summary>
-		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
+		/// <summary>Gets or sets the notes attributed to <see cref="MissionFailed"/>.</summary>
+		/// <remarks>100 char limit. Used as voice actor instructions.</remarks>
 		public string FailedNotes
 		{
 			get => _failedNote;
 			set => _failedNote = StringFunctions.GetTrimmed(value, 100);
 		}
-		/// <summary>Gets or sets the debriefing text</summary>
-		/// <remarks>4096 char limit</remarks>
+		/// <summary>Gets or sets the debriefing text.</summary>
+		/// <remarks>4096 char limit.</remarks>
 		public string MissionSuccessful
 		{
 			get => _missionSuccessful.Replace("$", "\r\n");
@@ -1350,67 +1373,118 @@ namespace Idmr.Platform.Xwa
 				_missionSuccessful = StringFunctions.GetTrimmed(s, 4096);
 			}
 		}
-		/// <summary>Gets or sets the notes attributed to <see cref="MissionSuccessful"/></summary>
-		/// <remarks>100 char limit. Used as voice actor instructions</remarks>
+		/// <summary>Gets or sets the notes attributed to <see cref="MissionSuccessful"/>.</summary>
+		/// <remarks>100 char limit. Used as voice actor instructions.</remarks>
 		public string SuccessfulNotes
 		{
 			get => _successfulNote;
 			set => _successfulNote = StringFunctions.GetTrimmed(value, 100);
 		}
-		/// <summary>Editor-only notes for the mission</summary>
-		/// <remarks>6268 char limit</remarks>
-		public string MissionNotes
-		{
-			get => _missionNote.Replace("$", "\r\n");
-			set
-			{
-				string s = value.Replace("\r\n", "$");
-				_missionNote = StringFunctions.GetTrimmed(s, 0x187C);
-			}
-		}
-		/// <summary>Gets or sets the FlightGroups for the mission</summary>
-		/// <remarks>Defaults to one FlightGroup</remarks>
-		public FlightGroupCollection FlightGroups { get; set; }
-		/// <summary>Gets or sets the In-Flight Messages for the mission</summary>
-		/// <remarks>Defaults to zero messages</remarks>
-		public MessageCollection Messages { get; set; }
-		/// <summary>Gets or sets the Global Goals for the mission</summary>
-		public GlobalsCollection Globals { get; set; }
-		/// <summary>Gets or sets the Teams for the mission</summary>
-		public TeamCollection Teams { get; set; }
-		/// <summary>Gets or sets the Briefings for the mission</summary>
-		public BriefingCollection Briefings { get; set; }
-		/// <summary>Gets the array accessor for the GG names</summary>
-		public Indexer<string> GlobalGroups { get; private set; }
-		/// <summary>Gets the array accessor for the Region names</summary>
-		public Indexer<string> Regions { get; private set; }
-		/// <summary>Gets the array accessor for the IFF names</summary>
-		/// <remarks>No custom Indexer for XWA due to no special processing of values</remarks>
-		public Indexer<string> IFFs { get; private set; }
 		#endregion public properties
 
-		/// <summary>Container for Global Cargo data</summary>
-		[Serializable] public struct GlobCarg
+		/// <summary>Container for Global Cargo data.</summary>
+		[Serializable]
+		public struct GlobCarg
 		{
 			string _cargo;
 
-			/// <summary>Gets or sets the Cargo string</summary>
-			/// <remarks>63 character limit</remarks>
+			/// <summary>Material type values.</summary>
+			public enum CargoTypes : byte {
+				/// <summary>Solid state.</summary>
+				Solid,
+				/// <summary>Liquid state.</summary>
+				Liquid,
+				/// <summary>Gas or plasma state.</summary>
+				Gas
+			}
+
+			/// <summary>Explosivness values.</summary>
+			public enum VolatilityLevels : byte {
+				/// <summary>Low to no effect.</summary>
+				Low,
+				/// <summary>Normal.</summary>
+				Medium,
+				/// <summary>More explosive.</summary>
+				High,
+				/// <summary>Very explosive.</summary>
+				Kaboom
+			}
+
+			/// <summary>Gets or sets the Cargo string.</summary>
+			/// <remarks>63 character limit.</remarks>
 			public string Cargo
 			{
 				get => _cargo;
 				set => _cargo = StringFunctions.GetTrimmed(value, 63);
 			}
-			/// <summary>Unknown value, local 0x44</summary>
-			public bool Unknown1 { get; set; }
-			/// <summary>Unknown value, local 0x48</summary>
-			public byte Unknown2 { get; set; }
-			/// <summary>Unknown value, local 0x49</summary>
-			public byte Unknown3 { get; set; }
-			/// <summary>Unknown value, local 0x4A</summary>
-			public byte Unknown4 { get; set; }
-			/// <summary>Unknown value, local 0x4B</summary>
-			public byte Unknown5 { get; set; }
+			/// <summary>ID values for the cargo.</summary>
+			/// <remarks>Unknown if there's a real use.</remarks>
+			public int ID { get; set; }
+			/// <summary>Quantity of the cargo contents.</summary>
+			/// <remarks>Unknown if there's a real use.</remarks>
+			public int Count { get; set; }
+			/// <summary>Physical state of the cargo material.</summary>
+			/// <remarks>Unknown if there's a real use.</remarks>
+			public CargoTypes Type { get; set; }
+			/// <summary>Amount of space occupied by the cargo.</summary>
+			/// <remarks>Unknown if there's a real use.</remarks>
+			public byte Volume { get; set; }
+			/// <summary>Monetary value of the cargo.</summary>
+			/// <remarks>Unknown if there's a real use.</remarks>
+			public byte Value { get; set; }
+			/// <summary>The explosive properties of the cargo.</summary>
+			/// <remarks>This should affect the explosiveness of the craft.</remarks>
+			public VolatilityLevels Volatility { get; set; }
+		}
+
+		/// <summary>Container for Region data.</summary>
+		[Serializable]
+		public struct Region
+		{
+			string _name;
+
+			/// <summary>Name of the region.</summary>
+			/// <remarks>63 character limit.</remarks>
+			public string Name
+			{
+				get => _name;
+				set => _name = StringFunctions.GetTrimmed(value, 63);
+			}
+
+			/// <summary>ID number of the region.</summary>
+			/// <remarks>Unknown if there's a real use.</remarks>
+			public int ID { get; set; }
+		}
+
+		/// <summary>Container for Global Group and Global Unit data.</summary>
+		[Serializable]
+		public struct GlobalUnit
+		{
+			string _name;
+			string _cargo;
+
+			/// <summary>Unit name.</summary>
+			/// <remarks>63 character limit.</remarks>
+			public string Name
+			{
+				get => _name;
+				set => _name = StringFunctions.GetTrimmed(value, 63);
+			}
+
+			/// <summary>FlightGroup index of the group leader.</summary>
+			public byte Leader { get; set; }
+			/// <summary>Craft index of the special craft.</summary>
+			/// <remarks>Unsure if this is used or not, or how it would calculate indexes.</remarks>
+			public byte SpecialCraft { get; set; }
+			/// <summary>Group special cargo.</summary>
+			/// <remarks>19 character limit.</remarks>
+			public string SpecialCargo
+			{
+				get => _cargo;
+				set => _cargo = StringFunctions.GetTrimmed(value, 19);
+			}
+			/// <summary>Random special craft index.</summary>
+			public bool RandomSpecialCraft { get; set; }
 		}
 	}
 }

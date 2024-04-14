@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2018 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -18,26 +18,26 @@ using System.Collections.Generic;
 
 namespace Idmr.Platform.Xvt
 {
-	/// <summary>Object to hold all Briefings</summary>
-	/// <remarks>Eight briefings in total, first being used for single-player</remarks>
+	/// <summary>Object to hold all Briefings.</summary>
+	/// <remarks>Eight briefings in total, first being used for single-player.</remarks>
 	public class BriefingCollection : Common.FixedSizeCollection<Briefing>
 	{
-		/// <summary>Creates a new Collection with 8 Briefings</summary>
+		/// <summary>Creates a new Collection with 8 Briefings.</summary>
 		public BriefingCollection()
 		{
 			_items = new List<Briefing>(8);
 			for (int i = 0; i < _items.Capacity; i++)
             {
                 _items.Add(new Briefing());
-                _items[i].Team[i] = true;  //[JB] Initialize teams with their own separate briefing.
+                _items[i].Team[i] = true;
             }
         }
 
-		/// <summary>Resets selected Briefing to defaults</summary>
-		/// <param name="index">Briefing index</param>
+		/// <summary>Resets selected Briefing to defaults.</summary>
+		/// <param name="index">Briefing index.</param>
 		public void Clear(int index) => _setItem(index, new Briefing());
 
-		/// <summary>Resets all Briefings to defaults</summary>
+		/// <summary>Resets all Briefings to defaults.</summary>
 		public void ClearAll() { for (int i = 0; i < Count; i++) _setItem(i, new Briefing()); }
 	}
 }

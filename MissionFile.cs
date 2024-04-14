@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -22,37 +22,37 @@ using System.IO;
 
 namespace Idmr.Platform
 {
-	/// <summary>Function class for mission files</summary>
-	/// <remarks>Contains functions to determine platform</remarks>
+	/// <summary>Function class for mission files.</summary>
+	/// <remarks>Contains functions to determine platform.</remarks>
 	public abstract class MissionFile
 	{
 		const string _extension = ".tie";
 
-		/// <summary>Error message template</summary>
+		/// <summary>Error message template.</summary>
 		private protected string _invalidError = "File is not a valid {0} mission file";
-		/// <summary>Default filename</summary>
+		/// <summary>Default filename.</summary>
 		private protected string _missionPath = "\\NewMission" + _extension;
 		
-		/// <summary>Types of mission files</summary>
+		/// <summary>Types of mission files.</summary>
 		public enum Platform : byte {
-            /// <summary>X-wing Win95 Collector's Edition</summary>
+            /// <summary>X-wing Win95 Collector's Edition.</summary>
             Xwing,
-            /// <summary>TIE Fighter Win95 Collector's Edition</summary>
+            /// <summary>TIE Fighter Win95 Collector's Edition.</summary>
 			TIE,
-			/// <summary>X-wing v. TIE Fighter</summary>
+			/// <summary>X-wing v. TIE Fighter.</summary>
 			XvT,
-			/// <summary>XvT Balance of Power expansion</summary>
+			/// <summary>XvT Balance of Power expansion.</summary>
 			BoP,
-			/// <summary>X-wing Alliance</summary>
+			/// <summary>X-wing Alliance.</summary>
 			XWA,
-			/// <summary>Unsupported platform</summary>
+			/// <summary>Unsupported platform.</summary>
 			Invalid 
 		}
 
-		/// <summary>Returns the Platform of the given file</summary>
-		/// <remarks>Returns Platform.Invalid on error</remarks>
-		/// <param name="fileMission">Full path to un-opened mission file</param>
-		/// <returns>Enumerated Platform</returns>
+		/// <summary>Returns the Platform of the given file.</summary>
+		/// <remarks>Returns Platform.Invalid on error.</remarks>
+		/// <param name="fileMission">Full path to un-opened mission file.</param>
+		/// <returns>Enumerated Platform.</returns>
 		public static Platform GetPlatform(string fileMission)
 		{
 			if (!fileMission.ToLower().EndsWith(_extension)) return Platform.Invalid;
@@ -61,10 +61,10 @@ namespace Idmr.Platform
 			fs.Close();
 			return p;
 		}
-		/// <summary>Returns the Platform of the given file</summary>
-		/// <remarks>Returns Platform.Invalid on error</remarks>
-		/// <param name="stream">Stream to opened mission file</param>
-		/// <returns>Enumerated Platform</returns>
+		/// <summary>Returns the Platform of the given file.</summary>
+		/// <remarks>Returns Platform.Invalid on error.</remarks>
+		/// <param name="stream">Stream to opened mission file.</param>
+		/// <returns>Enumerated Platform.</returns>
 		public static Platform GetPlatform(FileStream stream)
 		{
 			if (!stream.Name.ToLower().EndsWith(_extension) && !stream.Name.ToLower().EndsWith(".xwi")) return Platform.Invalid;  //[JB] Need to be able to load .xwi files.
@@ -78,20 +78,20 @@ namespace Idmr.Platform
 			else return Platform.Invalid;
 		}
 		
-		/// <summary>Gets or sets the full path to the mission file</summary>
-		/// <remarks>Defaults to <b>"\\NewMission.tie"</b>. Will automatically add the ".tie" extension if omitted</remarks>
+		/// <summary>Gets or sets the full path to the mission file.</summary>
+		/// <remarks>Defaults to <b>"\\NewMission.tie"</b>. Will automatically add the ".tie" extension if omitted.</remarks>
 		public string MissionPath
 		{
 			get => _missionPath;
 			set
 			{
-				_missionPath = value;  //[JB] Modified.  Assumes TIE, but also checks for XWI in path name.
+				_missionPath = value;  //Assumes TIE, but also checks for XWI in path name.
 				if (!value.ToLower().EndsWith(".xwi") && !value.ToLower().EndsWith(_extension))
 					_missionPath += _extension;
 			}
 		}
-		/// <summary>Gets the file name of the mission file</summary>
-		/// <remarks>Defaults to <b>"NewMission.tie"</b></remarks>
+		/// <summary>Gets the file name of the mission file.</summary>
+		/// <remarks>Defaults to <b>"NewMission.tie"</b>.</remarks>
 		public string MissionFileName => Common.StringFunctions.GetFileName(MissionPath, true);
 	}
 }

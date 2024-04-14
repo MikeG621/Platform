@@ -1,13 +1,15 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [NEW] Format spec implemented
+ * [UPD] Delay renamed to RawDelay
  * v4.0, 200809
  * [UPD] auto-properties
  * v2.7, 180509
@@ -20,36 +22,14 @@ namespace Idmr.Platform.Xwa
 {
 	public partial class Globals
 	{
-		/// <summary>Class for a single Global Goal</summary>
+		/// <summary>Class for a single Global Goal.</summary>
 		public partial class Goal
 		{
-			readonly string[,] _strings = new string[4,3];	// No PreventFailed, SecondaryIncomplete, SecondaryFailed
+			readonly string[,] _strings = new string[4,3];  // No PreventFailed, SecondaryIncomplete, SecondaryFailed
+			string _name = "";
 			
-			/// <summary>Raw value stored in file</summary>
-			public sbyte RawPoints { get; set; }
-			/// <summary>The Goal's location within the mission's Active Sequence</summary>
-			public byte ActiveSequence { get; set; }
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x11</remarks>
-			public bool Unknown1 { get; set; }
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x29</remarks>
-			public bool Unknown2 { get; set; }
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x34</remarks>
-			public byte Unknown3 { get; set; }
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x36</remarks>
-			public byte Unknown4 { get; set; }
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x37</remarks>
-			public byte Unknown5 { get; set; }
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x38</remarks>
-			public byte Unknown6 { get; set; }
-			
-			/// <summary>Initializes a blank Goal</summary>
-			/// <remarks>All <see cref="Triggers"/> set to <b>"never (FALSE)"</b>, <see cref="AndOr"/> values set to <b>true</b> (OR)</remarks>
+			/// <summary>Initializes a blank Goal.</summary>
+			/// <remarks>All <see cref="Triggers"/> set to <b>"never (FALSE)"</b>, <see cref="AndOr"/> values set to <b>true</b> (OR).</remarks>
 			public Goal()
 			{
 				for (int i = 0; i < 12; i++) _strings[i / 3, i % 3] = "";
@@ -57,43 +37,71 @@ namespace Idmr.Platform.Xwa
 				for (int i = 0; i < 3; i++) AndOr[i] = true;
 				GoalStrings = new StringsIndexer(this);
 			}
-			
-			/// <summary>Gets or sets the points awarded or subtracted after Goal completion</summary>
-			/// <remarks>Equal to <see cref="RawPoints"/> * 25, limited from <b>-3200</b> to <b>+3175</b></remarks>
-			public short Points
-			{
-				get => (short)(RawPoints * 25);
-				set => RawPoints = (sbyte)(value > 3175 ? 3175 : (value < -3200 ? -3200 : value) / 25);
-			}
 
-			/// <summary>Gets or sets if both Triggers must be met</summary>
+			#region properties
+			/// <summary>The Triggers that define the Goal.</summary>
+			/// <remarks>Array length is 4.</remarks>
+			public Mission.Trigger[] Triggers { get; } = new Mission.Trigger[4];
+			/// <summary>Gets the array for the AndOr values.</summary>
+			public bool[] AndOr { get; } = new bool[3];
+			/// <summary>Gets or sets if both Triggers must be met.</summary>
 			public bool T1AndOrT2
 			{
 				get => AndOr[0];
 				set => AndOr[0] = value;
 			}
-			/// <summary>Gets or sets if both Triggers must be met</summary>
+			/// <summary>Gets or sets if both Triggers must be met.</summary>
 			public bool T3AndOrT4
 			{
 				get => AndOr[1];
 				set => AndOr[1] = value;
 			}
-			/// <summary>Gets or sets if both Trigger pairs must be met</summary>
+			/// <summary>Editor note for the goal.</summary>
+			/// <remarks>Limited to 15 char.</remarks>
+			public string Name
+			{
+				get => _name;
+				set => _name = Common.StringFunctions.GetTrimmed(value, 15);
+			}
+			/// <summary>Unknown.</summary>
+			public byte Version { get; set; }
+			/// <summary>Gets or sets if both Trigger pairs must be met.</summary>
 			public bool T12AndOrT34
 			{
 				get => AndOr[2];
 				set => AndOr[2] = value;
 			}
-
-			/// <summary>Gets the array for the AndOr values</summary>
-			public bool[] AndOr { get; } = new bool[3];
+			/// <summary>Delay value between trigger condition and goal award.</summary>
+			public byte RawDelay { get; set; }
+			/// <summary>Raw value stored in file.</summary>
+			public sbyte RawPoints { get; set; }
+			/// <summary>Raw points awarded per specific trigger completion.</summary>
+			public sbyte[] RawPointsPerTrigger { get; } = new sbyte[4];
+			/// <summary>The Goal's location within the mission's Active Sequence.</summary>
+			public byte ActiveSequence { get; set; }
 			
-			/// <summary>Gets the array accessor for the GoalString values</summary>
+			/// <summary>Gets or sets the points awarded or subtracted after Goal completion.</summary>
+			/// <remarks>Equal to <see cref="RawPoints"/> * 25, limited from <b>-3200</b> to <b>+3175</b>.</remarks>
+			public short Points
+			{
+				get => (short)(RawPoints * 25);
+				set => RawPoints = pointsToRaw(value);
+			}
+			#endregion
+
+			/// <summary>Get the points awarded or subtracted after Trigger completion.</summary>
+			/// <param name="index">The <see cref="Triggers"/> index.</param>
+			/// <returns>Equal to <see cref="RawPointsPerTrigger"/>[index] * 25.</returns>
+			public short GetPointsPerTrigger(int index) => index >= 0 && index < 4 ? (short)(RawPointsPerTrigger[index] * 25) : (short)0;
+			/// <summary>Set the points awarded or subtracted after Trigger completion.</summary>
+			/// <param name="index">The <see cref="Triggers"/> index.</param>
+			/// <param name="points">The point total, limited from <b>-3200</b> to <b>+3175</b>.</remarks>
+			public void SetPointsPerTrigger(int index, short points) { if (index >= 0 && index < 4) RawPointsPerTrigger[index] = pointsToRaw(points); }
+
+			/// <summary>Gets the array accessor for the GoalString values.</summary>
 			public StringsIndexer GoalStrings { get; private set; }
 
-			/// <summary>The Triggers that define the Goal</summary>
-			/// <remarks>Array length is 4</remarks>
-			public Mission.Trigger[] Triggers { get; } = new Mission.Trigger[4];
+			private sbyte pointsToRaw(short value) => (sbyte)(value > 3175 ? 3175 : (value < -3200 ? -3200 : value) / 25);
 		}
 	}
 }

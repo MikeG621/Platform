@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
+ * [UPD] Format spec implemented
  * v6.1, 231208
  * [NEW] TypeList, AmountList, ConditionList enums
  * v5.8, 230804
@@ -43,249 +44,259 @@ namespace Idmr.Platform.Xwa
 {
 	public partial class Mission : MissionFile
 	{
-		/// <summary>Object for a single Trigger</summary>
+		/// <summary>Object for a single Trigger.</summary>
 		[Serializable] public class Trigger : BaseTrigger
 		{
-			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
+			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values.</summary>
 			public enum TypeList : byte
 			{
-				/// <summary>No Target</summary>
+				/// <summary>No Target.</summary>
 				None,
-				/// <summary>Target is FlightGroup</summary>
+				/// <summary>Target is FlightGroup.</summary>
 				FlightGroup,
-				/// <summary>Target is a specific craft type</summary>
+				/// <summary>Target is a specific craft type.</summary>
 				ShipType,
-				/// <summary>Target is a specific class (starfighter, transport, etc)</summary>
+				/// <summary>Target is a specific class (starfighter, transport, etc).</summary>
 				ShipClass,
-				/// <summary>Target is a specific type of object (craft, weapon, object)</summary>
+				/// <summary>Target is a specific type of object (craft, weapon, object).</summary>
 				ObjectType,
-				/// <summary>Target is a specific IFF</summary>
+				/// <summary>Target is a specific IFF.</summary>
 				IFF,
-				/// <summary>Target has a specific order</summary>
+				/// <summary>Target has a specific order.</summary>
+				/// <remarks>Spec has this mapped to None.</remarks>
 				ShipOrders,
-				/// <summary>Target has a special condition or state</summary>
+				/// <summary>Target has a special condition or state.</summary>
 				CraftWhen,
-				/// <summary>Target is a member of a GG</summary>
+				/// <summary>Target is a member of a GG.</summary>
 				GlobalGroup,
-				/// <summary>Target has a specific AI rating</summary>
+				/// <summary>Target has a specific AI rating.</summary>
+				/// <remarks>Spec has this mapped to None.</remarks>
 				AILevel,
-				/// <summary>Target has a specific Status</summary>
+				/// <summary>Target has a specific Status.</summary>
+				/// <remarks>Spec has this mapped to None.</remarks>
 				Status,
-				/// <summary>All craft</summary>
+				/// <summary>All craft.</summary>
+				/// <remarks>Spec has this mapped to None.</remarks>
 				AllCraft,
-				/// <summary>Target is Team</summary>
+				/// <summary>Target is Team.</summary>
 				Team,
-				/// <summary>Target is specific player</summary>
+				/// <summary>Target is specific player.</summary>
 				PlayerNum,
-				/// <summary>Trigger completed before mission time</summary>
+				/// <summary>Trigger completed before mission time.</summary>
 				BeforeTime,
-				/// <summary>All FGs except target</summary>
+				/// <summary>All FGs except target.</summary>
 				NotFG,
-				/// <summary>All craft types except target</summary>
+				/// <summary>All craft types except target.</summary>
 				NotShipType,
-				/// <summary>All ship classes except target</summary>
+				/// <summary>All ship classes except target.</summary>
 				NotShipClass,
-				/// <summary>All object tpyes except target</summary>
+				/// <summary>All object tpyes except target.</summary>
 				NotObjectType,
-				/// <summary>All IFFs except target</summary>
+				/// <summary>All IFFs except target.</summary>
 				NotIFF,
-				/// <summary>All GGs except target</summary>
+				/// <summary>All GGs except target.</summary>
 				NotGlobalGroup,
-				/// <summary>All Teams except target</summary>
+				/// <summary>All Teams except target.</summary>
 				NotTeam,
-				/// <summary>All players except target</summary>
+				/// <summary>All players except target.</summary>
 				NotPlayerNum,
-				/// <summary>Target is a GU</summary>
+				/// <summary>Target is a GU.</summary>
 				GlobalUnit,
-				/// <summary>All GUs except target</summary>
+				/// <summary>All GUs except target.</summary>
 				NotGlobalUnit,
-				/// <summary>Target has a specific GC</summary>
+				/// <summary>Target has a specific GC.</summary>
 				GlobalCargo,
-				/// <summary>Target does not have the GC</summary>
+				/// <summary>Target does not have the GC.</summary>
 				NotGlobalCargo,
-				/// <summary>Message index</summary>
+				/// <summary>Message index.</summary>
 				MessageNum
 			}
-			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
+			/// <summary>Available <see cref="BaseTrigger.Amount"/> values.</summary>
 			public enum AmountList : byte
 			{
-				/// <summary>100% of target</summary>
+				/// <summary>100% of target.</summary>
 				Percent100,
-				/// <summary>75% of target</summary>
+				/// <summary>75% of target.</summary>
 				Percent75,
-				/// <summary>50% of target</summary>
+				/// <summary>50% of target.</summary>
 				Percent50,
-				/// <summary>25% of target</summary>
+				/// <summary>25% of target.</summary>
 				Percent25,
-				/// <summary>At least 1 of target</summary>
+				/// <summary>At least 1 of target.</summary>
 				AtLeast1,
-				/// <summary>All but 1 of target</summary>
+				/// <summary>All but 1 of target.</summary>
 				AllBut1,
-				/// <summary>All Special Craft of the target</summary>
+				/// <summary>All Special Craft of the target.</summary>
 				AllSpecial,
-				/// <summary>All non-Special Craft of the target</summary>
+				/// <summary>All non-Special Craft of the target.</summary>
 				AllNonSpecial,
-				/// <summary>All AI craft of the target</summary>
+				/// <summary>All AI craft of the target.</summary>
 				AllNonPlayers,
-				/// <summary>The Player's craft of the target</summary>
+				/// <summary>The Player's craft of the target.</summary>
 				PlayersCraft,
-				/// <summary>100% of the first wave of target</summary>
+				/// <summary>100% of the first wave of target.</summary>
+				/// <remarks>Spec has this mapped to 100%.</remarks>
 				Percent100FirstWave,
-				/// <summary>75% of the first wave of target</summary>
+				/// <summary>75% of the first wave of target.</summary>
+				/// <remarks>Spec has this mapped to 75%<./remarks>
 				Percent75FirstWave,
-				/// <summary>50% of the first wave of target</summary>
+				/// <summary>50% of the first wave of target.</summary>
+				/// <remarks>Spec has this mapped to 50%.</remarks>
 				Percent50FirstWave,
-				/// <summary>25% of the first wave of target</summary>
+				/// <summary>25% of the first wave of target.</summary>
+				/// <remarks>Spec has this mapped to 25%.</remarks>
 				Percent25FirstWave,
-				/// <summary>At least 1 of the first wave of target</summary>
+				/// <summary>At least 1 of the first wave of target.</summary>
+				/// <remarks>Spec has this mapped to AtLeast1.</remarks>
 				AnyFirstWave,
-				/// <summary>All but 1 of the first wave of target</summary>
+				/// <summary>All but 1 of the first wave of target.</summary>
+				/// <remarks>Spec has this mapped to AllBut1.</remarks>
 				AllBut1FirstWave,
-				/// <summary>66% of target</summary>
+				/// <summary>66% of target.</summary>
 				Percent66,
-				/// <summary>33% of target</summary>
+				/// <summary>33% of target.</summary>
 				Percent33,
-				/// <summary>Each craft of target, individually</summary>
+				/// <summary>Each craft of target, individually.</summary>
 				EachCraft,
-				/// <summary>Each Special Craft of target, individually</summary>
+				/// <summary>Each Special Craft of target, individually.</summary>
 				EachSpecialCraft,
-				/// <summary>Unknown</summary>
+				/// <summary>Unknown.</summary>
 				Unknown1,
-				/// <summary>Unknown</summary>
+				/// <summary>Unknown.</summary>
 				Unknown2,
-				/// <summary>Unknown</summary>
+				/// <summary>Unknown.</summary>
 				Unknown3
 			}
-			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
+			/// <summary>Available <see cref="BaseTrigger.Condition"/> values.</summary>
 			public enum ConditionList : byte
 			{
-				/// <summary>Always true</summary>
+				/// <summary>Always true.</summary>
 				True,
-				/// <summary>Target spawned</summary>
+				/// <summary>Target spawned.</summary>
 				Created,
-				/// <summary>Target destroyed</summary>
+				/// <summary>Target destroyed.</summary>
 				Destroyed,
-				/// <summary>Target damaged</summary>
+				/// <summary>Target damaged.</summary>
 				Attacked,
-				/// <summary>Target captured</summary>
+				/// <summary>Target captured.</summary>
 				Captured,
-				/// <summary>Target inspected</summary>
+				/// <summary>Target inspected.</summary>
 				Inspected,
-				/// <summary>Target is boarded</summary>
-				Boarded,
-				/// <summary>Target is docked</summary>
-				Docked,
-				/// <summary>Target disabled</summary>
+				/// <summary>Target has been boarded.</summary>
+				WasBoarded,
+				/// <summary>Target finished docking.</summary>
+				WasDocked,
+				/// <summary>Target disabled.</summary>
 				Disabled,
-				/// <summary>Target is present, not destroyed</summary>
+				/// <summary>Target is present, not destroyed.</summary>
 				Exist,
-				/// <summary>Never true</summary>
+				/// <summary>Never true.</summary>
 				False,
-				/// <summary>Unknown</summary>
-				Unused11,
-				/// <summary>Mission complete</summary>
+				/// <summary>False.</summary>
+				UnusedA,
+				/// <summary>Mission complete.</summary>
 				CompletedMission,
-				/// <summary>Primary goals complete</summary>
+				/// <summary>Primary goals complete.</summary>
 				CompletedPrimary,
-				/// <summary>Primary goals failed</summary>
+				/// <summary>Primary goals failed.</summary>
 				FailedPrimary,
-				/// <summary>Secondary goals complete</summary>
-				CompletedSecondary,
-				/// <summary>Secondary goals failed</summary>
-				FailedSecondary,
-				/// <summary>Bonus goals complete</summary>
+				/// <summary>False.</summary>
+				UnusedF,
+				/// <summary>False.</summary>
+				Unused10,
+				/// <summary>Bonus goals complete.</summary>
 				CompletedBonus,
-				/// <summary>Bonus goals failed</summary>
+				/// <summary>Bonus goals failed.</summary>
 				FailedBonus,
-				/// <summary>Dropped off from mothership</summary>
+				/// <summary>Dropped off from mothership.</summary>
 				DroppedOff,
-				/// <summary>Called for reinforcements</summary>
+				/// <summary>Called for reinforcements.</summary>
 				Reinforced,
-				/// <summary>Shields down</summary>
+				/// <summary>Shields down.</summary>
 				Shields0Percent,
-				/// <summary>Hull damaged to 50%</summary>
+				/// <summary>Hull damaged to 50%.</summary>
 				Hull50Percent,
-				/// <summary>Out of warheads</summary>
+				/// <summary>Out of warheads.</summary>
 				NoWarheads,
-				/// <summary>Cannon subsystem disabled or missing</summary>
+				/// <summary>Cannon subsystem disabled or missing.</summary>
 				CannonsDisabled,
-				/// <summary>Broken</summary>
-				BeDroppedOff,
+				/// <summary>Not yet arrived.</summary>
+				NotCreated,
 				/// <summary>Come and Go without being attacked. For Triggers, player action is ignored.</summary>
-				/// <remarks>If the player manages to destroy the target in a single hit, the engine incorrectly registers "Come and Go" instead of "Attacked"</remarks>
+				/// <remarks>If the player manages to destroy the target in a single hit, the engine incorrectly registers "Come and Go" instead of "Attacked".</remarks>
 				NotAttacked,
 				/// <summary>For Triggers, simple Come and Go. For Goals, Come and Go without being disabled.</summary>
 				NotDisabled,
-				/// <summary>Come and Go without being captured</summary>
+				/// <summary>Come and Go without being captured.</summary>
 				NotCaptured,
-				/// <summary>Come and Go without inspection</summary>
-				/// <remarks>If used as FG Goal, or paired with <see cref="TeamModifier"/>, then craft must arrive, then leave or be destroyed.<br/>
-				/// Otherwise, "Come and Go" is determined by proxy such as mothership destruction</remarks>
+				/// <summary>Come and Go without inspection.</summary>
+				/// <remarks>If used as FG Goal, or paired with <see cref="ByTeam"/>, then craft must arrive, then leave or be destroyed.<br/>
+				/// Otherwise, "Come and Go" is determined by proxy such as mothership destruction.</remarks>
 				NotInspected,
-				/// <summary>Started docking process</summary>
-				IsDocking,
-				/// <summary>Come and go without completing the boarding of another craft</summary>
-				NotDocking,
-				/// <summary>Started boarding process</summary>
-				IsBoarding,
-				/// <summary>Come and Go without completely being boarded</summary>
-				NotBoarding,
-				/// <summary>Shields down to 50%</summary>
+				/// <summary>Currently being boarded.</summary>
+				IsBeingBoarded,
+				/// <summary>Come and go without completely being boarded.</summary>
+				NotBoarded,
+				/// <summary>Started the docking process.</summary>
+				BegunDocking,
+				/// <summary>Come and Go without completing a docking operation.</summary>
+				NotDocked,
+				/// <summary>Shields down to 50%.</summary>
 				Shields50Percent,
-				/// <summary>Shields down to 25%</summary>
+				/// <summary>Shields down to 25%.</summary>
 				Shields25Percent,
-				/// <summary>Hull down to 75%</summary>
+				/// <summary>Hull down to 75%.</summary>
 				Hull75Percent,
-				/// <summary>Hull down to 25%</summary>
+				/// <summary>Hull down to 25%.</summary>
 				Hull25Percent,
-				/// <summary>Explicit failure, not just "false"</summary>
-				Failed,
-				/// <summary>Modifies specific triggers to use Team statistics instead of Global</summary>
+				/// <summary>Time is before the value.</summary>
+				BeforeTime,
+				/// <summary>Modifies specific triggers to use Team statistics instead of Global.</summary>
 				/// <remarks>To be used as Trigger2 or 4. <see cref="BaseTrigger.VariableType"/> must be <b>Team</b>, <see cref="BaseTrigger.Amount"/> ignored.</remarks>
-				TeamModifier,
-				/// <summary>Unused</summary>
-				Unknown40,
-				/// <summary>Target is all players</summary>
-				BeAllPlayer,
-				/// <summary>Target is all non-players</summary>
+				ByTeam,
+				/// <summary>Inverse of <see cref="ByTeam"/>.</summary>
+				NotByTeam,
+				/// <summary>Target has player craft.</summary>
+				HavePlayer,
+				/// <summary>Target is all non-players.</summary>
 				BeAllAI,
-				/// <summary>Arrive and then depart</summary>
+				/// <summary>Arrive and then depart.</summary>
 				ComeAndGo,
-				/// <summary>Captured and successfully depart</summary>
+				/// <summary>Captured and successfully depart.</summary>
 				BeBagged,
-				/// <summary>Target aborts mission</summary>
+				/// <summary>Target aborts mission.</summary>
 				Withdraw,
-				/// <summary>Picked up by friendly craft</summary>
-				BeCarried,
-				/// <summary>Arrived in specific region</summary>
+				/// <summary>Captured and gone home.</summary>
+				CapturedAndGone,
+				/// <summary>Arrived in specific region.</summary>
 				ArrivedInRegion,
-				/// <summary>Departed the region</summary>
+				/// <summary>Departed the region.</summary>
 				DepartedRegion,
-				/// <summary>Within certain range of target</summary>
+				/// <summary>Within certain range of target.</summary>
 				InProximity,
-				/// <summary>Not within certain range of target</summary>
+				/// <summary>Not within certain range of target.</summary>
 				NotInProximity,
-				/// <summary>100% target captured</summary>
-				AllCaptured,
-				/// <summary>Switch IFF</summary>
+				/// <summary>Carried by firendly craft.</summary>
+				BeCarried,
+				/// <summary>Switch IFF.</summary>
 				Defect,
-				/// <summary>Part of a convy train</summary>
+				/// <summary>Part of a convy train.</summary>
 				InConvoy,
-				/// <summary>Carried item released</summary>
+				/// <summary>Carried item released.</summary>
 				Delivered,
-				/// <summary>100% target disabled</summary>
-				AllDisabled,
-				/// <summary>Message fired and displayed</summary>
+				/// <summary>Stationary at docking/landing port.</summary>
+				Parked,
+				/// <summary>Message fired and displayed.</summary>
 				MessageShown,
-				/// <summary>Target ID'ed</summary>
+				/// <summary>Target ID'ed.</summary>
 				Identified,
-				/// <summary>Come and GO without being ID'ed</summary>
+				/// <summary>Come and GO without being ID'ed.</summary>
 				NotIdentified,
-				/// <summary>Unknown</summary>
-				Exist59
+				/// <summary>Unknown.</summary>
+				Support
 			}
 
-			/// <summary>Initializes a blank Trigger</summary>
+			/// <summary>Initializes a blank Trigger.</summary>
 			public Trigger() : base(new byte[6]) { }
 
 			/// <summary>Initializes a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
@@ -296,27 +307,25 @@ namespace Idmr.Platform.Xwa
 					Array.Copy(other._items, _items, _items.Length);
 			}
 
-			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
-			public Trigger(byte[] raw)
+			/// <summary>Initializes a new Trigger from raw data.</summary>
+			/// <param name="raw">Raw data, minimum Length of 4.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length.</exception>
+			public Trigger(byte[] raw) : this()
 			{
-				_items = new byte[6];
-				if (raw.Length >= 6) ArrayFunctions.TrimArray(raw, 0, _items);
-				else if (raw.Length >= 4) for (int i = 0; i < 4; i++) _items[i] = raw[i];
+				if (raw.Length >= 6) Array.Copy(raw, _items, _items.Length);
+				else if (raw.Length >= 4) Array.Copy(raw, _items, 4);
 				else throw new ArgumentException("Minimum length of raw is 4", "raw");
 			}
 
-			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <remarks>If <paramref name="raw"/>.Length is 6 or greater, reads six bytes. If the length is 4 or 5, reads only four bytes</remarks>
-			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
-			public Trigger(byte[] raw, int startIndex)
+			/// <summary>Initializes a new Trigger from raw data.</summary>
+			/// <remarks>If <paramref name="raw"/>.Length is 6 or greater, reads six bytes. If the length is 4 or 5, reads only four bytes.</remarks>
+			/// <param name="raw">Raw data, minimum Length of 4.</param>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/> Length.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/>.</exception>
+			public Trigger(byte[] raw, int startIndex) : this()
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
-				_items = new byte[6];
 				if (raw.Length >= 6)
 				{
 					if (raw.Length - startIndex < 6 || startIndex < 0)
@@ -334,8 +343,8 @@ namespace Idmr.Platform.Xwa
 			static byte[] craftDowngrade(Trigger t)
 			{
 				byte[] b = new byte[4];
-				ArrayFunctions.TrimArray((byte[])t, 0, b);
-				if (b[1] == 2)
+				ArrayFunctions.TrimArray(t.GetBytes(), 0, b);
+				if (t.VariableType == (byte)TypeList.ShipType)
 				{
 					if (b[2] == 227) b[2] = 48;	// MC80 Liberty to MC80a
 					else if (b[2] == 228) b[2] = 51;	// VSD II to VSD
@@ -350,9 +359,9 @@ namespace Idmr.Platform.Xwa
 				return b;
 			}
 			
-			/// <summary>Returns a representative string of the Trigger</summary>
-			/// <remarks>Flightgroups are identified as <b>"FG:#"</b>, IFFs are <b>"IFF:#" and </b> Teams are <b>"TM:#"</b> for later substitution if required</remarks>
-			/// <returns>Description of the trigger and targets if applicable</returns>
+			/// <summary>Returns a representative string of the Trigger.</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b>, IFFs are <b>"IFF:#" and </b> Teams are <b>"TM:#"</b> for later substitution if required.</remarks>
+			/// <returns>Description of the trigger and targets if applicable.</returns>
 			public override string ToString()
 			{
 				string trig = "";
@@ -460,70 +469,60 @@ namespace Idmr.Platform.Xwa
 					if (Amount == 0) dist = 0.05;
 					else if (Amount <= 10) dist = 0.1 * Amount;
 					else dist = Amount * 0.5 - 4;
-					trig += dist + " km of FG2:" + Parameter1;
+					trig += dist + " km of FG2:" + Parameter;
 				}
 				else trig += BaseStrings.SafeString(Strings.Trigger, Condition);
-				if (trig.Contains("Region")) trig += " REG:" + Parameter1;
+				if (trig.Contains("Region")) trig += " REG:" + Parameter;
 				return trig;
 			}
-			
-			/// <summary>Converts a Trigger to a byte array</summary>
-			/// <param name="trigger">The Trigger to convert</param>
-			/// <returns>A byte array with Length 6 contianing the Trigger data</returns>
-			public static explicit operator byte[](Trigger trigger)
-			{
-				byte[] b = new byte[6];
-				for (int i = 0; i < 6; i++) b[i] = trigger[i];
-				return b;
-			}
-			/// <summary>Converts a Trigger for use in TIE</summary>
-			/// <remarks>Parameters are lost in the conversion</remarks>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <exception cref="ArgumentException">Invalid values detected</exception>
-			/// <returns>A copy of <paramref name="trig"/> for use in TIE95</returns>
-			public static explicit operator Tie.Mission.Trigger(Trigger trig) => new Tie.Mission.Trigger(craftDowngrade(trig));     // Parameters lost
-			/// <summary>Converts a Trigger for use in XvT</summary>
-			/// <remarks>Parameters are lost in the conversion</remarks>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <exception cref="ArgumentException">Invalid values detected</exception>
-			/// <returns>A copy of <paramref name="trig"/> for use in XvT</returns>
-			public static explicit operator Xvt.Mission.Trigger(Trigger trig) => new Xvt.Mission.Trigger(craftDowngrade(trig));     // Parameters lost
 
-			/// <summary>Gets or sets the first additional setting</summary>
-			public byte Parameter1
+			/// <summary>Converts a Trigger to a byte array.</summary>
+			/// <param name="trigger">The Trigger to convert.</param>
+			/// <returns>A byte array with Length 6 containing the Trigger data.</returns>
+			public static explicit operator byte[](Trigger trigger) => trigger.GetBytes();
+			/// <summary>Converts a Trigger for use in TIE.</summary>
+			/// <remarks>Parameter is lost in the conversion.</remarks>
+			/// <param name="trig">The Trigger to convert.</param>
+			/// <exception cref="ArgumentException">Invalid values detected.</exception>
+			/// <returns>A copy of <paramref name="trig"/> for use in TIE95.</returns>
+			public static explicit operator Tie.Mission.Trigger(Trigger trig) => new Tie.Mission.Trigger(craftDowngrade(trig));
+			/// <summary>Converts a Trigger for use in XvT.</summary>
+			/// <remarks>Parameter is lost in the conversion.</remarks>
+			/// <param name="trig">The Trigger to convert.</param>
+			/// <exception cref="ArgumentException">Invalid values detected.</exception>
+			/// <returns>A copy of <paramref name="trig"/> for use in XvT.</returns>
+			public static explicit operator Xvt.Mission.Trigger(Trigger trig) => new Xvt.Mission.Trigger(craftDowngrade(trig));
+
+			/// <summary>Gets or sets the additional trigger parameter.</summary>
+			/// <remarks>This is typically a Region or FG Index.</remarks>
+			public short Parameter
 			{
-				get => _items[4];
-				set => _items[4] = value;
-			}
-			/// <summary>Gets or sets the second additional setting</summary>
-			public byte Parameter2
-			{
-				get => _items[5];
-				set => _items[5] = value;
+				get => BitConverter.ToInt16(_items, 4);
+				set => ArrayFunctions.WriteToArray(value, _items, 4);
 			}
 
 			/// <summary>This allows checking XWA's new properties.</summary>
-			/// <param name="srcIndex">The original FG index location</param>
-			/// <param name="dstIndex">The new FG index location</param>
-			/// <param name="delete">Whether or not to delete the FG</param>
-			/// <param name="delCond">The condition to reset references to after a delete operation</param>
-			/// <returns><b>true</b> on a successful change</returns>
-			/// <remarks>Extension for BaseTrigger to process additional properties found only in XWA</remarks>
+			/// <param name="srcIndex">The original FG index location.</param>
+			/// <param name="dstIndex">The new FG index location.</param>
+			/// <param name="delete">Whether or not to delete the FG.</param>
+			/// <param name="delCond">The condition to reset references to after a delete operation.</param>
+			/// <returns><b>true</b> on a successful change.</returns>
+			/// <remarks>Extension for BaseTrigger to process additional properties found only in XWA.</remarks>
 			protected override bool TransformFGReferencesExtended(int srcIndex, int dstIndex, bool delete, bool delCond)
             {
                 bool change = false;
-                if ((Parameter1 == 5 + srcIndex) || (Parameter1 == srcIndex && Parameter1 == 255)) //255 is used as temp while swapping.  Ensure if we're swapping temp back to normal.
+                if ((Parameter == 5 + srcIndex) || (Parameter == srcIndex && Parameter == 255)) //255 is used as temp while swapping.  Ensure if we're swapping temp back to normal.
                 {
                     change = true;
-                    Parameter1 = (byte)dstIndex;
-                    if (Parameter1 != 255)  //Don't modify if temp
-                        Parameter1 += 5;    //Add the offset back in.
-                    if (delete) Parameter1 = 0;
+                    Parameter = (byte)dstIndex;
+                    if (Parameter != 255)  //Don't modify if temp
+                        Parameter += 5;    //Add the offset back in.
+                    if (delete) Parameter = 0;
                 }
-                else if (Parameter1 > 5 + srcIndex && delete == true)
+                else if (Parameter > 5 + srcIndex && delete == true)
                 {
                     change = true;
-                    Parameter1--;
+                    Parameter--;
                 }
 
                 if (VariableType == (byte)TypeList.NotFG && Variable == srcIndex)
@@ -548,9 +547,9 @@ namespace Idmr.Platform.Xwa
             }
 
             /// <summary>Helper function that changes Message indexes during a Move (index swap) operation.</summary>
-			/// <param name="srcIndex">The original Message index location</param>
-			/// <param name="dstIndex">The new Message index location</param>
-			/// <returns><b>true</b> on successful change</returns>
+			/// <param name="srcIndex">The original Message index location.</param>
+			/// <param name="dstIndex">The new Message index location.</param>
+			/// <returns><b>true</b> on successful change.</returns>
             /// <remarks>Should not be called directly unless part of a larger Message Move operation.  Message references may exist in other mission properties, ensure those properties are adjusted when applicable.</remarks>
             public bool SwapMessageReferences(int srcIndex, int dstIndex)
             {

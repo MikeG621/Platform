@@ -2,7 +2,7 @@ XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributor: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.03.22
+Updated: 2024.04.14
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -77,27 +77,27 @@ STR(4096)[3]
 
 struct FileHeader (size 0xA4)
 {
-	0x00	SHORT	PlatformID
-	0x02	SHORT	NumFGs
-	0x04	SHORT	NumMessages
-	0x06	BYTE	TimeMin	(Unknown1)
-	0x07	BYTE	TimeSec
-	0x08	BYTE	WinType	(Unknown2)
-	0x09	BYTE	RndSeed [Backdrop?]
-	0x0A	BYTE	Rescue?
-	0x0B	BOOL	AllWayShown	(Unknown3)
-	0x0C	BYTE[8]	Vars
-	0x14	STR(20)[4] IffNames3-6
-	0x64	BYTE	MissionType
-	0x65	BOOL	PreventMissionOutcome	[GoalsUnimportant]
-	0x66	BYTE	TimeLimitMinutes
-	0x67	BYTE	TimeLimitSeconds	[EndImmediately?]
+	0x00	SHORT		PlatformID
+	0x02	SHORT		NumFGs
+	0x04	SHORT		NumMessages
+	0x06	BYTE		*TimeLimitMin	(was Unknown1)
+	0x07	BYTE		*TimeLimitSec
+	0x08	BYTE		WinType	(was Unknown2)
+	0x09	BYTE		RndSeed
+	0x0A	BYTE		*Rescue
+	0x0B	BOOL		*AllWayShown	(was Unknown3)
+	0x0C	BYTE[8]		*Vars
+	0x14	STR(20)[4]	IffNames3-6
+	0x64	BYTE		MissionType
+	0x65	BOOL		GoalsUnimportant
+	0x66	BYTE		TimeLimitMinutes
+	0x67	BYTE		TimeLimitSeconds
 }
 
 struct FlightGroup (size 0x562)
 {
 	0x000	STR(20)	Name
-	0x014	Role[4]
+	0x014	Role[4] Roles
 	0x028	STR(20)	Cargo
 	0x03C	STR(20)	SpecialCargo
 	0x050	BYTE	SpecialCargoCraft
@@ -112,40 +112,37 @@ struct FlightGroup (size 0x562)
 	0x059	BYTE	GroupAI (enum)
 	0x05A	BYTE	Markings (enum)
 	0x05B	BYTE	Radio (enum)
+	0x05C	BYTE	(Unused)
 	0x05D	BYTE	Formation (enum)
 	0x05E	BYTE	FormationSpacing
 	0x05F	BYTE	GlobalGroup
 	0x060	BYTE	(Unused)	(was LeaderSpacing)
 	0x061	BYTE	NumberOfWaves
 	0x062	BYTE	WavesDelay	(was Unknown1)
-	0x063	BYTE	StopArrivingWhen (enum)  Unknown2
+	0x063	BYTE	StopArrivingWhen (enum)
 	0x064	BYTE	PlayerNumber
 	0x065	BYTE	ArriveOnlyIfHuman
 	0x066	BYTE	PlayerCraft
 	0x067	BYTE	Yaw
 	0x068	BYTE	Pitch
 	0x069	BYTE	Roll
-	0x06A	BYTE	PermaDeathEnabled
-	0x06B	BYTE	PermaDeathID
+	0x06A	BOOL	*PermaDeathEnabled
+	0x06B	BYTE	*PermaDeathID
+	0x06C	BYTE	(Unused)
 	0x06D	BYTE	ArrivalDifficulty (enum)
-	0x06E	Trigger	Arrival1
-	0x072	Trigger	Arrival2
-	0x078	BOOL	Arrival1OrArrival2
-	0x079	Trigger	Arrival3
-	0x07D	Trigger	Arrival4
-	0x083	BOOL	Arrival3OrArrival4
+	0x06E	TPair	Arrival1And2
+	0x079	TPair	Arrival3And4
 	0x084	BOOL	Arrival12OrArrival34
-	0x085	BYTE	RandomArrivalDelayExtraMinutes	Unknown3
+	0x085	BYTE	RandomArrivalDelayExtraMinutes
 	0x086	BYTE	ArrivalDelayMinutes
 	0x087	BYTE	ArrivalDelaySeconds
-	0x088	Trigger	Departure1
-	0x08C	Trigger	Departure2
-	0x092	BOOL	Departure1OrDeparture2
+	0x088	TPair	Departure
 	0x093	BYTE	DepartureDelayMinutes
 	0x094	BYTE	DepartureDelaySeconds
 	0x095	BYTE	AbortTrigger (enum)
-	0x096	BYTE	RandomArrivalDelayExtraSeconds	Unknown4
-	0x098	SHORT	CurrentMothership	(was Unknown5)
+	0x096	BYTE	RandomArrivalDelayExtraSeconds
+	0x097	BYTE	(IOReserved)
+	0x098	SHORT	(Editor use, CurrentMothership)	(was Unknown5)
 	0x09A	BYTE	ArrivalMothership
 	0x09B	BYTE	ArriveViaMothership
 	0x09C	BYTE	DepartureMothership
@@ -155,20 +152,20 @@ struct FlightGroup (size 0x562)
 	0x0A0	BYTE	CapturedDepartureMothership
 	0x0A1	BYTE	CapturedDepartViaMothership
 	0x0A2	Order[4]
-	0x1EA	Trigger[2] SkipToOrder4
-	0x1F4	BOOL	Skip1OrSkip2
+	0x1EA	TPair	SkipToOrder4
 	0x1F5	GoalFG[8]
 	0x466	Waypt[4]
-	0x516	BOOL	WayShown	(was Unknown17)
-	0x518	BYTE[8]	WayBriefLink	(was Unknown18)
+	0x516	BOOL	(Editor use, WaypointShown)	(was Unknown17)
+	0x517	BYTE	(Unused)
+	0x518	BYTE[8]	(Editor use, BriefingLinked)	(was Unknown18)
 	0x520	BOOL	PreventCraftNumbering
-	0x521	BYTE	DepartureClockMinutes	Unknown20
-	0x522	BYTE	DepartureClockSeconds	Unknown21
+	0x521	BYTE	DepartureClockMinutes
+	0x522	BYTE	DepartureClockSeconds
 	0x523	BYTE	Countermeasures
 	0x524	BYTE	CraftExplosionTime
 	0x525	BYTE	Status2 (enum)
 	0x526	BYTE	GlobalUnit
-	0x527	BYTE[8]	WayBriefStart	(was Unknown22-29)
+	0x527	BYTE[8]	(Editor use, BriefingStart)	(was Unknown22-29)
 	0x52F	BYTE	Handicap
 	0x530	BYTE[8]	OptionalWarheads
 	0x538	BYTE[4]	OptionalBeams
@@ -185,6 +182,14 @@ struct Role (size 0x4)
 	0x1	CHAR[3]	Designation (enum)
 }
 
+struct TPair "TriggerPair" (size 0x0B)
+{
+	0x00	Trigger	Trigger1
+	0x04	Trigger	Trigger2
+	0x08	BYTE[2]	(Unused)
+	0x0A	BOOL	AndOr
+}
+
 struct Trigger (size 0x4)
 {
 	0x0	BYTE	Condition (enum)
@@ -192,10 +197,6 @@ struct Trigger (size 0x4)
 	0x2	BYTE	Variable
 	0x3	BYTE	Amount (enum)
 }
-
-Technical note: Triggers always come in pairs. Each pair is followed by 2
-unknown/unused bytes, then the BOOL indicating whether the evaluation should
-be OR'd together.
 
 struct Order (size 0x52)
 {
@@ -226,6 +227,7 @@ struct GoalFG (size 0x4E)
 	0x03	SBYTE	Points
 	0x04	BOOL[10]	EnabledForTeam		Unknown10 through Unknown15
 	0x0E	BYTE	TimeLimit				Seconds * 5
+	0x0F	(63)	Reserved
 }
 
 struct Waypt (size 0x2C)
@@ -242,10 +244,7 @@ struct Message (size  0x74)
 	0x00	SHORT	MessageIndex
 	0x02	CHAR[64] Message
 	0x42	BYTE[10] SentToTeams
-	0x4C	Trigger[2]
-	0x56	BOOL	Trigger1OrTrigger2
-	0x57	Trigger[2]
-	0x61	BOOL	Trigger3OrTrigger4
+	0x4C	TPair[2]	Triggers
 	0x62	STR(16)	EditorNote
 	0x72	BYTE	Delay
 	0x73	BOOL	Trigger12OrTrigger34
@@ -259,10 +258,7 @@ struct GlobalGoal (size 0x80)
 
 struct GoalGlobal (size 0x2A)
 {
-	0x00	Trigger[2]
-	0x0A	BOOL	Trigger1OrTrigger2
-	0x0B	Trigger[2]
-	0x15	BOOL	Trigger2OrTrigger3
+	0x00	TPair[2]	Triggers
 	0x16	STR(16)	Name
 	0x26	BYTE	Version
 	0x27	BOOL	Trigger12OrTrigger34
@@ -282,9 +278,10 @@ struct Team (size 0x1E7)
 struct Briefing
 {
 	0x000	SHORT	RunningTime
-	0x002	SHORT	Unknown1
+	0x002	SHORT	CurrentTime
 	0x004	SHORT	StartEvents
-	0x006	DWORD	EventsLength
+	0x006	SHORT	EventsLength
+	0x008	SHORT	Tile
 	0x00A	Event[]
 	0x32A	BOOL[10]	ViewedByTeam
 	0x334	Tag[32]
@@ -353,7 +350,7 @@ The unknown mission type seems to be some kind of prototype melee. End mission
 combat statistics are not recorded in the pilot file. There may be other
 differences too.
 
-PreventMissionOutcome indicates that a mission outcome can never be resolved.
+GoalsUnimportant indicates that a mission outcome can never be resolved.
 Neither failure or victory is possible. Typically used for melee scenarios
 where accumulation of points is all that matters.
 
@@ -366,19 +363,15 @@ instead there's a new section for craft roles. This is where the specialized
 messages are controlled. The full listing will be below. Roles can only be
 set for Imperials, Rebels, Team 3 and Team 4. It is also possible to set a
 role for all teams. The Designation stored is only the first three letters of
-the full item. The Team is a CHAR and can have these values:
-31	'1'		Imperial
-32	'2'		Rebel
-33	'3'		Team 3
-34	'4'		Team 4
-61	'a'		All
-68	'h'		Unknown
+the full item. The Team is a CHAR and uses the DesignationTeam enum.
+
 It is unknown if the remaining teams can have roles, but they have been seen
 in LEC-produced missions. An alternate usage seen in LEC missions is defining
 an AI level across both the Team and Designation fields, instead using this
 area as a different string value. The effect of this is unknown, as the strings
 seen don't match the craft's, but it's possible that it may instead give the
-Designation to a team, it may give it to a certain AI level.
+Designation to a team, it may give it to a certain AI level. It may also be
+garbage info and not do anything.
 
 Now we're back to traditional values, with both Cargo strings, and a bunch of
 familiar values you've seen in TIE95. The only item inserted here is Team,
@@ -636,20 +629,20 @@ DesignationTeam
 'F'	Friendly
 FF	None
 
-Designation
-00	None
-01	Base
-02	Command Ship
-03	Convoy Craft
-04	Manufacturing Facility
-05	Mission Critical Craft
-06	Primary Target
-07	Reload Craft
-08	Resource Center
-09	Secondary Target
-0A	Station
-0B	Strike Craft
-0C	Tertiary Target
+Designation (number values shown are the XWA mapping)
+FF	NONe
+00	COMmand Ship
+01	BASe
+02	STAtion
+03	MISsion Critical Craft
+04	CONvoy Craft
+05	STRike Craft
+06	RELoad Craft
+07	PRImary Target
+08	SECondary Target
+09	TERtiary Target
+0A	RESearch Facility
+0B	MANufacturing Facility
 
 CraftType
 00	None

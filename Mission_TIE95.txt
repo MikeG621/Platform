@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.03.22
+Updated: 2024.04.14
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -77,9 +77,9 @@ struct FileHeader (size 0x1CA)
 	0x008	BYTE	TimeLimitMin
 	0x009	BYTE	TimeLimitSec
 	0x00A	BYTE	BriefingOfficers
-	0x00B	BYTE	RandomSeed	[Backdrop?]
+	0x00B	BYTE	RandomSeed
 	0x00C	BYTE	Rescue?
-	0x00D	BOOL	AllWayShown? (Formerly CapturedOnEject)
+	0x00D	BOOL	*AllWayShown (Formerly CapturedOnEject)
 	0x00E	BYTE[8]	Vars
 	0x016	BYTE[2]	WinBonus
 	0x018	CHAR[64][6]	EndOfMissionMessages
@@ -131,7 +131,7 @@ struct FlightGroup (size 0x124)
 	0x05B	BYTE	DepartureDelaySeconds		Unknown14
 	0x05C	BYTE	AbortCondition (enum)
 	0x05D	BYTE	(Unused)			Unknown15
-	0x05E	SHORT	CurrentMothership	(was Unknown16-17)
+	0x05E	SHORT	(Editor use, CurrentMothership)	(was Unknown16-17)
 	0x060	BYTE	ArrivalMothership
 	0x061	BOOL	ArriveViaMothership
 	0x062	BYTE	DepartureMothership
@@ -145,10 +145,10 @@ struct FlightGroup (size 0x124)
 	0x0A6	SBYTE	BonusGoalPoints
 	0x0A7	BYTE		(Unused)
 	0x0A8	Waypt[4]
-	0x120	BOOL	WayShown	(was Unknown19)
+	0x120	BOOL	(Editor use, WaypointShown)	(was Unknown19)
 	0x121	BYTE	(Unused)
-	0x122	BYTE	WayBriefLink	(was Unknown20)
-	0x123	BOOL	WayBriefShown	(was Unknown21)
+	0x122	BYTE	(Editor use, BriefingLinked)	(was Unknown20)
+	0x123	BOOL	(Editor use, BriefingShown)	(was Unknown21)
 }
 
 struct Trigger (size 0x4)
@@ -169,13 +169,13 @@ struct Order (size 0x12)
 	0x08	BYTE	Target3
 	0x09	BYTE	Target4
 	0x0A	BOOL	Target3OrTarget4
-	0x0B	BYTE		(Unused)
+	0x0B	BYTE	(Unused)
 	0x0C	BYTE	Target1Type (enum VariableType)
 	0x0D	BYTE	Target1
 	0x0E	BYTE	Target2Type (enum VariableType)
 	0x0F	BYTE	Target2
 	0x10	BOOL	Target1OrTarget2
-	0x11	BYTE		(Unused)
+	0x11	BYTE	(Unused)
 }
 
 struct Waypt (size 0x1E)
@@ -197,7 +197,7 @@ struct Message (size 0x5A)
 {
 	0x00	STR(64)	Message
 	0x40	Trigger[2]
-	0x48	STR(12)	EditorNote
+	0x48	STR(16)	EditorNote
 	0x58	BYTE	DelaySeconds
 	0x59	BOOL	Trigger1OrTrigger2
 }
@@ -217,7 +217,8 @@ struct Briefing
 	0x000	SHORT	RunningTime
 	0x002	SHORT	CurrentTime
 	0x004	SHORT	StartLength
-	0x006	DWORD	EventsLength	(SHORT? Size then Tile?)
+	0x006	SHORT	EventsLength
+	0x008	SHORT	Tile
 	0x00A	Event[]
 	0x32A	Tag[32]
 		String[32]

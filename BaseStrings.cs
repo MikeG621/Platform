@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [NEW] Update per XWA format spec
  * v4.0, 200809
  * [UPD] ShipClass and ObjectType updated [JB]
  * [NEW] FormationMine [JB]
@@ -23,7 +24,7 @@
 
 namespace Idmr.Platform
 {
-    /// <summary>Contains strings shared between all platforms</summary>
+    /// <summary>Contains strings shared between all platforms.</summary>
     public abstract class BaseStrings
 	{
 		#region array declarations
@@ -35,7 +36,9 @@ namespace Idmr.Platform
 										"Adv. Concussion Missile",
 										"Adv. Torpedo",
 										"Mag Pulse",
-										"(Ion Pulse)"
+										"(Ion Pulse)",
+										"(Adv Mag Pulse)",
+										"(Cluster Bomb)"
 								   };
 		static readonly string[] _color = { "Red (TIE - none)",
 									"Gold (TIE - Red)",
@@ -66,29 +69,29 @@ namespace Idmr.Platform
 										"Echelon Left",
 										"Double Astern",
 										"Diamond",
-										"Stack",
+										"Stack (Line Up)",
 										"High X",
-										"Vic Abreast",
-										"High Vic",
-										"Reverse High Vic",
-										"Reverse Line Astern",
-										"Stacked Low",
-										"Abreast Right",
-										"Abreast Left",
-										"Wing Forward",
-										"Wing Back",
-										"Line Astern Up",
-										"Line Astern Down",
-										"Abreast V",
-										"Abreast Inverted V",
+										"Reverse Vic",
+										"Side Vic",
+										"Reverse Side Vic",
+										"Line Ahead",
+										"Line Down",
+										"Line Right",
+										"Line Left",
+										"Echelon Forward",
+										"Echelon Astern",
+										"Echelon Up",
+										"Echelon Down",
+										"Vic Up",
+										"Vic Down",
 										"Double Astern Mirror",
-										"Double Stacked Astern",
-										"Double Stacked High",
-										"Diamond 1",
-										"Diamond 2",
-										"Flat Pentagon",
-										"Side Pentagon",
-										"Front Pentagon",
+										"Double Side",
+										"Double Down",
+										"Side Diamond",
+										"Front Diamond",
+										"Flat Star",
+										"Side Star",
+										"Front Star",
 										"Flat Hexagon",
 										"Side Hexagon",
 										"Front Hexagon"
@@ -105,41 +108,45 @@ namespace Idmr.Platform
 										"Utility craft",
 										"Platforms",
 										"Mines",
-										"Probes/Sats/Navs",
+										"Probes/Sats/Buoys",
+										"Containers",
+										"Weapon Emplacements",
+										"Droids"
 									};
 		static readonly string[] _objectType = { "Craft",
 										 "Mines",
-										 "Probes/Sats/Navs"
+										 "Probes/Sats/Buoys",
+										 "Space Defenses"
 									 };
 		#endregion
-		/// <summary>Gets a copy of FlightGroup craft markings</summary>
-		/// <remarks>Array has a Length of 4</remarks>
+		/// <summary>Gets a copy of FlightGroup craft markings.</summary>
+		/// <remarks>Array has a Length of 4.</remarks>
 		public static string[] Color => (string[])_color.Clone();
-		/// <summary>Gets a copy of Arrival difficulty settings</summary>
-		/// <remarks>Array has a Length of 7</remarks>
+		/// <summary>Gets a copy of Arrival difficulty settings.</summary>
+		/// <remarks>Array has a Length of 7.</remarks>
 		public static string[] Difficulty => (string[])_difficulty.Clone();
-		/// <summary>Gets a copy of Arrival Difficulty abbreviations</summary>
-		/// <remarks>Array has a Length of 7</remarks>
+		/// <summary>Gets a copy of Arrival Difficulty abbreviations.</summary>
+		/// <remarks>Array has a Length of 7.</remarks>
 		public static string[] DifficultyAbbrv => (string[])_difficultyAbbrv.Clone();
-		/// <summary>Gets a copy of FlightGroup formations</summary>
-		/// <remarks>Array has a Length of 34</remarks>
+		/// <summary>Gets a copy of FlightGroup formations.</summary>
+		/// <remarks>Array has a Length of 34.</remarks>
 		public static string[] Formation => (string[])_formation.Clone();
-		/// <summary>Gets a copy of formations only used by mine space objects</summary>
-		/// <remarks>Array has a Length of 4</remarks>
+		/// <summary>Gets a copy of formations only used by mine space objects.</summary>
+		/// <remarks>Array has a Length of 4.</remarks>
 		public static string[] FormationMine => (string[])_formationMine.Clone();
-		/// <summary>Gets a copy of Trigger Types for solid objects</summary>
-		/// <remarks>Array has a Length of 3</remarks>
+		/// <summary>Gets a copy of Trigger Types for solid objects.</summary>
+		/// <remarks>Array has a Length of 4.</remarks>
 		public static string[] ObjectType => (string[])_objectType.Clone();
-		/// <summary>Gets a copy of Trigger Types for ships</summary>
-		/// <remarks>Array has a Length of 7</remarks>
+		/// <summary>Gets a copy of Trigger Types for ships.</summary>
+		/// <remarks>Array has a Length of 11.</remarks>
 		public static string[] ShipClass => (string[])_shipClass.Clone();
-		/// <summary>Gets a copy of Warhead types for FlightGroup usage</summary>
-		/// <remarks>Array has a Length of 9</remarks>
+		/// <summary>Gets a copy of Warhead types for FlightGroup usage.</summary>
+		/// <remarks>Array has a Length of 11.</remarks>
 		public static string[] Warheads => (string[])_warheads.Clone();
 
 		/// <summary>Checks whether an index into a given string array is valid before accessing that element.</summary>
-		/// <param name="array">The strings to pull from</param>
-		/// <param name="index">The desired entry</param>
+		/// <param name="array">The strings to pull from.</param>
+		/// <param name="index">The desired entry.</param>
 		/// <remarks>Avoids exceptions when requesting strings of associated values.</remarks>
 		/// <returns>A string from the index, or a string indicating an unknown value.</returns>
 		public static string SafeString(string[] array, int index)

@@ -18,34 +18,39 @@ using System;
 
 namespace Idmr.Platform.Xwa
 {
-	/// <summary>Object for individual Team's mission-wide goals</summary>
+	/// <summary>Object for individual Team's mission-wide goals.</summary>
 	[Serializable] public partial class Globals
 	{
-		/// <summary>Creates a new Globals object</summary>
-		/// <remarks>Three <see cref="Goals"/>, each with four <see cref="Goal.Triggers"/> all set to "<b>never (FALSE)</b>"</remarks>
+		/// <summary>Creates a new Globals object.</summary>
+		/// <remarks>Three <see cref="Goals"/>, each with four <see cref="Goal.Triggers"/> all set to "<b>never (FALSE)</b>".</remarks>
 		public Globals() { for (int i = 0; i < 3; i++) Goals[i] = new Goal(); }
 
-		/// <summary>The Global Goals</summary>
-		/// <remarks>Use the <see cref="GoalIndex"/> enumeration for indexes</remarks>
+		/// <summary>The Global Goals.</summary>
+		/// <remarks>Use the <see cref="GoalIndex"/> enumeration for indexes.</remarks>
 		public Goal[] Goals { get; } = new Goal[3];
 		
-		/// <summary>Goal indexes</summary>
+		/// <summary>Goal indexes.</summary>
 		public enum GoalIndex : byte {
-			/// <summary>Primary goals</summary>
+			/// <summary>Primary goals.</summary>
 			Primary,
-			/// <summary>Prevent goals</summary>
+			/// <summary>Prevent goals.</summary>
 			Prevent,
-			/// <summary>Secondary goals</summary>
+			/// <summary>Secondary goals.</summary>
 			Secondary
 		}
-		/// <summary>Goal status</summary>
+		/// <summary>Goal status.</summary>
 		public enum GoalState : byte {
-			/// <summary>Goals that have not yet been completed.<br/>Does not apply to Secondary goals</summary>
+			/// <summary>Goals that have not yet been completed.</summary>
+			/// <remarks>Does not apply to Secondary goals.</remarks>
 			Incomplete,
-			/// <summary>Goals that have been completed</summary>
+			/// <summary>Goals that have been completed.</summary>
 			Complete,
-			/// <summary>Goals that cannot be completed due to gameplay (mission design may permit inability to complete goals without direct failure).<br/>Does not apply to Prevent or Secondary goals</summary>
+			/// <summary>Goals that cannot be completed due to gameplay (mission design may permit inability to complete goals without direct failure).</summary>
+			/// <remarks>Does not apply to Prevent or Secondary goals.</remarks>
 			Failed
 		}
+
+		// TODO XWA: in a separate code branch, explore the possibilty of using the extra globals, 3-6
+		// maybe use the classic editor to test missions
 	}
 }

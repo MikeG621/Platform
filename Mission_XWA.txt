@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.03.22
+Updated: 2024.04.14
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -86,8 +86,8 @@ struct FileHeader (size 0x23F0)
 	0x0014	STR(20)[4]	IffNames3-6
 	0x0064	Region[4]	Regions
 	0x0274	GlbCrg[16]	GlobalCargos
-	0x0B34	GlbGp[32]	GlobalGroups
-	0x1C32	GlbGp[40]	GlobalUnits
+	0x0B34	GlbUn[32]	GlobalGroups
+	0x1C32	GlbUn[40]	GlobalUnits
 	0x23AC	BYTE		Hangar (enum)
 	0x23AD	BOOL		GoalsUnimportant
 	0x23AE	BYTE		TimeLimitMinutes
@@ -112,15 +112,15 @@ struct GlbCrg "GlobalCargo" (size 0x8C)
 {
 	0x00	STR(64)	Cargo
 	0x40	DWORD	ID
-	0x44	DWORD	Count
-	0x48	BYTE	Type	{solid, liquid, gas}
-	0x49	BYTE	Volume
-	0x4A	BYTE	Value
-	0x4B	BYTE	Volatility	{low, med, high, kaboom!}
+	0x44	DWORD	Count	(was Unknown1)
+	0x48	BYTE	Type	(was Unknown2) {solid, liquid, gas}
+	0x49	BYTE	Volume	(was Unknown3)
+	0x4A	BYTE	Value	(was Unknown4)
+	0x4B	BYTE	Volatility	(was Unknown5)	{low, med, high, kaboom!}
 	0x4C	(64)	Reserved
 }
 
-struct GlbGp "GlobalGroup" (size 0x57)
+struct GlbUn "GlobalUnit" (size 0x57)
 {
 	0x00	STR(64)	Name
 	0x40	BYTE	Leader
@@ -136,7 +136,7 @@ struct FlightGroup (size 0xE3E)
 	0x015	BYTE	EnableDesignation2
 	0x016	BYTE	Designation1 (enum)
 	0x017	BYTE	Designation2 (enum)
-	0x018	BYTE	Comm	(was Unknown1)	{none, minimal, normal, verbose}
+	0x018	BYTE	Comm	(was Unknown1)	{None, Minimal, Normal, Verbose}
 	0x019	BYTE	GlobalCargoIndex
 	0x01A	BYTE	GlobalSpecialCargoIndex
 	0x1B	(13)	(Unused)
@@ -170,11 +170,10 @@ struct FlightGroup (size 0xE3E)
 	0x081	BYTE	Pitch
 	0x082	BYTE	Roll
 	0x083	BYTE	(IOReserved)
-	0x084	SHORT	LinkID		(was Unknown4)
+	0x084	SHORT	*LinkID		(was Unknown4)
 	0x086	BYTE	(Unused)	(was Unknown5)
 	0x087	BYTE	ArrivalDifficulty (enum)
-	0x088	TPair	Arrival1and2	(contained Unknown6)
-	0x098	TPair	Arrival3and4
+	0x088	TPair[2]	Arrival	(contained Unknown6)
 	0x0A8	BOOL	Arrivals12OrArrivals34
 	0x0A9	BYTE	ArrivalRandDelayMinutes
 	0x0AA	BYTE	ArrivalDelayMinutes
@@ -184,7 +183,7 @@ struct FlightGroup (size 0xE3E)
 	0x0BD	BYTE	DepartureDelaySeconds
 	0x0BE	BYTE	AbortTrigger (enum)
 	0x0BF	BYTE	ArrivalRandDelaySeconds	(was Unknown7)
-	0x0C0	SHORT	CurrentMothership	(was Unknown8, might be editor only)	{Arrival, Capture, Departure, AltMothership}
+	0x0C0	SHORT	(Editor use, CurrentMothership)	(was Unknown8)
 	0x0C2	BYTE	ArrivalMothership
 	0x0C3	BYTE	ArrivalMethod {Hyper, Mothership, Hyp Rgn FG}
 	0x0C4	BYTE	DepartureMothership
@@ -203,7 +202,7 @@ struct FlightGroup (size 0xE3E)
 	0xDAC	BYTE	CaptureHyperRegion
 	0xDAD	BYTE	HyperPointRegion
 	0xDAE	BYTE[20] (Unused)	[was Unks16-31]
-	0xDC2	BYTE	*WayShown (probably editor only)
+	0xDC2	BYTE	(Editor use, WaypointShown)
 	0xDC3	BYTE	(Unused)
 	0xDC4	BOOL	DisableWaveNumbering
 	0xDC5	BYTE	DepartureClockMin	(was Unknown32)
@@ -223,7 +222,7 @@ struct FlightGroup (size 0xE3E)
 	0xDFD	STR(20)	PilotID
 	0xE11	BYTE	(IOReserved)
 	0xE12	DWORD	Backdrop
-	0xE16	(40)	Reserved	(contains Unk34-41)
+	0xE16	(40)	Reserved	(contained Unk34-41)
 }
 
 struct TPair "TriggerPair" (size 0x10)
@@ -295,8 +294,7 @@ struct Message (size 0xA2)
 	0x00	SHORT	MessageIndex
 	0x02	STR(80)	Message
 	0x52	BYTE[10] SentToTeam
-	0x5C	TPair	Trigger1and2 (contained Unknown1)
-	0x6C	TPair	Trigger3and4
+	0x5C	TPair[2]	Triggers (contained Unknown1)
 	0x7C	STR(8)	Voice
 	0x84	DWORD	OriginatingFG
 	0x88	DWORD	Type
@@ -305,7 +303,8 @@ struct Message (size 0xA2)
 	0x8E	BYTE	Color/IFF
 	0x8F	BOOL	SpeakerHeader	(was Unknown2)
 	0x90	TPair	Special
-	0xA0	BOOL	SpecialMeaning	(was Unknown3)	{Ignore, Stop, Finished, Both}
+	0xA0	BYTE	SpecialMeaning	(was Unknown3)	{Ignore, Stop, Finished, Both}
+	0xA0	BYTE	(IOReserved)
 }
 
 struct GlobalGoal (size 0x170)
@@ -347,7 +346,8 @@ struct Briefing
 	0x0000	SHORT		RunningTime
 	0x0002	SHORT		CurrentTime		(was Unknown1)
 	0x0004	SHORT		StartLength
-	0x0006	DWORD		EventsLength	[SHORT? Size, then SHORT Tile]
+	0x0006	SHORT		EventsLength
+	0x0008	SHORT		Tile
 	0x000A	Event[]		Events
 	0x320A	Icon[192]	Icons
 	0x440A	BOOL[10]	ShowToTeams
@@ -577,6 +577,10 @@ definitions change for these purposes, which will be laid out here. For
 starters, Name becomes LightRGB, where the color values are 0.0-1.0 so a
 white light will be "1.0 1.0 1.0" and no light would be "0.0 0.0 0.0".
 
+The DeathStarII Backdrop is a unique case, where the Name instead becomes a
+timer definition. "60.00 600.00" means 60 seconds from mission start until the
+first shot, and 600 seconds (10 min) between shots after that.
+
 The GlobalCargoIndex number is used as the Shadow.  Note however, that not
 every backdrop uses this exact list, some remove items and renumber
 accordingly.  Start with this list and work from there if you notice it
@@ -644,7 +648,9 @@ is completed.
 The GoalGlobal array is comprised of the Primary, Prevent and Bonus goals in
 that order.  It is possible for more than 3 sets to exist, potentially up to 7
 though I've never seen it.  The remaining sets are MissionOver, Extra1, Extra2,
-Extra3.  For sizing in this document I've assumed there's only ever 3 sets.
+Extra3.  For sizing in this document I've assumed there's only ever 3 sets, and
+that's the minimum allowed per the spec.  What's used as the flag for the extra
+goals is if the Name is used; if it's not blank, it was saved.
 
 -- Team --
 
@@ -677,7 +683,7 @@ briefing).
 
 The StartsLength value is the number of SHORTs, Variables included, that occur
 at Time=0. EventsLength is the total number of SHORTs occupied in the Events
-array up to and including the EndBriefing command.
+array up to and including the EndBriefing command.  Don't know what Tile is.
 
 I haven't figured out how the Icons are used yet.  This appears to allow the
 use of common icons repeatedly, though the array size is the number of FGs, so
@@ -718,10 +724,11 @@ For the most part, the same as Section 11. Define your own strings, this
 section is always here in the same dynamic manner and repeats 10 times, once
 for each team. As before * is 1 if 00, 64 otherwise.
 
-The array structure here is 3 strings per Trigger, 4 Triggers per goal, 3 goals
+The array structure here is 3 strings per Trigger, 4 Triggers per goal, 7 goals
 per Team. Strings are Incomplete, Complete and Failed in that order. Goals are
-Primary, Prevent and Secondary (Bonus) in that order.  Like the Goals
-themselves there's the potential for up to 7, but this has never been seen.
+Primary, Prevent and Secondary (Bonus) in that order.  Even though the Goals
+only use the first 3 sets, here all 7 are defined, though the last 4 will just
+be the empty lengths.
 
 Prevent Failed is always 00. Secondary Incomplete and Failed are always 00.
 
@@ -808,8 +815,8 @@ Designation
 07	Primary Target
 08	Secondary Target
 09	Tertiary Target
-0A	Resource Center
-0B	Facility
+0A	Research Facility
+0B	Manufacturing Facility
 0C	HYP from Region 1
 0D	HYP from Region 2
 0E	HYP from Region 3
@@ -946,7 +953,7 @@ CraftType
 79	Planetary Fighter
 7A	Supa Fighter
 7B	Pinook Fighter
-7C	*Booster Pack
+7C	Booster Pack
 7D	Preybird Fighter
 7E	*StarViper
 7F	Firespray
@@ -997,9 +1004,9 @@ AB	*Cargo Tanker 3
 AC	*Cargo Tanker 4
 AD	*Cargo Tanker 5
 AE	Escape Pod 2
-AF	*Rebel Pilot
-B0	*Imperial Pilot
-B1	*Civilian Pilot
+AF	Rebel Pilot
+B0	Imperial Pilot
+B1	Civilian Pilot
 B2	Spacetrooper
 B3	Zero-G Utility Suit
 B4	Emkay
@@ -1045,7 +1052,7 @@ Status
 03	No Shields
 04	1/2 Shields, Damaged
 05	Lasers Damaged
-06	No Hyperdrive
+06	Hyperdrive Damaged
 07	Shields 0%, charging
 08	Shields added or 200%
 09	Hyperdrive added
@@ -1064,10 +1071,9 @@ Status
 16	No Escape Pods / Ejected Pilot
 17	No Cargo Pods
 18	Not Inspected
-19	Not ID'ed
-1A	Inspected
-1B	ID'ed
-1C	Hangar Object
+19	Inspected
+1A	ID'ed
+1B	Hangar Object
 
 Warhead
 00	None

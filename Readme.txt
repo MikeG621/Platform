@@ -11,6 +11,10 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 =========
 Version History
 
+ - Format spec for XWA implemented, includes some backflow into TIE and XvT
+   - This means all XWA Unknowns are defined, many that were left wer editor-use only or Unused
+   - Not all editor-use properties are exposed
+
 v6.1, 08 Dec 2023
  - (Converter) Added TieToXvt(), TieToBop(), TieToXvtBop(), XvtBopToXwa(), TieToXwa() upgrade paths
  - (Converter) XWA orders convert times and craft type to/from TIE and XvT

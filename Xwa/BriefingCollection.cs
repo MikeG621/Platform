@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -18,11 +18,11 @@ using System.Collections.Generic;
 
 namespace Idmr.Platform.Xwa
 {
-	/// <summary>Object to hold all Briefings</summary>
-	/// <remarks>Two briefings in total, first being used for single-player</remarks>
+	/// <summary>Object to hold all Briefings.</summary>
+	/// <remarks>Two briefings in total, first being used for single-player.</remarks>
 	public class BriefingCollection : Common.FixedSizeCollection<Briefing>
 	{
-		/// <summary>Create a new Collection with 2 Briefings</summary>
+		/// <summary>Create a new Collection with 2 Briefings.</summary>
 		public BriefingCollection()
 		{
 			_items = new List<Briefing>(2);
@@ -33,11 +33,11 @@ namespace Idmr.Platform.Xwa
             }
         }
 
-		/// <summary>Resets selected Briefing to defaults</summary>
-		/// <param name="index">Briefing index</param>
+		/// <summary>Resets selected Briefing to defaults.</summary>
+		/// <param name="index">Briefing index.</param>
 		public void Clear(int index) { _setItem(index, new Briefing()); }
 
-		/// <summary>Resets all Briefings to defaults</summary>
+		/// <summary>Resets all Briefings to defaults.</summary>
 		public void ClearAll() { for (int i = 0; i < Count; i++) _setItem(i, new Briefing()); }
 	}
 }

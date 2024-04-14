@@ -1,13 +1,16 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [NEW] Format spec implemented
+ * [UPD] EnabledForTeams[] replaced with Get/SetEnabledForTeam() 
+ * [NEW] GetBytes
  * v5.7, 220127
  * [NEW] cloning ctor [JB]
  * v3.0, 180903
@@ -63,11 +66,10 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Initlialize a new Goal from raw data</summary>
 			/// <param name="raw">Raw byte data, minimum Length of 16</param>
 			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
-			public Goal(byte[] raw)
+			public Goal(byte[] raw) : this()
 			{
 				if (raw.Length < 16) throw new ArgumentException("Minimum length of raw is 16", "raw");
-				_items = new byte[16];
-				ArrayFunctions.TrimArray(raw, 0, _items);
+				Array.Copy(raw, _items, _items.Length);
 			}
 
 			/// <summary>Initlialize a new Goal from raw data</summary>
@@ -75,12 +77,11 @@ namespace Idmr.Platform.Xwa
 			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
 			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length</exception>
 			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
-			public Goal(byte[] raw, int startIndex)
+			public Goal(byte[] raw, int startIndex) : this()
 			{
 				if (raw.Length < 16) throw new ArgumentException("Minimum length of raw is 16", "raw");
 				if (raw.Length - startIndex < 16 || startIndex < 0)
 					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 16));
-				_items = new byte[16];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
 			}
 
@@ -143,23 +144,26 @@ namespace Idmr.Platform.Xwa
 				get => (short)(RawPoints * 25);
 				set => RawPoints = (sbyte)((value > 3175 ? 3175 : (value < -3200 ? -3200 : value)) / 25);
 			}
-			/// <summary>Gets or sets if the Goal is active</summary>
-			public bool Enabled
+			/// <summary>Gets whether the goal is enabled for the specified team.</summary>
+			/// <param name="index">Team index</param>
+			/// <returns><b>true</b> if the goal applies to the given team.</returns>
+			/// <remarks>The EnabledForTeam array encompasses 10 elements ranging from offsets 0x4 to 0xD.</remarks>
+			/// <exception cref="ArgumentOutOfRangeException">Team <paramref name="index"/> is not 0-9.</exception>
+			public bool GetEnabledForTeam(int index)
 			{
-				get => Convert.ToBoolean(_items[4]);
-				set => _items[4] = Convert.ToByte(value);
+				if (index < 0 || index > 9)
+					throw new ArgumentOutOfRangeException("Team index must be 0 to 9, inclusive.");
+				return (_items[4 + index] != 0);
 			}
-			/// <summary>Gets or sets which Team the Goal applies to</summary>
-			public byte Team
+			/// <summary>Sets whether the goal is enabled for the specified team.</summary>
+			/// <param name="index">Team index.</param>
+			/// <param name="state">The value to apply.</param>
+			/// <exception cref="ArgumentOutOfRangeException">Team <paramref name="index"/> is not 0-9.</exception>
+			public void SetEnabledForTeam(int index, bool state)
 			{
-				get => _items[5];
-				set => _items[5] = value;
-			}
-			/// <summary>Gets or sets the unknown</summary>
-			public byte Unknown42
-			{
-				get => _items[13];
-				set => _items[13] = value;
+				if (index < 0 || index > 9)
+					throw new ArgumentOutOfRangeException("Team index must be 0 to 9, inclusive.");
+				_items[4 + index] = Convert.ToByte(state);
 			}
 			/// <summary>Gets or sets the additional Goal setting</summary>
 			/// <remarks>Shared as both an extra parameter for certain orders, or goal time limit for anything else.  Zero for no time limit.  Standard delay format used by Message and Order waiting times.</remarks>
@@ -196,11 +200,12 @@ namespace Idmr.Platform.Xwa
 				get => _failedText;
 				set => _failedText = StringFunctions.GetTrimmed(value, 63);
 			}
-
-			/// <summary>Unknown value</summary>
-			/// <remarks>Goal offset 0x4F</remarks>
-			public bool Unknown15 { get; set; }
 			#endregion public properties
+
+			/// <summary>Gets a copy of the Goal as a byte array.</summary>
+			/// <remarks>Length is <b>16</b>.</remarks>
+			/// <returns>The byte array equivalent.</returns>
+			public byte[] GetBytes() => (byte[])_items.Clone();
 		}
 	}
 }

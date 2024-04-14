@@ -1,6 +1,6 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -24,7 +24,7 @@ namespace Idmr.Platform.Xwa
 {
 	public partial class FlightGroup : BaseFlightGroup
 	{
-		/// <summary>Object for a single Waypoint</summary>
+		/// <summary>Object for a single Waypoint.</summary>
 		[Serializable] public class Waypoint : BaseWaypoint
 		{
 			/// <summary>Default constructor.</summary>
@@ -53,23 +53,23 @@ namespace Idmr.Platform.Xwa
 				else throw new ArgumentException("raw does not have the correct size");
 			}
 
-			/// <summary>Returns a representative string of the Waypoint</summary>
-			/// <returns>Waypoint coordinates in the form of <b>"(<see cref="BaseFlightGroup.BaseWaypoint.X"/>, <see cref="BaseFlightGroup.BaseWaypoint.Y"/>, <see cref="BaseFlightGroup.BaseWaypoint.Z"/>) <see cref="Region"/> #"</b>if enabled, otherwise <b>"Disabled"</b></returns>
+			/// <summary>Returns a representative string of the Waypoint.</summary>
+			/// <returns>Waypoint coordinates in the form of <b>"(<see cref="BaseFlightGroup.BaseWaypoint.X"/>, <see cref="BaseFlightGroup.BaseWaypoint.Y"/>, <see cref="BaseFlightGroup.BaseWaypoint.Z"/>) <see cref="Region"/> #"</b>if enabled, otherwise <b>"Disabled"</b>.</returns>
 			public override string ToString() => (Enabled ? "(" + X + ", " + Y + ", " + Z + ") Region " + Region : "Disabled");
 
-			/// <summary>Converts a Waypoint for TIE</summary>
-			/// <remarks><see cref="Region"/> is lost in the conversion</remarks>
-			/// <param name="wp">The Waypoint to convert</param>
-			/// <returns>A copy of <paramref name="wp"/> for use in TIE95</returns>
+			/// <summary>Converts a Waypoint for TIE.</summary>
+			/// <remarks><see cref="Region"/> is lost in the conversion.</remarks>
+			/// <param name="wp">The Waypoint to convert.</param>
+			/// <returns>A copy of <paramref name="wp"/> for use in TIE95.</returns>
 			public static explicit operator Tie.FlightGroup.Waypoint(Waypoint wp) => new Tie.FlightGroup.Waypoint((short[])wp);
-			/// <summary>Converts a Waypoint for XvT</summary>
-			/// <remarks><see cref="Region"/> is lost in the conversion</remarks>
-			/// <param name="wp">The Waypoint to convert</param>
-			/// <returns>A copy of <paramref name="wp"/> for use in XvT</returns>
+			/// <summary>Converts a Waypoint for XvT.</summary>
+			/// <remarks><see cref="Region"/> is lost in the conversion.</remarks>
+			/// <param name="wp">The Waypoint to convert.</param>
+			/// <returns>A copy of <paramref name="wp"/> for use in XvT.</returns>
 			public static explicit operator Xvt.FlightGroup.Waypoint(Waypoint wp) => new Xvt.FlightGroup.Waypoint((short[])wp);
 
-			/// <summary>Gets or sets the Region that the Waypoint is located in</summary>
-			/// <remarks>Restricted to values <b>0-3</b></remarks>
+			/// <summary>Gets or sets the Region that the Waypoint is located in.</summary>
+			/// <remarks>Restricted to values <b>0-3</b>.</remarks>
 			public byte Region
 			{
 				get => (byte)_items[4];

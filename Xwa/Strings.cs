@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.0
+ * Version: 6.0+
  */
 
 /* CHANGELOG
+ * [NEW] Full format spec implemented
  * v6.0, 231027
  * [UPD] Role unk uncovered [YOGEME#91]
  * v5.8.1, 231014
@@ -45,8 +46,8 @@ using System;
 
 namespace Idmr.Platform.Xwa
 {
-	/// <summary>Object for string lists used in XWA</summary>
-	/// <remarks>All arrays return Clones to prevent editing</remarks>
+	/// <summary>Object for string lists used in XWA.</summary>
+	/// <remarks>All arrays return Clones to prevent editing.</remarks>
 	public abstract class Strings : BaseStrings
 	{
 		#region array declarations
@@ -85,8 +86,8 @@ namespace Idmr.Platform.Xwa
 									"Primary Target",
 									"Secondary Target",
 									"Tertiary Target",
-									"Research Facility",  //[JB] Changed to correct string.
-									"Facility",
+									"Research Facility",
+									"Manufacturing Facility",
 									"HYP from Region 1",
 									"HYP from Region 2",
 									"HYP from Region 3",
@@ -96,7 +97,7 @@ namespace Idmr.Platform.Xwa
 									"HYP to Region 3",
 									"HYP to Region 4",
 									"HYP from Any Region",
-									"Unknown"	//[JB] needed for 1B6M7FB, though the role is disabled
+									"HYP to Any Region"	// don't know how this would work
 								};
 		static readonly string[] _radio = { "None",
 										"Team 1",
@@ -127,12 +128,17 @@ namespace Idmr.Platform.Xwa
 		static readonly string[] _officer = { "Devers",
 										"Kupalo",
 										"Zaletta",
-										"3",
-										"4",
-										"5",
-										"6",
-										"7",
-										"Emkay"
+										"Wedge",
+										"Nammo",
+										"Yamarus",
+										"Ackbar",
+										"Aeron",
+										"Emkay",
+										"Antan",
+										"Emon",
+										"Galin",
+										"Tomaas",
+										"Dunari"
 									};
 		static readonly string[] _iff = { "Rebel",
 										"Imperial",
@@ -271,7 +277,7 @@ namespace Idmr.Platform.Xwa
 										"Planetary Fighter",
 										"Supa Fighter",
 										"Pinook Fighter",
-										"Booster Pack",   //[JB] Removed asterisk, it will properly appear in missions.
+										"Booster Pack",
 										"Preybird Fighter",
 										"*StarViper",
 										"Firespray",
@@ -322,7 +328,7 @@ namespace Idmr.Platform.Xwa
 										"*Cargo Tanker 4",
 										"*Cargo Tanker 5",
 										"Escape Pod 2",
-										"Rebel Pilot",  //[JB] Removed asterisks, pilots will properly appear in missions.
+										"Rebel Pilot",
 										"Imperial Pilot",
 										"Civilian Pilot",
 										"Space Trooper",
@@ -628,22 +634,22 @@ namespace Idmr.Platform.Xwa
 									"2x Warheads",
 									"1/2 Warheads",
 									"No Shields",
-									"1/2 Shields",
-									"No Lasers",
-									"No Hyperdrive",
+									"1/2 Shields, damaged",
+									"Lasers Damaged",
+									"Hyperdrive Damaged",
 									"Shields 0%, charging",
 									"Shields added (200%)",
 									"Hyperdrive added",
 									"2x Countermeasures",
 									"1/2 Countermeasures",
-									"(200% Shields)",
+									"200% Shields",
 									"Shields 50%, charging",
-									"(No Lasers)",
+									"No Lasers",
 									"Engines Damaged",
 									"Shields + Hyperdrive added",
 									"All Systems Damaged",
 									"200% Shields",
-									"(50% Shields)",
+									"50% Shields",
 									"Invincible",
 									"Infinite Warheads",
 									"No Escape Pods/Ejections",
@@ -651,10 +657,10 @@ namespace Idmr.Platform.Xwa
 									"Not Inspected",
 									"Inspected",
 									"Identified",
-									"Limited Targetability"
+									"Hangar object"
 								 };
 		static readonly string[] _trigger = { "always (TRUE)",
-										"have arrived",
+										"have arrived (created)",
 										"be destroyed",
 										"be attacked",
 										"be captured",
@@ -666,23 +672,23 @@ namespace Idmr.Platform.Xwa
 										"none (FALSE)",
 										"---",
 										"complete mission",
-										"complete primary mission",
-										"fail primary mission",
-										"complete secondary mission",
-										"fail secondary mission",
-										"complete bonus mission",
-										"fail bonus mission",
+										"complete primary goals",
+										"fail primary goals",
+										"(complete secondary mission)",
+										"(fail secondary mission)",
+										"complete bonus goals",
+										"fail bonus goals",
 										"be dropped off",
 										"be reinforced",
 										"have 0% shields",
 										"have 50% hull",
 										"run out of missiles",
-										"Unknown (arrive?)",
-										"be dropped off",
-										"be unharmed?",
+										"have lasers damaged",
+										"NOT arrived",
+										"NOT be attacked",
 										"NOT be disabled",
-										"NOT be picked up",
-										"be destroyed, not inspected",
+										"NOT be captured",
+										"NOT be inspected",
 										"begin being boarded",       //[JB] was "be docked with"
 										"NOT being boarded",
 										"begin docking",            //[JB] was "begin boarding"
@@ -691,28 +697,28 @@ namespace Idmr.Platform.Xwa
 										"have 25% shields",
 										"have 75% hull",
 										"have 25% hull",
-										"(always failed)",
+										"Time less than",
 										"be picked up for Team",
-										"Unknown",
-										"be all Player Craft",
-										"reinforced by AI?",
+										"NOT be picked up for Team",
+										"have Player Craft",
+										"NOT have Player Craft",
 										"come and go",
-										"be picked up",
+										"be captured and left",
 										"withdraw",
 										"be carried away",
 										"have arrived in Region",
 										"have departed Region",
 										"be nearby",
 										"NOT be nearby",
-										"all captured",
+										"be carried",
 										"defect to",
 										"be in convoy",
 										"be delivered",
-										"all disabled",
+										"be parled",
 										"be shown (message)",
 										"be identified",
 										"NOT be identified",
-										"exist?"
+										"support"
 								  };
 		static readonly string[] _triggerType = { "none",
 											"Flight Group",
@@ -720,12 +726,12 @@ namespace Idmr.Platform.Xwa
 											"Ship class",
 											"Object type",
 											"IFF",
-											"Ship orders",
+											"(Ship orders)",
 											"Craft when",
 											"Global Group",
-											"Rating",
-											"Craft with status",
-											"All",
+											"(Rating)",
+											"(Craft with status)",
+											"(All)",
 											"Team",
 											"Player #",
 											"After delay",
@@ -753,12 +759,12 @@ namespace Idmr.Platform.Xwa
 									"all non-special craft in",
 									"all non-player craft in",
 									"player's craft in",
-									"100% of first wave",
-									"75% of first wave",
-									"50% of first wave",
-									"25% of first wave",
-									"any of first wave",
-									"all but 1 of first wave",
+									"100% (of first wave)",
+									"75% (of first wave)",
+									"50% (of first wave)",
+									"25% (of first wave)",
+									"any of (first wave)",
+									"all but 1 of (first wave)",
 									"66%",
 									"33%",
 									"each craft",
@@ -771,9 +777,9 @@ namespace Idmr.Platform.Xwa
 									"Go Home",
 									"Circle",
 									"Circle and Evade",
-									"Rendezvous",
+									"(Rendezvous)",
 									"Disabled",
-									"Awaiting Boarding",
+									"Await Boarding",
 									"Attack targets",
 									"Attack escorts",
 									"Protect",
@@ -792,26 +798,26 @@ namespace Idmr.Platform.Xwa
 									"SS Await Return",
 									"SS Launch",
 									"SS Protect",
-									"SS Wait / Protect",
+									"(SS Wait / Protect)",
 									"SS Patrol and Attack",
 									"SS Patrol and Disable",
-									"SS Hold Station",
+									"(SS Hold Station)",
 									"SS Go Home",
-									"SS Wait",
+									"(SS Wait)",
 									"SS Board",
 									"Board to Repair",
-									"Hold Station",
-									"Hold Steady",
-									"SS Hold Station",
+									"(Hold Station)",
+									"(Hold Steady)",
+									"(SS Hold Station)",
 									"Self Destruct",
 									"Kamikaze",
-									"(Orbit)",
-									"(Release Carried Cargo)",
+									"Orbit",
+									"Release Carried Cargo",
 									"Deliver/Drop Off",
-									"Unknown",
-									"(Attack)",
-									"Load Objects",
-									"Sit and Fire",
+									"Load",
+									"Standoff Attack",
+									"Backup",
+									"Shutdown",
 									"Repair Self",
 									"Defect",
 									"Self Capture/Surrender",
@@ -839,85 +845,102 @@ namespace Idmr.Platform.Xwa
 										"Finished docking",
 										"Disabled",
 										"Attacked",
-										"Any hull damage",  //[JB] was "0% shields?", confirmed actual effect
+										"Any hull damage",
 										"Special craft",
 										"Non-special craft",
 										"Player's craft",
 										"Non-player craft",
-										"",
-										"NOT Disabled"
+										"NOT attacked",
+										"NOT disabled",
+										"NOT captured",
+										"NOT inspected",
+										"being boarded",
+										"NOT boarded",
+										"is docking",
+										"NOT docked",
+										"Shields at 50%",
+										"Shields at 25%",
+										"Shields down",
+										"Hull at 75%",
+										"Hull at 50%",
+										"Hull at 25%",
+										"Warheads spent",
+										"Lasers down",
+										"Identified",
+										"NOT identified"
 									};
 		static readonly string[] _abort = { "never",
 									"0% shields",
-									"",
-									"out of warheads",
+									"(None)",
+									"warheads spent",
 									"50% hull",
 									"attacked",
 									"50% shields",
 									"25% shields",
 									"75% hull",
-									"25% hull"
+									"25% hull",
+									"inspected"
 								};
 		static readonly string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless|Meaningless",
-										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless|Meaningless",
+										"Fly to Mothership, or Hyperspace|Delay|Meaningless|Meaningless",
 										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless|Meaningless",
 										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless|Meaningless",
-										"Fly to Rendezvous point and await docking. Ignores targets, returns fire|# of dockings|Meaningless|Meaningless",
-										"Disabled|Meaningless|Meaningless|Meaningless",
+										"OBSOLETE. Fly to Rendezvous point and await docking. Ignores targets, returns fire|# of dockings|Meaningless|Meaningless",
+										"Disabled|# of dockings|Meaningless|Meaningless",
 										"Disabled, awaiting boarding|# of dockings|Meaningless|Meaningless",
-										"Attacks targets (not for starships)|Component|Meaningless|Meaningless",
+										"Attacks targets (not for starships)|Component|Weapon usage|Unknown",
 										"Attacks escorts of targets|Meaningless|Meaningless|Meaningless",
 										"Attacks craft that attack targets, ignores boarding craft|Meaningless|Meaningless|Meaningless",
-										"Attacks craft that attack targets, including boarding craft|Position|Attack Player|Meaningless",
-										"Attacks to disable.  Warheads used to lower shields|Meaningless|Meaningless|Meaningless",
+										"Attacks craft that attack targets, including boarding craft|Position|Spacing|Meaningless",
+										"Attacks to disable.  Warheads used to lower shields|Component|Component2?|Meaningless",
 										"Boards targets (if stationary) to give cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to take cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to exchange cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to capture|Docking time|# of dockings|Meaningless",
-										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time|# of dockings|Meaningless",
-										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time|# of dockings|Meaningless",  //[JB] Changed Var2, was Meaningless
+										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time|# of dockings|Delay",
+										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time|# of dockings|Meaningless",
 										"Drops off designated Flight Group (disregards targets)|Deploy time|Flight Group #|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time|Meaningless|Meaningless",
 										"Waits for designated time before continuing. Returns fire|Wait time|Meaningless|Meaningless",
 										"Circles through Waypoints. Attacks targets, returns fire|# of loops|Meaningless|Meaningless",
-										"Wait for the return of all FGs with it as their Mothership. Attacks targets, returns fire|Meaningless|Meaningless|Meaningless",
-										"Waits for the launch of all FGs with it as their Mothership. Attacks targets, returns fire|Meaningless|Meaningless|Meaningless",
-										"Circles through Waypoints attacking craft that attack targets. Returns fire|Meaningless|Meaningless|Meaningless",
-										"Circles through Waypoints attacking craft that attack targets. Returns fire|Meaningless|Meaningless|Meaningless",
+										"Wait for the return of all FGs with it as their Mothership. Attacks targets, returns fire|Delay|Meaningless|Meaningless",
+										"Waits for the launch of all FGs with it as their Mothership. Attacks targets, returns fire|Delay|Meaningless|Meaningless",
+										"Circles through Waypoints attacking craft that attack targets. Returns fire|Delay|Meaningless|Meaningless",
+										"OBSOLETE. Circles through Waypoints attacking craft that attack targets. Returns fire|Delay|Meaningless|Meaningless",
 										"Circles through Waypoints attacking targets. Returns fire|Meaningless|Meaningless|Meaningless",
 										"Circles through Waypoints attacking targets to disable. Returns fire|Meaningless|Meaningless|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
-										"Fly to Mothership, or Hyperspace. Attacks targets, returns fire|Meaningless|Meaningless|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"OBSOLETE. Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"Fly to Mothership, or Hyperspace. Attacks targets, returns fire|Delay|Meaningless|Meaningless",
+										"OBSOLETE. Stationary, 100% Systems, does not return fire|Delay|Meaningless|Meaningless",
 										"Boards targets (if stationary)|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to repair systems|Docking time|# of dockings|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"OBSOLETE. Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"OBSOLETE. Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"OBSOLETE. Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
 										"Craft destroys self|Delay time|Meaningless|Meaningless",
 										"Craft fires at and rams target|Meaningless|Meaningless|Meaningless",
-										"Orbits around origin, 100% Systems, does not return fire|# of loops|Meaningless|Meaningless",
-										"Stationary, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
-										"Unknown|Meaningless|Meaningless|Meaningless",
-										"Unknown|Meaningless|Meaningless|Meaningless",
-										"Unknown|Meaningless|Meaningless|Meaningless",
+										"Orbits around origin, 100% Systems, does not return fire|# of loops|Direction|Meaningless",
+										"Drops carried cargo, 100% Systems, does not return fire|Meaningless|Meaningless|Meaningless",
+										"Drops carried craft at recipient|Recipient FG|Meaningless|Meaningless",
 										"Unknown|Objects|Meaningless|Meaningless",
-										"Unknown|Use Warheads|Meaningless|Meaningless",
-										"Unknown|Repair Time|Meaningless|Meaningless",
-										"Change ownership of craft|IFF|Team|Meaningless",
-										"Unknown|IFF|Meaningless|Meaningless",
+										"Attack from distance for a period of time|Use Warheads|Duration|Meaningless",
+										"Reverse|Duration|Distance|Meaningless",
+										"Shutdown|Duration|Meaningless|Meaningless",
+										"Restores craft systems|Repair Time|Meaningless|Meaningless",
+										"Change ownership of craft, does NOT count as capture|IFF|Team|Meaningless",
+										"Change ownership of craft, DOES count as capture|IFF|Meaningless|Meaningless",
 										"Unknown|Craft type|Meaningless|Meaningless",
-										"Unknown|Meaningless|Meaningless|Meaningless",
-										"Unknown|Region|Wait|# of loops",
+										"Hyper buoy|Meaningless|Meaningless|Meaningless",
+										"Move to exit point and hyper to region|Region|Wait|# of loops",
 										"Unknown|Warhead Type|Meaningless|Meaningless",
 										"Unknown|# of loops|Meaningless|Meaningless",
 										"Unknown|Meaningless|Meaningless|Meaningless",
 										"Unknown|Meaningless|Meaningless|Meaningless",
 										"Unknown|Meaningless|Meaningless|Meaningless",
-										"Unknown|starting FG|from Global Group|# of dockings",
-										"Unknown|Wait Time|Waypoint #|Meaningless",
-										"Unknown|Docking Time|Meaningless|Meaningless",
-										"Unknown|# of loops|Meaningless|Meaningless",
+										"Unknown|starting FG|from Global Group|Length",
+										"Move to docking point and wait|Wait Time|Location|Meaningless",
+										"Unknown|Docking Time|# of dockings|Meaningless",
+										"Restart from Order 1?|# of loops|Meaningless|Meaningless",
 										"Unknown|from FG|Meaningless|Meaningless",
 										"Unknown|Work Time|Component|# of loops",
 										"Unknown|Meaningless|Meaningless|Meaningless",
@@ -947,59 +970,59 @@ namespace Idmr.Platform.Xwa
 			}
 		}
 
-		/// <summary>Gets a copy of the shadows to be applied to a backdrop</summary>
-		/// <remarks>Array is Length = 7</remarks>
+		/// <summary>Gets a copy of the shadows to be applied to a backdrop.</summary>
+		/// <remarks>Array is Length = 7.</remarks>
 		public static string[] Shadow => (string[])_shadow.Clone();
 		/// <summary>Gets a copy of the default team name entries that craft roles can be applied to.</summary>
-		/// <remarks>Array is Length = 15</remarks>
+		/// <remarks>Array is Length = 15.</remarks>
 		public static string[] RoleTeams => (string[])_roleTeams.Clone();
-		/// <summary>Gets a copy of the craft roles used for specialized in-flight messages</summary>
-		/// <remarks>Array is Length = 22</remarks>
+		/// <summary>Gets a copy of the craft roles used for specialized in-flight messages.</summary>
+		/// <remarks>Array is Length = 22.</remarks>
 		public static string[] Roles => (string[])_roles.Clone();
-		/// <summary>Gets a copy of the radio channels the craft uses</summary>
-		/// <remarks>Array is length = 25</remarks>
+		/// <summary>Gets a copy of the radio channels the craft uses.</summary>
+		/// <remarks>Array is length = 25.</remarks>
 		public static string[] Radio => (string[])_radio.Clone();
-		/// <summary>Gets a copy of the voices of the mission control officer</summary>
-		/// <remarks>Array is Length = 9</remarks>
+		/// <summary>Gets a copy of the voices of the mission control officer.</summary>
+		/// <remarks>Array is Length = 9.</remarks>
 		public static string[] Officer => (string[])_officer.Clone();
-		/// <summary>Gets a copy of the default IFF Names</summary>
-		/// <remarks>Array is Length = 6</remarks>
+		/// <summary>Gets a copy of the default IFF Names.</summary>
+		/// <remarks>Array is Length = 6.</remarks>
 		public static string[] IFF => (string[])_iff.Clone();
-		/// <summary>Gets a copy of the beam weapons for craft use</summary>
-		/// <remarks>Array is Length = 5</remarks>
+		/// <summary>Gets a copy of the beam weapons for craft use.</summary>
+		/// <remarks>Array is Length = 5.</remarks>
 		public static string[] Beam => (string[])_beam.Clone();
-		/// <summary>Gets a copy of the long names for ship type</summary>
-		/// <remarks>Array is Length = 232</remarks>
+		/// <summary>Gets a copy of the long names for ship type.</summary>
+		/// <remarks>Array is Length = 232.</remarks>
 		public static string[] CraftType => (string[])_craftType.Clone();
-		/// <summary>Gets a copy of the short names for ship type</summary>
-		/// <remarks>Array is Length = 232</remarks>
+		/// <summary>Gets a copy of the short names for ship type.</summary>
+		/// <remarks>Array is Length = 232.</remarks>
 		public static string[] CraftAbbrv => (string[])_craftAbbrv.Clone();
-		/// <summary>Gets a copy of the craft AI settings</summary>
-		/// <remarks>Array is Length = 6</remarks>
+		/// <summary>Gets a copy of the craft AI settings.</summary>
+		/// <remarks>Array is Length = 6.</remarks>
 		public static string[] Rating => (string[])_rating.Clone();
-		/// <summary>Gets a copy of the FlightGroup initial state parameters</summary>
-		/// <remarks>Array is Length = 29</remarks>
+		/// <summary>Gets a copy of the FlightGroup initial state parameters.</summary>
+		/// <remarks>Array is Length = 29.</remarks>
 		public static string[] Status => (string[])_status.Clone();
-		/// <summary>Gets a copy of the conditions required to complete trigger</summary>
-		/// <remarks>Array is Length = 60</remarks>
+		/// <summary>Gets a copy of the conditions required to complete trigger.</summary>
+		/// <remarks>Array is Length = 60.</remarks>
 		public static string[] Trigger => (string[])_trigger.Clone();
-		/// <summary>Gets a copy of the categories that the Trigger Parameter belongs to</summary>
-		/// <remarks>Array is Length = 28</remarks>
+		/// <summary>Gets a copy of the categories that the Trigger Parameter belongs to.</summary>
+		/// <remarks>Array is Length = 28.</remarks>
 		public static string[] VariableType => (string[])_triggerType.Clone();
-		/// <summary>Gets a copy of the quantities of applicable conditions that must be met</summary>
-		/// <remarks>Array is Length = 23</remarks>
+		/// <summary>Gets a copy of the quantities of applicable conditions that must be met.</summary>
+		/// <remarks>Array is Length = 23.</remarks>
 		public static string[] Amount => (string[])_amount.Clone();
-		/// <summary>Gets a copy of the FlightGroup orders</summary>
-		/// <remarks>Array is Length = 65</remarks>
+		/// <summary>Gets a copy of the FlightGroup orders.</summary>
+		/// <remarks>Array is Length = 65.</remarks>
 		public static string[] Orders => (string[])_orders.Clone();
-		/// <summary>Gets a copy of the craft behaviours to be used in triggers</summary>
-		/// <remarks>Array is Length = 13</remarks>
+		/// <summary>Gets a copy of the craft behaviours to be used in triggers.</summary>
+		/// <remarks>Array is Length = 13.</remarks>
 		public static string[] CraftWhen => (string[])_craftWhen.Clone();
-		/// <summary>Gets a copy of the individual craft abort conditions</summary>
-		/// <remarks>Array is Length = 10</remarks>
+		/// <summary>Gets a copy of the individual craft abort conditions.</summary>
+		/// <remarks>Array is Length = 10.</remarks>
 		public static string[] Abort => (string[])_abort.Clone();
-		/// <summary>Gets a copy of the descriptions of orders and variables</summary>
-		/// <remarks>Array is Length = 65</remarks>
+		/// <summary>Gets a copy of the descriptions of orders and variables.</summary>
+		/// <remarks>Array is Length = 65.</remarks>
 		public static string[] OrderDesc => (string[])_orderDesc.Clone();
 	}
 }

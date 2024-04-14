@@ -1,10 +1,10 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
@@ -34,10 +34,10 @@ namespace Idmr.Platform.Xvt
 {
 	public partial class Mission : MissionFile
 	{
-		/// <summary>Object for a single Trigger</summary>
+		/// <summary>Object for a single Trigger.</summary>
 		[Serializable] public class Trigger	: BaseTrigger
 		{
-			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values</summary>
+			/// <summary>Available <see cref="BaseTrigger.VariableType"/> values.</summary>
 			public enum TypeList : byte
 			{
 				/// <summary>No Target</summary>
@@ -91,7 +91,7 @@ namespace Idmr.Platform.Xvt
 				/// <summary>All GUs except target</summary>
 				NotGlobalUnit
 			}
-			/// <summary>Available <see cref="BaseTrigger.Amount"/> values</summary>
+			/// <summary>Available <see cref="BaseTrigger.Amount"/> values.</summary>
 			public enum AmountList : byte
 			{
 				/// <summary>100% of target</summary>
@@ -135,7 +135,7 @@ namespace Idmr.Platform.Xvt
 				/// <summary>Each Special Craft of target, individually</summary>
 				EachSpecialCraft
 			}
-			/// <summary>Available <see cref="BaseTrigger.Condition"/> values</summary>
+			/// <summary>Available <see cref="BaseTrigger.Condition"/> values.</summary>
 			public enum ConditionList : byte
 			{
 				/// <summary>Always true</summary>
@@ -238,7 +238,7 @@ namespace Idmr.Platform.Xvt
 				BeCarried
 			}
 
-			/// <summary>Initializes a blank Trigger</summary>
+			/// <summary>Initializes a blank Trigger.</summary>
 			public Trigger() : base(new byte[4]) { }
 
 			/// <summary>Initializes a new Trigger from an existing Trigger. If null, a blank Trigger is created.</summary>
@@ -249,28 +249,26 @@ namespace Idmr.Platform.Xvt
 					Array.Copy(other._items, _items, _items.Length);
 			}
 
-			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data, minimum Length of 4</param>
-			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			public Trigger(byte[] raw)
+			/// <summary>Initializes a new Trigger from raw data.</summary>
+			/// <param name="raw">Raw data, minimum Length of 4.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values.</exception>
+			public Trigger(byte[] raw) : this()
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
-				_items = new byte[4];
-				ArrayFunctions.TrimArray(raw, 0, _items);
+				Array.Copy(raw, _items, _items.Length);
 				checkValues(this);
 			}
 
-			/// <summary>Initializes a new Trigger from raw data</summary>
-			/// <param name="raw">Raw data</param>
-			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading</param>
-			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values</exception>
-			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/></exception>
-			public Trigger(byte[] raw, int startIndex)
+			/// <summary>Initializes a new Trigger from raw data.</summary>
+			/// <param name="raw">Raw data.</param>
+			/// <param name="startIndex">Offset within <paramref name="raw"/> to begin reading.</param>
+			/// <exception cref="ArgumentException">Invalid <paramref name="raw"/>.Length value<br/><b>-or-</b><br/>Invalid member values.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="startIndex"/> results in reading outside the bounds of <paramref name="raw"/>.</exception>
+			public Trigger(byte[] raw, int startIndex) : this()
 			{
 				if (raw.Length < 4) throw new ArgumentException("Minimum length of raw is 4", "raw");
 				if (raw.Length - startIndex < 4 || startIndex < 0)
 					throw new ArgumentOutOfRangeException("For provided value of raw, startIndex must be 0-" + (raw.Length - 4));
-				_items = new byte[4];
 				ArrayFunctions.TrimArray(raw, startIndex, _items);
 				checkValues(this);
 			}
@@ -287,9 +285,9 @@ namespace Idmr.Platform.Xvt
 				if (t.Amount == (byte)AmountList.EachSpecialCraft) t.Amount = (byte)AmountList.AllSpecial;
 			}
 
-			/// <summary>Returns a representative string of the Trigger</summary>
-			/// <remarks>Flightgroups are identified as <b>"FG:#"</b>, IFFs are <b>"IFF:#" and </b> Teams are <b>"TM:#"</b> for later substitution if required</remarks>
-			/// <returns>Description of the trigger and targets if applicable</returns>
+			/// <summary>Returns a representative string of the Trigger.</summary>
+			/// <remarks>Flightgroups are identified as <b>"FG:#"</b>, IFFs are <b>"IFF:#" and </b> Teams are <b>"TM:#"</b> for later substitution if required.</remarks>
+			/// <returns>Description of the trigger and targets if applicable.</returns>
 			public override string ToString()
 			{
 				string trig = "";
@@ -380,27 +378,22 @@ namespace Idmr.Platform.Xvt
 				trig += BaseStrings.SafeString(Strings.Trigger, Condition);
 				return trig;
 			}
-			
-			/// <summary>Converts a Trigger to a byte array</summary>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A byte array of Length 4 containing the Trigger data</returns>
-			public static explicit operator byte[](Trigger trig)
-			{
-				byte[] b = new byte[4];
-				for (int i = 0; i < 4; i++) b[i] = trig[i];
-				return b;
-			}
-			/// <summary>Converts a Trigger for use in TIE</summary>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <exception cref="ArgumentException">Invalid values detected</exception>
-			/// <returns>A copy of <paramref name="trig"/> for use in TIE95</returns>
-			public static explicit operator Tie.Mission.Trigger(Trigger trig) { return new Tie.Mission.Trigger((byte[])trig); }
-			/// <summary>Converts a Trigger for use in XWA</summary>
-			/// <param name="trig">The Trigger to convert</param>
-			/// <returns>A copy of <paramref name="trig"/> for use in XWA</returns>
+
+			/// <summary>Converts a Trigger to a byte array.</summary>
+			/// <param name="trig">The Trigger to convert.</param>
+			/// <returns>A byte array of Length 4 containing the Trigger data.</returns>
+			public static explicit operator byte[](Trigger trig) => trig.GetBytes();
+			/// <summary>Converts a Trigger for use in TIE.</summary>
+			/// <param name="trig">The Trigger to convert.</param>
+			/// <exception cref="ArgumentException">Invalid values detected.</exception>
+			/// <returns>A copy of <paramref name="trig"/> for use in TIE95.</returns>
+			public static explicit operator Tie.Mission.Trigger(Trigger trig) => new Tie.Mission.Trigger(trig.GetBytes());
+			/// <summary>Converts a Trigger for use in XWA.</summary>
+			/// <param name="trig">The Trigger to convert.</param>
+			/// <returns>A copy of <paramref name="trig"/> for use in XWA.</returns>
 			public static implicit operator Xwa.Mission.Trigger(Trigger trig)
 			{
-				Xwa.Mission.Trigger t = new Xwa.Mission.Trigger((byte[])trig);
+				Xwa.Mission.Trigger t = new Xwa.Mission.Trigger(trig.GetBytes());
 				if (t.VariableType == (byte)TypeList.ShipType && t.Variable != 255) t.Variable++;
 				return t;
 			}

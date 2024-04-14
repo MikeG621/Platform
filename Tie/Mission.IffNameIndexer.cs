@@ -1,6 +1,6 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
@@ -21,20 +21,20 @@ namespace Idmr.Platform.Tie
 {
 	public partial class Mission : MissionFile
 	{
-		/// <summary>Object to provide array access to the IFF names</summary>
+		/// <summary>Object to provide array access to the IFF names.</summary>
 		public class IffNameIndexer	: Indexer<string>
 		{
 			readonly Mission _owner;
 			
-			/// <summary>Initializes the indexer</summary>
-			/// <param name="parent">The parent Mission</param>
+			/// <summary>Initializes the indexer.</summary>
+			/// <param name="parent">The parent Mission.</param>
 			public IffNameIndexer(Mission parent) : base(parent._iff) { _owner = parent; }
 
-			/// <summary>Gets or sets the IFF Name</summary>
-			/// <remarks>11 character limit, Rebel and Imperial are read-only</remarks>
-			/// <param name="index">IFF index</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value</exception>
-			/// <exception cref="InvalidOperationException">Selected <paramref name="index"/> is read-only</exception>
+			/// <summary>Gets or sets the IFF Name.</summary>
+			/// <remarks>11 character limit, Rebel and Imperial are read-only.</remarks>
+			/// <param name="index">IFF index.</param>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value.</exception>
+			/// <exception cref="InvalidOperationException">Selected <paramref name="index"/> is read-only.</exception>
 			/// <returns>The IFF name</returns>
 			public override string this[int index]
 			{

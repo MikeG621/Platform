@@ -1,13 +1,16 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
+ * [NEW] XWA format spec implemented
+ * [UPD] XwaToXvT Roles convert now
+ * [UPD] XwaToTie does the Radio now
  * v6.1, 231208
  * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa, TieToXwa
  * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
@@ -47,28 +50,28 @@ using System.Collections.Generic;
 
 namespace Idmr.Platform
 {
-	/// <summary>Object for Mission Platform conversions</summary>
-	/// <remarks>Converted files will use same MissionPath with platform included ("test.tie" to "test_Xvt.tie")</remarks>
+	/// <summary>Object for Mission Platform conversions.</summary>
+	/// <remarks>Converted files will use same MissionPath with platform included ("test.tie" to "test_Xvt.tie").</remarks>
 	public static class Converter
 	{
-		/// <summary>Downgrades XvT and BoP missions to TIE95</summary>
+		/// <summary>Downgrades XvT and BoP missions to TIE95.</summary>
 		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers and orders will update.<br/>
-		/// FG.Radio is not converted, since TIE behaviour is different<br/>
-		/// Maximum FG.Formation value of 12 allowed<br/>
-		/// AI level capped at Top Ace<br/>
-		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br/>
-		/// Maximum Abort index of 5<br/>
-		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
+		/// FG.Radio is not converted, since TIE behaviour is different.<br/>
+		/// Maximum FG.Formation value of 12 allowed.<br/>
+		/// AI level capped at Top Ace.<br/>
+		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%.<br/>
+		/// Maximum Abort index of 5.<br/>
+		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled.<br/>
 		/// First two Arrival triggers used, first Departure trigger used. First three Orders used. All standard WPs and first Briefing WP used.<br/>
 		/// For Messages, first two triggers used.<br/>
 		/// For the Briefing, entire thing should be able to be used unless the original actually uses close to 200 commands (yikes).<br/>
-		/// Primary Global goals used, XvT Secondary goals converted to Bonus goals. Prevent goals ignored<br/>
-		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br/>
-		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br/>
-		/// Filename will end in "_TIE.tie"</remarks>
-		/// <param name="miss">XvT/BoP mission to convert</param>
-		/// <returns>Downgraded mission</returns>
-		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/></exception>
+		/// Primary Global goals used, XvT Secondary goals converted to Bonus goals. Prevent goals ignored.<br/>
+		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF.<br/>
+		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually.<br/>
+		/// Filename will end in "_TIE.tie".</remarks>
+		/// <param name="miss">XvT/BoP mission to convert.</param>
+		/// <returns>Downgraded mission.</returns>
+		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/>.</exception>
 		public static Tie.Mission XvtBopToTie(Xvt.Mission miss)
 		{
 			Tie.Mission tie = new Tie.Mission();
@@ -100,7 +103,6 @@ namespace Idmr.Platform
 				else tie.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				tie.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				tie.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
-				tie.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
 				tie.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
 				tie.FlightGroups[i].PlayerCraft = (byte)(miss.FlightGroups[i].PlayerNumber == 1 ? miss.FlightGroups[i].PlayerCraft + 1 : 0);  //[JB] Fixed player craft assignment.  Check for XvT player slot #1 (not the craft slot).  Then make sure the craft slot is non-zero (since XvT default is zero)
 				tie.FlightGroups[i].Yaw = miss.FlightGroups[i].Yaw;
@@ -121,14 +123,14 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xvt.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
 				else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
-				tie.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-				tie.FlightGroups[i].ArrivalMethod1 = miss.FlightGroups[i].ArrivalMethod1;
-				tie.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
-				tie.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
-				tie.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-				tie.FlightGroups[i].DepartureMethod1 = miss.FlightGroups[i].DepartureMethod1;
-				tie.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
-				tie.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
+				tie.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
+				tie.FlightGroups[i].ArrivalMethod = miss.FlightGroups[i].ArrivalMethod;
+				tie.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
+				tie.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
+				tie.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
+				tie.FlightGroups[i].DepartureMethod = miss.FlightGroups[i].DepartureMethod;
+				tie.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
+				tie.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion ArrDep
 				#region Goals
 				if (miss.FlightGroups[i].Goals[0].GetEnabledForTeam(0))
@@ -191,7 +193,8 @@ namespace Idmr.Platform
 			#region Briefing
 			for (int i = 0; i < tie.Briefing.BriefingTag.Length; i++) tie.Briefing.BriefingTag[i] = miss.Briefings[0].BriefingTag[i];
 			for (int i = 0; i < tie.Briefing.BriefingString.Length; i++) tie.Briefing.BriefingString[i] = miss.Briefings[0].BriefingString[i];
-			tie.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
+			tie.Briefing.CurrentTime = miss.Briefings[0].CurrentTime;
+			tie.Briefing.Tile = miss.Briefings[0].Tile;
 			tie.Briefing.Length = (short)(miss.Briefings[0].Length * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
 			for (int i = 0; i < tie.Briefing.Events.Length;)
 			{
@@ -251,16 +254,16 @@ namespace Idmr.Platform
 			return tie;
 		}
 
-		/// <summary>Upgrades TIE missions to XvT/BoP</summary>
-		/// <remarks> FG.Radio is not converted, since TIE behaviour is different<br/>
+		/// <summary>Upgrades TIE missions to XvT/BoP.</summary>
+		/// <remarks> FG.Radio is not converted, since TIE behaviour is different.<br/>
 		/// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
 		/// For the Briefing, entire thing should be able to be used. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
 		/// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
 		/// MissionSucc/Fail/Desc generated using Pre- and Post-briefing Questions.<br/>
 		/// Filename will end in "_XvT.tie" or "_BoP.tie", depending on <paramref name="bop"/>.</remarks>
-		/// <param name="miss">TIE mission to convert</param>
-		/// <param name="bop">Determines if mission is to be converted to BoP instead of XvT</param>
-		/// <returns>Upgraded mission</returns>
+		/// <param name="miss">TIE mission to convert.</param>
+		/// <param name="bop">Determines if mission is to be converted to BoP instead of XvT.</param>
+		/// <returns>Upgraded mission.</returns>
 		public static Xvt.Mission TieToXvtBop(Tie.Mission miss, bool bop)
 		{
 			Xvt.Mission xvt = new Xvt.Mission { IsBop = bop };
@@ -313,7 +316,6 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				xvt.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				xvt.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
-				xvt.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
 				xvt.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
 				if (miss.FlightGroups[i].PlayerCraft != 0)
 				{
@@ -337,14 +339,14 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
 				xvt.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				xvt.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
-				xvt.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-				xvt.FlightGroups[i].ArrivalMethod1 = miss.FlightGroups[i].ArrivalMethod1;
-				xvt.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
-				xvt.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
-				xvt.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-				xvt.FlightGroups[i].DepartureMethod1 = miss.FlightGroups[i].DepartureMethod1;
-				xvt.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
-				xvt.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
+				xvt.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
+				xvt.FlightGroups[i].ArrivalMethod = miss.FlightGroups[i].ArrivalMethod;
+				xvt.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
+				xvt.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
+				xvt.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
+				xvt.FlightGroups[i].DepartureMethod = miss.FlightGroups[i].DepartureMethod;
+				xvt.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
+				xvt.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion
 				for (int j = 0; j < 3; j++)
 				{
@@ -448,7 +450,8 @@ namespace Idmr.Platform
 			#region Briefing
 			for (int i = 0; i < xvt.Briefings[0].BriefingTag.Length; i++) xvt.Briefings[0].BriefingTag[i] = miss.Briefing.BriefingTag[i];
 			for (int i = 0; i < xvt.Briefings[0].BriefingString.Length; i++) xvt.Briefings[0].BriefingString[i] = miss.Briefing.BriefingString[i];
-			xvt.Briefings[0].Unknown1 = miss.Briefing.Unknown1;
+			xvt.Briefings[0].CurrentTime = miss.Briefing.CurrentTime;
+			xvt.Briefings[0].Tile = miss.Briefing.Tile;
 			xvt.Briefings[0].Length = (short)(miss.Briefing.Length * Xvt.Briefing.TicksPerSecond / Tie.Briefing.TicksPerSecond);
 			for (int i = 0; i < xvt.Briefings[0].Events.Length;)
 			{
@@ -499,40 +502,72 @@ namespace Idmr.Platform
 			xvt.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", (bop ? "_BoP.tie" : "_XvT.tie"));
 			return xvt;
 		}
-		/// <summary>Upgrades TIE missions to XvT</summary>
-		/// <remarks> FG.Radio is not converted, since TIE behaviour is different<br/>
+		/// <summary>Upgrades TIE missions to XvT.</summary>
+		/// <remarks> FG.Radio is not converted, since TIE behaviour is different.<br/>
 		/// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
 		/// For the Briefing, entire thing should be able to be used. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
 		/// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
 		/// MissionDesc generated using Pre-briefing Questions.<br/>
 		/// Filename will end in "_XvT.tie".</remarks>
-		/// <param name="miss">TIE mission to convert</param>
-		/// <returns>Upgraded mission</returns>
+		/// <param name="miss">TIE mission to convert.</param>
+		/// <returns>Upgraded mission.</returns>
 		public static Xvt.Mission TieToXvt(Tie.Mission miss) => TieToXvtBop(miss, false);
-		/// <summary>Upgrades TIE missions to BoP</summary>
-		/// <remarks> FG.Radio is not converted, since TIE behaviour is different<br/>
+		/// <summary>Upgrades TIE missions to BoP.</summary>
+		/// <remarks> FG.Radio is not converted, since TIE behaviour is different.<br/>
 		/// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
 		/// For the Briefing, entire thing should be able to be used. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.<br/>
 		/// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
 		/// MissionSucc/Fail/Desc generated using Pre- and Post-briefing Questions.<br/>
 		/// Filename will end in "_BoP.tie".</remarks>
-		/// <param name="miss">TIE mission to convert</param>
-		/// <returns>Upgraded mission</returns>
+		/// <param name="miss">TIE mission to convert.</param>
+		/// <returns>Upgraded mission.</returns>
 		public static Xvt.Mission TieToBop(Tie.Mission miss) => TieToXvtBop(miss, true);
 
-		/// <summary>Downgrades XWA missions to XvT and BoP</summary>
+		/// <summary>Downgrades XWA missions to XvT and BoP.</summary>
 		/// <remarks>Maximum CraftType of 91. Triggers will update.<br/>
-		/// For Triggers, maximum Trigger index of 46, maximum VariableType of 23, Amounts will be adjusted as "each special" to "100% special"<br/>
+		/// For Triggers, maximum Trigger index of 46, maximum VariableType of 23, Amounts will be adjusted as "each special" to "100% special".<br/>
 		/// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br/>
 		/// Arr/Dep Method1 type 2 (HYP to region of motherhsip) replaced with HYP.<br/>
-		/// For the Briefing, first 32 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br/>
-		/// Filename will end in "_XvT.tie" or "_.BoP.tie"</remarks>
-		/// <param name="miss">XWA mission to convert</param>
-		/// <param name="bop">Determines if mission is to be converted to BoP instead of XvT</param>
-		/// <returns>Downgraded mission</returns>
-		/// <exception cref="ArgumentException">Properties incompatable with XvT/BoP were detected in <paramref name="miss"/></exception>
+		/// For the Briefing, first 32 strings and text tags are copied, events are ignored (due to using icons instead of Craft).<br/>
+		/// Filename will end in "_XvT.tie" or "_.BoP.tie".</remarks>
+		/// <param name="miss">XWA mission to convert.</param>
+		/// <param name="bop">Determines if mission is to be converted to BoP instead of XvT.</param>
+		/// <returns>Downgraded mission.</returns>
+		/// <exception cref="ArgumentException">Properties incompatable with XvT/BoP were detected in <paramref name="miss"/>.</exception>
 		public static Xvt.Mission XwaToXvtBop(Xwa.Mission miss, bool bop)
 		{
+			Dictionary<byte, string> roleMap = new Dictionary<byte, string>
+			{
+				{0, "COM"},
+				{1, "BAS"},
+				{2, "STA"},
+				{3, "MIS"},
+				{4, "CON"},
+				{5, "STR"},
+				{6, "REL"},
+				{7, "PRI"},
+				{8, "SEC"},
+				{9, "TER"},
+				{10, "RES"},
+				{11, "MAN"},
+				{0xFF, "NON"}
+			};
+			Dictionary<byte, char> roleTeam = new Dictionary<byte, char>
+			{
+				{0, '1'},
+				{1, '2'},
+				{2, '3'},
+				{3, '4'},
+				{4, '5'},
+				{5, '6'},
+				{6, '7'},
+				{7, '8'},
+				{8, 'A'},
+				{9, 'O'},
+				{10, 'H'},
+				{11, 'F'}
+			};
+
 			Xvt.Mission xvt = new Xvt.Mission { IsBop = bop };
 			if (miss.FlightGroups.Count > Xvt.Mission.FlightGroupLimit) throw maxException(false, true, Xvt.Mission.FlightGroupLimit);
 			if (miss.Messages.Count > Xvt.Mission.MessageLimit) throw maxException(false, false, Xvt.Mission.MessageLimit);
@@ -546,7 +581,13 @@ namespace Idmr.Platform
 			{
 				#region craft
 				xvt.FlightGroups[i].Name = miss.FlightGroups[i].Name;
-				// TODO: roles
+				// default to team 1, overwrite if necessary
+				if (roleMap.TryGetValue(miss.FlightGroups[i].Designation1, out string role)) xvt.FlightGroups[i].Roles[0] = '1' + role;
+				else xvt.FlightGroups[i].Roles[0] = "1NON";
+				if (roleTeam.TryGetValue(miss.FlightGroups[i].EnableDesignation1, out char team)) xvt.FlightGroups[i].Roles[0] = team + xvt.FlightGroups[i].Roles[0].Substring(1);
+				if (roleMap.TryGetValue(miss.FlightGroups[i].Designation2, out role)) xvt.FlightGroups[i].Roles[1] = '1' + role;
+				else xvt.FlightGroups[i].Roles[1] = "1NON";
+				if (roleTeam.TryGetValue(miss.FlightGroups[i].EnableDesignation2, out team)) xvt.FlightGroups[i].Roles[1] = team + xvt.FlightGroups[i].Roles[1].Substring(1);
 				xvt.FlightGroups[i].Cargo = miss.FlightGroups[i].Cargo;
 				xvt.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
 				xvt.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
@@ -564,18 +605,17 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].Team = miss.FlightGroups[i].Team;
 				xvt.FlightGroups[i].AI = miss.FlightGroups[i].AI;
 				xvt.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
-				xvt.FlightGroups[i].Radio = miss.FlightGroups[i].Radio;
+				xvt.FlightGroups[i].Radio = (Xvt.FlightGroup.RadioChannel)miss.FlightGroups[i].Radio;
 				xvt.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				xvt.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				xvt.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
 				xvt.FlightGroups[i].GlobalUnit = miss.FlightGroups[i].GlobalUnit;
-				xvt.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
 				xvt.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
-				xvt.FlightGroups[i].Unknowns.Unknown1 = miss.FlightGroups[i].Unknowns.Unknown3;
+				xvt.FlightGroups[i].WavesDelay = miss.FlightGroups[i].WavesDelay;
 				xvt.FlightGroups[i].PlayerNumber = miss.FlightGroups[i].PlayerNumber;
 				xvt.FlightGroups[i].ArriveOnlyIfHuman = miss.FlightGroups[i].ArriveOnlyIfHuman;
 				xvt.FlightGroups[i].PlayerCraft = miss.FlightGroups[i].PlayerCraft;
-				xvt.FlightGroups[i].Countermeasures = miss.FlightGroups[i].Countermeasures;
+				xvt.FlightGroups[i].Countermeasures = (Xvt.FlightGroup.CounterTypes)miss.FlightGroups[i].Countermeasures;
 				xvt.FlightGroups[i].ExplosionTime = miss.FlightGroups[i].ExplosionTime;
 				xvt.FlightGroups[i].Yaw = miss.FlightGroups[i].Yaw;
 				xvt.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
@@ -594,14 +634,14 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
 				xvt.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				xvt.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
-				xvt.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-				xvt.FlightGroups[i].ArrivalMethod1 = (miss.FlightGroups[i].ArrivalMethod1 == 1);
-				xvt.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
-				xvt.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
-				xvt.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-				xvt.FlightGroups[i].DepartureMethod1 = (miss.FlightGroups[i].DepartureMethod1 == 1);
-				xvt.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
-				xvt.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
+				xvt.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
+				xvt.FlightGroups[i].ArrivalMethod = (miss.FlightGroups[i].ArrivalMethod == 1);
+				xvt.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
+				xvt.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
+				xvt.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
+				xvt.FlightGroups[i].DepartureMethod = (miss.FlightGroups[i].DepartureMethod == 1);
+				xvt.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
+				xvt.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion ArrDep
 				#region Goals
 				for (int j = 0; j < 8; j++)
@@ -647,7 +687,7 @@ namespace Idmr.Platform
 			{
 				xvt.Messages[i].MessageString = miss.Messages[i].MessageString;
 				xvt.Messages[i].Color = miss.Messages[i].Color;
-				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].Delay) / 5;
+				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].RawDelay) / 5;
 				if (delay > 255) delay = 255;
 				xvt.Messages[i].Delay = (byte)delay;
 				xvt.Messages[i].Note = miss.Messages[i].Note;
@@ -667,7 +707,8 @@ namespace Idmr.Platform
 			{
 				for (int j = 0; j < xvt.Briefings[i].BriefingTag.Length; j++) xvt.Briefings[i].BriefingTag[j] = miss.Briefings[i].BriefingTag[j];
 				for (int j = 0; j < xvt.Briefings[i].BriefingString.Length; j++) xvt.Briefings[i].BriefingString[j] = miss.Briefings[i].BriefingString[j];
-				xvt.Briefings[i].Unknown1 = miss.Briefings[i].Unknown1;
+				xvt.Briefings[i].CurrentTime = miss.Briefings[i].CurrentTime;
+				xvt.Briefings[i].Tile = miss.Briefings[i].Tile;
 				xvt.Briefings[i].Length = (short)(miss.Briefings[i].Length * Xvt.Briefing.TicksPerSecond / Xwa.Briefing.TicksPerSecond);
 			}
 			#endregion Briefing
@@ -710,7 +751,7 @@ namespace Idmr.Platform
 		/// Briefing creates icons for each FG used, should carry over fine. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.</remarks>
 		/// <param name="miss">XvT or BoP mission to convert.</param>
 		/// <param name="toSkirmish">If the converted mission is for a multiplayer skirmish.</param>
-		/// <returns>Upgraded mission</returns>
+		/// <returns>Upgraded mission.</returns>
 		public static Xwa.Mission XvtBopToXwa(Xvt.Mission miss, bool toSkirmish)
 		{
 			Dictionary<string, byte> roleMap = new Dictionary<string, byte> {
@@ -727,6 +768,21 @@ namespace Idmr.Platform
 				{"STA", 2},
 				{"STR", 5},
 				{"TER", 9}
+			};
+			Dictionary<char, byte> roleTeam = new Dictionary<char, byte>
+			{
+				{'1', 0},
+				{'2', 1},
+				{'3', 2},
+				{'4', 3},
+				{'5', 4},
+				{'6', 5},
+				{'7', 6},
+				{'8', 7},
+				{'A', 8},
+				{'F', 11},
+				{'H', 10},
+				{'O', 9},
 			};
 
 			Xwa.Mission xwa = new Xwa.Mission();
@@ -747,41 +803,17 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].Name = miss.FlightGroups[i].Name;
 				if (miss.FlightGroups[i].Roles[0].Length == 4)
 				{
-					roleMap.TryGetValue(miss.FlightGroups[i].Roles[0].Substring(1, 3), out byte role);
-					xwa.FlightGroups[i].Designation1 = role;
-					switch (miss.FlightGroups[i].Roles[0][0])
-					{
-						case '1': xwa.FlightGroups[i].EnableDesignation1 = 0; break;
-						case '2': xwa.FlightGroups[i].EnableDesignation1 = 1; break;
-						case '3': xwa.FlightGroups[i].EnableDesignation1 = 2; break;
-						case '4': xwa.FlightGroups[i].EnableDesignation1 = 3; break;
-						case 'A':
-						case 'H':
-							xwa.FlightGroups[i].EnableDesignation1 = 10;
-							xwa.FlightGroups[i].EnableDesignation2 = 11;
-							xwa.FlightGroups[i].Designation2 = role;
-							break;
-						default: xwa.FlightGroups[i].EnableDesignation1 = 0; break;
-					}
+					if (roleMap.TryGetValue(miss.FlightGroups[i].Roles[0].Substring(1, 3), out byte role)) xwa.FlightGroups[i].Designation1 = role;
+					else xwa.FlightGroups[i].Designation1 = 255;
+					if (roleTeam.TryGetValue(miss.FlightGroups[i].Roles[0][0], out byte team)) xwa.FlightGroups[i].EnableDesignation1 = team;
+					else xwa.FlightGroups[i].EnableDesignation1 = 255;
 				}
 				if (miss.FlightGroups[i].Roles[1].Length == 4)
 				{
-					roleMap.TryGetValue(miss.FlightGroups[i].Roles[1].Substring(1, 3), out byte role);
-					xwa.FlightGroups[i].Designation2 = role;
-					switch (miss.FlightGroups[i].Roles[1][0])
-					{
-						case '1': xwa.FlightGroups[i].EnableDesignation2 = 0; break;
-						case '2': xwa.FlightGroups[i].EnableDesignation2 = 1; break;
-						case '3': xwa.FlightGroups[i].EnableDesignation2 = 2; break;
-						case '4': xwa.FlightGroups[i].EnableDesignation2 = 3; break;
-						case 'A':
-						case 'H':
-							xwa.FlightGroups[i].EnableDesignation1 = 10;
-							xwa.FlightGroups[i].EnableDesignation2 = 11;
-							xwa.FlightGroups[i].Designation1 = role;
-							break;
-						default: xwa.FlightGroups[i].EnableDesignation2 = 0; break;
-					}
+					if (roleMap.TryGetValue(miss.FlightGroups[i].Roles[1].Substring(1, 3), out byte role)) xwa.FlightGroups[i].Designation2 = role;
+					else xwa.FlightGroups[i].Designation2 = 255;
+					if (roleTeam.TryGetValue(miss.FlightGroups[i].Roles[1][0], out byte team)) xwa.FlightGroups[i].EnableDesignation2 = team;
+					else xwa.FlightGroups[i].EnableDesignation2 = 255;
 				}
 				xwa.FlightGroups[i].Cargo = miss.FlightGroups[i].Cargo;
 				xwa.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
@@ -797,20 +829,19 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].Team = miss.FlightGroups[i].Team;
 				xwa.FlightGroups[i].AI = miss.FlightGroups[i].AI;
 				xwa.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
-				xwa.FlightGroups[i].Radio = miss.FlightGroups[i].Radio;
+				xwa.FlightGroups[i].Radio = (Xwa.FlightGroup.RadioChannel)miss.FlightGroups[i].Radio;
 				xwa.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				xwa.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				xwa.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
 				xwa.FlightGroups[i].GlobalUnit = miss.FlightGroups[i].GlobalUnit;
-				xwa.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
 				xwa.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
-				xwa.FlightGroups[i].Unknowns.Unknown3 = miss.FlightGroups[i].Unknowns.Unknown1;
+				xwa.FlightGroups[i].WavesDelay = miss.FlightGroups[i].WavesDelay;
 				xwa.FlightGroups[i].PlayerNumber = miss.FlightGroups[i].PlayerNumber;
 				if (!toSkirmish && xwa.FlightGroups[i].PlayerNumber > 1) xwa.FlightGroups[i].PlayerNumber = 0;
 				if (xwa.FlightGroups[i].PlayerNumber > 0) playerCount++;
 				xwa.FlightGroups[i].ArriveOnlyIfHuman = miss.FlightGroups[i].ArriveOnlyIfHuman;
 				xwa.FlightGroups[i].PlayerCraft = miss.FlightGroups[i].PlayerCraft;
-				xwa.FlightGroups[i].Countermeasures = miss.FlightGroups[i].Countermeasures;
+				xwa.FlightGroups[i].Countermeasures = (Xwa.FlightGroup.CounterTypes)miss.FlightGroups[i].Countermeasures;
 				xwa.FlightGroups[i].ExplosionTime = miss.FlightGroups[i].ExplosionTime;
 				xwa.FlightGroups[i].Yaw = miss.FlightGroups[i].Yaw;
 				xwa.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
@@ -825,14 +856,14 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
 				xwa.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				xwa.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
-				xwa.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-				xwa.FlightGroups[i].ArrivalMethod1 = Convert.ToByte(miss.FlightGroups[i].ArrivalMethod1);
-				xwa.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
-				xwa.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
-				xwa.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-				xwa.FlightGroups[i].DepartureMethod1 = Convert.ToByte(miss.FlightGroups[i].DepartureMethod1);
-				xwa.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
-				xwa.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
+				xwa.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
+				xwa.FlightGroups[i].ArrivalMethod = Convert.ToByte(miss.FlightGroups[i].ArrivalMethod);
+				xwa.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
+				xwa.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
+				xwa.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
+				xwa.FlightGroups[i].DepartureMethod = Convert.ToByte(miss.FlightGroups[i].DepartureMethod);
+				xwa.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
+				xwa.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion
 				#region Orders
 				for (int j = 0; j < 4; j++)
@@ -859,7 +890,7 @@ namespace Idmr.Platform
 				{
 					int offset = briefShipCount[0] * 10;    // each ship gets New/Move Icon
 					xwa.Briefings[0].Events[offset] = 0;
-					xwa.Briefings[0].Events[offset + 1] = (short)BaseBriefing.EventType.XwaNewIcon;
+					xwa.Briefings[0].Events[offset + 1] = (short)BaseBriefing.EventType.XwaSetIcon;
 					fgIcons[i] = briefShipCount[0];     // store the Icon# for the FG
 					xwa.Briefings[0].Events[offset + 2] = briefShipCount[0];
 					xwa.Briefings[0].Events[offset + 3] = xwa.FlightGroups[i].CraftType;
@@ -875,7 +906,7 @@ namespace Idmr.Platform
 				{
 					int offset = briefShipCount[1] * 10;
 					xwa.Briefings[1].Events[offset] = 0;
-					xwa.Briefings[1].Events[offset + 1] = (short)BaseBriefing.EventType.XwaNewIcon;
+					xwa.Briefings[1].Events[offset + 1] = (short)BaseBriefing.EventType.XwaSetIcon;
 					fgIcons[i] = briefShipCount[1];     // store the Icon# for the FG
 					xwa.Briefings[1].Events[offset + 2] = briefShipCount[0];
 					xwa.Briefings[1].Events[offset + 3] = xwa.FlightGroups[i].CraftType;
@@ -933,9 +964,9 @@ namespace Idmr.Platform
 				xwa.Messages[i].TrigAndOr[2] = miss.Messages[i].T12AndOrT34;
 				xwa.Messages[i].OriginatingFG = (byte)(xwa.FlightGroups.Count - 1);
 				int delay = miss.Messages[i].Delay * 5;
-				if (delay <= 20) xwa.Messages[i].Delay = (byte)delay;
-				else if (delay <= 15 * 60) xwa.Messages[i].Delay = (byte)(20 + (delay - 20) / 5);
-				else xwa.Messages[i].Delay = (byte)(((delay - 20) / 5 + 216) / 2);
+				if (delay <= 20) xwa.Messages[i].RawDelay = (byte)delay;
+				else if (delay <= 15 * 60) xwa.Messages[i].RawDelay = (byte)(20 + (delay - 20) / 5);
+				else xwa.Messages[i].RawDelay = (byte)(((delay - 20) / 5 + 216) / 2);
 			}
 			#endregion
 			#region Globals
@@ -966,7 +997,8 @@ namespace Idmr.Platform
 			for (int i = 0; i < 2; i++)
 			{
 				xwa.Briefings[i].Length = (short)(miss.Briefings[i].Length * Xwa.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-				xwa.Briefings[i].Unknown1 = miss.Briefings[i].Unknown1;
+				xwa.Briefings[i].CurrentTime = miss.Briefings[i].CurrentTime;
+				xwa.Briefings[i].Tile = miss.Briefings[i].Tile;
 				Common.ArrayFunctions.WriteToArray(miss.Briefings[i].Events, xwa.Briefings[i].Events, briefShipCount[i] * 20);
 				for (int j = 0; j < miss.Briefings[i].Events.Length; j += 2)
 				{
@@ -1001,10 +1033,10 @@ namespace Idmr.Platform
 		/// Adds two Backdrops for lighting with random graphics.<br/>
 		/// Briefing creates icons for each FG used, should carry over fine. There is a conversion on the Zoom factor, this is a legacy factor from my old Converter program, I don't remember why.</remarks>
 		/// <param name="miss">XvT or BoP mission to convert.</param>
-		/// <returns>Upgraded mission</returns>
+		/// <returns>Upgraded mission.</returns>
 		public static Xwa.Mission XvtBopToXwa(Xvt.Mission miss) => XvtBopToXwa(miss, false);
 
-		/// <summary>Upgrades TIE missions to XWA</summary>
+		/// <summary>Upgrades TIE missions to XWA.</summary>
 		/// <remarks>Defaults to <see cref="Xwa.Mission.HangarEnum.MonCalCruiser"/> hangar.<br/>
 		/// FG.Radio is not converted, since TIE behaviour is different.<br/>
 		/// FG Primary and Bonus are used, Secondary Goal treated as Bonus. "must survive/exist" converted to "must NOT be destroyed". Bonus points will be scaled appropriately, 250 points assigned to Prim/Sec goals.<br/>
@@ -1013,30 +1045,30 @@ namespace Idmr.Platform
 		/// Primary and Secondary Global goals used, Bonus goals converted to Secondary 3 and 4, T12AndOr34 left as default "And".<br/>
 		/// MissionSucc/Fail/Desc generated using Pre- and Post-briefing Questions.<br/>
 		/// Filename will end in "_XWA.tie".</remarks>
-		/// <param name="miss">TIE mission to convert</param>
-		/// <returns>Upgraded mission</returns>
+		/// <param name="miss">TIE mission to convert.</param>
+		/// <returns>Upgraded mission.</returns>
 		public static Xwa.Mission TieToXwa(Tie.Mission miss) => XvtBopToXwa(TieToBop(miss));
 
-		/// <summary>Downgrades XWA missions to TIE95</summary>
+		/// <summary>Downgrades XWA missions to TIE95.</summary>
 		/// <remarks>G/PLT, SHPYD, REPYD and M/SC craft will have their indexes changed to reflect IDMR TIE95 Ships patch numbering. Triggers will update.<br/>
-		/// FG.Radio is not converted, since TIE behaviour is different<br/>
-		/// Maximum FG.Formation value of 12 allowed<br/>
-		/// AI level capped at Top Ace<br/>
-		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%<br/>
-		/// Maximum Abort index of 5<br/>
-		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled<br/>
+		/// FG.Radio is not converted, since TIE behaviour is different.<br/>
+		/// Maximum FG.Formation value of 12 allowed.<br/>
+		/// AI level capped at Top Ace.<br/>
+		/// For Triggers, maximum Trigger index of 24, maximum VariableType of 9, Amounts will be adjusted as 66% to 75%, 33% to 50% and "each" to 100%.<br/>
+		/// Maximum Abort index of 5.<br/>
+		/// Maximum FG.Goal Amount index of 6, 75% converted to 100%, 25% to 50%. First three XvT Goals will be used as Primary, Secondary and Bonus goals. Bonus points will be scaled appropriately. Goals only used if set for Team[0] and Enabled.<br/>
 		/// First two Arrival triggers used, first Departure trigger used. First three Region 1 Orders used, max index of 38.<br/>
 		/// Arr/Dep Method1 type 2 (HYP to region of motherhsip) replaced with HYP.<br/>
 		/// Only Start and Hyp WPs converted, manual placement for WP1-8 required.<br/>
 		/// For Messages, first two triggers used.<br/>
-		/// For the Briefing, first 16 strings and text tags are copied, events are ignored (due to using icons instead of Craft)<br/>
-		/// Primary Global goals used, XWA Secondary goals converted to Bonus goals. Prevent goals ignored<br/>
-		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF<br/>
-		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually<br/>
-		/// Filename will end in "_TIE.tie"</remarks>
-		/// <param name="miss">XWA mission to convert</param>
-		/// <returns>Downgraded mission</returns>
-		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/></exception>
+		/// For the Briefing, first 16 strings and text tags are copied, events are ignored (due to using icons instead of Craft).<br/>
+		/// Primary Global goals used, XWA Secondary goals converted to Bonus goals. Prevent goals ignored.<br/>
+		/// Team[0] EndOfMissionMessages used, Teams[2-6] Name and Hostility towards Team[0] used for IFF.<br/>
+		/// BriefingQuestions generated using MissionSucc/Fail/Desc strings. Flight Officer has a single pre-mission entry for the Description, two post-mission entries for the Success and Fail. Line breaks must be entered manually.<br/>
+		/// Filename will end in "_TIE.tie".</remarks>
+		/// <param name="miss">XWA mission to convert.</param>
+		/// <returns>Downgraded mission.</returns>
+		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/>.</exception>
 		public static Tie.Mission XwaToTie(Xwa.Mission miss)
 		{
 			Tie.Mission tie = new Tie.Mission();
@@ -1048,7 +1080,6 @@ namespace Idmr.Platform
 			for (int i = 0; i < tie.FlightGroups.Count; i++)
 			{
 				#region Craft
-				// Radio is omitted intentionally
 				tie.FlightGroups[i].Name = miss.FlightGroups[i].Name;
 				tie.FlightGroups[i].Cargo = miss.FlightGroups[i].Cargo;
 				tie.FlightGroups[i].SpecialCargo = miss.FlightGroups[i].SpecialCargo;
@@ -1065,11 +1096,12 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].AI = miss.FlightGroups[i].AI;
 				if (tie.FlightGroups[i].AI > 4) tie.FlightGroups[i].AI = 4;  //[JB] Super Ace in XWA should be Top Ace in TIE, not invul.
 				tie.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
-				if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, Xwa.Strings.Formation[miss.FlightGroups[i].Formation]);
+				if (miss.FlightGroups[i].PlayerNumber == 1 && (miss.FlightGroups[i].Radio == Xwa.FlightGroup.RadioChannel.Player1 || miss.FlightGroups[i].Radio == Xwa.FlightGroup.RadioChannel.Team1))
+					tie.FlightGroups[i].FollowsOrders = true;
+				if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, BaseStrings.Formation[miss.FlightGroups[i].Formation]);
 				else tie.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				tie.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				tie.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
-				tie.FlightGroups[i].FormLeaderDist = miss.FlightGroups[i].FormLeaderDist;
 				tie.FlightGroups[i].NumberOfWaves = miss.FlightGroups[i].NumberOfWaves;
 				tie.FlightGroups[i].PlayerCraft = (byte)(miss.FlightGroups[i].PlayerCraft + (miss.FlightGroups[i].PlayerNumber == 1 ? 1 : 0));
 				tie.FlightGroups[i].Yaw = miss.FlightGroups[i].Yaw;
@@ -1090,27 +1122,27 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xwa.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
 				else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
-				tie.FlightGroups[i].ArrivalCraft1 = miss.FlightGroups[i].ArrivalCraft1;
-				tie.FlightGroups[i].ArrivalMethod1 = (miss.FlightGroups[i].ArrivalMethod1 == 1);
-				tie.FlightGroups[i].ArrivalCraft2 = miss.FlightGroups[i].ArrivalCraft2;
-				tie.FlightGroups[i].ArrivalMethod2 = miss.FlightGroups[i].ArrivalMethod2;
-				tie.FlightGroups[i].DepartureCraft1 = miss.FlightGroups[i].DepartureCraft1;
-				tie.FlightGroups[i].DepartureMethod1 = (miss.FlightGroups[i].DepartureMethod1 == 1);
-				tie.FlightGroups[i].DepartureCraft2 = miss.FlightGroups[i].DepartureCraft2;
-				tie.FlightGroups[i].DepartureMethod2 = miss.FlightGroups[i].DepartureMethod2;
+				tie.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
+				tie.FlightGroups[i].ArrivalMethod = (miss.FlightGroups[i].ArrivalMethod == 1);
+				tie.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
+				tie.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
+				tie.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
+				tie.FlightGroups[i].DepartureMethod = (miss.FlightGroups[i].DepartureMethod == 1);
+				tie.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
+				tie.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion ArrDep
 				#region Goals
-				if (miss.FlightGroups[i].Goals[0].Enabled && miss.FlightGroups[i].Goals[0].Team == 0)
+				if (miss.FlightGroups[i].Goals[0].GetEnabledForTeam(0))
 				{
 					tie.FlightGroups[i].Goals[0] = miss.FlightGroups[i].Goals[0][1];
 					tie.FlightGroups[i].Goals[1] = miss.FlightGroups[i].Goals[0][2];
 				}
-				if (miss.FlightGroups[i].Goals[1].Enabled && miss.FlightGroups[i].Goals[1].Team == 0)
+				if (miss.FlightGroups[i].Goals[1].GetEnabledForTeam(0))
 				{
 					tie.FlightGroups[i].Goals[2] = miss.FlightGroups[i].Goals[1][1];
 					tie.FlightGroups[i].Goals[3] = miss.FlightGroups[i].Goals[1][2];
 				}
-				if (miss.FlightGroups[i].Goals[2].Enabled && miss.FlightGroups[i].Goals[2].Team == 0)
+				if (miss.FlightGroups[i].Goals[2].GetEnabledForTeam(0))
 				{
 					tie.FlightGroups[i].Goals[6] = miss.FlightGroups[i].Goals[2][1];
 					tie.FlightGroups[i].Goals[7] = miss.FlightGroups[i].Goals[2][2];
@@ -1133,7 +1165,7 @@ namespace Idmr.Platform
 			{
 				tie.Messages[i].MessageString = miss.Messages[i].MessageString;
 				tie.Messages[i].Color = miss.Messages[i].Color;
-				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].Delay) / 5;
+				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].RawDelay) / 5;
 				if (delay > 255) delay = 255;
 				tie.Messages[i].Delay = (byte)delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
@@ -1148,7 +1180,8 @@ namespace Idmr.Platform
 			#region Briefing
 			for (int i = 0; i < tie.Briefing.BriefingTag.Length; i++) tie.Briefing.BriefingTag[i] = miss.Briefings[0].BriefingTag[i];
 			for (int i = 0; i < tie.Briefing.BriefingString.Length; i++) tie.Briefing.BriefingString[i] = miss.Briefings[0].BriefingString[i];
-			tie.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
+			tie.Briefing.CurrentTime = miss.Briefings[0].CurrentTime;
+			tie.Briefing.Tile = miss.Briefings[0].Tile;
 			tie.Briefing.Length = (short)(miss.Briefings[0].Length * Tie.Briefing.TicksPerSecond / Xwa.Briefing.TicksPerSecond);
 			#endregion Briefing
 			#region Globals
@@ -1193,7 +1226,7 @@ namespace Idmr.Platform
 			return tie;
 		}
 
-		/// <summary>Upgrades XWING95 missions to TIE95</summary>
+		/// <summary>Upgrades XWING95 missions to TIE95.</summary>
 		/// <remarks>Attempts to convert Name, Cargo, and SpecialCargo strings from uppercase to initial-case only.<br/>
 		/// Maximum FG.Formation value of 12 allowed.<br/>
 		/// XWING95 has 3 EndOfMissionMessages, but TIE95 only supports 2.  The last is converted into a Message.<br/>
@@ -1207,10 +1240,10 @@ namespace Idmr.Platform
 		/// BriefingQuestions generated from text-only pages in the briefing.  Flight Officer will have pre-mission questions, and post-mission Fail questions based off the briefing's hint pages.<br/>
 		/// Briefing waypoints are estimated by scanning the separate "Briefing FG" list for the most likely match.  If none are found, dummy FGs are inserted to provide icons for the briefing map.<br/>
 		/// Briefing text tags do not have colors.  Converted to white since it's the closest match to light blue.<br/>
-		/// Filename will end in "_TIE.tie"</remarks>
-		/// <param name="miss">XWING95 mission to convert</param>
-		/// <returns>Upgraded mission</returns>
-		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/></exception>
+		/// Filename will end in "_TIE.tie".</remarks>
+		/// <param name="miss">XWING95 mission to convert.</param>
+		/// <returns>Upgraded mission.</returns>
+		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/>.</exception>
 		public static Tie.Mission XwingToTie(Xwing.Mission miss)
 		{
 			Tie.Mission tie = new Tie.Mission
@@ -1379,18 +1412,18 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].DepartureTimerMinutes = 0;
 				tie.FlightGroups[i].DepartureTimerSeconds = 0;
 				tie.FlightGroups[i].AbortTrigger = 0;
-				tie.FlightGroups[i].ArrivalCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				tie.FlightGroups[i].ArrivalMethod1 = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
-				tie.FlightGroups[i].ArrivalCraft2 = 0;
-				tie.FlightGroups[i].ArrivalMethod2 = false;
-				tie.FlightGroups[i].DepartureCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				tie.FlightGroups[i].DepartureMethod1 = !(miss.FlightGroups[i].DepartureHyperspace == 1);
-				tie.FlightGroups[i].DepartureCraft2 = 0;
-				tie.FlightGroups[i].DepartureMethod2 = false;
+				tie.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
+				tie.FlightGroups[i].ArrivalMethod = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				tie.FlightGroups[i].AlternateMothership = 0;
+				tie.FlightGroups[i].AlternateMothershipUsed = false;
+				tie.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
+				tie.FlightGroups[i].DepartureMethod = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+				tie.FlightGroups[i].CapturedDepartureMothership = 0;
+				tie.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
 				{
-					tie.FlightGroups[i].ArrivalMethod1 = false;
-					tie.FlightGroups[i].DepartureMethod1 = false;
+					tie.FlightGroups[i].ArrivalMethod = false;
+					tie.FlightGroups[i].DepartureMethod = false;
 				}
 				//Fighters in TIE will auto abort at 25% hull, like X-wing.
 				#endregion ArrDep
@@ -1644,7 +1677,7 @@ namespace Idmr.Platform
 			return tie;
 		}
 
-		/// <summary>Upgrades XWING95 missions to XvT/BoP</summary>
+		/// <summary>Upgrades XWING95 missions to XvT/BoP.</summary>
 		/// <remarks>Attempts to convert Name, Cargo, and SpecialCargo strings from uppercase to initial-case only.<br/>
 		/// Maximum FG.Formation value of 12 allowed.<br/>
 		/// XWING95 has 3 EndOfMissionMessages, but XvT/BoP only supports 2.  The last is converted into a Message.<br/>
@@ -1656,11 +1689,11 @@ namespace Idmr.Platform
 		/// Mission description is generated from text-only pages in the briefing.  Failure description is based off hint pages.<br/>
 		/// Briefing waypoints are estimated by scanning the separate "Briefing FG" list for the most likely match.  If none are found, dummy FGs are inserted to provide icons for the briefing map.<br/>
 		/// Briefing text tags do not have colors.  Converted to yellow since it's the closest match to light blue.<br/>
-		/// Filename will end in "_xvt.tie"</remarks>
-		/// <param name="miss">XWING95 mission to convert</param>
-		/// <param name="bop">If the mission is to be XvT or BoP</param>
-		/// <returns>Upgraded mission</returns>
-		/// <exception cref="ArgumentException">Properties incompatable with XvT were detected in <paramref name="miss"/></exception>
+		/// Filename will end in "_xvt.tie".</remarks>
+		/// <param name="miss">XWING95 mission to convert.</param>
+		/// <param name="bop">If the mission is to be XvT or BoP.</param>
+		/// <returns>Upgraded mission.</returns>
+		/// <exception cref="ArgumentException">Properties incompatable with XvT were detected in <paramref name="miss"/>.</exception>
 		public static Xvt.Mission XwingToXvtBop(Xwing.Mission miss, bool bop)
 		{
 			Xvt.Mission xvt = new Xvt.Mission
@@ -1740,7 +1773,7 @@ namespace Idmr.Platform
 				if (xvt.FlightGroups[i].NumberOfCraft > 9)
 					xvt.FlightGroups[i].NumberOfCraft = 9;
 
-				xvt.FlightGroups[i].Radio = (byte)(xwingPlayerCommand(miss.FlightGroups[i].CraftType) && miss.FlightGroups[i].GetTIEIFF() == playerIFF ? 1 : 0);
+				xvt.FlightGroups[i].Radio = (Xvt.FlightGroup.RadioChannel)(xwingPlayerCommand(miss.FlightGroups[i].CraftType) && miss.FlightGroups[i].GetTIEIFF() == playerIFF ? 1 : 0);
 
 				byte warhead = 0;
 				switch (miss.FlightGroups[i].CraftType)
@@ -1859,18 +1892,18 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerMinutes = 0;
 				xvt.FlightGroups[i].DepartureTimerSeconds = 0;
 				xvt.FlightGroups[i].AbortTrigger = 0;
-				xvt.FlightGroups[i].ArrivalCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xvt.FlightGroups[i].ArrivalMethod1 = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
-				xvt.FlightGroups[i].ArrivalCraft2 = 0;
-				xvt.FlightGroups[i].ArrivalMethod2 = false;
-				xvt.FlightGroups[i].DepartureCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xvt.FlightGroups[i].DepartureMethod1 = !(miss.FlightGroups[i].DepartureHyperspace == 1);
-				xvt.FlightGroups[i].DepartureCraft2 = 0;
-				xvt.FlightGroups[i].DepartureMethod2 = false;
+				xvt.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
+				xvt.FlightGroups[i].ArrivalMethod = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				xvt.FlightGroups[i].AlternateMothership = 0;
+				xvt.FlightGroups[i].AlternateMothershipUsed = false;
+				xvt.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
+				xvt.FlightGroups[i].DepartureMethod = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+				xvt.FlightGroups[i].CapturedDepartureMothership = 0;
+				xvt.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
 				{
-					xvt.FlightGroups[i].ArrivalMethod1 = false;
-					xvt.FlightGroups[i].DepartureMethod1 = false;
+					xvt.FlightGroups[i].ArrivalMethod = false;
+					xvt.FlightGroups[i].DepartureMethod = false;
 				}
 				if (xwingCanWithdraw(miss.FlightGroups[i].CraftType))
 					xvt.FlightGroups[i].AbortTrigger = 9;  //25% hull
@@ -2150,7 +2183,7 @@ namespace Idmr.Platform
 			return xvt;
 		}
 
-		/// <summary>Upgrades XWING95 missions to XWA</summary>
+		/// <summary>Upgrades XWING95 missions to XWA.</summary>
 		/// <remarks>Attempts to convert Name, Cargo, and SpecialCargo strings from uppercase to initial-case only.<br/>
 		/// Maximum FG.Formation value of 12 allowed.<br/>
 		/// XWING95 has 3 EndOfMissionMessages, but XWA only supports 2.  The last is converted into a Message.<br/>
@@ -2162,10 +2195,10 @@ namespace Idmr.Platform
 		/// Mission description is generated from text-only pages in the briefing.  Failure description is based off hint pages.<br/>
 		/// Briefing waypoints are estimated by scanning the separate "Briefing FG" list for the most likely match.  If none are found, dummy FGs are inserted to provide icons for the briefing map.<br/>
 		/// Briefing text tags do not have colors.  Converted to yellow since it's the closest match to light blue.<br/>
-		/// Filename will end in "_xvt.tie"</remarks>
-		/// <param name="miss">XWING95 mission to convert</param>
-		/// <returns>Upgraded mission</returns>
-		/// <exception cref="ArgumentException">Properties incompatable with XWA were detected in <paramref name="miss"/></exception>
+		/// Filename will end in "_xvt.tie".</remarks>
+		/// <param name="miss">XWING95 mission to convert.</param>
+		/// <returns>Upgraded mission.</returns>
+		/// <exception cref="ArgumentException">Properties incompatable with XWA were detected in <paramref name="miss"/>.</exception>
 		public static Xwa.Mission XwingToXwa(Xwing.Mission miss)
 		{
 			Xwa.Mission xwa = new Xwa.Mission
@@ -2204,7 +2237,7 @@ namespace Idmr.Platform
 				{
 					MessageString = miss.EndOfMissionMessages[2],
 					Color = (byte)playerIFF,
-					Delay = 5
+					RawDelay = 5
 				};
 				msg.Triggers[0].Amount = 0;
 				msg.Triggers[0].VariableType = (byte)Xwa.Mission.Trigger.TypeList.Team;
@@ -2244,7 +2277,7 @@ namespace Idmr.Platform
 				if (miss.FlightGroups[i].NumberOfCraft > 1 && miss.FlightGroups[i].IsFlightGroup() && curGU <= 31)  //XWA has a GU and GG limit which can cause buffer overflow issues.  Normally this wouldn't exceed 16 FGs in X-wing anyway.
 					xwa.FlightGroups[i].GlobalUnit = curGU++;  //XWA doesn't count craft by default, so give each FG a global unit if it has multiple craft.
 
-				xwa.FlightGroups[i].Radio = (byte)(xwingPlayerCommand(miss.FlightGroups[i].CraftType) && miss.FlightGroups[i].GetTIEIFF() == playerIFF ? 1 : 0);
+				xwa.FlightGroups[i].Radio = (Xwa.FlightGroup.RadioChannel)(xwingPlayerCommand(miss.FlightGroups[i].CraftType) && miss.FlightGroups[i].GetTIEIFF() == playerIFF ? 1 : 0);
 
 				byte warhead = 0;
 				switch (miss.FlightGroups[i].CraftType)
@@ -2363,18 +2396,18 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].DepartureTimerMinutes = 0;
 				xwa.FlightGroups[i].DepartureTimerSeconds = 0;
 				xwa.FlightGroups[i].AbortTrigger = 0;
-				xwa.FlightGroups[i].ArrivalCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xwa.FlightGroups[i].ArrivalMethod1 = (byte)(miss.FlightGroups[i].ArrivalHyperspace == 1 ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
-				xwa.FlightGroups[i].ArrivalCraft2 = 0;
-				xwa.FlightGroups[i].ArrivalMethod2 = false;
-				xwa.FlightGroups[i].DepartureCraft1 = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xwa.FlightGroups[i].DepartureMethod1 = (byte)(miss.FlightGroups[i].DepartureHyperspace == 1 ? 0 : 1);
-				xwa.FlightGroups[i].DepartureCraft2 = 0;
-				xwa.FlightGroups[i].DepartureMethod2 = false;
+				xwa.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
+				xwa.FlightGroups[i].ArrivalMethod = (byte)(miss.FlightGroups[i].ArrivalHyperspace == 1 ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				xwa.FlightGroups[i].AlternateMothership = 0;
+				xwa.FlightGroups[i].AlternateMothershipUsed = false;
+				xwa.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
+				xwa.FlightGroups[i].DepartureMethod = (byte)(miss.FlightGroups[i].DepartureHyperspace == 1 ? 0 : 1);
+				xwa.FlightGroups[i].CapturedDepartureMothership = 0;
+				xwa.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
 				{
-					xwa.FlightGroups[i].ArrivalMethod1 = 0;
-					xwa.FlightGroups[i].DepartureMethod1 = 0;
+					xwa.FlightGroups[i].ArrivalMethod = 0;
+					xwa.FlightGroups[i].DepartureMethod = 0;
 				}
 				if (xwingCanWithdraw(miss.FlightGroups[i].CraftType))
 					xwa.FlightGroups[i].AbortTrigger = 9;  //25% hull
@@ -2410,8 +2443,7 @@ namespace Idmr.Platform
 						xwa.FlightGroups[i].Goals[0].Condition = cond;
 						xwa.FlightGroups[i].Goals[0].Argument = 0;  //Must be completed
 						xwa.FlightGroups[i].Goals[0].Amount = amount;
-						xwa.FlightGroups[i].Goals[0].Team = 0;
-						xwa.FlightGroups[i].Goals[0].Enabled = true;
+						xwa.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
 
 						if (i == playerMothership || role > 0)   //Mothership is role 0.
 						{
@@ -2434,8 +2466,7 @@ namespace Idmr.Platform
 							xwa.FlightGroups[i].Goals[0].Condition = cond;
 							xwa.FlightGroups[i].Goals[0].Argument = argument;
 							xwa.FlightGroups[i].Goals[0].Amount = 0;  //100%
-							xwa.FlightGroups[i].Goals[0].Team = 0;
-							xwa.FlightGroups[i].Goals[0].Enabled = true;
+							xwa.FlightGroups[i].Goals[0].SetEnabledForTeam(0, true);
 
 							if (role > 0)   //Mothership is role 0.
 							{
@@ -2718,8 +2749,8 @@ namespace Idmr.Platform
 		static bool xwingCanWithdraw(int xwingCraftType) => (xwingCraftType >= 1 && xwingCraftType <= 7) || (xwingCraftType == 17);    //(X-W, Y-W/B-W, A-W, T/F, T/I, T/B, GUN) || (T/A)
 
 		/// <summary>Moves order target slots up if there is space to do so.</summary>
-		/// <remarks>When converting from XWING95 to TIE95, some capital ship orders don't seem to use Target3 or Target 4.
-		/// This function checks if both Target1 and Target2 are empty.  If so, it moves Target3 and Target4 into Target1 and Target2.
+		/// <remarks>When converting from XWING95 to TIE95, some capital ship orders don't seem to use Target3 or Target 4.<br/>
+		/// This function checks if both Target1 and Target2 are empty.  If so, it moves Target3 and Target4 into Target1 and Target2.<br/>
 		/// Since XWING95 autotarget orders usually translate into "Craft X (AND) IFF Y" then we need to keep T1/T2 and T3/T4 paired up together.</remarks>
 		/// <param name="order">Order to modify.</param>
 		static void moveOrderUp(BaseFlightGroup.BaseOrder order)
@@ -2735,7 +2766,7 @@ namespace Idmr.Platform
 		}
 
 		/// <summary>Returns text converted to lowercase, if applicable.  Each word's initial letter will remain capitalized.</summary>
-		/// <remarks>XWING95 FlightGroup names are usually always in ALL CAPS which doesn't look nice in the later games.
+		/// <remarks>XWING95 FlightGroup names are usually always in ALL CAPS which doesn't look nice in the later games.<br/>
 		/// Strings not recognized as words (no vowels detected) will not be converted.</remarks>
 		/// <param name="text">String to convert.</param>
 		/// <returns>Converted string, or same string if not converted.</returns>
@@ -2772,11 +2803,11 @@ namespace Idmr.Platform
 		}
 
 		/// <summary>Converts an XWING95 order to the platform BaseOrder format.</summary>
-		/// <remarks>For complex orders, additional BaseOrder objects may be required.
-		/// NOTE: This function does not handle docking time or boarding counts.
-		/// NOTE: In TIE Fighter, the variable for waypoint loop count is interpreted as a signed char.  Negative values (>= 128) will jump to hyperspace.  This does not apply to XvT.
+		/// <remarks>For complex orders, additional BaseOrder objects may be required.<br/>
+		/// NOTE: This function does not handle docking time or boarding counts.<br/>
+		/// NOTE: In TIE Fighter, the variable for waypoint loop count is interpreted as a signed char.  Negative values (>= 128) will jump to hyperspace.  This does not apply to XvT.<br/>
 		/// NOTE: Some commands require additional processing not performed here.</remarks>
-		/// <param name="command">XWING95 order command</param>
+		/// <param name="command">XWING95 order command.</param>
 		/// <param name="targPri">Flight Group index, or -1 for none.</param>
 		/// <param name="targSec">Flight Group index, or -1 for none.</param>
 		/// <param name="iff">IFF to target.</param>
@@ -2909,7 +2940,7 @@ namespace Idmr.Platform
 		}
 
 		/// <summary>Generates targets to attack an IFF.  Helper function used when setting orders.</summary>
-		/// <remarks>XWING95 starships usually autotarget the opposite IFF, this implements such targeting.
+		/// <remarks>XWING95 starships usually autotarget the opposite IFF, this implements such targeting.<br/>
 		/// Attempts to assign to Target1 or Target2 if they are empty.</remarks>
 		/// <param name="order1">Order object to modify.</param>
 		/// <param name="iff">IFF to target.</param>
@@ -2920,11 +2951,11 @@ namespace Idmr.Platform
 			else { order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3AndOrT4 = true; }
 		}
 
-		/// <summary>Validates FlightGroup.Goals for TIE</summary>
-		/// <remarks>Converts 75% to 100%, 25% to 50%</remarks>
-		/// <param name="label">Identifier used in error message</param>
-		/// <param name="goals">The Goal object to check</param>
-		/// <exception cref="ArgumentException">Invalid Goal.Amount detected</exception>
+		/// <summary>Validates FlightGroup.Goals for TIE.</summary>
+		/// <remarks>Converts 75% to 100%, 25% to 50%.</remarks>
+		/// <param name="label">Identifier used in error message.</param>
+		/// <param name="goals">The Goal object to check.</param>
+		/// <exception cref="ArgumentException">Invalid Goal.Amount detected.</exception>
 		static void tieGoalsCheck(string label, Tie.FlightGroup.FGGoals goals)
 		{
 			for (int i = 0; i < 8; i += 2)
@@ -2937,10 +2968,10 @@ namespace Idmr.Platform
 			}
 		}
 
-		/// <summary>Returns an ArgumentException formatted for MissionLimits based on the inputs</summary>
-		/// <param name="toTie"><b>true</b> for TIE95, <b>false</b> for XvT</param>
-		/// <param name="isFG"><b>true</b> for FlightGroups, <b>false</b> for Messages</param>
-		/// <param name="limit">The appropriate Mission Limit value</param>
+		/// <summary>Returns an ArgumentException formatted for MissionLimits based on the inputs.</summary>
+		/// <param name="toTie"><b>true</b> for TIE95, <b>false</b> for XvT.</param>
+		/// <param name="isFG"><b>true</b> for FlightGroups, <b>false</b> for Messages.</param>
+		/// <param name="limit">The appropriate Mission Limit value.</param>
 		static ArgumentException maxException(bool toTie, bool isFG, int limit)
 		{
 			string s = (isFG ? "FlightGroups" : "In-Flight Messages");
@@ -2948,18 +2979,18 @@ namespace Idmr.Platform
 				+ " maximum (" + limit + "). Remove " + s + " before converting");
 		}
 
-		/// <summary>Returns an ArgumentException formatted for Triggers based on the inputs</summary>
-		/// <param name="index">0 for Trigger condition, 1 for Trigger Type, 2 for Trigger Craft Type, 3 for Amount</param>
-		/// <param name="label">Trigger indentifier string</param>
-		/// <param name="id">String for the invalid value</param>
+		/// <summary>Returns an ArgumentException formatted for Triggers based on the inputs.</summary>
+		/// <param name="index">0 for Trigger condition, 1 for Trigger Type, 2 for Trigger Craft Type, 3 for Amount.</param>
+		/// <param name="label">Trigger indentifier string.</param>
+		/// <param name="id">String for the invalid value.</param>
 		static ArgumentException triggerException(byte index, string label, string id) => new ArgumentException("Invalid Trigger "
 				+ (index == 0 ? "Condition" : (index == 1 ? "VariableType" : (index == 2 ? "Craft" : "Amount")))
 				+ " detected (" + id + "). " + label);
 
-		/// <summary>Returns an ArgumentException formatted for FlightGroups based on the inputs</summary>
-		/// <param name="mode">0 for Status, 1 for Formation, 2 for Abort, 3 for Order, 4 for CraftType</param>
-		/// <param name="index">FG index</param>
-		/// <param name="id">String for the invalid value</param>
+		/// <summary>Returns an ArgumentException formatted for FlightGroups based on the inputs.</summary>
+		/// <param name="mode">0 for Status, 1 for Formation, 2 for Abort, 3 for Order, 4 for CraftType.</param>
+		/// <param name="index">FG index.</param>
+		/// <param name="id">String for the invalid value.</param>
 		static ArgumentException flightException(byte mode, int index, string id) => new ArgumentException("Invalid FlightGroup "
 			+ (mode == 0 ? "Status" : (mode == 1 ? "Formation" : (mode == 2 ? "Abort condition" : (mode == 3 ? "Order" : "CraftType"))))
 			+ " detected. FG " + index + ", " + (mode == 3 ? "Order: " : "") + id);
