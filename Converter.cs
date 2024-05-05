@@ -239,15 +239,15 @@ namespace Idmr.Platform
 			{
 				tie.BriefingQuestions.PostMissQuestions[0] = "What have I accomplished?";
 				tie.BriefingQuestions.PostMissAnswers[0] = miss.MissionSuccessful;  // again, line breaks
-				tie.BriefingQuestions.PostTrigger[0] = 4;
-				tie.BriefingQuestions.PostTrigType[0] = 1;
+				tie.BriefingQuestions.PostTrigger[0] = Tie.Questions.QuestionCondition.Completed;
+				tie.BriefingQuestions.PostTrigType[0] = Tie.Questions.QuestionType.Primary;
 			}
 			if (miss.MissionFailed != "")
 			{
 				tie.BriefingQuestions.PostMissQuestions[1] = "Any suggestions?";
 				tie.BriefingQuestions.PostMissAnswers[1] = miss.MissionFailed;  // again, line breaks
-				tie.BriefingQuestions.PostTrigger[1] = 5;
-				tie.BriefingQuestions.PostTrigType[1] = 1;
+				tie.BriefingQuestions.PostTrigger[1] = Tie.Questions.QuestionCondition.Failed;
+				tie.BriefingQuestions.PostTrigType[1] = Tie.Questions.QuestionType.Primary;
 			}
 			#endregion Questions
 			tie.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", "_TIE.tie");
@@ -485,12 +485,12 @@ namespace Idmr.Platform
 
 				if (miss.BriefingQuestions.PostMissQuestions[i].Length != 0)
 				{
-					if (miss.BriefingQuestions.PostTrigger[i] == 4)
+					if (miss.BriefingQuestions.PostTrigger[i] == Tie.Questions.QuestionCondition.Completed)
 					{
 						if (xvt.MissionSuccessful != "") xvt.MissionSuccessful += "\r\n\r\n";
 						xvt.MissionSuccessful += miss.BriefingQuestions.PostMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PostMissAnswers[i];
 					}
-					else if (miss.BriefingQuestions.PostTrigger[i] == 5)
+					else if (miss.BriefingQuestions.PostTrigger[i] == Tie.Questions.QuestionCondition.Failed)
 					{
 						if (xvt.MissionFailed != "") xvt.MissionFailed += "\r\n\r\n";
 						xvt.MissionFailed += miss.BriefingQuestions.PostMissQuestions[i] + "\r\n\r\n" + miss.BriefingQuestions.PostMissAnswers[i];
@@ -1211,15 +1211,15 @@ namespace Idmr.Platform
 			{
 				tie.BriefingQuestions.PostMissQuestions[0] = "What have I accomplished?";
 				tie.BriefingQuestions.PostMissAnswers[0] = miss.MissionSuccessful;  // again, line breaks
-				tie.BriefingQuestions.PostTrigger[0] = 4;
-				tie.BriefingQuestions.PostTrigType[0] = 1;
+				tie.BriefingQuestions.PostTrigger[0] = Tie.Questions.QuestionCondition.Completed;
+				tie.BriefingQuestions.PostTrigType[0] = Tie.Questions.QuestionType.Primary;
 			}
 			if (miss.MissionFailed != "")
 			{
 				tie.BriefingQuestions.PostMissQuestions[1] = "Any suggestions?";
 				tie.BriefingQuestions.PostMissAnswers[1] = miss.MissionFailed;  // again, line breaks
-				tie.BriefingQuestions.PostTrigger[1] = 5;
-				tie.BriefingQuestions.PostTrigType[1] = 1;
+				tie.BriefingQuestions.PostTrigger[1] = Tie.Questions.QuestionCondition.Failed;
+				tie.BriefingQuestions.PostTrigType[1] = Tie.Questions.QuestionType.Primary;
 			}
 			#endregion Questions
 			tie.MissionPath = miss.MissionPath.ToUpper().Replace(".TIE", "_TIE.tie");
@@ -1668,8 +1668,8 @@ namespace Idmr.Platform
 			{
 				tie.BriefingQuestions.PostMissQuestions[i] = (i == 0) ? "Any special instructions?" : "Any more instructions?";  //If this text length is changed, check the maximum total size above.
 				tie.BriefingQuestions.PostMissAnswers[i] = failText[i];
-				tie.BriefingQuestions.PostTrigType[i] = 1; //Primary goal
-				tie.BriefingQuestions.PostTrigger[i] = 5;  //Failed
+				tie.BriefingQuestions.PostTrigType[i] = Tie.Questions.QuestionType.Primary;
+				tie.BriefingQuestions.PostTrigger[i] = Tie.Questions.QuestionCondition.Failed;
 			}
 			#endregion Description
 

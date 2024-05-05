@@ -43,8 +43,7 @@ namespace Idmr.Platform.Tie
 		/// <summary>Creates a blank question set.</summary>
 		public Questions()
 		{
-			int i;
-			for (i=0;i<10;i++)
+			for (int i = 0; i < 10; i++)
 			{
 				PreMissQuestions[i] = "";
 				PreMissAnswers[i] = "";

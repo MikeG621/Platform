@@ -1410,6 +1410,11 @@ namespace Idmr.Platform.Xwa
 				Kaboom
 			}
 
+			/// <summary>Get the description of the cargo.</summary>
+			/// <remarks>Format is "[Type] [Cargo], [Volatility] explosiveness".</remarks>
+			/// <returns>Fromatted string if <see cref="Cargo"/> is defined, otherwise "<b>None</b>".</returns>
+			public override string ToString() => _cargo != "" ? Enum.GetName(typeof(CargoTypes), Type) + " " + _cargo + ", " + Enum.GetName(typeof(VolatilityLevels), Volatility) + " explosiveness" : "None";
+
 			/// <summary>Gets or sets the Cargo string.</summary>
 			/// <remarks>63 character limit.</remarks>
 			public string Cargo

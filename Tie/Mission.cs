@@ -139,6 +139,8 @@ namespace Idmr.Platform.Tie
 			short numFlightGroups = br.ReadInt16();
 			short numMessages = br.ReadInt16();
 			stream.Position += 2;
+			TimeLimitMin = br.ReadByte();
+			TimeLimitSec = br.ReadByte();
 			try { OfficersPresent = (BriefingOfficers)br.ReadByte(); }
 			catch { OfficersPresent = BriefingOfficers.Both; }
 			RandomSeed = br.ReadByte();
@@ -351,8 +353,8 @@ namespace Idmr.Platform.Tie
 						continue;
 					}
 					if (j == 0) continue;
-					BriefingQuestions.PostTrigger[i] = br.ReadByte();
-					BriefingQuestions.PostTrigType[i] = br.ReadByte();
+					BriefingQuestions.PostTrigger[i] = (Questions.QuestionCondition)br.ReadByte();
+					BriefingQuestions.PostTrigType[i] = (Questions.QuestionType)br.ReadByte();
 					for (k = 0; k < j; k++)
 					{
 						BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
@@ -613,8 +615,8 @@ namespace Idmr.Platform.Tie
 					}
 					j += 3;
 					bw.Write((short)j);
-					bw.Write(BriefingQuestions.PostTrigger[i]);
-					bw.Write(BriefingQuestions.PostTrigType[i]);
+					bw.Write((byte)BriefingQuestions.PostTrigger[i]);
+					bw.Write((byte)BriefingQuestions.PostTrigType[i]);
 					bw.Write(str_q.ToCharArray());
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
