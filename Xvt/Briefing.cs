@@ -40,13 +40,12 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Initializes a blank Briefing.</summary>
 		public Briefing()
 		{
-			_eventParameters = new EventParameters();
             _platform = MissionFile.Platform.XvT;
 			Length = 0x3B1;	// default to 45 seconds
 			_events = new short[0x190];
 			_briefingTags = new string[0x20];
 			_briefingStrings = new string[0x20];
-			for (int i=0;i<0x20;i++)
+			for (int i = 0; i < 0x20; i++)
 			{
 				_briefingTags[i] = "";
 				_briefingStrings[i] = "";

@@ -35,6 +35,7 @@ namespace Idmr.Platform.Xwing
 	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48.</remarks>
 	public class Briefing : BaseBriefing
 	{
+		readonly EventParameters _eventParameters = new EventParameters();
 		/// <summary>Collection of Briefing pages.</summary>
 		public List<BriefingPage> Pages { get; private set; }
 		/// <summary>Collection of window settings.</summary>
@@ -158,9 +159,6 @@ namespace Idmr.Platform.Xwing
 			18,   41,  0x22,   0   //41: End marker                    --> End Briefing
 		};
 
-		/// <summary>The number of parameters per event type.</summary>
-		new private protected EventParameters _eventParameters;
-
 		/// <summary>Initializes a blank Briefing.</summary>
 		public Briefing()
 		{   //initialize
@@ -174,7 +172,6 @@ namespace Idmr.Platform.Xwing
 			WindowSettings = new List<BriefingUIPage>();
 			ResetUISettings(2);
 
-			_eventParameters = new EventParameters();
 			_platform = MissionFile.Platform.Xwing;
 			_events = new short[0x190];
 			Length = 0x21C; //default 45 seconds
@@ -369,10 +366,9 @@ namespace Idmr.Platform.Xwing
 			short rpos = 0, wpos = 0;
 			short evtTime = xwingEvent[rpos++];
 			short evtCommand = xwingEvent[rpos++];
-			BaseBriefing.EventParameters tieEventParameters = new BaseBriefing.EventParameters();
 			short mapperOffset = getEventMapperIndex(evtCommand);
 			short tieCommand = _eventMapper[mapperOffset + 2];
-			short tieParams = tieEventParameters[tieCommand];
+			short tieParams = BaseBriefing.EventParameters.GetCount(tieCommand);
 			short xwParams = _eventMapper[mapperOffset + 3];
 
 			short[] retEvent = new short[2 + tieParams];
@@ -571,13 +567,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>DO NOT USE. Will always throw an exception.</summary>
 		/// <exception cref="InvalidOperationException">Throws on any get attempt.</exception>
-		new public short EventsLength
-		{
-			get
-			{
-				throw new InvalidOperationException("Warning! EventsLength is not used for X-wing briefings. If you see this message, please file a bug report.");
-			}
-		}
+		new public short EventsLength => throw new InvalidOperationException("Warning! EventsLength is not used for X-wing briefings. If you see this message, please file a bug report.");
 
 		/// <summary>Frames per second for briefing animation.</summary>
 		public const int TicksPerSecond = 8;
@@ -651,7 +641,6 @@ namespace Idmr.Platform.Xwing
 			Items = new BriefingUIItem[5];
 			for (int i = 0; i < 5; i++)
 				Items[i] = new BriefingUIItem();
-
 		}
 
 		/// <summary>Gets the item via the enumerated value.</summary>
@@ -709,10 +698,7 @@ namespace Idmr.Platform.Xwing
 	{
 		/// <summary>Initalizes a new object.</summary>
 		/// <remarks><see cref="Events"/> is initalized to a length of 0x190.</remarks>
-		public BriefingPage()
-		{
-			Events = new short[0x190];
-		}
+		public BriefingPage() => Events = new short[0x190];
 
 		/// <summary>Set the initial events and <see cref="Briefing.EventType.EndBriefing"/>.</summary>
 		/// <remarks><see cref="CoordSet"/> is set to <b>1</b>, duration is set to <b>45 seconds</b>.

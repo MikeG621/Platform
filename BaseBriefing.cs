@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Unknown1 renamed per format spec
+ * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
  * v5.8, 230804
  * [NEW] SkipMarker command
  * v3.0, 180309
@@ -40,8 +41,6 @@ namespace Idmr.Platform
 		private protected string[] _briefingStrings;
 		/// <summary>The briefing format.</summary>
 		private protected MissionFile.Platform _platform;
-		/// <summary>The number of parameters per event type.</summary>
-		private protected EventParameters _eventParameters;
 
 		/// <summary>Known briefing event types.</summary>
 		public enum EventType : byte
@@ -171,7 +170,7 @@ namespace Idmr.Platform
 				for (offset = 0; offset < (_events.Length - 1); offset += 2)
 				{
 					if (_events[offset] != 0) break;
-					offset += _eventParameters[_events[offset + 1]];
+					offset += EventParameters.GetCount(_events[offset + 1]);
 				}
 				return offset;
 			}
@@ -193,7 +192,7 @@ namespace Idmr.Platform
 		/// <param name="eventType">The briefing event.</param>
 		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
 		/// <returns>The number of parameters.</returns>
-		virtual public byte EventParameterCount(int eventType) => _eventParameters[eventType];
+		virtual public byte EventParameterCount(int eventType) => EventParameters.GetCount(eventType);
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index.</param>
@@ -259,21 +258,49 @@ namespace Idmr.Platform
 			TransformFGReferences(255, srcIndex);
 		}
 
-		/// <summary>Object to maintain a read-only array.</summary>
+		/// <summary>Singleton object to maintain a read-only array.</summary>
 		public class EventParameters
 		{
-			// note for me: is effectively a bare-bones static Indexer, but can't static due to this[] and Indexer<> is overkill
+			static readonly EventParameters _instance = new EventParameters();
 
 			readonly byte[] _counts = { 0, 0, 1, 0, 1, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 3, 2, 1, 1, 0, 0, 0 };
 
-			/// <summary>Gets a parameter count.</summary>
-			/// <param name="eventType">The briefing event.</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
-			public byte this[int eventType] => _counts[eventType];
+			private EventParameters() { }
+
+			byte this[int eventType] => _counts[eventType];
+			byte this[EventType eventType] => _counts[(int)eventType];
 
 			/// <summary>Gets a parameter count.</summary>
 			/// <param name="eventType">The briefing event.</param>
-			public byte this[EventType eventType] => _counts[(int)eventType];
+			/// <returns>The number of variables for the event.</returns>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
+			public static byte GetCount(int eventType) => _instance[eventType];
+			/// <summary>Gets a parameter count.</summary>
+			/// <param name="eventType">The briefing event.</param>
+			/// <returns>The number of variables for the event.</returns>
+			public static byte GetCount(EventType eventType) => _instance[eventType];
+		}
+
+		public class Event
+		{
+			EventType _type;
+
+			public short Time { get; set; }
+			public EventType Type
+			{
+				get => _type;
+				set
+				{
+					_type = value;
+					var temp = Variables;
+					Variables = new short[EventParameters.GetCount(_type)];
+					for (int i = 0; i < temp.Length && i < Variables.Length; i++) Variables[i] = temp[i];
+				}
+			}
+			public short[] Variables { get; internal set; }
+
+			public bool IsEndEvent => _type == EventType.EndBriefing || _type == EventType.None;
+			public bool IsFGTag => (int)_type >= (int)EventType.FGTag1 && (int)_type <= (int)EventType.FGTag8;
 		}
 	}
 }

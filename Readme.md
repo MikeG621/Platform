@@ -36,6 +36,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
   - Not all editor-use properties are exposed
   - Various things renamed ***BREAKING CHANGE***
 - (TIE) Added Questions.QuestionType and .QuestionCondition enums, PostTrigger and PostTrigType types changed ***BREAKING CHANGE***
+- (Briefing) BaseBriefing.EventParameters now a singleton class, `this[]` made private in lieu of `GetCount()`
 
 ---
 ### Additional Information
