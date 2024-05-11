@@ -10,6 +10,8 @@
 /* CHANGELOG
  * [NEW] Full format spec implemented
  * [FIX] Corrected EventQuantityLimit
+ * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
+ * [UPD] Events changed to collection
  * v4.0, 200809
  * [UPD] auto-properties
  * v3.0, 180903
@@ -40,8 +42,8 @@ namespace Idmr.Platform.Xwa
 		public Briefing()
 		{
 			_platform = MissionFile.Platform.XWA;
-			Length = 0x465;     // default to 45 seconds
-			_events = new short[0x1900];
+			Length = 45 * TicksPerSecond;
+			_events = new EventCollection(_platform);
 			_briefingTags = new string[0x80];
 			_briefingStrings = new string[0x80];
 			for (int i = 0; i < 0x80; i++)
@@ -50,18 +52,18 @@ namespace Idmr.Platform.Xwa
 				_briefingStrings[i] = "";
 				BriefingStringsNotes[i] = "";
 			}
-			_events[1] = (short)EventType.MoveMap;
-			_events[5] = (short)EventType.ZoomMap;
-			_events[6] = 0x30;
-			_events[7] = 0x30;
-			_events[8] = 9999;
-			_events[9] = (short)EventType.EndBriefing;
+			_events.Add(new Event(EventType.MoveMap));
+			_events.Add(new Event(EventType.ZoomMap) { Variables = new short[] { 0x30, 0x30 } });
 		}
 
 		/// <summary>Converts the time value into seconds.</summary>
-		/// <param name="time">Raw time value.</param>
+		/// <param name="ticks">Raw time value.</param>
 		/// <returns>The time per the platform-specific tick rate.</returns>
-		public override float GetTimeInSeconds(short time) => (float)time / TicksPerSecond;
+		public override float ConvertTicksToSeconds(short ticks) => (float)ticks / TicksPerSecond;
+		/// <summary>Converts the time to the platform-specific tick count.</summary>
+		/// <param name="seconds">Time in seconds.</param>
+		/// <returns>The raw time value.</returns>
+		public override short ConvertSecondsToTicks(float seconds) => (short)(seconds * TicksPerSecond);
 
 		/// <summary>Gets the briefing team visibility.</summary>
 		/// <remarks>Determines which teams view the briefing. Array length = 10.</remarks>

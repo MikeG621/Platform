@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Format spec implemented
+ * [UPD] Briefing events I/O
  * v5.0, 201004
  * [NEW] RndSeed
  * v4.0, 200809
@@ -407,13 +408,8 @@ namespace Idmr.Platform.Xvt
 				Briefings[i].Length = br.ReadInt16();
 				stream.Position += 6;   // CurrentTime, StartLength, EventsLength
 				Briefings[i].Tile = br.ReadInt16();
-				for (j = 0; j < 12; j++)
-				{
-					stream.Read(buffer, 0, 0x40);
-					Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x40 * j, 0x40);
-				}
-				stream.Read(buffer, 0, 0x20);
-				Buffer.BlockCopy(buffer, 0, Briefings[i].Events, 0x300, 0x20);
+				byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 2);
+				Briefings[i].Events = new BaseBriefing.EventCollection(Platform.XvT, rawEvents);
 				stream.Read(buffer, 0, 0xA);
 				Buffer.BlockCopy(buffer, 0, Briefings[i].Team, 0, 0xA);
 				for (j = 0; j < 32; j++)
@@ -729,8 +725,8 @@ namespace Idmr.Platform.Xvt
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
 					bw.Write(Briefings[i].Tile);
-					byte[] briefBuffer = new byte[Briefings[i].Events.Length * 2];
-					Buffer.BlockCopy(Briefings[i].Events, 0, briefBuffer, 0, briefBuffer.Length);
+					byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 2];
+					Buffer.BlockCopy(Briefings[i].Events.GetArray(), 0, briefBuffer, 0, Briefings[i].Events.Length * 2);
 					bw.Write(briefBuffer);
 					for (int j = 0; j < 10; j++) bw.Write(Briefings[i].Team[j]);
 					for (int j = 0; j < 32; j++)

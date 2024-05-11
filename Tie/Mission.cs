@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Format spec update
+ * [UPD] Briefing events I/O
  * v5.7.5, 230116
  * [DEL #12] CapturedOnEjection
  * [UPD #12] Status reset if out of bounds during load
@@ -283,13 +284,8 @@ namespace Idmr.Platform.Tie
 			Briefing.Length = br.ReadInt16();
 			stream.Position += 6;   // CurrentTime StartLength, EventsLength
 			Briefing.Tile = br.ReadInt16();
-			for (i = 0; i < 12; i++)
-			{
-				stream.Read(buffer, 0, 0x40);
-				Buffer.BlockCopy(buffer, 0, Briefing.Events, 0x40 * i, 0x40);
-			}
-			stream.Read(buffer, 0, 0x20);
-			Buffer.BlockCopy(buffer, 0, Briefing.Events, 0x300, 0x20);
+			byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 2);
+			Briefing.Events = new BaseBriefing.EventCollection(Platform.TIE, rawEvents);
 			for (i = 0; i < 32; i++)
 			{
 				int j = br.ReadInt16();
@@ -560,8 +556,8 @@ namespace Idmr.Platform.Tie
 				bw.Write(Briefing.StartLength);
 				bw.Write(Briefing.EventsLength);
 				bw.Write(Briefing.Tile);
-				byte[] briefBuffer = new byte[Briefing.Events.Length * 2];
-				Buffer.BlockCopy(Briefing.Events, 0, briefBuffer, 0, briefBuffer.Length);
+				byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 2];
+				Buffer.BlockCopy(Briefing.Events.GetArray(), 0, briefBuffer, 0, Briefing.Events.Length * 2);
 				bw.Write(briefBuffer);
 				for (int i = 0; i < 32; i++)
 				{

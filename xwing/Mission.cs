@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0
+ * Version: 4.0+
  */
 
 /* CHANGELOG
+ * [UPD] Briefing events I/O
  * v4.0, 200809
  * [UPD] Unknown1 renamed to RndSeed [JB]
  * [UPD] Better Save backup [JB]
@@ -259,12 +260,12 @@ namespace Idmr.Platform.Xwing
 			{
 				BriefingPage pg = Briefing.Pages[i];
 				pg.Length = br.ReadInt16(); //total ticks
-				pg.EventsLength = br.ReadInt16();  //Count of Int16s
+				short len = br.ReadInt16();  //EventsLength
 				pg.CoordSet = br.ReadInt16();
 				pg.PageType = br.ReadInt16();
 
-				byte[] briefBuffer = br.ReadBytes(pg.EventsLength * 2);
-				Buffer.BlockCopy(briefBuffer, 0, pg.Events, 0, briefBuffer.Length);
+				byte[] briefBuffer = br.ReadBytes(len * 2);
+				pg.Events = new Briefing.EventCollection(briefBuffer);
 			}
 
 			#endregion Pages
@@ -438,7 +439,7 @@ namespace Idmr.Platform.Xwing
 			}
 			catch
 			{
-				if (fs != null) fs.Close();
+				fs?.Close();
 				if (writerCreated && backupCreated)
 				{
 					File.Delete(MissionPath);
@@ -567,8 +568,8 @@ namespace Idmr.Platform.Xwing
 					bw.Write(pg.CoordSet);
 					bw.Write(pg.PageType);
 
-					byte[] briefBuffer = new byte[pg.EventsLength * 2];
-					Buffer.BlockCopy(pg.Events, 0, briefBuffer, 0, briefBuffer.Length);
+					byte[] briefBuffer = new byte[pg.Events.Length * 2];	// X-wing is unique that this is dynamic, other platforms use EventQuantityLimit
+					Buffer.BlockCopy(pg.Events.GetArray(), 0, briefBuffer, 0, briefBuffer.Length);
 					bw.Write(briefBuffer);
 				}
 				#endregion Pages
@@ -616,7 +617,7 @@ namespace Idmr.Platform.Xwing
 			}
 			catch
 			{
-				if (fs != null) fs.Close();
+				fs?.Close();
 				if (writerCreated && backupCreated)
 				{
 					File.Delete(BriefingPath);

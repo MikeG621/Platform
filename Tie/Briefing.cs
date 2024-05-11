@@ -4,10 +4,12 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
+ * [UPD] Events changed to collection
  * v2.1, 141214
  * [UPD] change to MPL
  */
@@ -19,18 +21,16 @@ namespace Idmr.Platform.Tie
 	public class Briefing : BaseBriefing
 	{
 		/// <summary>Frames per second for briefing animation.</summary>
-		/// <remarks>Value is <b>12 (0xC)</b>.</remarks>
 		public const int TicksPerSecond = 0xC;
 		/// <summary>Maximum number of events that can be held.</summary>
-		/// <remarks>Value is <b>200 (0xC8)</b>.</remarks>
-		public const int EventQuantityLimit = 0xC8;
+		public const int EventQuantityLimit = 200;
 
 		/// <summary>Initializes a blank Briefing.</summary>
 		public Briefing()
 		{
             _platform = MissionFile.Platform.TIE;
-			Length = 0x21C;	//default 45 seconds
-			_events = new short[0x190];
+			Length = 45 * TicksPerSecond;
+			_events = new EventCollection(_platform);
 			_briefingTags = new string[0x20];
 			_briefingStrings = new string[0x20];
 			for (int i = 0; i < 0x20; i++)
@@ -38,17 +38,18 @@ namespace Idmr.Platform.Tie
 				_briefingTags[i] = "";
 				_briefingStrings[i] = "";
 			}
-			_events[1] = (short)EventType.MoveMap;
-			_events[5] = (short)EventType.ZoomMap;
-			_events[6] = 0x30;
-			_events[7] = 0x30;
-			_events[8] = 9999;
-			_events[9] = (short)EventType.EndBriefing;
+			_events.Add(new Event(EventType.MoveMap));
+			_events.Add(new Event(EventType.ZoomMap) { Variables = new short[]{ 0x30, 0x30 } });
 		}
 
+		/// <summary>Converts the time to the platform-specific tick count.</summary>
+		/// <param name="seconds">Time in seconds.</param>
+		/// <returns>The raw time value.</returns>
+		public override short ConvertSecondsToTicks(float seconds) => (short)(seconds * TicksPerSecond);
+
 		/// <summary>Converts the time value into seconds.</summary>
-		/// <param name="time">Raw time value.</param>
+		/// <param name="ticks">Raw time value.</param>
 		/// <returns>The time per the platform-specific tick rate.</returns>
-		public override float GetTimeInSeconds(short time) => (float)time / TicksPerSecond;
+		public override float ConvertTicksToSeconds(short ticks) => (float)ticks / TicksPerSecond;
 	}
 }

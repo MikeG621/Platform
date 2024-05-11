@@ -10,6 +10,7 @@
 
 /* CHANGELOG
  * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
+ * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
  * v5.3, 210328
  * [UPD] Allowed Title strings to be returned in GetCaptionText()
  * [UPD] Added additional check to ContainsHintText()
@@ -34,7 +35,7 @@ namespace Idmr.Platform.Xwing
 {
 	/// <summary>Briefing object for XWING95.</summary>
 	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48.</remarks>
-	public class Briefing : BaseBriefing
+	public partial class Briefing : BaseBriefing
 	{
 		readonly Dictionary<EventType, string> _eventTypeStringMap = new Dictionary<EventType, string> {
 			{EventType.None, "None"},
@@ -67,6 +68,7 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Array to convert X-wing and TIE Briefing events.</summary>
 		readonly static short[] _eventMapper = {  //19 events, 4 columns each
 		// DISP  XWID  TIEID  PARAMS       NOTES
+		// TODO: do this as a struct array instead
 			 0,    0,     0,   0,
 			 1,    1,     0,   0,  //01: Wait For Click. (No params)   --> None
 			 2,   10,  0x03,   0,  //10: Clear Text (No params)        --> Page Break (no params)
@@ -172,8 +174,7 @@ namespace Idmr.Platform.Xwing
 			ResetUISettings(2);
 
 			_platform = MissionFile.Platform.Xwing;
-			_events = new short[0x190];
-			Length = 0x21C; //default 45 seconds
+			Length = 45 * TicksPerSecond;
 			_briefingTags = new string[0x20];
 			_briefingStrings = new string[0x20];
 			for (int i = 0; i < 0x20; i++)
@@ -185,9 +186,13 @@ namespace Idmr.Platform.Xwing
 
 		#region public methods
 		/// <summary>Converts the time value into seconds.</summary>
-		/// <param name="time">Raw time value.</param>
+		/// <param name="ticks">Raw time value.</param>
 		/// <returns>The time per the platform-specific tick rate.</returns>
-		public override float GetTimeInSeconds(short time) => (float)time / TicksPerSecond;
+		public override float ConvertTicksToSeconds(short ticks) => (float)ticks / TicksPerSecond;
+		/// <summary>Converts the time to the platform-specific tick count.</summary>
+		/// <param name="seconds">Time in seconds.</param>
+		/// <returns>The raw time value.</returns>
+		public override short ConvertSecondsToTicks(float seconds) => (short)(seconds * TicksPerSecond);
 
 		/// <summary>Re-initialize <see cref="BaseBriefing.BriefingTag"/> to the given size.</summary>
 		/// <param name="count">The new size, max <b>32</b>.</param>
@@ -216,46 +221,22 @@ namespace Idmr.Platform.Xwing
 		public override void TransformFGReferences(int fgIndex, int newIndex)
 		{
 			bool deleteCommand = false;
-			if (newIndex < 0)
-				deleteCommand = true;
+			if (newIndex < 0) deleteCommand = true;
 
 			for (int page = 0; page < Pages.Count; page++)
 			{
-				BriefingPage pg = Pages[page];
-				int p = 0;
-				int briefLen = GetEventsLength(page);
-				while (p < briefLen)
+				var events = Pages[page].Events;
+				for (int i = 0; i < events.Count && !events[i].IsEndEvent; i++)
 				{
-					int evt = pg.Events[p + 1];
-					if (IsEndEvent(evt))
-						break;
-
-					int advance = 2 + EventParameterCount(evt);
-					if (IsFGTag(evt))
+					if (events[i].IsFGTag)
 					{
-						if (pg.Events[p + 2] == fgIndex)
+						if (events[i].Variables[0] == fgIndex)
 						{
-							if (deleteCommand == false)
-							{
-								pg.Events[p + 2] = (short)newIndex;
-							}
-							else
-							{
-								int len = GetEventsLength(page); //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
-								int paramCount = 2 + EventParameterCount(evt);
-								for (int i = p; i < len - paramCount; i++)
-									pg.Events[i] = pg.Events[i + paramCount];  //Drop everything down
-								for (int i = len - paramCount; i < len; i++)
-									pg.Events[i] = 0;  //Erase the final space
-								advance = 0;
-							}
+							if (!deleteCommand) events[i].Variables[0] = (short)newIndex;
+							else events.RemoveAt(i);
 						}
-						else if (pg.Events[p + 2] > fgIndex && deleteCommand == true)
-						{
-							pg.Events[p + 2]--;
-						}
+						else if (events[i].Variables[0] > fgIndex && deleteCommand) events[i].Variables[0]--;
 					}
-					p += advance;
 				}
 			}
 		}
@@ -332,66 +313,39 @@ namespace Idmr.Platform.Xwing
 		/// <returns><paramref name="text"/> without the "[" or "]" characters.</returns>
 		public string RemoveBrackets(string text) => text.Replace("[", string.Empty).Replace("]", string.Empty);
 
-		private short getEventMapperIndex(int eventID)
+		private static short getEventMapperIndex(Event evt)
 		{
 			for (short i = 0; i < _eventMapper.Length / 4; i++)
-				if (_eventMapper[(i * 4) + 1] == eventID)  //+1 for Column[1]
+				if (_eventMapper[(i * 4) + 1] == (short)evt.Type)  //+1 for Column[1]
 					return (short)(i * 4);
 			return 0;
 		}
 
 		/// <summary>Reads an briefing event and returns an array with all the information for that event.</summary>
-		/// <param name="page">The index in <see cref="Pages"/>.</param>
-		/// <param name="rawOffset">The offset within <see cref="BriefingPage.Events"/>.</param>
+		/// <param name="page">The index in <see cref="Page"/>.</param>
+		/// <param name="index">The offset within <see cref="BriefingPage.Events"/>.</param>
 		/// <remarks>The returned array contains exactly as many shorts as used by the event: time, event command, and variable length parameter field.</remarks>
 		/// <returns>A short[] array of equal size to the exact resulting command length.</returns>
-		public short[] ReadBriefingEvent(int page, int rawOffset)
-		{
-			short evtTime = Pages[page].Events[rawOffset++];
-			short evtCommand = Pages[page].Events[rawOffset++];
-			short mapperOffset = getEventMapperIndex(evtCommand);
-			int paramCount = _eventMapper[mapperOffset + 3]; //Column[3] is param counts
-			short[] retEvent = new short[2 + paramCount];
-			int writePos = 0;
-			retEvent[writePos++] = evtTime;
-			retEvent[writePos++] = evtCommand;
-			for (int i = 0; i < paramCount; i++)
-				retEvent[writePos++] = Pages[page].Events[rawOffset++];
-			return retEvent;
-		}
-		/// <summary>Takes an event from ReadBriefingEvent and translates it into a TIE95 compatible format, adjusting event IDs and parameter count as necessary.</summary>
+		public short[] ReadBriefingEvent(int page, int index) => Pages[page].Events[index].GetArray();	// BUG: Definitely broken as-is
+
+		/// <summary>Takes an event and translates it into a TIE-XWA compatible format, adjusting event IDs and parameter count as necessary.</summary>
 		/// <param name="xwingEvent">The original Xwing events.</param>
-		/// <remarks>TextTag Color is a placeholder and may need to be modified by the calling platform.
-		/// XvT and XWA viewports are larger than XWING95 and TIE95.  Zoom Map event parameters may need to be scaled.
-		/// XWA Move Map event parameters may need to be scaled.</remarks>
-		/// <returns>A short[] array of equal size to the exact resulting command length.</returns>
-		public short[] TranslateBriefingEvent(short[] xwingEvent)
+		/// <remarks>TextTag Color is a placeholder and may need to be modified by the calling platform.<br/>
+		/// XvT and XWA viewports are larger than XWING95 and TIE95.  Zoom Map event parameters may need to be scaled. XWA Move Map event parameters may also need to be scaled.<br/>
+		/// The <see cref="Event.Time"/> value also needs modification per platform.</remarks>
+		/// <returns>An event usable for TIE-XWA.</returns>
+		public static BaseBriefing.Event TranslateBriefingEvent(Event xwingEvent)
 		{
-			short rpos = 0, wpos = 0;
-			short evtTime = xwingEvent[rpos++];
-			short evtCommand = xwingEvent[rpos++];
-			short mapperOffset = getEventMapperIndex(evtCommand);
+			short mapperOffset = getEventMapperIndex(xwingEvent);
 			short tieCommand = _eventMapper[mapperOffset + 2];
 			short tieParams = BaseBriefing.EventParameters.GetCount(tieCommand);
 			short xwParams = _eventMapper[mapperOffset + 3];
 
-			short[] retEvent = new short[2 + tieParams];
-			retEvent[wpos++] = evtTime;
-			retEvent[wpos++] = tieCommand;
-			if (xwParams == tieParams)
-			{
-				for (int i = 0; i < xwParams; i++)
-					retEvent[wpos++] = xwingEvent[rpos++];
-			}
+			BaseBriefing.Event retEvent = new BaseBriefing.Event((BaseBriefing.EventType)tieCommand) { Time = xwingEvent.Time };
+			if (xwParams == tieParams) retEvent.Variables = (short[])xwingEvent.Variables.Clone();
 			else
 			{
-				if (evtCommand >= (int)EventType.TextTag1 && evtCommand <= (int)EventType.TextTag4)
-				{
-					retEvent[wpos++] = xwingEvent[rpos++];  //tagId
-					retEvent[wpos++] = xwingEvent[rpos++];  //x
-					retEvent[wpos++] = xwingEvent[rpos++];  //y
-					retEvent[wpos++] = 0;                   //color (placeholder).  Acceptable values are platform-dependent and should be set in the converting function.
-				}
+				if (xwingEvent.IsTextTag) for (int i = 0; i < 3; i++) retEvent.Variables[i] = xwingEvent.Variables[i];
 				else throw new Exception("Unhandled instruction");
 			}
 			return retEvent;
@@ -418,23 +372,8 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets the total number of values occupied in the indicated <see cref="BriefingPage"/>.</summary>
 		/// <param name="page">The <see cref="BriefingPage"/> index.</param>
 		/// <returns>The number of values in the event listing up through <see cref="EventType.EndBriefing"/>.</returns>
-		public int GetEventsLength(int page)
-		{
-			BriefingPage pg = GetBriefingPage(page);
-			int pos = 0;
-			while (pos < pg.Events.Length)
-			{
-				pos++; //skip event time
-				int evt = pg.Events[pos++];
-				if (evt == (int)EventType.None)
-					return pos - 2;
-				else if (evt == (int)EventType.EndBriefing)
-					return pos;
-				else
-					pos += EventParameterCount(evt);
-			}
-			return pos;
-		}
+		/// <exception cref="IndexOutOfRangeException"><paramref name="page"/> is not valid.</exception>
+		public int GetEventsLength(int page) => GetBriefingPage(page).Events.Length;
 
 		/// <summary>Resets the pages to default.</summary>
 		/// <param name="pageTypeCount">The number of page types, must be at least <b>2</b>.</param>
@@ -533,18 +472,10 @@ namespace Idmr.Platform.Xwing
 			captionText = new List<string>();
 			if (page < 0 || page >= Pages.Count) return;
 
-			BriefingPage pg = Pages[page];
-			int length = pg.EventsLength;
-			int rpos = 0;
-			while (rpos < length)
-			{
-				short[] xwevt = ReadBriefingEvent(page, rpos);
-				rpos += xwevt.Length;
-				if (xwevt[1] == (short)EventType.CaptionText || xwevt[1] == (short)EventType.TitleText)
-					captionText.Add(BriefingString[xwevt[2]]);
-				else if (xwevt[1] == 0 || xwevt[1] == (short)EventType.EndBriefing)
-					break;
-			}
+			var events = Pages[page].Events;
+			for (int i = 0; i < events.Count && !events[i].IsEndEvent; i++)
+				if (events[i].Type == EventType.CaptionText || events[i].Type == EventType.TitleText)
+					captionText.Add(BriefingString[events[i].Variables[0]]);
 		}
 
 		/// <summary>Determines if the given caption text is a potential hint page.</summary>
@@ -552,15 +483,6 @@ namespace Idmr.Platform.Xwing
 		/// <returns><b>true</b> if <paramref name="captionText"/> contains "&lt;STRATEGY AND TACTICS" or "&lt;MISSION COMPLETION HINTS".</returns>
 		/// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
 		public bool ContainsHintText(string captionText) => captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0;
-
-		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
-		/// <param name="evt">The event index.</param>
-		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
-		public override bool IsEndEvent(int evt) => (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
-		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
-		/// <param name="evt">The event index.</param>
-		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag4"/>.</returns>
-		public override bool IsFGTag(int evt) => (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag4);
 
 		/// <summary>Gets the number of parameters for the specified event type.</summary>
 		/// <param name="eventType">The briefing event.</param>
@@ -711,7 +633,7 @@ namespace Idmr.Platform.Xwing
 	{
 		/// <summary>Initalizes a new object.</summary>
 		/// <remarks><see cref="Events"/> is initalized to a length of 0x190.</remarks>
-		public BriefingPage() => Events = new short[0x190];
+		public BriefingPage() => Events = new Briefing.EventCollection();
 
 		/// <summary>Set the initial events and <see cref="Briefing.EventType.EndBriefing"/>.</summary>
 		/// <remarks><see cref="CoordSet"/> is set to <b>1</b>, duration is set to <b>45 seconds</b>.
@@ -719,22 +641,18 @@ namespace Idmr.Platform.Xwing
 		public void SetDefaultFirstPage()
 		{
 			CoordSet = 1;
-			Length = 0x21C; //default 45 seconds
-			Events[1] = (short)Briefing.EventType.MoveMap;
-			Events[5] = (short)Briefing.EventType.ZoomMap;
-			Events[6] = 0x30;
-			Events[7] = 0x30;
-			Events[8] = 9999;
-			Events[9] = (short)Briefing.EventType.EndBriefing;
+			Length = 45 * Briefing.TicksPerSecond;
+			Events.Add(new Briefing.Event(Briefing.EventType.MoveMap));
+			Events.Add(new Briefing.Event(Briefing.EventType.ZoomMap) { Variables = new short[] { 0x30, 0x30 } });
 		}
 
 		/// <summary>Gets the raw event data.</summary>
-		public short[] Events { get; private set; }
+		public Briefing.EventCollection Events { get; internal set; }
 		/// <summary>Gets or sets the briefing length in ticks.</summary>
 		/// <remarks>Xwing uses 8 ticks per second.</remarks>
 		public short Length { get; set; }
-		/// <summary>Gets or sets the total number of values occupied in <see cref="Events"/>.</summary>
-		public short EventsLength { get; set; }
+		/// <summary>Gets the total number of values occupied in <see cref="Events"/>.</summary>
+		public short EventsLength => Events.Length;
 		/// <summary>Gets or sets the applicable Waypoint coordinate set index.</summary>
 		public short CoordSet { get; set; }
 		/// <summary>Gets or sets if the page is <see cref="Briefing.PageType.Map"/> or <see cref="Briefing.PageType.Text"/>.</summary>

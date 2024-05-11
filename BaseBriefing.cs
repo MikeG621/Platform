@@ -10,6 +10,8 @@
 /* CHANGELOG
  * [NEW] Unknown1 renamed per format spec
  * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
+ * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
+ * [UPD] Events changed to collection
  * v5.8, 230804
  * [NEW] SkipMarker command
  * v3.0, 180309
@@ -34,7 +36,7 @@ namespace Idmr.Platform
 	public abstract partial class BaseBriefing
 	{
 		/// <summary>The raw event data.</summary>
-		private protected short[] _events;
+		private protected EventCollection _events;
 		/// <summary>The strings placed on the map.</summary>
 		private protected string[] _briefingTags;
 		/// <summary>The captions and titles.</summary>
@@ -153,8 +155,12 @@ namespace Idmr.Platform
 		public string[] BriefingString => _briefingStrings;
 		/// <summary>Gets the raw briefing event data.</summary>
 		/// <remarks>Length is determined by the derivative class.</remarks>
-		public short[] Events => _events;
-		
+		public EventCollection Events
+		{
+			get => _events;
+			internal set => _events = value;
+		}
+
 		/// <summary>Gets or sets the duration of the Briefing, in Ticks.</summary>
 		/// <remarks>The X-wing series uses Ticks instead of seconds, TicksPerSecond is defined by the derivative class.</remarks>
 		public short Length { get; set; }
@@ -166,25 +172,17 @@ namespace Idmr.Platform
 		{
 			get
 			{
-				short offset;
-				for (offset = 0; offset < (_events.Length - 1); offset += 2)
+				short len = 0;
+				for (int i = 0; i < _events.Count; i++)
 				{
-					if (_events[offset] != 0) break;
-					offset += EventParameters.GetCount(_events[offset + 1]);
+					if (_events[i].Time != 0) break;
+					len += (short)_events[i].Length;
 				}
-				return offset;
+				return len;
 			}
 		}
 		/// <summary>Gets the number of values in <see cref="Events"/>.</summary>
-		public short EventsLength
-		{
-			get
-			{
-				int i;
-				for (i = 0; i < (_events.Length - 1); i++) if (_events[i] == 9999 && _events[i + 1] == (int)EventType.EndBriefing) break;   // find STOP @ 9999
-				return (short)(i + 2);
-			}
-		}
+		public short EventsLength => _events.Length;
 		/// <summary>Unknown.</summary>
 		public short Tile { get; set; }
 
@@ -195,19 +193,13 @@ namespace Idmr.Platform
 		virtual public byte EventParameterCount(int eventType) => EventParameters.GetCount(eventType);
 
 		/// <summary>Converts the time value into seconds.</summary>
-		/// <param name="time">Raw time value.</param>
+		/// <param name="ticks">Raw time value.</param>
 		/// <returns>The time per the platform-specific tick rate.</returns>
-		abstract public float GetTimeInSeconds(short time);
-
-		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
-		/// <param name="evt">The event index.</param>
-		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.EndBriefing"/> or <see cref="EventType.None"/>.</returns>
-		public virtual bool IsEndEvent(int evt) => (evt == (int)EventType.EndBriefing || evt == (int)EventType.None);
-
-		/// <summary>Gets if the specified event denotes one of the FlightGroup Tag events.</summary>
-		/// <param name="evt">The event index.</param>
-		/// <returns><b>true</b> if <paramref name="evt"/> is <see cref="EventType.FGTag1"/> through <see cref="EventType.FGTag8"/>.</returns>
-		public virtual bool IsFGTag(int evt) => (evt >= (int)EventType.FGTag1 && evt <= (int)EventType.FGTag8);
+		abstract public float ConvertTicksToSeconds(short ticks);
+		/// <summary>Converts the time to the platform-specific tick count.</summary>
+		/// <param name="seconds">Time in seconds.</param>
+		/// <returns>The raw time value.</returns>
+		abstract public short ConvertSecondsToTicks(float seconds);
 
 		/// <summary>Adjust FG references as necessary.</summary>
 		/// <param name="fgIndex">Original index.</param>
@@ -215,41 +207,18 @@ namespace Idmr.Platform
 		public virtual void TransformFGReferences(int fgIndex, int newIndex)
 		{
 			bool deleteCommand = false;
-			if (newIndex < 0)
-				deleteCommand = true;
-			int p = 0;
-			while (p < EventsLength)
+			if (newIndex < 0) deleteCommand = true;
+			for (int i = 0; i < Events.Count && !Events[i].IsEndEvent; i++)
 			{
-				int evt = Events[p + 1];
-				if (IsEndEvent(evt))
-					break;
-
-				int advance = 2 + EventParameterCount(evt);
-				if (IsFGTag(evt))
+				if (Events[i].IsFGTag)
 				{
-					if (Events[p + 2] == fgIndex)
+					if (Events[i].Variables[0] == fgIndex)
 					{
-						if (deleteCommand == false)
-						{
-							Events[p + 2] = (short)newIndex;
-						}
-						else
-						{
-							int len = EventsLength; //get() walks the event list, so cache the current value as the modifications will temporarily corrupt it
-							int paramCount = 2 + EventParameterCount(evt);
-							for (int i = p; i < len - paramCount; i++)
-								Events[i] = Events[i + paramCount];  //Drop everything down
-							for (int i = len - paramCount; i < len; i++)
-								Events[i] = 0;  //Erase the final space
-							advance = 0;
-						}
+						if (!deleteCommand) Events[i].Variables[0] = (short)newIndex;
+						else Events.RemoveAt(i);
 					}
-					else if (Events[p + 2] > fgIndex && deleteCommand == true)
-					{
-						Events[p + 2]--;
-					}
+					else if (Events[i].Variables[0] > fgIndex && deleteCommand) Events[i].Variables[0]--;
 				}
-				p += advance;
 			}
 		}
 		/// <summary>Swap FG indexes.</summary>
@@ -285,7 +254,5 @@ namespace Idmr.Platform
 			/// <returns>The number of variables for the event.</returns>
 			public static byte GetCount(EventType eventType) => _instance[eventType];
 		}
-
-		// TODO: switch Events to type EventCollection
 	}
 }

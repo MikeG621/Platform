@@ -11,6 +11,7 @@
  * [NEW] XWA format spec implemented
  * [UPD] XwaToXvT Roles convert now
  * [UPD] XwaToTie does the Radio now
+ * [UPD] Briefing event conversions
  * v6.1, 231208
  * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa, TieToXwa
  * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
@@ -195,21 +196,16 @@ namespace Idmr.Platform
 			for (int i = 0; i < tie.Briefing.BriefingString.Length; i++) tie.Briefing.BriefingString[i] = miss.Briefings[0].BriefingString[i];
 			tie.Briefing.CurrentTime = miss.Briefings[0].CurrentTime;
 			tie.Briefing.Tile = miss.Briefings[0].Tile;
-			tie.Briefing.Length = (short)(miss.Briefings[0].Length * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-			for (int i = 0; i < tie.Briefing.Events.Length;)
+			tie.Briefing.Length = tie.Briefing.ConvertSecondsToTicks(miss.Briefings[0].ConvertTicksToSeconds(miss.Briefings[0].Length));
+			for (int i = 0; i < miss.Briefings[0].Events.Count;)
 			{
-				short time = miss.Briefings[0].Events[i];
-				short evnt = miss.Briefings[0].Events[i + 1];
-				tie.Briefing.Events[i + 1] = evnt;
-				if (time == 9999 && evnt == (short)BaseBriefing.EventType.EndBriefing)
-				{
-					tie.Briefing.Events[i] = time;
-					break;
-				}
-				tie.Briefing.Events[i] = (short)(time * Tie.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-				i += 2;
-				for (int j = 0; j < tie.Briefing.EventParameterCount(evnt); j++, i++)
-					tie.Briefing.Events[i] = miss.Briefings[0].Events[i];
+				var evt = miss.Briefings[0].Events[i];
+				if (evt.IsEndEvent) break;
+
+				short time = tie.Briefing.ConvertSecondsToTicks(miss.Briefings[0].ConvertTicksToSeconds(evt.Time));
+				var type = evt.Type;
+
+				tie.Briefing.Events.Add(new BaseBriefing.Event(type) { Time = time, Variables = (short[])evt.Variables.Clone() });
 			}
 			#endregion Briefing
 			#region Globals
@@ -452,25 +448,21 @@ namespace Idmr.Platform
 			for (int i = 0; i < xvt.Briefings[0].BriefingString.Length; i++) xvt.Briefings[0].BriefingString[i] = miss.Briefing.BriefingString[i];
 			xvt.Briefings[0].CurrentTime = miss.Briefing.CurrentTime;
 			xvt.Briefings[0].Tile = miss.Briefing.Tile;
-			xvt.Briefings[0].Length = (short)(miss.Briefing.Length * Xvt.Briefing.TicksPerSecond / Tie.Briefing.TicksPerSecond);
-			for (int i = 0; i < xvt.Briefings[0].Events.Length;)
+			xvt.Briefings[0].Length = xvt.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(miss.Briefing.Length));
+			for (int i = 0; i < miss.Briefing.Events.Count;)
 			{
-				short time = miss.Briefing.Events[i];
-				short evnt = miss.Briefing.Events[i + 1];
-				xvt.Briefings[0].Events[i + 1] = evnt;
-				if (time == 9999 && evnt == (short)BaseBriefing.EventType.EndBriefing)
+				var evt = miss.Briefing.Events[i];
+				if (evt.IsEndEvent) break;
+
+				short time = xvt.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(evt.Time));
+				var type = evt.Type;
+
+				xvt.Briefings[0].Events.Add(new BaseBriefing.Event(type) { Time = time, Variables = (short[])evt.Variables.Clone() });
+
+				if (evt.Type == BaseBriefing.EventType.ZoomMap)
 				{
-					xvt.Briefings[0].Events[i] = time;
-					break;
-				}
-				xvt.Briefings[0].Events[i] = (short)(time * Xvt.Briefing.TicksPerSecond / Tie.Briefing.TicksPerSecond);
-				i += 2;
-				for (int j = 0; j < xvt.Briefings[0].EventParameterCount(evnt); j++, i++)
-					xvt.Briefings[0].Events[i] = miss.Briefing.Events[i];
-				if (evnt == (short)BaseBriefing.EventType.ZoomMap)
-				{
-					xvt.Briefings[0].Events[i - 2] = (short)(xvt.Briefings[0].Events[i - 2] * 58 / 47); // X
-					xvt.Briefings[0].Events[i - 1] = (short)(xvt.Briefings[0].Events[i - 1] * 88 / 47); // Y
+					xvt.Briefings[0].Events[i].Variables[0] = (short)(xvt.Briefings[0].Events[i].Variables[0] * 58 / 47); // X
+					xvt.Briefings[0].Events[i].Variables[1] = (short)(xvt.Briefings[0].Events[i].Variables[1] * 88 / 47); // Y
 				}
 			}
 			#endregion
@@ -709,7 +701,7 @@ namespace Idmr.Platform
 				for (int j = 0; j < xvt.Briefings[i].BriefingString.Length; j++) xvt.Briefings[i].BriefingString[j] = miss.Briefings[i].BriefingString[j];
 				xvt.Briefings[i].CurrentTime = miss.Briefings[i].CurrentTime;
 				xvt.Briefings[i].Tile = miss.Briefings[i].Tile;
-				xvt.Briefings[i].Length = (short)(miss.Briefings[i].Length * Xvt.Briefing.TicksPerSecond / Xwa.Briefing.TicksPerSecond);
+				xvt.Briefings[i].Length = xvt.Briefings[i].ConvertSecondsToTicks(miss.Briefings[i].ConvertTicksToSeconds(miss.Briefings[i].Length));
 			}
 			#endregion Briefing
 			#region Globals
@@ -888,34 +880,16 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].Waypoints[3] = (Xwa.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[13];
 				if (miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].Enabled)
 				{
-					int offset = briefShipCount[0] * 10;    // each ship gets New/Move Icon
-					xwa.Briefings[0].Events[offset] = 0;
-					xwa.Briefings[0].Events[offset + 1] = (short)BaseBriefing.EventType.XwaSetIcon;
+					xwa.Briefings[0].Events.Add(new BaseBriefing.Event(BaseBriefing.EventType.XwaSetIcon){ Variables = new short[] { briefShipCount[0], xwa.FlightGroups[i].CraftType, xwa.FlightGroups[i].IFF } });
+					xwa.Briefings[0].Events.Add(new BaseBriefing.Event(BaseBriefing.EventType.XwaSetIcon) { Variables = new short[] { briefShipCount[0], miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawX, (short)(miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawY * -1) } });
 					fgIcons[i] = briefShipCount[0];     // store the Icon# for the FG
-					xwa.Briefings[0].Events[offset + 2] = briefShipCount[0];
-					xwa.Briefings[0].Events[offset + 3] = xwa.FlightGroups[i].CraftType;
-					xwa.Briefings[0].Events[offset + 4] = xwa.FlightGroups[i].IFF;
-					xwa.Briefings[0].Events[offset + 5] = 0;
-					xwa.Briefings[0].Events[offset + 6] = (short)BaseBriefing.EventType.XwaMoveIcon;
-					xwa.Briefings[0].Events[offset + 7] = briefShipCount[0];
-					xwa.Briefings[0].Events[offset + 8] = miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawX;
-					xwa.Briefings[0].Events[offset + 9] = (short)(miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].RawY * -1);
 					briefShipCount[0]++;
 				}
 				if (toSkirmish && miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].Enabled)
 				{
-					int offset = briefShipCount[1] * 10;
-					xwa.Briefings[1].Events[offset] = 0;
-					xwa.Briefings[1].Events[offset + 1] = (short)BaseBriefing.EventType.XwaSetIcon;
+					xwa.Briefings[1].Events.Add(new BaseBriefing.Event(BaseBriefing.EventType.XwaSetIcon) { Variables = new short[] { briefShipCount[1], xwa.FlightGroups[i].CraftType, xwa.FlightGroups[i].IFF } });
+					xwa.Briefings[1].Events.Add(new BaseBriefing.Event(BaseBriefing.EventType.XwaSetIcon) { Variables = new short[] { briefShipCount[1], miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawX, (short)(miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawY * -1) } });
 					fgIcons[i] = briefShipCount[1];     // store the Icon# for the FG
-					xwa.Briefings[1].Events[offset + 2] = briefShipCount[0];
-					xwa.Briefings[1].Events[offset + 3] = xwa.FlightGroups[i].CraftType;
-					xwa.Briefings[1].Events[offset + 4] = xwa.FlightGroups[i].IFF;
-					xwa.Briefings[1].Events[offset + 5] = 0;
-					xwa.Briefings[1].Events[offset + 6] = (short)BaseBriefing.EventType.XwaMoveIcon;
-					xwa.Briefings[0].Events[offset + 7] = briefShipCount[0];
-					xwa.Briefings[1].Events[offset + 8] = miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawX;
-					xwa.Briefings[1].Events[offset + 9] = (short)(miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing2].RawY * -1);
 					briefShipCount[1]++;
 				}
 				for (int j = 1; j < 9; j++) xwa.FlightGroups[i].OptLoadout[j] = miss.FlightGroups[i].OptLoadout[j];
@@ -996,26 +970,26 @@ namespace Idmr.Platform
 			#region Briefing
 			for (int i = 0; i < 2; i++)
 			{
-				xwa.Briefings[i].Length = (short)(miss.Briefings[i].Length * Xwa.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
+				xwa.Briefings[i].Length = xwa.Briefings[i].ConvertSecondsToTicks(miss.Briefings[i].ConvertTicksToSeconds(miss.Briefings[i].Length));
 				xwa.Briefings[i].CurrentTime = miss.Briefings[i].CurrentTime;
 				xwa.Briefings[i].Tile = miss.Briefings[i].Tile;
-				Common.ArrayFunctions.WriteToArray(miss.Briefings[i].Events, xwa.Briefings[i].Events, briefShipCount[i] * 20);
-				for (int j = 0; j < miss.Briefings[i].Events.Length; j += 2)
+				for (int j = 0; j < miss.Briefings[i].Events.Count; j++)
 				{
-					int pos = j + briefShipCount[i] * 10;
-					short time = xwa.Briefings[i].Events[pos];
-					if (time == 9999) break;
-					xwa.Briefings[i].Events[pos] = (short)(time * Xwa.Briefing.TicksPerSecond / Xvt.Briefing.TicksPerSecond);
-					short evnt = xwa.Briefings[i].Events[pos + 1];
-					if (xwa.Briefings[i].IsEndEvent(evnt)) break;
-					if (xwa.Briefings[i].IsFGTag(evnt))
-						xwa.Briefings[i].Events[pos + 2] = fgIcons[xwa.Briefings[i].Events[pos + 2]];   // replace FG# with Icon#
-					else if (evnt == (short)BaseBriefing.EventType.ZoomMap)
-					{   // adjust scaling
-						xwa.Briefings[i].Events[pos + 2] = (short)(xwa.Briefings[i].Events[pos + 2] * 124 / 88);
-						xwa.Briefings[i].Events[pos + 3] = (short)(xwa.Briefings[i].Events[pos + 2] * 124 / 88);
+
+					var evt = miss.Briefings[i].Events[i];
+					if (evt.IsEndEvent) break;
+
+					short time = xwa.Briefings[0].ConvertSecondsToTicks(miss.Briefings[i].ConvertTicksToSeconds(evt.Time));
+					var type = evt.Type;
+
+					xwa.Briefings[0].Events.Add(new BaseBriefing.Event(type) { Time = time, Variables = (short[])evt.Variables.Clone() });
+
+					if (evt.Type == BaseBriefing.EventType.ZoomMap)
+					{
+						xwa.Briefings[0].Events[i].Variables[0] = (short)(xwa.Briefings[0].Events[i].Variables[0] * 124 / 88); // X
+						xwa.Briefings[0].Events[i].Variables[1] = (short)(xwa.Briefings[0].Events[i].Variables[1] * 124 / 88); // Y
 					}
-					j += xwa.Briefings[i].EventParameterCount(evnt);
+					else if (evt.IsFGTag) xwa.Briefings[i].Events[j].Variables[0] = fgIcons[xwa.Briefings[i].Events[j].Variables[0]];
 				}
 				for (int j = 0; j < 10; j++) xwa.Briefings[i].Team[j] = miss.Briefings[i].Team[j];
 				for (int j = 0; j < miss.Briefings[i].BriefingTag.Length; j++) xwa.Briefings[i].BriefingTag[j] = miss.Briefings[i].BriefingTag[j];
@@ -1246,10 +1220,7 @@ namespace Idmr.Platform
 		/// <exception cref="ArgumentException">Properties incompatable with TIE95 were detected in <paramref name="miss"/>.</exception>
 		public static Tie.Mission XwingToTie(Xwing.Mission miss)
 		{
-			Tie.Mission tie = new Tie.Mission
-			{
-				FlightGroups = new Tie.FlightGroupCollection(miss.FlightGroups.Count)
-			};
+			Tie.Mission tie = new Tie.Mission { FlightGroups = new Tie.FlightGroupCollection(miss.FlightGroups.Count) };
 			#region Mission
 			int playerIFF = 0;  //Need to find the player to determine how to set up radio orders.  We'll do it this way if for some reason a custom mission is set up otherwise.
 			foreach (var fg in miss.FlightGroups)
@@ -1295,7 +1266,7 @@ namespace Idmr.Platform
 					spec = 0;
 				tie.FlightGroups[i].SpecialCargoCraft = (byte)spec;
 				tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
-				tie.FlightGroups[i].CraftType = (byte)miss.FlightGroups[i].GetTIECraftType();
+				tie.FlightGroups[i].CraftType = miss.FlightGroups[i].GetTIECraftType();
 				if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				if (miss.FlightGroups[i].IsObjectGroup())
 				{
@@ -1543,7 +1514,7 @@ namespace Idmr.Platform
 			#region Briefing
 
 			//Briefing flightgroups are separate from normal flightgroups.  They aren't necessarily the same, nor do they share the same indexes.  Try to detect if the FG exists by craft and position.  If the craft doesn't exist, create new briefing-only FGs if there's space to function as icons.
-			Dictionary<int, int> BRFtoReal = new Dictionary<int, int>();  //Maps BRF FlightGroups to their actual XWI FlightGroup, or a new dummy FG to be used as a briefing icon.
+			Dictionary<int, int> brfToReal = new Dictionary<int, int>();  //Maps BRF FlightGroups to their actual XWI FlightGroup, or a new dummy FG to be used as a briefing icon.
 
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
 			int cs = pg.CoordSet;
@@ -1566,7 +1537,7 @@ namespace Idmr.Platform
 					{
 						Name = bfg.Name,
 						Cargo = "BRIEF_ICON",
-						CraftType = (byte)bfg.GetTIECraftType(),
+						CraftType = bfg.GetTIECraftType(),
 						NumberOfCraft = 1,
 						NumberOfWaves = 1,
 						IFF = bfg.GetTIEIFF(),
@@ -1582,7 +1553,7 @@ namespace Idmr.Platform
 					tie.FlightGroups.Add(newFG);
 					found = tie.FlightGroups.Count - 1;
 				}
-				BRFtoReal[i] = found;
+				brfToReal[i] = found;
 			}
 
 			for (int i = 0; i < miss.Briefing.BriefingTag.Length; i++)
@@ -1597,36 +1568,19 @@ namespace Idmr.Platform
 				if (t.Length >= 158) t = t.Substring(0, 157) + "|";   //Limit strings in TIE Fighter and prevent sporadic crashes when loading the briefing.
 				tie.Briefing.BriefingString[i] = t;
 			}
-			//tie.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
-			tie.Briefing.Length = (short)(((float)pg.Length / Xwing.Briefing.TicksPerSecond) * Tie.Briefing.TicksPerSecond);
-			int rpos = 0;
-			int wpos = 0;
-			int length = miss.Briefing.GetEventsLength(0);
-			while (rpos < length)
+			
+			tie.Briefing.Length = tie.Briefing.ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(pg.Length));
+			for (int i = 0; i < miss.Briefing.Events.Count;)
 			{
-				short[] xwevt = miss.Briefing.ReadBriefingEvent(0, rpos);
-				/*if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
-                {
-                    tie.Briefing.Events[wpos++] = (short)(((float)xwevt[0] / Xwing.Briefing.TicksPerSecond) * Tie.Briefing.TicksPerSecond);
-                    tie.Briefing.Events[wpos++] = (short)BaseBriefing.EventType.PageBreak;
-                }*/
-				short[] tieevt = miss.Briefing.TranslateBriefingEvent(xwevt);
-				if (tieevt[1] >= (short)BaseBriefing.EventType.FGTag1 && tieevt[1] <= (short)BaseBriefing.EventType.FGTag8)
-					tieevt[2] = (short)(BRFtoReal.ContainsKey(tieevt[2]) ? BRFtoReal[tieevt[2]] : 0);  //Replace the BRF FlightGroup with the mapped FlightGroup as detected, or replace with zero.
-				else if (tieevt[1] >= (short)BaseBriefing.EventType.TextTag1 && tieevt[1] <= (short)BaseBriefing.EventType.TextTag8)
-					tieevt[5] = 7;  //Color White
+				var evt = miss.Briefing.Pages[0].Events[i];
+				if (evt.IsEndEvent) break;
 
-				if (tieevt.Length < 2)
-					break;
-				tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Tie.Briefing.TicksPerSecond);
-				if (tieevt[1] != (short)BaseBriefing.EventType.None)
-					for (int i = 0; i < tieevt.Length; i++)
-						tie.Briefing.Events[wpos++] = tieevt[i];
-				rpos += xwevt.Length;
+				var newEvt = Xwing.Briefing.TranslateBriefingEvent(evt);
+				newEvt.Time = tie.Briefing.ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(evt.Time));
+				if (newEvt.IsFGTag) newEvt.Variables[0] = (short)(brfToReal.ContainsKey(newEvt.Variables[0]) ? brfToReal[newEvt.Variables[0]] : 0);
+				else if (newEvt.IsTextTag) newEvt.Variables[3] = 7; // Color White
+				tie.Briefing.Events.Add(newEvt);
 			}
-			tie.Briefing.Events[wpos++] = 9999;
-			tie.Briefing.Events[wpos++] = 0x22;
-
 			#endregion Briefing
 			#region Description
 			//Extract the mission description from the briefing's text pages.  Anything before the hints page goes into the pre-mission questions.  The hints pages go into the post-mission failure questions. 
@@ -1748,7 +1702,6 @@ namespace Idmr.Platform
 			//Not doing mission time.
 			#endregion Mission
 			#region FGs
-			//List<XwingGlobalGroup> ggList = new List<XwingGlobalGroup>();
 			for (int i = 0; i < miss.FlightGroups.Count; i++)
 			{
 				#region Craft
@@ -1761,7 +1714,7 @@ namespace Idmr.Platform
 					spec = 0;
 				xvt.FlightGroups[i].SpecialCargoCraft = (byte)spec;
 				xvt.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
-				xvt.FlightGroups[i].CraftType = (byte)miss.FlightGroups[i].GetTIECraftType();
+				xvt.FlightGroups[i].CraftType = miss.FlightGroups[i].GetTIECraftType();
 				if (xvt.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				if (miss.FlightGroups[i].IsObjectGroup())
 				{
@@ -2052,7 +2005,7 @@ namespace Idmr.Platform
 			#region Briefing
 
 			//Briefing flightgroups are separate from normal flightgroups.  They aren't necessarily the same, nor do they share the same indexes.  Try to detect if the FG exists by craft and position.  If the craft doesn't exist, create new briefing-only FGs if there's space to function as icons.
-			Dictionary<int, int> BRFtoReal = new Dictionary<int, int>();  //Maps BRF FlightGroups to their actual XWI FlightGroup, or a new dummy FG to be used as a briefing icon.
+			Dictionary<int, int> brfToReal = new Dictionary<int, int>();  //Maps BRF FlightGroups to their actual XWI FlightGroup, or a new dummy FG to be used as a briefing icon.
 
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
 			int cs = pg.CoordSet;
@@ -2075,7 +2028,7 @@ namespace Idmr.Platform
 					{
 						Name = bfg.Name,
 						Cargo = "BRIEF_ICON",
-						CraftType = (byte)bfg.GetTIECraftType(),
+						CraftType = bfg.GetTIECraftType(),
 						NumberOfCraft = 1,
 						NumberOfWaves = 1,
 						IFF = bfg.GetTIEIFF(),
@@ -2091,7 +2044,7 @@ namespace Idmr.Platform
 					xvt.FlightGroups.Add(newFG);
 					found = xvt.FlightGroups.Count - 1;
 				}
-				BRFtoReal[i] = found;
+				brfToReal[i] = found;
 			}
 
 			for (int i = 0; i < miss.Briefing.BriefingTag.Length; i++)
@@ -2106,40 +2059,25 @@ namespace Idmr.Platform
 				if (t.Length >= 318) t = t.Substring(0, 317) + "|";   //Limit strings in XvT.  The game's memory capacity for captions appears to be doubled from TIE (now 320 bytes).
 				xvt.Briefings[0].BriefingString[i] = t;
 			}
-			//xvt.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
-			xvt.Briefings[0].Length = (short)(((float)pg.Length / Xwing.Briefing.TicksPerSecond) * Xvt.Briefing.TicksPerSecond);
-			int rpos = 0;
-			int wpos = 0;
-			int length = miss.Briefing.GetEventsLength(0);
-			while (rpos < length)
+
+			xvt.Briefings[0].Length = xvt.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(pg.Length));
+			for (int i = 0; i < miss.Briefing.Events.Count;)
 			{
-				short[] xwevt = miss.Briefing.ReadBriefingEvent(0, rpos);
-				/*if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
-                {
-                    xvt.Briefings[0].Events[wpos++] = (short)(((float)xwevt[0] / Xwing.Briefing.TicksPerSecond) * Xvt.Briefing.TicksPerSecond);
-                    xvt.Briefings[0].Events[wpos++] = (short)BaseBriefing.EventType.PageBreak;
-                }*/
-				short[] tieevt = miss.Briefing.TranslateBriefingEvent(xwevt);
-				if (tieevt[1] >= (short)BaseBriefing.EventType.FGTag1 && tieevt[1] <= (short)BaseBriefing.EventType.FGTag8)
-					tieevt[2] = (short)(BRFtoReal.ContainsKey(tieevt[2]) ? BRFtoReal[tieevt[2]] : 0);  //Replace the BRF FlightGroup with the mapped FlightGroup as detected, or replace with zero.
-				else if (tieevt[1] >= (short)BaseBriefing.EventType.TextTag1 && tieevt[1] <= (short)BaseBriefing.EventType.TextTag8)
-					tieevt[5] = 2;  //Color Yellow.  Blue (3) is too dark to read clearly, and there's no other bright neutral color.
-				else if (tieevt[1] == (short)BaseBriefing.EventType.ZoomMap)
+				var evt = miss.Briefing.Pages[0].Events[i];
+				if (evt.IsEndEvent) break;
+
+				var newEvt = Xwing.Briefing.TranslateBriefingEvent(evt);
+				newEvt.Time = xvt.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(evt.Time));
+				if (newEvt.IsFGTag) newEvt.Variables[0] = (short)(brfToReal.ContainsKey(newEvt.Variables[0]) ? brfToReal[newEvt.Variables[0]] : 0);
+				else if (newEvt.IsTextTag) newEvt.Variables[3] = 2; // Color Yellow. Blue (3) is too dark to read clearly, and there's no other bright neutral color.
+				else if (newEvt.Type == BaseBriefing.EventType.ZoomMap)
 				{
 					//A multiplier of 2.0 is closer to the original viewport's size, but text tags are distorted too much.  1.5 seems to be a much better fit for text, but it's zoomed out further.  1.75 is a decent middle ground.  Some text tag distortion but not zoomed out too far.
-					tieevt[2] = (short)(tieevt[2] * 1.75);
-					tieevt[3] = (short)(tieevt[3] * 1.75);
+					newEvt.Variables[0] = (short)(newEvt.Variables[0] * 1.75);
+					newEvt.Variables[1] = (short)(newEvt.Variables[1] * 1.75);
 				}
-				if (tieevt.Length < 2)
-					break;
-				tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Xvt.Briefing.TicksPerSecond);
-				if (tieevt[1] != (short)BaseBriefing.EventType.None)
-					for (int i = 0; i < tieevt.Length; i++)
-						xvt.Briefings[0].Events[wpos++] = tieevt[i];
-				rpos += xwevt.Length;
+				xvt.Briefings[0].Events.Add(newEvt);
 			}
-			xvt.Briefings[0].Events[wpos++] = 9999;
-			xvt.Briefings[0].Events[wpos++] = 0x22;
 			xvt.Briefings[0].Team[0] = true;
 			#endregion Briefing
 			#region Description
@@ -2263,7 +2201,7 @@ namespace Idmr.Platform
 					spec = 0;
 				xwa.FlightGroups[i].SpecialCargoCraft = (byte)spec;
 				xwa.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
-				xwa.FlightGroups[i].CraftType = (byte)miss.FlightGroups[i].GetTIECraftType();
+				xwa.FlightGroups[i].CraftType = miss.FlightGroups[i].GetTIECraftType();
 				if (xwa.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				if (miss.FlightGroups[i].IsObjectGroup())
 				{
@@ -2561,73 +2499,47 @@ namespace Idmr.Platform
 				if (t.Length >= 318) t = t.Substring(0, 317) + "|";   //Limit strings in xwa.  The game's memory capacity for captions appears to be doubled from TIE (now 320 bytes).
 				xwa.Briefings[0].BriefingString[i] = t;
 			}
-			//xwa.Briefing.Unknown1 = miss.Briefings[0].Unknown1;
-			int rpos = 0;
-			int wpos = 0;
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
-			int length = miss.Briefing.GetEventsLength(0);
-			xwa.Briefings[0].Length = (short)(((float)pg.Length / Xwing.Briefing.TicksPerSecond) * Xwa.Briefing.TicksPerSecond);
+			xwa.Briefings[0].Length = xwa.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(pg.Length));
 			int cs = pg.CoordSet;
 			int wpIndex = 0; //Default to Start1
 			if (cs >= 1 && cs <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
 				wpIndex = 7 + cs - 1;
-			short[] evt = new short[5];
-			for (int i = 0; i < miss.FlightGroupsBriefing.Count; i++)
+			for (short i = 0; i < miss.FlightGroupsBriefing.Count; i++)
 			{
 				Xwing.FlightGroup bfg = miss.FlightGroupsBriefing[i];
-				int x = bfg.Waypoints[wpIndex].RawX;
-				int y = bfg.Waypoints[wpIndex].RawY;
-				evt[0] = 0;            //Time
-				evt[1] = 0x1A;         //New Icon
-				evt[2] = (short)i;     //Icon #
-				evt[3] = (short)bfg.GetTIECraftType();
-				evt[4] = (short)bfg.GetTIEIFF();
-				if (evt[3] == 0x56)   //Icon Hack for asteroids (which don't seem to have an icon) to display as the asteroid R&D base.
-					evt[3] = 0x42;
-				for (int j = 0; j < 5; j++)
-					xwa.Briefings[0].Events[wpos++] = evt[j];
-				evt[0] = 0;            //Time
-				evt[1] = 0x1C;         //Move Icon
-				evt[2] = (short)i;     //Icon #
-				evt[3] = (short)x;
-				evt[4] = (short)y;
-				for (int j = 0; j < 5; j++)
-					xwa.Briefings[0].Events[wpos++] = evt[j];
+				short x = bfg.Waypoints[wpIndex].RawX;
+				short y = bfg.Waypoints[wpIndex].RawY;
+				var setEvt = new BaseBriefing.Event(BaseBriefing.EventType.XwaSetIcon);
+				setEvt.Variables[0] = i; //Icon #
+				setEvt.Variables[1] = bfg.GetTIECraftType();
+				setEvt.Variables[2] = bfg.GetTIEIFF();
+				if (setEvt.Variables[1] == 0x56)   //Icon Hack for asteroids (which don't seem to have an icon) to display as the asteroid R&D base.
+					setEvt.Variables[1] = 0x42;
+				xwa.Briefings[0].Events.Add(setEvt);
+				var moveEvt = new BaseBriefing.Event(BaseBriefing.EventType.XwaMoveIcon);
+				moveEvt.Variables[0] = i;     //Icon #
+				moveEvt.Variables[1] = x;
+				moveEvt.Variables[2] = y;
+				xwa.Briefings[0].Events.Add(moveEvt);
 			}
-
-			while (rpos < length)
+			for (int i = 0; i < miss.Briefing.Events.Count;)
 			{
-				short[] xwevt = miss.Briefing.ReadBriefingEvent(0, rpos);
-				/*if (rpos > 0 && xwevt[1] == (short)Xwing.Briefing.EventType.ClearText)  //Insert a PageBreak before the text (Title/Caption) is cleared, if it's not the first event in the list.
-                {
-                    xwa.Briefings[0].Events[wpos++] = (short)(((float)xwevt[0] / Xwing.Briefing.TicksPerSecond) * Xwa.Briefing.TicksPerSecond);
-                    xwa.Briefings[0].Events[wpos++] = (short)BaseBriefing.EventType.PageBreak;
-                }*/
-				short[] tieevt = miss.Briefing.TranslateBriefingEvent(xwevt);
-				if (tieevt[1] >= (short)BaseBriefing.EventType.TextTag1 && tieevt[1] <= (short)BaseBriefing.EventType.TextTag8)
-					tieevt[5] = 2;  //Color Yellow.  Blue (3) is too dark to read clearly, and there's no other bright neutral color.
-				else if (tieevt[1] == (short)BaseBriefing.EventType.ZoomMap)
+				var evt = miss.Briefing.Pages[0].Events[i];
+				if (evt.IsEndEvent) break;
+
+				var newEvt = Xwing.Briefing.TranslateBriefingEvent(evt);
+				newEvt.Time = xwa.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(evt.Time));
+				if (newEvt.IsTextTag) newEvt.Variables[3] = 2; // Color Yellow. Blue (3) is too dark to read clearly, and there's no other bright neutral color.
+				else if (newEvt.Type == BaseBriefing.EventType.ZoomMap)
 				{
 					//XWING size: 212, 165    XWA size: 510, 294
 					//If we zoom too much to compensate for the increased viewport, the position of text tags will become distorted.
-					tieevt[2] = (short)(tieevt[2] * 2.4);
-					tieevt[3] = (short)(tieevt[3] * 2.4);
+					newEvt.Variables[0] = (short)(newEvt.Variables[0] * 2.4);
+					newEvt.Variables[1] = (short)(newEvt.Variables[1] * 2.4);
 				}
-				/*else if (tieevt[1] == (short)BaseBriefing.EventType.MoveMap) //~MG This "half move" might be related to an issue in YOGEME itself, once that was corrected this needed to be removed
-                {
-                    tieevt[2] = (short)(tieevt[2] * 0.5);  //[JB] For reasons I haven't investigated, XWA needs a half move to be positioned correctly.  Or at least for the few missions I tested.
-                    tieevt[3] = (short)(tieevt[3] * 0.5);
-                }*/
-				if (tieevt.Length < 2)
-					break;
-				tieevt[0] = (short)(((float)tieevt[0] / Xwing.Briefing.TicksPerSecond) * Xwa.Briefing.TicksPerSecond);
-				if (tieevt[1] != (short)BaseBriefing.EventType.None)
-					for (int i = 0; i < tieevt.Length; i++)
-						xwa.Briefings[0].Events[wpos++] = tieevt[i];
-				rpos += xwevt.Length;
+				xwa.Briefings[0].Events.Add(newEvt);
 			}
-			xwa.Briefings[0].Events[wpos++] = 9999;
-			xwa.Briefings[0].Events[wpos++] = 0x22;
 			xwa.Briefings[0].Team[0] = true;
 			#endregion Briefing
 			#region Description

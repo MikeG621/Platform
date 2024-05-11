@@ -56,6 +56,7 @@
     <Compile Include="BaseMessage.cs" />
     <Compile Include="BaseStrings.cs" />
     <Compile Include="BaseTrigger.cs" />
+    <Compile Include="Briefing.EventCollection.cs" />
     <Compile Include="Converter.cs" />
     <Compile Include="MissionFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Xwa\Team.EomMessageNoteIndexer.cs" />
     <Compile Include="Xwa\Team.VoiceIDIndexer.cs" />
     <Compile Include="Xwa\TeamCollection.cs" />
+    <Compile Include="Xwing\Briefing.EventCollection.cs" />
     <Compile Include="Xwing\Briefing.cs" />
     <Compile Include="Xwing\FlightGroup.cs" />
     <Compile Include="Xwing\FlightGroup.Waypoint.cs" />

@@ -10,6 +10,7 @@
 /* CHANGELOG
  * [NEW] Full format spec implemented
  * [FIX] EoM notes R/W for other teams
+ * [UPD] Briefing events I/O
  * v6.1, 231208
  * [UPD] GetDelaySeconds is now static
  * v6.0, 231027
@@ -515,12 +516,8 @@ namespace Idmr.Platform.Xwa
 				Briefings[i].Length = br.ReadInt16();
 				stream.Position += 6;   // CurrentTime, StartLength, EventsLength
 				Briefings[i].Tile = br.ReadInt16();
-				byte[] briefBuffer = new byte[0x100];
-				for (j = 0; j < 0x32; j++)
-				{
-					stream.Read(briefBuffer, 0, 0x100);
-					Buffer.BlockCopy(briefBuffer, 0, Briefings[i].Events, 0x100 * j, 0x100);
-				}
+				byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 2);
+				Briefings[i].Events = new BaseBriefing.EventCollection(Platform.XWA, rawEvents);
 				for (j = 0; j < 192; j++)
 				{
 					Briefings[i].Icons[j].Species = br.ReadByte();
@@ -946,8 +943,8 @@ namespace Idmr.Platform.Xwa
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
 					bw.Write(Briefings[i].Tile);
-					byte[] briefBuffer = new byte[Briefings[i].Events.Length * 2];
-					Buffer.BlockCopy(Briefings[i].Events, 0, briefBuffer, 0, briefBuffer.Length);
+					byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 2];
+					Buffer.BlockCopy(Briefings[i].Events.GetArray(), 0, briefBuffer, 0, Briefings[i].Events.Length * 2);
 					bw.Write(briefBuffer);
 					for (int j = 0; j < 192; j++)
 					{

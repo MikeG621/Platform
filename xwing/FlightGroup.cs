@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1
+ * Version: 6.1+
  */
 
 /* CHANGELOG
+ * [UPD] GetTIECraftType now returns byte
  * v6.1, 231208
  * [FIX] WaypointIndex
  * v4.0, 200809
@@ -169,7 +170,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Gets the TIE95 equivalent of <see cref="ObjectType"/> or <see cref="BaseFlightGroup.CraftType"/> as appropriate.</summary>
 		/// <returns>Resultant <see cref="BaseFlightGroup.CraftType"/> index, or <b>255</b> if invalid.</returns>
-		public int GetTIECraftType()
+		public byte GetTIECraftType()
         {
             if (ObjectType > 0)
             {

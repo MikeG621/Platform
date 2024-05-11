@@ -31,12 +31,17 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 - (XWA) Mission.GetDelaySeconds( ) now static ***BREAKING CHANGE***
 
 #### WIP
-- Format spec for XWA implemented, includes some backflow into TIE and XvT
-  - This means all XWA Unknowns are defined, many that were left were editor-use only or Unused
-  - Not all editor-use properties are exposed
-  - Various things renamed ***BREAKING CHANGE***
-- (TIE) Added Questions.QuestionType and .QuestionCondition enums, PostTrigger and PostTrigType types changed ***BREAKING CHANGE***
-- (Briefing) BaseBriefing.EventParameters now a singleton class, `this[]` made private in lieu of `GetCount()`
+- Format spec for XWA implemented, includes some backflow into TIE and XvT.
+  - This means all XWA Unknowns are defined, many that were left were editor-use only or Unused.
+  - Not all editor-use properties are exposed.
+  - Various things renamed. ***BREAKING CHANGE***
+- (TIE) Added Questions.QuestionType and .QuestionCondition enums, PostTrigger and PostTrigType types changed. ***BREAKING CHANGE***
+- (Xwing) GetTIECraftType now returns `byte`.
+- (Briefing) EventParameters now a singleton class, `this[]` made private in lieu of `GetCount()`. ***BREAKING CHANGE***
+- (Briefing) `ConvertTicksToSeconds` and `ConvertSecondsToTicks` functions added.
+- (Briefing) `Events` parameter now a collection new `Event` class objects instead of `short[]`. ***BREAKING CHANGE***
+  - This causes many changes throughout. Most of the work is now done within the colleciton or event itself without
+  requiring a lot of array maniuplation.
 
 ---
 ### Additional Information
