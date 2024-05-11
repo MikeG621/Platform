@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Full format spec implemented
+ * [FIX] Corrected EventQuantityLimit
  * v4.0, 200809
  * [UPD] auto-properties
  * v3.0, 180903
@@ -33,7 +34,7 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Frames per second for briefing animation.</summary>
 		public const int TicksPerSecond = 25;
 		/// <summary>Maximum number of events that can be held.</summary>
-		public const int EventQuantityLimit = 4352;
+		public const int EventQuantityLimit = 3200;
 
 		/// <summary>Initializes a blank briefing.</summary>
 		public Briefing()

@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.3
+ * Version: 5.3+
  */
 
 /* CHANGELOG
+ * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
  * v5.3, 210328
  * [UPD] Allowed Title strings to be returned in GetCaptionText()
  * [UPD] Added additional check to ContainsHintText()
@@ -35,11 +36,62 @@ namespace Idmr.Platform.Xwing
 	/// <remarks>Default settings: 45 seconds, map to (0,0), zoom to 48.</remarks>
 	public class Briefing : BaseBriefing
 	{
-		readonly EventParameters _eventParameters = new EventParameters();
-		/// <summary>Collection of Briefing pages.</summary>
-		public List<BriefingPage> Pages { get; private set; }
-		/// <summary>Collection of window settings.</summary>
-		public List<BriefingUIPage> WindowSettings { get; private set; }
+		readonly Dictionary<EventType, string> _eventTypeStringMap = new Dictionary<EventType, string> {
+			{EventType.None, "None"},
+			{EventType.WaitForClick, "Wait For Click"},
+			{EventType.ClearText, "Clear Text"},
+			{EventType.TitleText, "Title Text"},
+			{EventType.CaptionText, "Caption Text"},
+			{EventType.CaptionText2, "* Caption Text 2"},
+			{EventType.MoveMap, "Move Map"},
+			{EventType.ZoomMap, "Zoom Map"},
+			{EventType.ClearFGTags, "Clear FG Tags"},
+			{EventType.FGTag1, "FG Tag 1"},
+			{EventType.FGTag2, "FG Tag 2"},
+			{EventType.FGTag3, "FG Tag 3"},
+			{EventType.FGTag4, "FG Tag 4"},
+			{EventType.ClearTextTags, "Clear Text Tags"},
+			{EventType.TextTag1, "Text Tag 1"},
+			{EventType.TextTag2, "Text Tag 2"},
+			{EventType.TextTag3, "Text Tag 3"},
+			{EventType.TextTag4, "Text Tag 4"},
+			{EventType.EndBriefing, "End Briefing"}
+		};
+		//This data table assists in converting X-wing briefing events to TIE Fighter briefing events for use in conversion.
+		//Disp:  Index in the briefing editor events dropdown list.
+		//XWID:  Event ID in Xwing
+		//TIEID: Event ID in TIE Fighter if it exists (zero for no TIE equivalent)
+		//PARAMS: Event parameter count in X-wing
+		//-- Credits to the XWVM team for providing documentation of these events.
+		// TODO XW: would be nicer in something other than short[]
+		/// <summary>Array to convert X-wing and TIE Briefing events.</summary>
+		readonly static short[] _eventMapper = {  //19 events, 4 columns each
+		// DISP  XWID  TIEID  PARAMS       NOTES
+			 0,    0,     0,   0,
+			 1,    1,     0,   0,  //01: Wait For Click. (No params)   --> None
+			 2,   10,  0x03,   0,  //10: Clear Text (No params)        --> Page Break (no params)
+			 3,   11,  0x04,   1,  //11: Display Title (textId)        --> Title Text (textId)
+			 4,   12,  0x05,   1,  //12: Display Main Text (textId)    --> Caption Text (textId)
+			 5,   14,  0x05,   1,  //14: Display Main Text 2 (textId)  --> Caption Text (textId)
+			 6,   15,  0x06,   2,  //15: Center Map (x, y)             --> Move Map (X,Y)
+			 7,   16,  0x07,   2,  //16: Zoom Map (xFactor, yFactor)   --> Zoom Map (X,Y)
+			 8,   21,  0x08,   0,  //21: Clear FG Tags (No params)     --> Clear FG Tags
+			 9,   22,  0x09,   1,  //22: Set FG Tag 1 (objectId)       --> FG Tag 1 (FGIndex)
+			10,   23,  0x0A,   1,  //23: Set FG Tag 2 (objectId)       --> FG Tag 2 (FGIndex)
+			11,   24,  0x0B,   1,  //24: Set FG Tag 3 (objectId)       --> FG Tag 3 (FGIndex)
+			12,   25,  0x0C,   1,  //25: Set FG Tag 4 (objectId)       --> FG Tag 4 (FGIndex)
+			13,   26,  0x11,   0,  //26: Clear Text Tags (No params)   --> Clear Text Tags
+			14,   27,  0x12,   3,  //27: Create Tag 1 (tagId, x, y)    --> Text Tag 1 (tag, color, x, y)
+			15,   28,  0x13,   3,  //28: Create Tag 2 (tagId, x, y)    --> Text Tag 2 (tag, color, x, y)
+			16,   29,  0x14,   3,  //29: Create Tag 3 (tagId, x, y)    --> Text Tag 3 (tag, color, x, y)
+			17,   30,  0x15,   3,  //30: Create Tag 4 (tagId, x, y)    --> Text Tag 4 (tag, color, x, y)
+			18,   41,  0x22,   0   //41: End marker                    --> End Briefing
+		};
+
+		/// <summary>Frames per second for briefing animation.</summary>
+		public const int TicksPerSecond = 8;
+		/// <summary>Maximum number of events that can be held.</summary>
+		public const int EventQuantityLimit = 200;
 
 		/// <summary>Known briefing event types unique to XWING.</summary>
 		new public enum EventType : byte
@@ -97,28 +149,6 @@ namespace Idmr.Platform.Xwing
 			EndBriefing = 41
 		};
 
-		readonly Dictionary<EventType, string> _eventTypeStringMap = new Dictionary<EventType, string> {
-			{EventType.None, "None"},
-			{EventType.WaitForClick, "Wait For Click"},
-			{EventType.ClearText, "Clear Text"},
-			{EventType.TitleText, "Title Text"},
-			{EventType.CaptionText, "Caption Text"},
-			{EventType.CaptionText2, "* Caption Text 2"},
-			{EventType.MoveMap, "Move Map"},
-			{EventType.ZoomMap, "Zoom Map"},
-			{EventType.ClearFGTags, "Clear FG Tags"},
-			{EventType.FGTag1, "FG Tag 1"},
-			{EventType.FGTag2, "FG Tag 2"},
-			{EventType.FGTag3, "FG Tag 3"},
-			{EventType.FGTag4, "FG Tag 4"},
-			{EventType.ClearTextTags, "Clear Text Tags"},
-			{EventType.TextTag1, "Text Tag 1"},
-			{EventType.TextTag2, "Text Tag 2"},
-			{EventType.TextTag3, "Text Tag 3"},
-			{EventType.TextTag4, "Text Tag 4"},
-			{EventType.EndBriefing, "End Briefing"}
-		};
-
 		/// <summary>The types available to a <see cref="BriefingPage"/>.</summary>
 		public enum PageType : short
 		{
@@ -126,37 +156,6 @@ namespace Idmr.Platform.Xwing
 			Map = 0,
 			/// <summary>Renders text</summary>
 			Text = 1
-		};
-
-		//This data table assists in converting X-wing briefing events to TIE Fighter briefing events for use in conversion.
-		//Disp:  Index in the briefing editor events dropdown list.
-		//XWID:  Event ID in Xwing
-		//TIEID: Event ID in TIE Fighter if it exists (zero for no TIE equivalent)
-		//PARAMS: Event parameter count in X-wing
-		//-- Credits to the XWVM team for providing documentation of these events.
-		// TODO XW: would be nicer in something other than short[]
-		/// <summary>Array to convert X-wing and TIE Briefing events.</summary>
-		readonly static short[] _eventMapper = {  //19 events, 4 columns each
-		// DISP  XWID  TIEID  PARAMS       NOTES
-			 0,    0,     0,   0,
-			 1,    1,     0,   0,  //01: Wait For Click. (No params)   --> None
-			 2,   10,  0x03,   0,  //10: Clear Text (No params)        --> Page Break (no params)
-			 3,   11,  0x04,   1,  //11: Display Title (textId)        --> Title Text (textId)
-			 4,   12,  0x05,   1,  //12: Display Main Text (textId)    --> Caption Text (textId)
-			 5,   14,  0x05,   1,  //14: Display Main Text 2 (textId)  --> Caption Text (textId)
-			 6,   15,  0x06,   2,  //15: Center Map (x, y)             --> Move Map (X,Y)
-			 7,   16,  0x07,   2,  //16: Zoom Map (xFactor, yFactor)   --> Zoom Map (X,Y)
-			 8,   21,  0x08,   0,  //21: Clear FG Tags (No params)     --> Clear FG Tags
-			 9,   22,  0x09,   1,  //22: Set FG Tag 1 (objectId)       --> FG Tag 1 (FGIndex)
-			10,   23,  0x0A,   1,  //23: Set FG Tag 2 (objectId)       --> FG Tag 2 (FGIndex)
-			11,   24,  0x0B,   1,  //24: Set FG Tag 3 (objectId)       --> FG Tag 3 (FGIndex)
-			12,   25,  0x0C,   1,  //25: Set FG Tag 4 (objectId)       --> FG Tag 4 (FGIndex)
-			13,   26,  0x11,   0,  //26: Clear Text Tags (No params)   --> Clear Text Tags
-			14,   27,  0x12,   3,  //27: Create Tag 1 (tagId, x, y)    --> Text Tag 1 (tag, color, x, y)
-			15,   28,  0x13,   3,  //28: Create Tag 2 (tagId, x, y)    --> Text Tag 2 (tag, color, x, y)
-			16,   29,  0x14,   3,  //29: Create Tag 3 (tagId, x, y)    --> Text Tag 3 (tag, color, x, y)
-			17,   30,  0x15,   3,  //30: Create Tag 4 (tagId, x, y)    --> Text Tag 4 (tag, color, x, y)
-			18,   41,  0x22,   0   //41: End marker                    --> End Briefing
 		};
 
 		/// <summary>Initializes a blank Briefing.</summary>
@@ -562,17 +561,12 @@ namespace Idmr.Platform.Xwing
 		/// <param name="eventType">The briefing event.</param>
 		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
 		/// <returns>The number of parameters.</returns>
-		override public byte EventParameterCount(int eventType) => _eventParameters[eventType];
+		override public byte EventParameterCount(int eventType) => EventParameters.GetCount(eventType);
 		#endregion public methods
 
 		/// <summary>DO NOT USE. Will always throw an exception.</summary>
 		/// <exception cref="InvalidOperationException">Throws on any get attempt.</exception>
 		new public short EventsLength => throw new InvalidOperationException("Warning! EventsLength is not used for X-wing briefings. If you see this message, please file a bug report.");
-
-		/// <summary>Frames per second for briefing animation.</summary>
-		public const int TicksPerSecond = 8;
-		/// <summary>Maximum number of events that can be held.</summary>
-		public const int EventQuantityLimit = 200;
 
 		/// <summary>The number of CoordinateSets in the Briefing.</summary>
 		/// <remarks>Defaults to <b>2</b>.</remarks>
@@ -581,20 +575,34 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>Same as <see cref="Mission.Location"/>. Will affect the briefing background.</remarks>
 		public short MissionLocation { get; set; }
 
-		/// <summary>Object to maintain a read-only array.</summary>
+		/// <summary>Collection of Briefing pages.</summary>
+		public List<BriefingPage> Pages { get; private set; }
+		/// <summary>Collection of window settings.</summary>
+		public List<BriefingUIPage> WindowSettings { get; private set; }
+
+		/// <summary>Singleton object to maintain a read-only array.</summary>
 		new public class EventParameters
 		{
-			//0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41
+			static readonly EventParameters _instance = new EventParameters();
+
+			// X-wing uses different counts, so redo the class
+			// -----------------------  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41
 			readonly byte[] _counts = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-			/// <summary>Gets a parameter count</summary>
-			/// <param name="eventType">The briefing event</param>
-			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value</exception>
-			public byte this[int eventType] { get { return _counts[eventType]; } }
+			private EventParameters() { }
 
-			/// <summary>Gets a parameter count</summary>
-			/// <param name="eventType">The briefing event</param>
-			public byte this[EventType eventType] { get { return _counts[(int)eventType]; } }
+			byte this[int eventType] => _counts[eventType];
+			byte this[EventType eventType] => _counts[(int)eventType];
+
+			/// <summary>Gets a parameter count.</summary>
+			/// <param name="eventType">The briefing event.</param>
+			/// <returns>The number of variables for the event.</returns>
+			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
+			public static byte GetCount(int eventType) => _instance[eventType];
+			/// <summary>Gets a parameter count.</summary>
+			/// <param name="eventType">The briefing event.</param>
+			/// <returns>The number of variables for the event.</returns>
+			public static byte GetCount(EventType eventType) => _instance[eventType];
 		}
 	}
 
