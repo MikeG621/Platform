@@ -45,5 +45,10 @@ namespace Idmr.Platform.Tie
 			_events[8] = 9999;
 			_events[9] = (short)EventType.EndBriefing;
 		}
+
+		/// <summary>Converts the time value into seconds.</summary>
+		/// <param name="time">Raw time value.</param>
+		/// <returns>The time per the platform-specific tick rate.</returns>
+		public override float GetTimeInSeconds(short time) => (float)time / TicksPerSecond;
 	}
 }

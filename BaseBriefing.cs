@@ -31,7 +31,7 @@ namespace Idmr.Platform
 	/// <summary>Base class for Briefings.</summary>
 	/// <remarks>Contains values that are shared among all briefing types. Class is Serializable to allow copy/paste functionality.</remarks>
 	[Serializable]
-	public abstract class BaseBriefing
+	public abstract partial class BaseBriefing
 	{
 		/// <summary>The raw event data.</summary>
 		private protected short[] _events;
@@ -161,7 +161,7 @@ namespace Idmr.Platform
 		/// <summary>Gets or sets the current time.</summary>
 		/// <remarks>Not important for design, used by the editor/platform to keep track of current time, stored value will be overwritten.</remarks>
 		public short CurrentTime { get; set; }
-		/// <summary>Gets the number of int16 values in <see cref="Events"/> at time = 0.</summary>
+		/// <summary>Gets the total number of <i>short</i> values in <see cref="Events"/> at time = 0.</summary>
 		public short StartLength
 		{
 			get
@@ -193,6 +193,11 @@ namespace Idmr.Platform
 		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
 		/// <returns>The number of parameters.</returns>
 		virtual public byte EventParameterCount(int eventType) => EventParameters.GetCount(eventType);
+
+		/// <summary>Converts the time value into seconds.</summary>
+		/// <param name="time">Raw time value.</param>
+		/// <returns>The time per the platform-specific tick rate.</returns>
+		abstract public float GetTimeInSeconds(short time);
 
 		/// <summary>Gets if the specified event denotes the end of the briefing.</summary>
 		/// <param name="evt">The event index.</param>
@@ -281,26 +286,6 @@ namespace Idmr.Platform
 			public static byte GetCount(EventType eventType) => _instance[eventType];
 		}
 
-		public class Event
-		{
-			EventType _type;
-
-			public short Time { get; set; }
-			public EventType Type
-			{
-				get => _type;
-				set
-				{
-					_type = value;
-					var temp = Variables;
-					Variables = new short[EventParameters.GetCount(_type)];
-					for (int i = 0; i < temp.Length && i < Variables.Length; i++) Variables[i] = temp[i];
-				}
-			}
-			public short[] Variables { get; internal set; }
-
-			public bool IsEndEvent => _type == EventType.EndBriefing || _type == EventType.None;
-			public bool IsFGTag => (int)_type >= (int)EventType.FGTag1 && (int)_type <= (int)EventType.FGTag8;
-		}
+		// TODO: switch Events to type EventCollection
 	}
 }

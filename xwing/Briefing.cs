@@ -184,6 +184,11 @@ namespace Idmr.Platform.Xwing
 		}
 
 		#region public methods
+		/// <summary>Converts the time value into seconds.</summary>
+		/// <param name="time">Raw time value.</param>
+		/// <returns>The time per the platform-specific tick rate.</returns>
+		public override float GetTimeInSeconds(short time) => (float)time / TicksPerSecond;
+
 		/// <summary>Re-initialize <see cref="BaseBriefing.BriefingTag"/> to the given size.</summary>
 		/// <param name="count">The new size, max <b>32</b>.</param>
 		/// <remarks>All tags initialized as empty.</remarks>
