@@ -297,7 +297,6 @@ namespace Idmr.Platform.Xwing
 		/// <returns>The new value for <see cref="BaseFlightGroup.Formation"/>.</returns>
 		public int PlatformBitfieldPack(bool[] arr)
         {
-			//TODO XW: needs error checking to prevent exceptions or corruption
             Formation = 0;
             int platIndex = ObjectType - 58;  //Translate object so that Training Platform 1 is index[0];
             if (platIndex >= 1 && platIndex < 12)  //Index[0] doesn't have any guns.
@@ -306,7 +305,7 @@ namespace Idmr.Platform.Xwing
                 for (int i = 0; i < 6; i++)
                 {
                     int gunIndex = mapChar[i] - '1';
-                    if (gunIndex >= 0 && gunIndex < 6)
+                    if (gunIndex >= 0 && gunIndex < 6 && gunIndex < arr.Length)
                         Formation += (byte)(Convert.ToByte(arr[gunIndex]) << i);
                 }
             }
