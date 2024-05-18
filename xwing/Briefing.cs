@@ -11,6 +11,8 @@
 /* CHANGELOG
  * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
  * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
+ * [UPD] short[] _eventMapper now EventMap[] _eventMaps
+ * [UPD] short getEventMapperIndex() now EventMap getEventMapper
  * v5.3, 210328
  * [UPD] Allowed Title strings to be returned in GetCaptionText()
  * [UPD] Added additional check to ContainsHintText()
@@ -58,37 +60,47 @@ namespace Idmr.Platform.Xwing
 			{EventType.TextTag4, "Text Tag 4"},
 			{EventType.EndBriefing, "End Briefing"}
 		};
-		//This data table assists in converting X-wing briefing events to TIE Fighter briefing events for use in conversion.
-		//Disp:  Index in the briefing editor events dropdown list.
-		//XWID:  Event ID in Xwing
-		//TIEID: Event ID in TIE Fighter if it exists (zero for no TIE equivalent)
-		//PARAMS: Event parameter count in X-wing
-		//-- Credits to the XWVM team for providing documentation of these events.
-		// TODO XW: would be nicer in something other than short[]
 		/// <summary>Array to convert X-wing and TIE Briefing events.</summary>
-		readonly static short[] _eventMapper = {  //19 events, 4 columns each
-		// DISP  XWID  TIEID  PARAMS       NOTES
-		// TODO: do this as a struct array instead
-			 0,    0,     0,   0,
-			 1,    1,     0,   0,  //01: Wait For Click. (No params)   --> None
-			 2,   10,  0x03,   0,  //10: Clear Text (No params)        --> Page Break (no params)
-			 3,   11,  0x04,   1,  //11: Display Title (textId)        --> Title Text (textId)
-			 4,   12,  0x05,   1,  //12: Display Main Text (textId)    --> Caption Text (textId)
-			 5,   14,  0x05,   1,  //14: Display Main Text 2 (textId)  --> Caption Text (textId)
-			 6,   15,  0x06,   2,  //15: Center Map (x, y)             --> Move Map (X,Y)
-			 7,   16,  0x07,   2,  //16: Zoom Map (xFactor, yFactor)   --> Zoom Map (X,Y)
-			 8,   21,  0x08,   0,  //21: Clear FG Tags (No params)     --> Clear FG Tags
-			 9,   22,  0x09,   1,  //22: Set FG Tag 1 (objectId)       --> FG Tag 1 (FGIndex)
-			10,   23,  0x0A,   1,  //23: Set FG Tag 2 (objectId)       --> FG Tag 2 (FGIndex)
-			11,   24,  0x0B,   1,  //24: Set FG Tag 3 (objectId)       --> FG Tag 3 (FGIndex)
-			12,   25,  0x0C,   1,  //25: Set FG Tag 4 (objectId)       --> FG Tag 4 (FGIndex)
-			13,   26,  0x11,   0,  //26: Clear Text Tags (No params)   --> Clear Text Tags
-			14,   27,  0x12,   3,  //27: Create Tag 1 (tagId, x, y)    --> Text Tag 1 (tag, color, x, y)
-			15,   28,  0x13,   3,  //28: Create Tag 2 (tagId, x, y)    --> Text Tag 2 (tag, color, x, y)
-			16,   29,  0x14,   3,  //29: Create Tag 3 (tagId, x, y)    --> Text Tag 3 (tag, color, x, y)
-			17,   30,  0x15,   3,  //30: Create Tag 4 (tagId, x, y)    --> Text Tag 4 (tag, color, x, y)
-			18,   41,  0x22,   0   //41: End marker                    --> End Briefing
+		/// <remarks>Credits to the XWVM team for providing documentation of these events.</remarks>
+		readonly static EventMap[] _eventMaps = {
+			// XWID, TIEID, PARAMS      NOTES
+			new EventMap(0, 0, 0),
+			new EventMap(1, 0, 0),		//01: Wait For Click. (No params)   --> None
+			new EventMap(10, 0x03, 0),	//10: Clear Text (No params)        --> Page Break (no params)
+			new EventMap(11, 0x04, 1),	//11: Display Title (textId)        --> Title Text (textId)
+			new EventMap(12, 0x05, 1),	//12: Display Main Text (textId)    --> Caption Text (textId)
+			new EventMap(14, 0x05, 1),	//14: Display Main Text 2 (textId)  --> Caption Text (textId)
+			new EventMap(15, 0x06, 2),	//15: Center Map (x, y)             --> Move Map (X,Y)
+			new EventMap(16, 0x07, 2),	//16: Zoom Map (xFactor, yFactor)   --> Zoom Map (X,Y)
+			new EventMap(21, 0x08, 0),	//21: Clear FG Tags (No params)     --> Clear FG Tags
+			new EventMap(22, 0x09, 1),	//22: Set FG Tag 1 (objectId)       --> FG Tag 1 (FGIndex)
+			new EventMap(23, 0x0A, 1),	//23: Set FG Tag 2 (objectId)       --> FG Tag 2 (FGIndex)
+			new EventMap(24, 0x0B, 1),	//24: Set FG Tag 3 (objectId)       --> FG Tag 3 (FGIndex)
+			new EventMap(25, 0x0C, 1),	//25: Set FG Tag 4 (objectId)       --> FG Tag 4 (FGIndex)
+			new EventMap(26, 0x11, 0),	//26: Clear Text Tags (No params)   --> Clear Text Tags
+			new EventMap(27, 0x12, 3),	//27: Create Tag 1 (tagId, x, y)    --> Text Tag 1 (tag, color, x, y)
+			new EventMap(28, 0x13, 3),	//28: Create Tag 2 (tagId, x, y)    --> Text Tag 2 (tag, color, x, y)
+			new EventMap(29, 0x14, 3),	//29: Create Tag 3 (tagId, x, y)    --> Text Tag 3 (tag, color, x, y)
+			new EventMap(30, 0x15, 3),	//30: Create Tag 4 (tagId, x, y)    --> Text Tag 4 (tag, color, x, y)
+			new EventMap(41, 0x22, 0)	//41: End marker                    --> End Briefing
 		};
+		/// <summary>A single conversion of X-wing briefing event to TIE Fighter briefing event.</summary>
+		readonly struct EventMap
+		{
+			public EventMap(short xw, short tie, short param)
+			{
+				XwingCommand = (EventType)xw;
+				TieCommand = (BaseBriefing.EventType)tie;
+				ParamCount = param;
+			}
+			/// <summary>Event ID in Xwing</summary>
+			public EventType XwingCommand { get; }
+			/// <summary>Event ID in TIE Fighter if it exists.</summary>
+			/// <remarks><b>Zero</b> if no TIE equivalent.</remarks>
+			public BaseBriefing.EventType TieCommand { get; }
+			/// <summary> Event parameter count in X-wing</summary>
+			public short ParamCount { get; }
+		}
 
 		/// <summary>Frames per second for briefing animation.</summary>
 		public const int TicksPerSecond = 8;
@@ -313,12 +325,11 @@ namespace Idmr.Platform.Xwing
 		/// <returns><paramref name="text"/> without the "[" or "]" characters.</returns>
 		public string RemoveBrackets(string text) => text.Replace("[", string.Empty).Replace("]", string.Empty);
 
-		private static short getEventMapperIndex(Event evt)
+		private static EventMap getEventMapper(Event evt)
 		{
-			for (short i = 0; i < _eventMapper.Length / 4; i++)
-				if (_eventMapper[(i * 4) + 1] == (short)evt.Type)  //+1 for Column[1]
-					return (short)(i * 4);
-			return 0;
+			for (short i = 0; i < _eventMaps.Length; i++)
+				if (_eventMaps[i].XwingCommand == evt.Type) return _eventMaps[i];
+			return _eventMaps[0];
 		}
 
 		/// <summary>Reads an briefing event and returns an array with all the information for that event.</summary>
@@ -326,7 +337,7 @@ namespace Idmr.Platform.Xwing
 		/// <param name="index">The offset within <see cref="BriefingPage.Events"/>.</param>
 		/// <remarks>The returned array contains exactly as many shorts as used by the event: time, event command, and variable length parameter field.</remarks>
 		/// <returns>A short[] array of equal size to the exact resulting command length.</returns>
-		public short[] ReadBriefingEvent(int page, int index) => Pages[page].Events[index].GetArray();	// BUG: Definitely broken as-is
+		public short[] ReadBriefingEvent(int page, int index) => Pages[page].Events[index].GetArray();
 
 		/// <summary>Takes an event and translates it into a TIE-XWA compatible format, adjusting event IDs and parameter count as necessary.</summary>
 		/// <param name="xwingEvent">The original Xwing events.</param>
@@ -336,13 +347,11 @@ namespace Idmr.Platform.Xwing
 		/// <returns>An event usable for TIE-XWA.</returns>
 		public static BaseBriefing.Event TranslateBriefingEvent(Event xwingEvent)
 		{
-			short mapperOffset = getEventMapperIndex(xwingEvent);
-			short tieCommand = _eventMapper[mapperOffset + 2];
-			short tieParams = BaseBriefing.EventParameters.GetCount(tieCommand);
-			short xwParams = _eventMapper[mapperOffset + 3];
+			var map = getEventMapper(xwingEvent);
+			short tieParams = BaseBriefing.EventParameters.GetCount(map.TieCommand);
 
-			BaseBriefing.Event retEvent = new BaseBriefing.Event((BaseBriefing.EventType)tieCommand) { Time = xwingEvent.Time };
-			if (xwParams == tieParams) retEvent.Variables = (short[])xwingEvent.Variables.Clone();
+			var retEvent = new BaseBriefing.Event(map.TieCommand) { Time = xwingEvent.Time };
+			if (map.ParamCount == tieParams) retEvent.Variables = (short[])xwingEvent.Variables.Clone();
 			else
 			{
 				if (xwingEvent.IsTextTag) for (int i = 0; i < 3; i++) retEvent.Variables[i] = xwingEvent.Variables[i];

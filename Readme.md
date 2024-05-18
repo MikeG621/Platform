@@ -40,8 +40,11 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 - (Briefing) EventParameters now a singleton class, `this[]` made private in lieu of `GetCount()`. ***BREAKING CHANGE***
 - (Briefing) `ConvertTicksToSeconds` and `ConvertSecondsToTicks` functions added.
 - (Briefing) `Events` parameter now a collection new `Event` class objects instead of `short[]`. ***BREAKING CHANGE***
-  - This causes many changes throughout. Most of the work is now done within the colleciton or event itself without
-  requiring a lot of array maniuplation.
+  - This causes many changes throughout. Most of the work is now done within the collection or event itself without
+  requiring a lot of array manipulation.
+- (Xwing Briefing) Couple internal changes around event conversion.
+  - `short[] _eventMapper` now `EventMap[] _eventMaps`.
+  - `short getEventMapperIndex()` now `EventMap getEventMapper`.
 
 ---
 ### Additional Information
