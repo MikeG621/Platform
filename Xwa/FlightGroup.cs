@@ -10,6 +10,7 @@
 /* CHANGELOG
  * [NEW] Full format spec implemented, CounterTypes
  * [UPD] Radio, Countermeasures changed to enum
+ * [UPD] Renamed ArrDep mothership properties
  * v6.0, 231027
  * [FIX] Arr/Dep Method1 to byte
  * v4.0, 200809
@@ -228,9 +229,9 @@ namespace Idmr.Platform.Xwa
 			}
 
 			//If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-			if (ArrivalMothership == srcIndex) { change = true; ArrivalMothership = dst; if (delete) { ArrivalMethod = 0; } } else if (ArrivalMothership > srcIndex && delete == true) { change = true; ArrivalMothership--; }
+			if (ArrivalMothership == srcIndex) { change = true; ArrivalMothership = dst; if (delete) { ArriveViaMothership = 0; } } else if (ArrivalMothership > srcIndex && delete == true) { change = true; ArrivalMothership--; }
 			if (AlternateMothership == srcIndex) { change = true; AlternateMothership = dst; if (delete) { AlternateMothershipUsed = false; } } else if (AlternateMothership > srcIndex && delete == true) { change = true; AlternateMothership--; }
-			if (DepartureMothership == srcIndex) { change = true; DepartureMothership = dst; if (delete) { DepartureMethod = 0; } } else if (DepartureMothership > srcIndex && delete == true) { change = true; DepartureMothership--; }
+			if (DepartureMothership == srcIndex) { change = true; DepartureMothership = dst; if (delete) { DepartViaMothership = 0; } } else if (DepartureMothership > srcIndex && delete == true) { change = true; DepartureMothership--; }
 			if (CapturedDepartureMothership == srcIndex) { change = true; CapturedDepartureMothership = dst; if (delete) { CapturedDepartViaMothership = false; } } else if (CapturedDepartureMothership > srcIndex && delete == true) { change = true; CapturedDepartureMothership--; }
 			for (int i = 0; i < ArrDepTriggers.Length; i++)
 			{
@@ -359,10 +360,10 @@ namespace Idmr.Platform.Xwa
 		public byte RandomArrivalDelaySeconds { get; set; }
 		/// <summary>Gets or sets the primary method of arrival.</summary>
 		/// <remarks>When <b>1</b>, FlightGroup will attempt arrive via mothership, hyperspace when <b>0</b>. When <b>2</b>, hypers in to same region as mothership.</remarks>
-		new public byte ArrivalMethod { get; set; }
+		new public byte ArriveViaMothership { get; set; }
 		/// <summary>Gets or sets the primary method of departure.</summary>
 		/// <remarks>When <b>1</b>, Flightgroup will attempt to depart via mothership, hyperspace when <b>0</b>. Unknown effect if <b>2</b>.</remarks>
-		new public byte DepartureMethod { get; set; }
+		new public byte DepartViaMothership { get; set; }
 		#endregion
 		/// <summary>Gets the FlightGroup objective commands.</summary>
 		/// <remarks>Array is [Region, OrderIndex].</remarks>

@@ -13,6 +13,7 @@
  * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
  * [UPD] short[] _eventMapper now EventMap[] _eventMaps
  * [UPD] short getEventMapperIndex() now EventMap getEventMapper
+ * [DEL] EventParameterCount, redundant with GetCount()
  * v5.3, 210328
  * [UPD] Allowed Title strings to be returned in GetCaptionText()
  * [UPD] Added additional check to ContainsHintText()
@@ -492,12 +493,6 @@ namespace Idmr.Platform.Xwing
 		/// <returns><b>true</b> if <paramref name="captionText"/> contains "&lt;STRATEGY AND TACTICS" or "&lt;MISSION COMPLETION HINTS".</returns>
 		/// <remarks>This is a helper function for use in converting missions.  Intended for use with strings extracted via GetCaptionText().</remarks>
 		public bool ContainsHintText(string captionText) => captionText.ToUpper().IndexOf(">STRATEGY AND TACTICS") >= 0 || captionText.ToUpper().IndexOf(">MISSION COMPLETION HINTS") >= 0;
-
-		/// <summary>Gets the number of parameters for the specified event type.</summary>
-		/// <param name="eventType">The briefing event.</param>
-		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
-		/// <returns>The number of parameters.</returns>
-		override public byte EventParameterCount(int eventType) => EventParameters.GetCount(eventType);
 		#endregion public methods
 
 		/// <summary>DO NOT USE. Will always throw an exception.</summary>

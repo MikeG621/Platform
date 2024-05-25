@@ -79,7 +79,7 @@ struct FileHeader (size 0x1CA)
 	0x00A	BYTE	BriefingOfficers
 	0x00B	BYTE	RandomSeed
 	0x00C	BYTE	Rescue?
-	0x00D	BOOL	*AllWayShown (Formerly CapturedOnEject)
+	0x00D	BOOL	(Editor use, AllWaypointsShown) (Formerly CapturedOnEject)
 	0x00E	BYTE[8]	Vars
 	0x016	BYTE[2]	WinBonus
 	0x018	CHAR[64][6]	EndOfMissionMessages

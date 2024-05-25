@@ -138,9 +138,9 @@ namespace Idmr.Platform.Tie
 			}
 
 			//If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-			if (ArrivalMothership == srcIndex) { ArrivalMothership = dst; change = true; if (delete) { ArrivalMethod = false; } } else if (ArrivalMothership > srcIndex && delete) { ArrivalMothership--; change = true; }
+			if (ArrivalMothership == srcIndex) { ArrivalMothership = dst; change = true; if (delete) { ArriveViaMothership = false; } } else if (ArrivalMothership > srcIndex && delete) { ArrivalMothership--; change = true; }
 			if (AlternateMothership == srcIndex) { AlternateMothership = dst; change = true; if (delete) { AlternateMothershipUsed = false; } } else if (AlternateMothership > srcIndex && delete) { AlternateMothership--; change = true; }
-			if (DepartureMothership == srcIndex) { DepartureMothership = dst; change = true; if (delete) { DepartureMethod = false; } } else if (DepartureMothership > srcIndex && delete) { DepartureMothership--; change = true; }
+			if (DepartureMothership == srcIndex) { DepartureMothership = dst; change = true; if (delete) { DepartViaMothership = false; } } else if (DepartureMothership > srcIndex && delete) { DepartureMothership--; change = true; }
 			if (CapturedDepartureMothership == srcIndex) { CapturedDepartureMothership = dst; change = true; if (delete) { CapturedDepartViaMothership = false; } } else if (CapturedDepartureMothership > srcIndex && delete) { CapturedDepartureMothership--; change = true; }
 			for (int i = 0; i < ArrDepTriggers.Length; i++)
 			{

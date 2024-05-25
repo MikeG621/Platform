@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Updates per XWA format spec
+ * [UPD] Renamed ArrDep mothership properties
  * v3.0, 180309
  * [NEW] EditorCraftNumber [JB]
  * v2.1, 141214
@@ -195,7 +196,7 @@ namespace Idmr.Platform
 		public byte ArrivalMothership { get; set; }
 		/// <summary>Gets or sets the primary method of arrival.</summary>
 		/// <remarks>When <b>true</b> FlightGroup will attempt arrive via mothership, hyperspace when <b>false</b>.</remarks>
-		public bool ArrivalMethod { get; set; }
+		public bool ArriveViaMothership { get; set; }
 		/// <summary>Gets or sets the backup arrival/departure mothership FlightGroup index.</summary>
 		public byte AlternateMothership { get; set; }
 		/// <summary>Gets or sets the backup method of arrival/departure.</summary>
@@ -205,7 +206,7 @@ namespace Idmr.Platform
 		public byte DepartureMothership { get; set; }
 		/// <summary>Gets or sets the primary method of departure.</summary>
 		/// <remarks>When <b>true</b> Flightgroup will attempt to depart via mothership, hyperspace when <b>false</b>.</remarks>
-		public bool DepartureMethod { get; set; }
+		public bool DepartViaMothership { get; set; }
 		/// <summary>Gets or sets the departure mothership FlightGroup index after capture.</summary>
 		public byte CapturedDepartureMothership { get; set; }
 		/// <summary>Gets or sets the method of departure after capture.</summary>

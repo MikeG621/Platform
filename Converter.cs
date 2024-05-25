@@ -125,11 +125,11 @@ namespace Idmr.Platform
 				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xvt.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
 				else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				tie.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
-				tie.FlightGroups[i].ArrivalMethod = miss.FlightGroups[i].ArrivalMethod;
+				tie.FlightGroups[i].ArriveViaMothership = miss.FlightGroups[i].ArriveViaMothership;
 				tie.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
 				tie.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
 				tie.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
-				tie.FlightGroups[i].DepartureMethod = miss.FlightGroups[i].DepartureMethod;
+				tie.FlightGroups[i].DepartViaMothership = miss.FlightGroups[i].DepartViaMothership;
 				tie.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
 				tie.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion ArrDep
@@ -336,11 +336,11 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				xvt.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				xvt.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
-				xvt.FlightGroups[i].ArrivalMethod = miss.FlightGroups[i].ArrivalMethod;
+				xvt.FlightGroups[i].ArriveViaMothership = miss.FlightGroups[i].ArriveViaMothership;
 				xvt.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
 				xvt.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
 				xvt.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
-				xvt.FlightGroups[i].DepartureMethod = miss.FlightGroups[i].DepartureMethod;
+				xvt.FlightGroups[i].DepartViaMothership = miss.FlightGroups[i].DepartViaMothership;
 				xvt.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
 				xvt.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion
@@ -627,11 +627,11 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				xvt.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				xvt.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
-				xvt.FlightGroups[i].ArrivalMethod = (miss.FlightGroups[i].ArrivalMethod == 1);
+				xvt.FlightGroups[i].ArriveViaMothership = (miss.FlightGroups[i].ArriveViaMothership == 1);
 				xvt.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
 				xvt.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
 				xvt.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
-				xvt.FlightGroups[i].DepartureMethod = (miss.FlightGroups[i].DepartureMethod == 1);
+				xvt.FlightGroups[i].DepartViaMothership = (miss.FlightGroups[i].DepartViaMothership == 1);
 				xvt.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
 				xvt.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion ArrDep
@@ -849,11 +849,11 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
 				xwa.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				xwa.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
-				xwa.FlightGroups[i].ArrivalMethod = Convert.ToByte(miss.FlightGroups[i].ArrivalMethod);
+				xwa.FlightGroups[i].ArriveViaMothership = Convert.ToByte(miss.FlightGroups[i].ArriveViaMothership);
 				xwa.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
 				xwa.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
 				xwa.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
-				xwa.FlightGroups[i].DepartureMethod = Convert.ToByte(miss.FlightGroups[i].DepartureMethod);
+				xwa.FlightGroups[i].DepartViaMothership = Convert.ToByte(miss.FlightGroups[i].DepartViaMothership);
 				xwa.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
 				xwa.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion
@@ -1097,11 +1097,11 @@ namespace Idmr.Platform
 				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xwa.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
 				else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				tie.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
-				tie.FlightGroups[i].ArrivalMethod = (miss.FlightGroups[i].ArrivalMethod == 1);
+				tie.FlightGroups[i].ArriveViaMothership = (miss.FlightGroups[i].ArriveViaMothership == 1);
 				tie.FlightGroups[i].AlternateMothership = miss.FlightGroups[i].AlternateMothership;
 				tie.FlightGroups[i].AlternateMothershipUsed = miss.FlightGroups[i].AlternateMothershipUsed;
 				tie.FlightGroups[i].DepartureMothership = miss.FlightGroups[i].DepartureMothership;
-				tie.FlightGroups[i].DepartureMethod = (miss.FlightGroups[i].DepartureMethod == 1);
+				tie.FlightGroups[i].DepartViaMothership = (miss.FlightGroups[i].DepartViaMothership == 1);
 				tie.FlightGroups[i].CapturedDepartureMothership = miss.FlightGroups[i].CapturedDepartureMothership;
 				tie.FlightGroups[i].CapturedDepartViaMothership = miss.FlightGroups[i].CapturedDepartViaMothership;
 				#endregion ArrDep
@@ -1384,17 +1384,17 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].DepartureTimerSeconds = 0;
 				tie.FlightGroups[i].AbortTrigger = 0;
 				tie.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				tie.FlightGroups[i].ArrivalMethod = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				tie.FlightGroups[i].ArriveViaMothership = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
 				tie.FlightGroups[i].AlternateMothership = 0;
 				tie.FlightGroups[i].AlternateMothershipUsed = false;
 				tie.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				tie.FlightGroups[i].DepartureMethod = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+				tie.FlightGroups[i].DepartViaMothership = !(miss.FlightGroups[i].DepartureHyperspace == 1);
 				tie.FlightGroups[i].CapturedDepartureMothership = 0;
 				tie.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
 				{
-					tie.FlightGroups[i].ArrivalMethod = false;
-					tie.FlightGroups[i].DepartureMethod = false;
+					tie.FlightGroups[i].ArriveViaMothership = false;
+					tie.FlightGroups[i].DepartViaMothership = false;
 				}
 				//Fighters in TIE will auto abort at 25% hull, like X-wing.
 				#endregion ArrDep
@@ -1846,17 +1846,17 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerSeconds = 0;
 				xvt.FlightGroups[i].AbortTrigger = 0;
 				xvt.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xvt.FlightGroups[i].ArrivalMethod = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				xvt.FlightGroups[i].ArriveViaMothership = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
 				xvt.FlightGroups[i].AlternateMothership = 0;
 				xvt.FlightGroups[i].AlternateMothershipUsed = false;
 				xvt.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xvt.FlightGroups[i].DepartureMethod = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+				xvt.FlightGroups[i].DepartViaMothership = !(miss.FlightGroups[i].DepartureHyperspace == 1);
 				xvt.FlightGroups[i].CapturedDepartureMothership = 0;
 				xvt.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
 				{
-					xvt.FlightGroups[i].ArrivalMethod = false;
-					xvt.FlightGroups[i].DepartureMethod = false;
+					xvt.FlightGroups[i].ArriveViaMothership = false;
+					xvt.FlightGroups[i].DepartViaMothership = false;
 				}
 				if (xwingCanWithdraw(miss.FlightGroups[i].CraftType))
 					xvt.FlightGroups[i].AbortTrigger = 9;  //25% hull
@@ -2335,17 +2335,17 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].DepartureTimerSeconds = 0;
 				xwa.FlightGroups[i].AbortTrigger = 0;
 				xwa.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xwa.FlightGroups[i].ArrivalMethod = (byte)(miss.FlightGroups[i].ArrivalHyperspace == 1 ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				xwa.FlightGroups[i].ArriveViaMothership = (byte)(miss.FlightGroups[i].ArrivalHyperspace == 1 ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
 				xwa.FlightGroups[i].AlternateMothership = 0;
 				xwa.FlightGroups[i].AlternateMothershipUsed = false;
 				xwa.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xwa.FlightGroups[i].DepartureMethod = (byte)(miss.FlightGroups[i].DepartureHyperspace == 1 ? 0 : 1);
+				xwa.FlightGroups[i].DepartViaMothership = (byte)(miss.FlightGroups[i].DepartureHyperspace == 1 ? 0 : 1);
 				xwa.FlightGroups[i].CapturedDepartureMothership = 0;
 				xwa.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
 				{
-					xwa.FlightGroups[i].ArrivalMethod = 0;
-					xwa.FlightGroups[i].DepartureMethod = 0;
+					xwa.FlightGroups[i].ArriveViaMothership = 0;
+					xwa.FlightGroups[i].DepartViaMothership = 0;
 				}
 				if (xwingCanWithdraw(miss.FlightGroups[i].CraftType))
 					xwa.FlightGroups[i].AbortTrigger = 9;  //25% hull

@@ -330,9 +330,9 @@ namespace Idmr.Platform.Xwa
 				FlightGroups[i].RandomArrivalDelaySeconds = buffer[0x39];
 				stream.Read(buffer, 0, 8);
 				FlightGroups[i].ArrivalMothership = buffer[0];
-				FlightGroups[i].ArrivalMethod = buffer[1];
+				FlightGroups[i].ArriveViaMothership = buffer[1];
 				FlightGroups[i].DepartureMothership = buffer[2];
-				FlightGroups[i].DepartureMethod = buffer[3];
+				FlightGroups[i].DepartViaMothership = buffer[3];
 				FlightGroups[i].AlternateMothership = buffer[4];
 				FlightGroups[i].AlternateMothershipUsed = Convert.ToBoolean(buffer[5]);
 				FlightGroups[i].CapturedDepartureMothership = buffer[6];
@@ -782,9 +782,9 @@ namespace Idmr.Platform.Xwa
 					bw.Write(FlightGroups[i].RandomArrivalDelaySeconds);
 					fs.Position += 2;
 					bw.Write(FlightGroups[i].ArrivalMothership);
-					bw.Write(FlightGroups[i].ArrivalMethod);
+					bw.Write(FlightGroups[i].ArriveViaMothership);
 					bw.Write(FlightGroups[i].DepartureMothership);
-					bw.Write(FlightGroups[i].DepartureMethod);
+					bw.Write(FlightGroups[i].DepartViaMothership);
 					bw.Write(FlightGroups[i].AlternateMothership);
 					bw.Write(FlightGroups[i].AlternateMothershipUsed);
 					bw.Write(FlightGroups[i].CapturedDepartureMothership);

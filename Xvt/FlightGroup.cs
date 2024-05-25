@@ -247,9 +247,9 @@ namespace Idmr.Platform.Xvt
             }
 
             //If the FG matches, replace (and delete if necessary).  Else if our index is higher and we're supposed to delete, decrement index.
-            if (ArrivalMothership == srcIndex) { change = true; ArrivalMothership = dst; if (delete) { ArrivalMethod = false; } } else if (ArrivalMothership > srcIndex && delete == true) { change = true; ArrivalMothership--; }
+            if (ArrivalMothership == srcIndex) { change = true; ArrivalMothership = dst; if (delete) { ArriveViaMothership = false; } } else if (ArrivalMothership > srcIndex && delete == true) { change = true; ArrivalMothership--; }
             if (AlternateMothership == srcIndex) { change = true; AlternateMothership = dst; if (delete) { AlternateMothershipUsed = false; } } else if (AlternateMothership > srcIndex && delete == true) { change = true; AlternateMothership--; }
-            if (DepartureMothership == srcIndex) { change = true; DepartureMothership = dst; if (delete) { DepartureMethod = false; } } else if (DepartureMothership > srcIndex && delete == true) { change = true; DepartureMothership--; }
+            if (DepartureMothership == srcIndex) { change = true; DepartureMothership = dst; if (delete) { DepartViaMothership = false; } } else if (DepartureMothership > srcIndex && delete == true) { change = true; DepartureMothership--; }
             if (CapturedDepartureMothership == srcIndex) { change = true; CapturedDepartureMothership = dst; if (delete) { CapturedDepartViaMothership = false; } } else if (CapturedDepartureMothership > srcIndex && delete == true) { change = true; CapturedDepartureMothership--; }
             for (int i = 0; i < ArrDepTriggers.Length; i++)
             {

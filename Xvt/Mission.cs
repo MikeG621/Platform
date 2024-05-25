@@ -235,9 +235,9 @@ namespace Idmr.Platform.Xvt
 				FlightGroups[i].AbortTrigger = buffer[0x28];
 				FlightGroups[i].RandomArrivalDelaySeconds = buffer[0x29];
 				FlightGroups[i].ArrivalMothership = buffer[0x2D];
-				FlightGroups[i].ArrivalMethod = Convert.ToBoolean(buffer[0x2E]);    // false = hyper, true = mothership
+				FlightGroups[i].ArriveViaMothership = Convert.ToBoolean(buffer[0x2E]);    // false = hyper, true = mothership
 				FlightGroups[i].DepartureMothership = buffer[0x2F];       //[JB] Fixed byte order.
-				FlightGroups[i].DepartureMethod = Convert.ToBoolean(buffer[0x30]);
+				FlightGroups[i].DepartViaMothership = Convert.ToBoolean(buffer[0x30]);
 				FlightGroups[i].AlternateMothership = buffer[0x31];
 				FlightGroups[i].AlternateMothershipUsed = Convert.ToBoolean(buffer[0x32]);
 				FlightGroups[i].CapturedDepartureMothership = buffer[0x33];
@@ -591,9 +591,9 @@ namespace Idmr.Platform.Xvt
 					bw.Write(FlightGroups[i].RandomArrivalDelaySeconds);
 					fs.Position += 3;
 					fs.WriteByte(FlightGroups[i].ArrivalMothership);
-					bw.Write(FlightGroups[i].ArrivalMethod);
+					bw.Write(FlightGroups[i].ArriveViaMothership);
 					fs.WriteByte(FlightGroups[i].DepartureMothership);
-					bw.Write(FlightGroups[i].DepartureMethod);
+					bw.Write(FlightGroups[i].DepartViaMothership);
 					fs.WriteByte(FlightGroups[i].AlternateMothership);
 					bw.Write(FlightGroups[i].AlternateMothershipUsed);
 					fs.WriteByte(FlightGroups[i].CapturedDepartureMothership);

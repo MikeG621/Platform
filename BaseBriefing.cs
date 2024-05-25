@@ -12,6 +12,7 @@
  * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
  * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
  * [UPD] Events changed to collection
+ * [DEL] EventParameterCount, redundant with GetCount()
  * v5.8, 230804
  * [NEW] SkipMarker command
  * v3.0, 180309
@@ -185,12 +186,6 @@ namespace Idmr.Platform
 		public short EventsLength => _events.Length;
 		/// <summary>Unknown.</summary>
 		public short Tile { get; set; }
-
-		/// <summary>Gets the number of parameters for the specified event type.</summary>
-		/// <param name="eventType">The briefing event.</param>
-		/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="eventType"/> value.</exception>
-		/// <returns>The number of parameters.</returns>
-		virtual public byte EventParameterCount(int eventType) => EventParameters.GetCount(eventType);
 
 		/// <summary>Converts the time value into seconds.</summary>
 		/// <param name="ticks">Raw time value.</param>

@@ -220,9 +220,9 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].DepartureTimerSeconds = buffer[0x2B];
 				FlightGroups[i].AbortTrigger = buffer[0x2C];
 				FlightGroups[i].ArrivalMothership = buffer[0x30];
-				FlightGroups[i].ArrivalMethod = Convert.ToBoolean(buffer[0x31]);
+				FlightGroups[i].ArriveViaMothership = Convert.ToBoolean(buffer[0x31]);
 				FlightGroups[i].DepartureMothership = buffer[0x32];
-				FlightGroups[i].DepartureMethod = Convert.ToBoolean(buffer[0x33]);
+				FlightGroups[i].DepartViaMothership = Convert.ToBoolean(buffer[0x33]);
 				FlightGroups[i].AlternateMothership = buffer[0x34];
 				FlightGroups[i].AlternateMothershipUsed = Convert.ToBoolean(buffer[0x35]);
 				FlightGroups[i].CapturedDepartureMothership = buffer[0x36];
@@ -506,9 +506,9 @@ namespace Idmr.Platform.Tie
 					bw.Write(FlightGroups[i].AbortTrigger);
 					fs.Position += 3;
 					bw.Write(FlightGroups[i].ArrivalMothership);
-					bw.Write(FlightGroups[i].ArrivalMethod);
+					bw.Write(FlightGroups[i].ArriveViaMothership);
 					bw.Write(FlightGroups[i].DepartureMothership);
-					bw.Write(FlightGroups[i].DepartureMethod);
+					bw.Write(FlightGroups[i].DepartViaMothership);
 					bw.Write(FlightGroups[i].AlternateMothership);
 					bw.Write(FlightGroups[i].AlternateMothershipUsed);
 					bw.Write(FlightGroups[i].CapturedDepartureMothership);
