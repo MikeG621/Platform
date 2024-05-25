@@ -12,6 +12,7 @@
  * [UPD] XwaToXvT Roles convert now
  * [UPD] XwaToTie does the Radio now
  * [UPD] Briefing event conversions
+ * [UPD] Xwing ArrDep method fix
  * v6.1, 231208
  * [NEW] TieToXvt, TieToXvtBop, XvtBopToXwa, TieToXwa
  * [FIX] XvT to TIE FG goals convert "must NOT be destroyed" to "exist/survive" and throws on other uses of "must NOT"
@@ -1384,11 +1385,11 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].DepartureTimerSeconds = 0;
 				tie.FlightGroups[i].AbortTrigger = 0;
 				tie.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				tie.FlightGroups[i].ArriveViaMothership = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				tie.FlightGroups[i].ArriveViaMothership = !(miss.FlightGroups[i].ArriveViaHyperspace);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
 				tie.FlightGroups[i].AlternateMothership = 0;
 				tie.FlightGroups[i].AlternateMothershipUsed = false;
 				tie.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				tie.FlightGroups[i].DepartViaMothership = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+				tie.FlightGroups[i].DepartViaMothership = !(miss.FlightGroups[i].DepartViaHyperspace);
 				tie.FlightGroups[i].CapturedDepartureMothership = 0;
 				tie.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
@@ -1846,11 +1847,11 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].DepartureTimerSeconds = 0;
 				xvt.FlightGroups[i].AbortTrigger = 0;
 				xvt.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xvt.FlightGroups[i].ArriveViaMothership = !(miss.FlightGroups[i].ArrivalHyperspace == 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				xvt.FlightGroups[i].ArriveViaMothership = !(miss.FlightGroups[i].ArriveViaHyperspace);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
 				xvt.FlightGroups[i].AlternateMothership = 0;
 				xvt.FlightGroups[i].AlternateMothershipUsed = false;
 				xvt.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xvt.FlightGroups[i].DepartViaMothership = !(miss.FlightGroups[i].DepartureHyperspace == 1);
+				xvt.FlightGroups[i].DepartViaMothership = !(miss.FlightGroups[i].DepartViaHyperspace);
 				xvt.FlightGroups[i].CapturedDepartureMothership = 0;
 				xvt.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set
@@ -2335,11 +2336,11 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].DepartureTimerSeconds = 0;
 				xwa.FlightGroups[i].AbortTrigger = 0;
 				xwa.FlightGroups[i].ArrivalMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xwa.FlightGroups[i].ArriveViaMothership = (byte)(miss.FlightGroups[i].ArrivalHyperspace == 1 ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
+				xwa.FlightGroups[i].ArriveViaMothership = (byte)(miss.FlightGroups[i].ArriveViaHyperspace ? 0 : 1);  //Note: X-wing uses true to arrive from hyperspace, TIE uses false
 				xwa.FlightGroups[i].AlternateMothership = 0;
 				xwa.FlightGroups[i].AlternateMothershipUsed = false;
 				xwa.FlightGroups[i].DepartureMothership = (byte)(miss.FlightGroups[i].Mothership >= 0 ? miss.FlightGroups[i].Mothership : 0);
-				xwa.FlightGroups[i].DepartViaMothership = (byte)(miss.FlightGroups[i].DepartureHyperspace == 1 ? 0 : 1);
+				xwa.FlightGroups[i].DepartViaMothership = (byte)(miss.FlightGroups[i].DepartViaHyperspace ? 0 : 1);
 				xwa.FlightGroups[i].CapturedDepartureMothership = 0;
 				xwa.FlightGroups[i].CapturedDepartViaMothership = false;
 				if (miss.FlightGroups[i].Mothership == -1)   //Set defaults to Hyperspace if no mothership is set

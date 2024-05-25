@@ -10,6 +10,7 @@
 
 /* CHANGELOG
  * [UPD] Briefing events I/O
+ * [UPD] ArrDep bool-short conversion
  * v4.0, 200809
  * [UPD] Unknown1 renamed to RndSeed [JB]
  * [UPD] Better Save backup [JB]
@@ -127,8 +128,8 @@ namespace Idmr.Platform.Xwing
 				FlightGroups[i].ArrivalDelay = br.ReadInt16();
 				FlightGroups[i].ArrivalFG = br.ReadInt16();
 				FlightGroups[i].Mothership = br.ReadInt16();
-				FlightGroups[i].ArrivalHyperspace = br.ReadInt16();
-				FlightGroups[i].DepartureHyperspace = br.ReadInt16();
+				FlightGroups[i].ArriveViaHyperspace = Convert.ToBoolean(br.ReadInt16());
+				FlightGroups[i].DepartViaHyperspace = Convert.ToBoolean(br.ReadInt16());
 				#endregion
 
 				//Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)
@@ -381,12 +382,12 @@ namespace Idmr.Platform.Xwing
 					bw.Write((short)FlightGroups[i].NumberOfWaves);
 					#endregion
 					#region Arr/Dep
-					bw.Write((short)FlightGroups[i].ArrivalEvent);
-					bw.Write((short)FlightGroups[i].ArrivalDelay);
-					bw.Write((short)FlightGroups[i].ArrivalFG);
-					bw.Write((short)FlightGroups[i].Mothership);
-					bw.Write((short)FlightGroups[i].ArrivalHyperspace);
-					bw.Write((short)FlightGroups[i].DepartureHyperspace);
+					bw.Write(FlightGroups[i].ArrivalEvent);
+					bw.Write(FlightGroups[i].ArrivalDelay);
+					bw.Write(FlightGroups[i].ArrivalFG);
+					bw.Write(FlightGroups[i].Mothership);
+					bw.Write((short)(FlightGroups[i].ArriveViaHyperspace ? 1 : 0));
+					bw.Write((short)(FlightGroups[i].DepartViaHyperspace ? 1 : 0));
 					#endregion
 
 					//Waypoints (7 real waypoints, rest are virtualized BRF coordinate sets)

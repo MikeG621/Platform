@@ -10,6 +10,7 @@
 
 /* CHANGELOG
  * [UPD] GetTIECraftType now returns byte
+ * [UPD] ArrDepHyperspace renamed and now bool
  * v6.1, 231208
  * [FIX] WaypointIndex
  * v4.0, 200809
@@ -95,8 +96,8 @@ namespace Idmr.Platform.Xwing
 			CraftType = 1;   //0 is None, default to X-wing.
 			ObjectType = 0;  //Not an object.
             SpecialCargoCraft = -1;
-            ArrivalHyperspace = 1;
-			DepartureHyperspace = 1;
+            ArriveViaHyperspace = true;
+			DepartViaHyperspace = true;
 			Mothership = -1;  //These variables use a zero based index for FG, or -1 for none.
 			TargetPrimary = -1;
 			TargetSecondary = -1;
@@ -254,7 +255,7 @@ namespace Idmr.Platform.Xwing
             bool change = false;
             short dest = (short)dstIndex;
             if (ArrivalFG == srcIndex) { change = true; ArrivalFG = dest; if (dstIndex == -1) ArrivalEvent = 0; }
-            if (Mothership == srcIndex) { change = true; Mothership = dest; if (dstIndex == -1) { ArrivalHyperspace = 1; DepartureHyperspace = 1; } }
+            if (Mothership == srcIndex) { change = true; Mothership = dest; if (dstIndex == -1) { ArriveViaHyperspace = true; DepartViaHyperspace = true; } }
             if (TargetPrimary == srcIndex) { change = true; TargetPrimary = dest; }
             if (TargetSecondary == srcIndex) { change = true; TargetSecondary = dest; }
             return change;
@@ -337,11 +338,9 @@ namespace Idmr.Platform.Xwing
 		/// <remarks>Use <b>-1</b> for "None".</remarks>
 		public short Mothership { get; set; }
 		/// <summary>Gets or sets the arrival method.</summary>
-		/// <remarks>Use <b>01</b> for "Hyperspace", <b>00</b> "for Mothership".</remarks>
-		public short ArrivalHyperspace { get; set; }
+		public bool ArriveViaHyperspace { get; set; }
 		/// <summary>Gets or sets the departure method.</summary>
-		/// <remarks>Use <b>01</b> for "Hyperspace", <b>00</b> "for Mothership".</remarks>
-		public short DepartureHyperspace { get; set; }
+		public bool DepartViaHyperspace { get; set; }
 		/// <summary>Gets or sets the order's parameter.</summary>
 		/// <remarks>For docking orders, this is "Docking Time" in minutes, otherwise it's "Throttle" for patrol/circle orders.</remarks>
 		public short DockTimeThrottle { get; set; }

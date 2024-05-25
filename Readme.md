@@ -35,9 +35,10 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
   - This means all XWA Unknowns are defined, many that were left were editor-use only or Unused.
   - Not all editor-use properties are exposed.
   - Various things renamed. ***BREAKING CHANGE***
-  - ArrDep mothership properties renamed, the `\*Method` bools are now `\*ViaMothership` or `\*MothershipUsed` per proper boolean naming convention.
+  - ArrDep mothership properties renamed, the `*Method` bools are now `*ViaMothership` or `*MothershipUsed` per proper boolean naming convention.
 - (TIE) Added Questions.QuestionType and .QuestionCondition enums, PostTrigger and PostTrigType types changed. ***BREAKING CHANGE***
 - (Xwing) GetTIECraftType now returns `byte`.
+- (Xwing) ArrDep `*Hyperspace` renamed to `*ViaHyperspace` and changed to `bool`.
 - (Briefing) EventParameters now a singleton class, `this[]` made private in lieu of `GetCount()`. ***BREAKING CHANGE***
 - (Briefing) Deleted `EventParameterCount`, since it's redundant with `GetCount()`.
 - (Briefing) `ConvertTicksToSeconds` and `ConvertSecondsToTicks` functions added.
