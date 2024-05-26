@@ -162,7 +162,7 @@ namespace Idmr.Platform.Tie
 					}
 				}
 			}
-			EomDelay = br.ReadByte();
+			RawFailedEomDelay = br.ReadByte();
 			stream.Position++;
 			byte[] buffer = new byte[64];
 			for (i = 2; i < 6; i++) IFFs[i] = new string(br.ReadChars(12));
@@ -258,7 +258,7 @@ namespace Idmr.Platform.Tie
 					Messages[i].Triggers[0] = new Trigger(buffer, 0);
 					Messages[i].Triggers[1] = new Trigger(buffer, 4);
 					Messages[i].Short = new string(br.ReadChars(16));
-					Messages[i].Delay = br.ReadByte();
+					Messages[i].RawDelay = br.ReadByte();
 					Messages[i].Trig1AndOrTrig2 = br.ReadBoolean();
 				}
 			}
@@ -276,7 +276,7 @@ namespace Idmr.Platform.Tie
 				if (GlobalGoals.Goals[i].Triggers[0].VariableType == 0) GlobalGoals.Goals[i].Triggers[0].Variable = 0;
 				if (GlobalGoals.Goals[i].Triggers[1].VariableType == 0) GlobalGoals.Goals[i].Triggers[1].Variable = 0;
 				GlobalGoals.Goals[i].T1AndOrT2 = br.ReadBoolean();
-				GlobalGoals.Goals[i].Delay = br.ReadByte();
+				GlobalGoals.Goals[i].RawDelay = br.ReadByte();
 				stream.Position++;
 			}
 			#endregion
@@ -442,7 +442,7 @@ namespace Idmr.Platform.Tie
 					bw.Write(_endOfMissionMessages[i].ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x40;
 				}
-				bw.Write(EomDelay);
+				bw.Write(RawFailedEomDelay);
 				fs.Position++;
 				for (int i = 2; i < 6; i++)
 				{
@@ -532,7 +532,7 @@ namespace Idmr.Platform.Tie
 					bw.Write(Messages[i].Triggers[1].GetBytes());
 					bw.Write(Messages[i].Short.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x58;
-					bw.Write(Messages[i].Delay);
+					bw.Write(Messages[i].RawDelay);
 					bw.Write(Messages[i].Trig1AndOrTrig2);
 				}
 				#endregion
@@ -546,7 +546,7 @@ namespace Idmr.Platform.Tie
 					fs.Position = p + 0x18;
 					bw.Write(GlobalGoals.Goals[i].Version);
 					bw.Write(GlobalGoals.Goals[i].T1AndOrT2);
-					bw.Write(GlobalGoals.Goals[i].Delay);
+					bw.Write(GlobalGoals.Goals[i].RawDelay);
 					fs.Position++;
 				}
 				#endregion
@@ -784,8 +784,16 @@ namespace Idmr.Platform.Tie
 		public byte[] LegacyVars { get; private set; } = new byte[8];
 		/// <summary>Unknown effect.</summary>
 		public byte[] WinBonus { get; private set; } = new byte[2];
-		/// <summary>Gets or sets the delay for the End Of Mission messages.</summary>
-		public byte EomDelay { get; set; }
+		/// <summary>Gets or sets the delay for the End Of Mission messages upon mission failure divided by five.</summary>
+		/// <remarks>Default is <b>zero</b>. Value of <b>1</b> is 5s, <b>2</b> is 10s, etc.</remarks>
+		public byte RawFailedEomDelay { get; set; }
+		/// <summary>Gets or sets the number of seconds after trigger is fired.</summary>
+		/// <remarks>Rounds down to the nearest multiple of 5, maximum of <b>1275</b> or <b>21:15</b>.</remarks>
+		public ushort FailedEomDelaySeconds
+		{
+			get => (ushort)(RawFailedEomDelay * 5);
+			set => RawFailedEomDelay = value < 1275 ? (byte)(value / 5) : (byte)255;
+		}
 
 		/// <summary>Gets or sets the FlightGroups for the mission.</summary>
 		/// <remarks>Defaults to one FlightGroup.</remarks>

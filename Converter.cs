@@ -182,7 +182,7 @@ namespace Idmr.Platform
 			{
 				tie.Messages[i].MessageString = miss.Messages[i].MessageString;
 				tie.Messages[i].Color = miss.Messages[i].Color;
-				tie.Messages[i].Delay = miss.Messages[i].Delay;
+				tie.Messages[i].RawDelay = miss.Messages[i].Delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
 				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].T1AndOrT2;
 				for (int j = 0; j < 2; j++)
@@ -413,7 +413,7 @@ namespace Idmr.Platform
 			{
 				xvt.Messages[i].MessageString = miss.Messages[i].MessageString;
 				xvt.Messages[i].Color = miss.Messages[i].Color;
-				xvt.Messages[i].Delay = miss.Messages[i].Delay;
+				xvt.Messages[i].Delay = miss.Messages[i].RawDelay;
 				xvt.Messages[i].Note = miss.Messages[i].Short;
 				xvt.Messages[i].T1AndOrT2 = miss.Messages[i].Trig1AndOrTrig2;
 				for (int j = 0; j < 2; j++)
@@ -1142,7 +1142,7 @@ namespace Idmr.Platform
 				tie.Messages[i].Color = miss.Messages[i].Color;
 				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].RawDelay) / 5;
 				if (delay > 255) delay = 255;
-				tie.Messages[i].Delay = (byte)delay;
+				tie.Messages[i].RawDelay = (byte)delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
 				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].TrigAndOr[0];
 				for (int j = 0; j < 2; j++)
@@ -1243,7 +1243,7 @@ namespace Idmr.Platform
 				{
 					MessageString = miss.EndOfMissionMessages[2],
 					Color = color,
-					Delay = 1   // 5 sec
+					RawDelay = 1   // 5 sec
 				};
 				msg.Triggers[0].Amount = 0;
 				msg.Triggers[0].VariableType = (byte)Tie.Mission.Trigger.TypeList.IFF;
