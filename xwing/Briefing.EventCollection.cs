@@ -13,6 +13,7 @@
 
 using Idmr.Common;
 using System;
+using System.Collections.Generic;
 
 namespace Idmr.Platform.Xwing
 {
@@ -21,24 +22,25 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Container for all Briefing events.</summary>
 		public new class EventCollection : ResizableCollection<Event>
 		{
-			/// <summary>This doubles as a max raw short[] size, _maxEvents*2.<br/>
-			/// For the events count, applicable if all events are 0 vars.</summary>
-			readonly internal int _maxEvents = EventQuantityLimit;
 			readonly int _ticksPerSecond = TicksPerSecond;
 
 			/// <summary>Initializes a new collection.</summary>
 			public EventCollection()
 			{
-				_items.Add(new Event(EventType.EndBriefing) { _parent = this });
+				_itemLimit = EventQuantityLimit;
+				_items = new List<Event>(_itemLimit)
+				{
+					new Event(EventType.EndBriefing) { _parent = this }
+				};
 			}
 			/// <summary>Initializes a new collection from raw data.</summary>
 			/// <param name="raw">The raw byte data read from file.</param>
-			public EventCollection(byte[] raw)
+			public EventCollection(byte[] raw) : this()
 			{
-				short[] shorts = new short[_maxEvents * 2];
+				short[] shorts = new short[_itemLimit * 2];
 				Buffer.BlockCopy(raw, 0, shorts, 0, raw.Length);
 
-				for (int i = 0, offset = 0; i < _maxEvents; i++)
+				for (int i = 0, offset = 0; i < _itemLimit; i++)
 				{
 					_items.Add(new Event(shorts, offset) { _parent = this });
 					offset += _items[_items.Count - 1].Length;
@@ -125,7 +127,7 @@ namespace Idmr.Platform.Xwing
 				get => base[index];
 				set
 				{
-					if (Length - _items[index].Length + value.Length > _maxEvents * 2) return;  // should throw instead?
+					if (Length - _items[index].Length + value.Length > _itemLimit * 2) return;  // should throw instead?
 
 					value._parent = this;
 					base[index] = value;
@@ -146,11 +148,11 @@ namespace Idmr.Platform.Xwing
 			/// <summary>Gets whether or not the given event type can be added.</summary>
 			/// <param name="type">Type of event.</param>
 			/// <returns><b>true</b> if the event type can be added without overflowing <see cref="EventType.EndBriefing"/>.</returns>
-			public bool HasSpaceForEvent(EventType type) => Length + EventParameters.GetCount(type) + 2 <= _maxEvents * 2;
+			public bool HasSpaceForEvent(EventType type) => Length + EventParameters.GetCount(type) + 2 <= _itemLimit * 2;
 			/// <summary>Gets whether or not the given event can be added.</summary>
 			/// <param name="evt">The event.</param>
 			/// <returns><b>true</b> if the event can be added without overflowing <see cref="EventType.EndBriefing"/>.</returns>
-			public bool HasSpaceForEvent(Event evt) => Length + evt.Length <= _maxEvents * 2;
+			public bool HasSpaceForEvent(Event evt) => Length + evt.Length <= _itemLimit * 2;
 
 			/// <summary>Converts the event's time into seconds.</summary>
 			/// <param name="evt">Briefing event.</param>
@@ -191,18 +193,10 @@ namespace Idmr.Platform.Xwing
 			/// <summary>Creates an event from raw data.</summary>
 			/// <param name="raw">The raw array.</param>
 			/// <exception cref="ArgumentException"><paramref name="raw"/> is not long enough.</exception>
-			public Event(short[] raw)
-			{
-				if (raw.Length < 2) throw new ArgumentException("raw must have Time and Type.", "raw");
-				Time = raw[0];
-				Type = (EventType)raw[1];
-				if (raw.Length < Length) throw new ArgumentException("raw not long enough for " + Enum.GetName(typeof(EventType), Type) + " event.", "raw");
-
-				for (int i = 2; i < Length; i++) Variables[i - 2] = raw[i];
-			}
+			public Event(short[] raw) : this(raw, 0) { }
 			/// <summary>Creates an event from raw data.</summary>
 			/// <param name="raw">The raw array.</param>
-			/// <param name="offset">The starting locaiton in <paramref name="raw"/>.</param>
+			/// <param name="offset">The starting location in <paramref name="raw"/>.</param>
 			/// <exception cref="ArgumentException"><paramref name="raw"/> is not long enough.</exception>
 			/// <exception cref="IndexOutOfRangeException"><paramref name="offset"/> is not within <paramref name="raw"/>.</exception>
 			public Event(short[] raw, int offset)
@@ -227,7 +221,7 @@ namespace Idmr.Platform.Xwing
 				get => _type;
 				set
 				{
-					if (_parent != null && _parent.Length - EventParameters.GetCount(_type) + EventParameters.GetCount(value) > _parent._maxEvents * 2)
+					if (_parent != null && _parent.Length - EventParameters.GetCount(_type) + EventParameters.GetCount(value) > _parent.ItemLimit * 2)
 						throw new OverflowException("Cannot change type, End marker would overflow.");
 
 					_type = value;
