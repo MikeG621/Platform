@@ -284,17 +284,17 @@ namespace Idmr.Platform.Tie
 			Briefing.Length = br.ReadInt16();
 			stream.Position += 6;   // CurrentTime StartLength, EventsLength
 			Briefing.Tile = br.ReadInt16();
-			byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 2);
+			byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 4);
 			Briefing.Events = new BaseBriefing.EventCollection(Platform.TIE, rawEvents);
 			for (i = 0; i < 32; i++)
 			{
 				int j = br.ReadInt16();
-				if (j > 0) Briefing.BriefingTag[i] = new string(br.ReadChars(j));
+				if (j > 0) Briefing.BriefingTag[i] = new string(br.ReadChars(j)).Trim('\0');	// shouldn't need the trim
 			}
 			for (i = 0; i < 32; i++)
 			{
 				int j = br.ReadInt16();
-				if (j > 0) Briefing.BriefingString[i] = new string(br.ReadChars(j));
+				if (j > 0) Briefing.BriefingString[i] = new string(br.ReadChars(j)).Trim('\0');
 			}
 			#endregion
 			#region Questions

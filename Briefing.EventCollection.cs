@@ -49,8 +49,8 @@ namespace Idmr.Platform
 
 				for (int i = 0, offset = 0; i < _itemLimit; i++)
 				{
-					_items.Add(new Event(shorts, offset) { _parent = this });
-					offset += _items[_items.Count - 1].Length;
+					Add(new Event(shorts, offset) { _parent = this });
+					offset += _items[i].Length;
 					
 					if (_items[i].IsEndEvent) break;
 				}

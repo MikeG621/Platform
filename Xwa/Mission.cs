@@ -516,7 +516,7 @@ namespace Idmr.Platform.Xwa
 				Briefings[i].Length = br.ReadInt16();
 				stream.Position += 6;   // CurrentTime, StartLength, EventsLength
 				Briefings[i].Tile = br.ReadInt16();
-				byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 2);
+				byte[] rawEvents = br.ReadBytes(Briefing.EventQuantityLimit * 4);
 				Briefings[i].Events = new BaseBriefing.EventCollection(Platform.XWA, rawEvents);
 				for (j = 0; j < 192; j++)
 				{
@@ -532,13 +532,11 @@ namespace Idmr.Platform.Xwa
 				for (j = 0; j < 128; j++)
 				{
 					int k = br.ReadInt16();
-					Briefings[i].BriefingTag[j] = "";
 					if (k > 0) Briefings[i].BriefingTag[j] = new string(br.ReadChars(k)).Trim('\0');    // shouldn't need the trim
 				}
 				for (j = 0; j < 128; j++)
 				{
 					int k = br.ReadInt16();
-					Briefings[i].BriefingString[j] = "";
 					if (k > 0) Briefings[i].BriefingString[j] = new string(br.ReadChars(k)).Trim('\0');
 				}
 			}
