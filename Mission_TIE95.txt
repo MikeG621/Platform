@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.04.14
+Updated: 2024.05.26
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -53,9 +53,12 @@ STR(*)	*	null-terminated string, * is a decimal number
 
 NOTE: Any byte locations that are between defined values and are not explicitly
 defined are deemed as Reserved(0), and have only been found to have zero
-values. Unknown bytes that have non-zero values have been called out in the
-structure. Rest assured you have everything here to piece together a mission
-file from scratch, but please note offsets if creating read/write procedures.
+values. All unknowns have been discovered and named accordingly per the LEC
+format spec, their previous TFW/YOGEME Unknown designation is listed next to
+it. Some values are known to be editor only and have effect in-game, others may
+or may not be "active".
+Rest assured you have everything here to piece together a mission file from
+scratch, but please note offsets if creating read/write procedures.
 
 --
 FileHeader
@@ -78,12 +81,12 @@ struct FileHeader (size 0x1CA)
 	0x009	BYTE	TimeLimitSec
 	0x00A	BYTE	BriefingOfficers
 	0x00B	BYTE	RandomSeed
-	0x00C	BYTE	Rescue?
-	0x00D	BOOL	(Editor use, AllWaypointsShown) (Formerly CapturedOnEject)
-	0x00E	BYTE[8]	Vars
-	0x016	BYTE[2]	WinBonus
+	0x00C	BYTE	(Unused, Rescue)
+	0x00D	BOOL	(Editor use, AllWaypointsShown) (was CapturedOnEject)
+	0x00E	BYTE[8]	(Unused, Vars)
+	0x016	BYTE[2]	(Unused, WinBonus)
 	0x018	CHAR[64][6]	EndOfMissionMessages
-	0x198	BYTE	EomMessageDelay
+	0x198	BYTE	(Unused, FailedEomMessageDelay)
 	0x199	BYTE	(Unused)
 	0x19A	CHAR[12][4]	IffNames3-6
 }
@@ -105,49 +108,49 @@ struct FlightGroup (size 0x124)
 	0x038	BYTE	GroupAI (enum)
 	0x039	BYTE	Markings (enum)
 	0x03A	BOOL	ObeyPlayerOrders
-	0x03B	BYTE	(Unused)			Unknown1 in TFW
+	0x03B	BYTE	(Unused)				Unknown1 in TFW
 	0x03C	BYTE	Formation (enum)
-	0x03D	BYTE	FormationSpacing		Unknown2
-	0x03E	BYTE	GlobalGroup			Unknown3
-	0x03F	BYTE	(Unused)	(LeaderSpacing or Unknown4)
+	0x03D	BYTE	FormSpacing (enum)		Unknown2
+	0x03E	BYTE	GlobalGroup				Unknown3
+	0x03F	BYTE	(Unused)				(LeaderSpacing or Unknown4)
 	0x040	BYTE	NumberOfWaves
-	0x041	BYTE	WavesDelay	(Unknown5)
+	0x041	BYTE	(Unused, WavesDelay)	Unknown5
 	0x042	BYTE	PlayerCraft
-	0x043	BYTE	Yaw				Unknown6
-	0x044	BYTE	Pitch				Unknown7
-	0x045	BYTE	Roll				Unknown8
+	0x043	BYTE	Yaw						Unknown6
+	0x044	BYTE	Pitch					Unknown7
+	0x045	BYTE	Roll					Unknown8
 	0x046	BOOL	PermaDeathEnabled		Unknown9
 	0x047	BYTE	PermaDeathID			Unknown10
-	0x048	BYTE	(Unused)			Unknown11
+	0x048	BYTE	(Unused)				Unknown11
 	0x049	BYTE	ArrivalDifficulty (enum)
 	0x04A	Trigger	Arrival1
 	0x04E	Trigger	Arrival2
 	0x052	BOOL	Arrival1OrArrival2
-	0x053	BYTE	(Unused)			Unknown12
+	0x053	BYTE	(Unused)				Unknown12
 	0x054	BYTE	ArrivalDelayMinutes
 	0x055	BYTE	ArrivalDelaySeconds
 	0x056	Trigger	Departure
-	0x05A	BYTE	DepartureDelayMinutes		Unknown13
-	0x05B	BYTE	DepartureDelaySeconds		Unknown14
+	0x05A	BYTE	DepartureClockMinutes	Unknown13
+	0x05B	BYTE	DepartureClockSeconds	Unknown14
 	0x05C	BYTE	AbortCondition (enum)
-	0x05D	BYTE	(Unused)			Unknown15
+	0x05D	BYTE	(Unused)				Unknown15
 	0x05E	SHORT	(Editor use, CurrentMothership)	(was Unknown16-17)
 	0x060	BYTE	ArrivalMothership
 	0x061	BOOL	ArriveViaMothership
 	0x062	BYTE	DepartureMothership
 	0x063	BOOL	DepartViaMothership
-	0x064	BYTE	AltDepartureMothership
-	0x065	BOOL	AltDepartViaMothership
+	0x064	BYTE	AltMothership
+	0x065	BOOL	AltMothershipUsed
 	0x066	BYTE	CaptureDepartureMothership
 	0x067	BOOL	CaptureDepartViaMothership
 	0x068	Order[3]
 	0x09E	GoalFG[4]
 	0x0A6	SBYTE	BonusGoalPoints
-	0x0A7	BYTE		(Unused)
+	0x0A7	BYTE	(Unused)
 	0x0A8	Waypt[4]
 	0x120	BOOL	(Editor use, WaypointShown)	(was Unknown19)
 	0x121	BYTE	(Unused)
-	0x122	BYTE	(Editor use, BriefingLinked)	(was Unknown20)
+	0x122	BYTE	(Editor use, BriefingLinked) (was Unknown20)
 	0x123	BOOL	(Editor use, BriefingShown)	(was Unknown21)
 }
 
@@ -178,6 +181,12 @@ struct Order (size 0x12)
 	0x11	BYTE	(Unused)
 }
 
+struct GoalFG (size 0x2)
+{
+	0x0	BYTE	Condition (enum)
+	0x1	BYTE	GoalAmount (enum)
+}
+
 struct Waypt (size 0x1E)
 {
 	0x00	SHORT[4] StartPoints
@@ -187,17 +196,11 @@ struct Waypt (size 0x1E)
 	0x1C	SHORT	Briefing
 }
 
-struct GoalFG (size 0x2)
-{
-	0x0	BYTE	Condition (enum)
-	0x1	BYTE	GoalAmount (enum)
-}
-
 struct Message (size 0x5A)
 {
 	0x00	STR(64)	Message
-	0x40	Trigger[2]
-	0x48	STR(16)	EditorNote
+	0x40	Trigger[2] Triggers
+	0x48	STR(16)	(Editor use, Note)
 	0x58	BYTE	DelaySeconds
 	0x59	BOOL	Trigger1OrTrigger2
 }
@@ -205,10 +208,10 @@ struct Message (size 0x5A)
 struct GlobalGoal (size 0x1C)
 {
 	0x00	Trigger[2]	Triggers
-	0x08	Str(16)	Name
-	0x18	BYTE	Version
+	0x08	Str(16)	(Editor use, Note)
+	0x18	BYTE	(Editor use, Version)
 	0x19	BOOL	Trigger1OrTrigger2
-	0x1A	BYTE	Delay
+	0x1A	BYTE	(Unused, Delay)
 	0x1B	BYTE	(Unused)
 }
 
@@ -218,10 +221,10 @@ struct Briefing
 	0x002	SHORT	CurrentTime
 	0x004	SHORT	StartLength
 	0x006	SHORT	EventsLength
-	0x008	SHORT	Tile
+	0x008	SHORT	(Not used, Tile)
 	0x00A	Event[]
-	0x32A	Tag[32]
-		String[32]
+	0x32A	VarLenStr[32]	Tags
+			VarLenStr[32]	Strings
 }
 
 struct Event
@@ -231,13 +234,7 @@ struct Event
 	0x4	SHORT[]	Variables
 }
 
-struct Tag
-{
-	0x0	SHORT	Length
-	0x2	CHAR[Length]
-}
-
-struct String
+struct VarLenStr
 {
 	0x0	SHORT	Length
 	0x2	CHAR[Length]
@@ -272,17 +269,18 @@ lists follow after the detail.
 -- FileHeader --
 
 The first SHORT is a marker used to identify the mission file as belonging to
-TIE95. Other platforms have different markers in this place, but it is
-unknown whether or not the application actually checks this value to determine
-if the file is valid or not.
+TIE95. Other platforms have different markers in this place.
 
 **NOTE** There is a legacy format where this value is not present. In-game,
 this is handled as if the value is not < 0, then NumFGs is actually at 0x00.
 There are other places in the format where this also has an effect, they'll be
 marked with [LEGACY] notations.
 
-The two Num values are simply that, the number of FG and Message sections that
+The Num values are simply that, the number of FG/Message/Global sections that
 are contained in the file, much like any other Length value in a resource file.
+Global Goals can technically be something other than 3, and it will attempt to
+read whatever quantity is there, but there's memory for 4, and the game will
+always attempt to process 3. So it's better to treat it as Reserved(3).
 
 BriefingOfficers is a value 01-03, and determines which officers will be
 present in the room before you launch into a mission.
@@ -291,39 +289,43 @@ present in the room before you launch into a mission.
 03	Secret Order
 (No other values used, but evaluate to Both Officers)
 
+RandomSeed is an initial value, for the most part it isn't important since the
+game will update that regularly based on time anyway. The next slew of values
+don't appear to have any function, even though they're part of the spec.
+
 The next six strings are the messages you see after the given goals are
 completed or failed. The array is really [3,2], two messages each for
-PrimaryComplete, SecondaryComplete and PrimaryFailed in that order. Following
-that, we have the name of the extra IFFs. IFF1 and IFF2 are hard-coded as Rebel
-and Imperial, respectively. If the IFF is hostile, then the first character is
-1 (hex value 31, not 01). In one occassion, char of 4 has been seen (hex 34).
+PrimaryComplete, SecondaryComplete and PrimaryFailed in that order. The Delay
+doesn't appear to be used in TIE.
+
+Following that, we have the name of the extra IFFs. IFF1 and IFF2 are
+hard-coded as Rebel and Imperial, respectively. If the IFF is hostile, then the
+first character is '1' (0x31, not 01). IFF5 (Red) is always hostile, '1' not
+necessary.
 
 -- FlightGroup --
 
 The first string is obvious. The second string, Pilot, isn't actually used. It
-appears to be just a bookkeeping note for the editor. Third is obvious again,
-as is the fourth. I'm going to continue to skim through this section here, down
-to ObeyPlayerOrders. For TIE95, this is a simple boolean value, but in later
-platforms this is renamed to simply "Radio" and takes on additional
-functionality.
+is a bookkeeping note for the editor. There's a few bookkeeping values in TIE,
+but later platforms have a lot more. Working down, the next one worth
+mentioning is the Special craft. If Random is selected, then the craft number
+before it is ignored. Continuing to ObeyPlayerOrders. For TIE95, this is a
+simple boolean value, but in later platforms this is renamed to simply "Radio"
+and takes on additional functionality.
 
 Formation is obvious, but I'll explain the next couple. FormationSpacing
-defaults to 02, which is a decent spacing for fighters and other small craft.
-You may want to increase that for larger ships. GlobalGroup is a great way of
-grouping (gasp) craft primarily for order and trigger use. Instead of listing
-out each flightgroup or craft type in an order you can lump everything to a GG
-and use a single target. LeaderSpacing is how far ahead of the rest of the
-flight group the flight leader is. Having a flight leader way out front can
-absorb fire and let the rest of the group fire salvos before being attacked
-themselves.  
-
-Formation has no effect on mines. They use the Status field instead. Possible
-values are:
+defaults to 02 "Tight", which is a decent spacing for fighters and other small
+craft. You may want to increase that for larger ships. Formation has no effect
+on mines. They use the Status field instead. Possible values are:
 0: Floor (X-Y plane)
 1: Side (Y-Z plane)
 2: Front (X-Z plane)
 3: All overlap a single point. They'll destroy each other with friendly-fire.
 Anything beyond repeats this sequence. There is no way to change the spacing.
+
+GlobalGroup is a great way of grouping multiple FG primarily for order and
+trigger use. Instead of listing out each flightgroup or craft type in an order
+you can lump everything to a GG and use a single target. Also works with Goals.
 
 NumberOfWaves is zero-indexed, so the number stored is actually the number of
 additional waves after the inital starting group. PlayerCraft is one-indexed
@@ -341,10 +343,24 @@ direction. TFW treats these values as Unknowns, I don't think TIE Edit can even
 edit them. The values stored are angle(°)/360*256, so 90° is 0x40 (d64). Yaw is
 evaluated first, then Pitch, then Roll.
 
-Another obvious value, then the Arrival Trigger. In sentence form, Triggers
-are "if Amount of VariableType Variable are Condition, then true". The Arrival
-and Departure triggers are just that. The Alternate triggers are there for if
-the originals can't be satisfied (mothership isn't in play). *Or* values
+The next couple values provide some intesting mechanics, but are hardly ever
+used. The Permadeath mechanic is for multi-mission campaigns, and provide an
+extra layer of realism. Sometimes, there are ways to destroy named craft in a
+mission that you weren't really intended to; be it from luck, bad mission
+design, or you're just that good. Then in the next mission that craft has been
+glued back together like nothing happened. Permadeath prevents that. When
+enabled, the number of ships destroyed with that ID is saved in the pilot file,
+and is subtracted from available craft in future missions. For capital ships
+it generally means they're just not present. For fighter groups, if you
+destroy 4 of 6 in the first missions, only 2 will spawn in the next. Keep in
+mind, triggers/goals that rely on them in later missions will treat them as if
+they never spawned, so plan accordingly.
+
+Now we're in the Arr/Dep section starting with Difficuly. In sentence form,
+Triggers are "if Amount of VariableType Variable are Condition, then true". The
+Arrival and Departure triggers are just that. The Alternate trigger is there
+for if the originals can't be satisfied (mothership isn't in play). There's
+also a special departure for after a craft as been captured. *Or* values
 determine if one or both of the Triggers must fire to be true. The ArrivalDelay
 works as expected, with the countdown starting after the Trigger has been
 fired. The DepartureDelay works differently, though. That timer works from the
@@ -357,27 +373,30 @@ Orders, they're what make the world go 'round. Pick the Order from the list
 and go from there. The Throttle value is simply expressed as
 %Throttle = (value * 10). The Variables are controlled by the Order itself, as
 different orders take different amounts for different reasons. Target and
-TargetType are the same as Trigger.Variable and VariableType.
+TargetType are the same as Trigger.Variable and VariableType. Although there's
+four Variables, in TIE no orders are known to use more than two.
 
 Goals are for that specific flight group. The array is comprised of Primary,
 Secondary, Fail, and Bonus, in that order. For BonusGoalPoints, the
 stored value is expressed as (Points / 50), so 01 is 50pts, 02 is 100pts, etc.
 Because the value is an SBYTE, this yields a point range of [-6400, +6350].
-By the Force use these goals instead of Global Goals when possible.
+By the Force use these goals instead of Global Goals when possible. The Failed
+goal does not function in TIE, and is ignored.
 
 Waypoints are pretty simple, the array is X, Y, Z and Enabled in that order.
 The values are expressed as (Coordinate * 160), such that a value of 0x50 is
 0.50km, 0xA0 is 1.00km, etc. The Enable value just tells the application if it
 needs to pay attention to it or not and is boolean, although it does occupy a
 SHORT. If more than one StartPoint is enabled, the application will pick one to
-use. Thus ends this section.
+use.
 
 -- Backdrops --
-Backdrops (stars, planets, etc) are special types of flight groups. Value
-definitions change for these purposes, which will be laid out here.
+Backdrops (stars, planets, etc) are special types of flight groups that use
+some of the values differently.
 
 The primary value here is Status, which becomes the Backdrop value. This
-determines the graphic used. The majority of other values are ignored.
+determines the graphic used. The majority of other values in the flight group
+are ignored.
 
 -- Message --
 
@@ -393,9 +412,10 @@ when displayed in-game.
 
 -- GlobalGoal --
 
-When FG goals just won't cut it, that's what these are for. The mysterious
-Secret goal is missing, and there's a lot of dead space, but what is there is
-self-explanatory by now. Array is Primary, Secondary and Bonus.
+When FG goals just won't cut it, that's what these are for. The array is
+Primary, Secondary and Bonus. There's a bookkeeping note, a Delay between when
+the triggers are completed and when it registers as complete, and a Version
+value which I believe is unused.
 
 -- Briefing --
 
@@ -411,30 +431,31 @@ array is always 0F 27 22 00, which is the EndBriefing command at time 9999, and
 usually isn't the last four bytes in the section (that would be a rather busy
 briefing).
 
-The CurrentTime value is actually ignored from the file, as it's reset to zero
+The CurrentTime value is actually ignored in-game, as it's reset to zero
 every time the briefing restarts anyway, and is what TIE uses to keep track of
-where it is.
+where it is. The original LEC editors would save it so work could resume right
+where they left off.
 
 The StartsLength value is the number of SHORTs, Variables included, that occur
 at Time=0. EventsLength is the total number of SHORTs occupied in the Events
-array up to and including the EndBriefing command.
+array up to and including the EndBriefing command, but is ignored by the game.
 
 The Tag and String arrays are not fixed sizes. They have a minimum length of
 64 bytes, which is the case of every length being zero. If a Length is zero,
-then the CHAR[] is omitted. That's the real highlight right there.
-
-[LEGACY] Tag lengths are fixed 0x28, String lengths are fixed 0xA0.
+then the CHAR[] is naturally omitted. That's the real highlight right there.
 
 Technical note: The briefing caption strings allow certain character codes.
-0x00 for a newline, 0x02 to begin highlighting, 0x01 to end highlighting.  A
+0x00 for a newline, 0x02 to begin highlighting, 0x01 to end highlighting. A
 single 0x00 will act as a newline, but two in a row [0x00 0x00] will be
-considered a null terminator.  The maximum space in game memory for a caption
+considered a null terminator. The maximum space in game memory for a caption
 string is 160 (0xA0) bytes and that must include the double [0x00 0x00] null
-terminator.  Excess length strings, or an improperly terminated string that
+terminator. Excess length strings, or an improperly terminated string that
 runs into another string may cause the game to crash.
 
-Attempting to render a text tag with a string character length >= 40 will crash
-the game.
+Tag lengths are limited to a maximum of 40 (0x28), attempting to use more than
+that will crash the game.
+
+[LEGACY] Tag lengths are fixed 0x28, String lengths are fixed 0xA0.
 
 -- PreMissionQuestion --
 
@@ -467,17 +488,16 @@ Again, the Length can be zero and thus ignoring the values following it, with a
 minimum length of 0x14. 0x0A is still appended to Question to be used as the
 seperator.
 
-The 0xFF after the questions might be required as a EOF flag, might not, but I
-use it for my write code. Can't hurt. That said, after the last Post question
-is done I really don't think TIE cares anymore, since I've put other values
-before the FF and I've never had troubles with running missions like that.
+The 0xFF after the questions is the typical EOF flag, though it doesn't appear
+to be truly necessary. I use it, can't hurt. That said, after the last Post
+question TIE doesn't really care anymore and it closes the file.
 
 Technical note: The total length of "data" for a mission question should not
-exceed 1024 (0x400) bytes.  Extending above this limit greatly increases
+exceed 1024 (0x400) bytes. Extending above this limit greatly increases
 chances of crashing the game when loading the briefing or debriefing.  This
 data includes the strings of both question and answer (and separator between
 them), plus space for a null terminator when loaded into game memory (the
-terminator is not present in the file itself).  For PostMissionQuestion data,
+terminator is not present in the file itself). For PostMissionQuestion data,
 the Condition and Type bytes both contribute toward this limit.  It is unknown
 if the two-byte Length field also contributes, but in testing it doesn't
 seem to be.
@@ -492,10 +512,10 @@ highlighting, 0x01 to end highlighting, or 0x0A for newline.
 There you have it, the TIE95 Mission file format. Enjoy :P
 =====
 List Definitions
-NOTE: If used as a VariableType for a trigger or order, the list is zero-based
-beginning with X-wing instead of None.
 
 CraftType
+NOTE: If used as a VariableType for a trigger or order, the list is zero-based
+beginning with X-wing instead of None.
 00	None
 01	X-wing
 02	Y-wing
@@ -641,6 +661,19 @@ Formation
 0B	High Vic
 0C	Reverse High Vic
 
+FormSpacing
+00	Too Tight
+01	Very Tight
+02	Tight
+03	Comfy
+04	Close
+05	Moderate
+06	Standard
+07	Safe
+08	Loose
+09	Very Loose
+0A	Distant
+
 ArrivalDifficulty
 00	All
 01	Easy
@@ -737,7 +770,7 @@ AbortCondition
 04	50% Hull
 05	Attacked
 
-* Technical note: Approximately 75% systems, fighters and transport only.
+* Technical note: Approximately 75% systems, fighters and transports only.
 This triggers when the cannon subsystem is disabled by ions or not installed.
 Ships that do not have forward cannons don't possess a cannon subsystem,
 therefore starships will abort instantly if given this trigger.
@@ -760,7 +793,7 @@ Order
 08	Attack Escorts
 09	Protect
 0A	Escort
-	Var1	Position?	[27 options, 3x3 postions from rear top right]
+	Var1	Position?	[27 options, 3x3x3 positions from rear top right]
 0B	Disable
 0C	Board and Give Cargo
 	Var1	Docking Time (seconds x 5)
