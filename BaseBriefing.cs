@@ -169,6 +169,7 @@ namespace Idmr.Platform
 		/// <remarks>Not important for design, used by the editor/platform to keep track of current time, stored value will be overwritten.</remarks>
 		public short CurrentTime { get; set; }
 		/// <summary>Gets the total number of <i>short</i> values in <see cref="Events"/> at time = 0.</summary>
+		/// <remarks>Not important for design, used by the editor/platform as "CurrentEvent" offset within the raw short array, stored value will be overwritten.</remarks>
 		public short StartLength
 		{
 			get
@@ -177,14 +178,15 @@ namespace Idmr.Platform
 				for (int i = 0; i < _events.Count; i++)
 				{
 					if (_events[i].Time != 0) break;
-					len += (short)_events[i].Length;
+					len += _events[i].Length;
 				}
 				return len;
 			}
 		}
-		/// <summary>Gets the number of values in <see cref="Events"/>.</summary>
+		/// <summary>Gets the number of occupied <i>shorts</i> in <see cref="Events"/>.</summary>
+		/// <remarks>Not important for design, platform may completely ignore it.</remarks>
 		public short EventsLength => _events.Length;
-		/// <summary>Unknown.</summary>
+		/// <summary>Though named, doesn't appear to ever be used.</summary>
 		public short Tile { get; set; }
 
 		/// <summary>Converts the time value into seconds.</summary>

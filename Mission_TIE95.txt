@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.05.26
+Updated: 2024.05.27
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -218,9 +218,9 @@ struct GlobalGoal (size 0x1C)
 struct Briefing
 {
 	0x000	SHORT	RunningTime
-	0x002	SHORT	CurrentTime
-	0x004	SHORT	StartLength
-	0x006	SHORT	EventsLength
+	0x002	SHORT	(Memory use, CurrentTime)
+	0x004	SHORT	(Memory use, CurrentEvent)
+	0x006	SHORT	(Not used, EventsLength)
 	0x008	SHORT	(Not used, Tile)
 	0x00A	Event[]
 	0x32A	VarLenStr[32]	Tags
@@ -429,16 +429,24 @@ followed by 0-4 additional variables. These variables are to be omitted if
 they are not used for a given command. The last four active bytes in the Event
 array is always 0F 27 22 00, which is the EndBriefing command at time 9999, and
 usually isn't the last four bytes in the section (that would be a rather busy
-briefing).
+briefing). The Event struct itself is something used here and in my code to
+make it easier to parse, but in-game the array is simply a single short[0x190].
 
-The CurrentTime value is actually ignored in-game, as it's reset to zero
-every time the briefing restarts anyway, and is what TIE uses to keep track of
-where it is. The original LEC editors would save it so work could resume right
-where they left off.
+The next couple values don't matter in-game, as they'll be reset anyway in
+memory. The CurrentTime value is what TIE uses to keep track of when it is so
+it knows whether or not to keep processing events. The original LEC editor
+would save it so work could resume right where they left off.
 
-The StartsLength value is the number of SHORTs, Variables included, that occur
-at Time=0. EventsLength is the total number of SHORTs occupied in the Events
-array up to and including the EndBriefing command, but is ignored by the game.
+The CurrentEvent value (formerly StartLength) is also immediately reset in
+memory, but traditionally is the number of SHORTs, Variables included, that
+occur at Time=0, effectively the offset to the first event that needs to fire
+when playback starts. The original belief for this value was a side effect of
+the LEC editors processing events at T=0, thus assigning the next event offset.
+
+EventsLength is the total number of SHORTs occupied in the Events array up to
+and including the EndBriefing command. Though set by the original editors, it
+appears to be completely ignored by the game. Tile is named per the XWA spec,
+but also has no use.
 
 The Tag and String arrays are not fixed sizes. They have a minimum length of
 64 bytes, which is the case of every length being zero. If a Length is zero,
