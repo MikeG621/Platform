@@ -489,7 +489,7 @@ countdown starts after the full Trigger has been fired, same for the
 DepartureDelay values.  The RandDelay values define the maximum amount of
 additional time that can be added on top of the ArrivalDelay.  The AbortTrigger
 value applies only to individual craft, not the entire flight group. The
-ViaMothership/Method values when false will cause craft to use hyperspace,
+ViaMothership/Used values when false will cause craft to use hyperspace,
 though for the Arrival and Depart methods in XWA there's a third option that
 can be used, so it's no longer a BOOL.  The only addition to XWA triggers are
 the Parameter values. Parameter is used for region-specific triggers, proximity
