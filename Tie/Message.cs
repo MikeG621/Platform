@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [UPD] Format spec
+ * [UPD] Renamed AndOr to just Or for proper boolean naming
  * v4.0, 200809
  * [UPD] Triggers to auto-property
  * v2.1, 141214
@@ -52,7 +53,7 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Gets or sets if both triggers must be completed.</summary>
 		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b>.</remarks>
-		public bool Trig1AndOrTrig2 { get; set; }
+		public bool Trig1OrTrig2 { get; set; }
 
 		/// <summary>Gets the Triggers that control the Message behaviour.</summary>
 		/// <remarks>Array length is 2.</remarks>

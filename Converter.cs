@@ -118,7 +118,7 @@ namespace Idmr.Platform
 					try { tie.FlightGroups[i].ArrDepTriggers[j] = (Tie.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[j]; }
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
 				}
-				tie.FlightGroups[i].AT1AndOrAT2 = miss.FlightGroups[i].ArrDepAO[0];
+				tie.FlightGroups[i].AT1OrAT2 = miss.FlightGroups[i].ArrDepAO[0];
 				tie.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
 				tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
@@ -184,7 +184,7 @@ namespace Idmr.Platform
 				tie.Messages[i].Color = miss.Messages[i].Color;
 				tie.Messages[i].RawDelay = miss.Messages[i].Delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
-				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].T1AndOrT2;
+				tie.Messages[i].Trig1OrTrig2 = miss.Messages[i].T1AndOrT2;
 				for (int j = 0; j < 2; j++)
 				{
 					try { tie.Messages[i].Triggers[j] = (Tie.Mission.Trigger)miss.Messages[i].Triggers[j]; }
@@ -330,7 +330,7 @@ namespace Idmr.Platform
 					try { xvt.FlightGroups[i].ArrDepTriggers[j] = (Xvt.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[j]; }
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
 				}
-				xvt.FlightGroups[i].ArrDepAO[0] = miss.FlightGroups[i].AT1AndOrAT2;
+				xvt.FlightGroups[i].ArrDepAO[0] = miss.FlightGroups[i].AT1OrAT2;
 				xvt.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
 				xvt.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				xvt.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
@@ -415,7 +415,7 @@ namespace Idmr.Platform
 				xvt.Messages[i].Color = miss.Messages[i].Color;
 				xvt.Messages[i].Delay = miss.Messages[i].RawDelay;
 				xvt.Messages[i].Note = miss.Messages[i].Short;
-				xvt.Messages[i].T1AndOrT2 = miss.Messages[i].Trig1AndOrTrig2;
+				xvt.Messages[i].T1AndOrT2 = miss.Messages[i].Trig1OrTrig2;
 				for (int j = 0; j < 2; j++)
 				{
 					try { xvt.Messages[i].Triggers[j] = (Xvt.Mission.Trigger)miss.Messages[i].Triggers[j]; }
@@ -1090,7 +1090,7 @@ namespace Idmr.Platform
 					try { tie.FlightGroups[i].ArrDepTriggers[j] = (Tie.Mission.Trigger)miss.FlightGroups[i].ArrDepTriggers[(j == 2 ? 4 : j)]; }
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] ArrDep[" + j + "]: " + x.Message, x); }
 				}
-				tie.FlightGroups[i].AT1AndOrAT2 = miss.FlightGroups[i].ArrDepAndOr[0];
+				tie.FlightGroups[i].AT1OrAT2 = miss.FlightGroups[i].ArrDepAndOr[0];
 				tie.FlightGroups[i].ArrivalDelayMinutes = miss.FlightGroups[i].ArrivalDelayMinutes;
 				tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
@@ -1144,7 +1144,7 @@ namespace Idmr.Platform
 				if (delay > 255) delay = 255;
 				tie.Messages[i].RawDelay = (byte)delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
-				tie.Messages[i].Trig1AndOrTrig2 = miss.Messages[i].TrigAndOr[0];
+				tie.Messages[i].Trig1OrTrig2 = miss.Messages[i].TrigAndOr[0];
 				for (int j = 0; j < 2; j++)
 				{
 					try { tie.Messages[i].Triggers[j] = (Tie.Mission.Trigger)miss.Messages[i].Triggers[j]; }

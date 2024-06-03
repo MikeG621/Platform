@@ -145,10 +145,7 @@ namespace Idmr.Platform.Tie
 			try { OfficersPresent = (BriefingOfficers)br.ReadByte(); }
 			catch { OfficersPresent = BriefingOfficers.Both; }
 			RandomSeed = br.ReadByte();
-			Rescue = br.ReadByte();
-			LegacyAllWayShown = br.ReadBoolean();
-			LegacyVars = br.ReadBytes(8);
-			WinBonus = br.ReadBytes(2);
+			stream.Position += 12;
 			for (i = 0; i < 6; i++)
 			{
 				EndOfMissionMessages[i] = new string(br.ReadChars(64));
@@ -162,8 +159,7 @@ namespace Idmr.Platform.Tie
 					}
 				}
 			}
-			RawFailedEomDelay = br.ReadByte();
-			stream.Position++;
+			stream.Position += 2;
 			byte[] buffer = new byte[64];
 			for (i = 2; i < 6; i++) IFFs[i] = new string(br.ReadChars(12));
 			#region FlightGroups
@@ -212,7 +208,7 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].Difficulty = buffer[0x19];
 				FlightGroups[i].ArrDepTriggers[0] = new Trigger(buffer, 0x1A);
 				FlightGroups[i].ArrDepTriggers[1] = new Trigger(buffer, 0x1E);
-				FlightGroups[i].AT1AndOrAT2 = Convert.ToBoolean(buffer[0x22]);
+				FlightGroups[i].AT1OrAT2 = Convert.ToBoolean(buffer[0x22]);
 				FlightGroups[i].ArrivalDelayMinutes = buffer[0x24];
 				FlightGroups[i].ArrivalDelaySeconds = buffer[0x25];
 				FlightGroups[i].ArrDepTriggers[2] = new Trigger(buffer, 0x26);
@@ -259,7 +255,7 @@ namespace Idmr.Platform.Tie
 					Messages[i].Triggers[1] = new Trigger(buffer, 4);
 					Messages[i].Short = new string(br.ReadChars(16));
 					Messages[i].RawDelay = br.ReadByte();
-					Messages[i].Trig1AndOrTrig2 = br.ReadBoolean();
+					Messages[i].Trig1OrTrig2 = br.ReadBoolean();
 				}
 			}
 			else { Messages.Clear(); }
@@ -271,13 +267,12 @@ namespace Idmr.Platform.Tie
 				GlobalGoals.Goals[i].Triggers[0] = new Trigger(buffer, 0);
 				GlobalGoals.Goals[i].Triggers[1] = new Trigger(buffer, 4);
 				GlobalGoals.Goals[i].Name = new string(br.ReadChars(16));
-				GlobalGoals.Goals[i].Version = br.ReadByte();
+				stream.Position++;
 				//for some reason, there's triggers with Var set with no Type
 				if (GlobalGoals.Goals[i].Triggers[0].VariableType == 0) GlobalGoals.Goals[i].Triggers[0].Variable = 0;
 				if (GlobalGoals.Goals[i].Triggers[1].VariableType == 0) GlobalGoals.Goals[i].Triggers[1].Variable = 0;
 				GlobalGoals.Goals[i].T1AndOrT2 = br.ReadBoolean();
-				GlobalGoals.Goals[i].RawDelay = br.ReadByte();
-				stream.Position++;
+				stream.Position += 2;
 			}
 			#endregion
 			#region Briefing
@@ -409,8 +404,7 @@ namespace Idmr.Platform.Tie
 			{
 				try
 				{
-					if (File.Exists(backup))
-						File.Delete(backup);
+					if (File.Exists(backup)) File.Delete(backup);
 					File.Copy(MissionPath, backup);
 					backupCreated = true;
 				}
@@ -431,10 +425,7 @@ namespace Idmr.Platform.Tie
 				bw.Write(TimeLimitSec);
 				bw.Write((byte)OfficersPresent);
 				bw.Write(RandomSeed);
-				bw.Write(Rescue);
-				bw.Write(LegacyAllWayShown);
-				bw.Write(LegacyVars);
-				bw.Write(WinBonus);
+				fs.Position += 12;
 				for (int i = 0; i < 6; i++)
 				{
 					p = fs.Position;
@@ -442,8 +433,7 @@ namespace Idmr.Platform.Tie
 					bw.Write(_endOfMissionMessages[i].ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x40;
 				}
-				bw.Write(RawFailedEomDelay);
-				fs.Position++;
+				fs.Position += 2;
 				for (int i = 2; i < 6; i++)
 				{
 					p = fs.Position;
@@ -496,7 +486,7 @@ namespace Idmr.Platform.Tie
 					bw.Write(FlightGroups[i].Difficulty);
 					bw.Write(FlightGroups[i].ArrDepTriggers[0].GetBytes());
 					bw.Write(FlightGroups[i].ArrDepTriggers[1].GetBytes());
-					bw.Write(FlightGroups[i].AT1AndOrAT2);
+					bw.Write(FlightGroups[i].AT1OrAT2);
 					fs.Position++;
 					bw.Write(FlightGroups[i].ArrivalDelayMinutes);
 					bw.Write(FlightGroups[i].ArrivalDelaySeconds);
@@ -533,7 +523,7 @@ namespace Idmr.Platform.Tie
 					bw.Write(Messages[i].Short.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x58;
 					bw.Write(Messages[i].RawDelay);
-					bw.Write(Messages[i].Trig1AndOrTrig2);
+					bw.Write(Messages[i].Trig1OrTrig2);
 				}
 				#endregion
 				#region Globals
@@ -543,11 +533,9 @@ namespace Idmr.Platform.Tie
 					bw.Write(GlobalGoals.Goals[i].Triggers[0].GetBytes());
 					bw.Write(GlobalGoals.Goals[i].Triggers[1].GetBytes());
 					bw.Write(GlobalGoals.Goals[i].Name.ToCharArray()); bw.Write('\0');
-					fs.Position = p + 0x18;
-					bw.Write(GlobalGoals.Goals[i].Version);
+					fs.Position = p + 0x19;
 					bw.Write(GlobalGoals.Goals[i].T1AndOrT2);
-					bw.Write(GlobalGoals.Goals[i].RawDelay);
-					fs.Position++;
+					fs.Position += 2;
 				}
 				#endregion
 				#region Briefing
@@ -624,8 +612,7 @@ namespace Idmr.Platform.Tie
 			}
 			catch
 			{
-				fs?.Close(); //Prevent object instance exception if it failed to open.
-											//If the stream was opened successfully but failed at any point during writing, the contents are corrupt, so restore from backup.  Otherwise it's probably a different kind of access error, such as file already open.
+				fs?.Close();
 				if (writerCreated && backupCreated)
 				{
 					File.Delete(MissionPath);
@@ -634,9 +621,7 @@ namespace Idmr.Platform.Tie
 				}
 				throw;
 			}
-			//Save completed successfully.
-			if (backupCreated)
-				File.Delete(backup);
+			if (backupCreated) File.Delete(backup);
 		}
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/>.</summary>
@@ -776,24 +761,6 @@ namespace Idmr.Platform.Tie
 		public BriefingOfficers OfficersPresent { get; set; }
 		/// <summary>Gets or sets the intial value used for the random number generator.</summary>
 		public byte RandomSeed { get; set; }
-		/// <summary>Gets or sets how player's destruction is affected.</summary>
-		public byte Rescue { get; set; }
-		/// <summary>Probably no effect.</summary>
-		public bool LegacyAllWayShown { get; set; }
-		/// <summary>Probably no effect.</summary>
-		public byte[] LegacyVars { get; private set; } = new byte[8];
-		/// <summary>Unknown effect.</summary>
-		public byte[] WinBonus { get; private set; } = new byte[2];
-		/// <summary>Gets or sets the delay for the End Of Mission messages upon mission failure divided by five.</summary>
-		/// <remarks>Default is <b>zero</b>. Value of <b>1</b> is 5s, <b>2</b> is 10s, etc.</remarks>
-		public byte RawFailedEomDelay { get; set; }
-		/// <summary>Gets or sets the number of seconds after trigger is fired.</summary>
-		/// <remarks>Rounds down to the nearest multiple of 5, maximum of <b>1275</b> or <b>21:15</b>.</remarks>
-		public ushort FailedEomDelaySeconds
-		{
-			get => (ushort)(RawFailedEomDelay * 5);
-			set => RawFailedEomDelay = value < 1275 ? (byte)(value / 5) : (byte)255;
-		}
 
 		/// <summary>Gets or sets the FlightGroups for the mission.</summary>
 		/// <remarks>Defaults to one FlightGroup.</remarks>

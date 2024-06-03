@@ -55,8 +55,8 @@ NOTE: Any byte locations that are between defined values and are not explicitly
 defined are deemed as Reserved(0), and have only been found to have zero
 values. All unknowns have been discovered and named accordingly per the LEC
 format spec, their previous TFW/YOGEME Unknown designation is listed next to
-it. Some values are known to be editor only and have effect in-game, others may
-or may not be "active".
+it. Some values are known to be editor only and have no effect in-game, others
+may or may not be "active".
 Rest assured you have everything here to piece together a mission file from
 scratch, but please note offsets if creating read/write procedures.
 
@@ -82,7 +82,7 @@ struct FileHeader (size 0x1CA)
 	0x00A	BYTE	BriefingOfficers
 	0x00B	BYTE	RandomSeed
 	0x00C	BYTE	(Unused, Rescue)
-	0x00D	BOOL	(Editor use, AllWaypointsShown) (was CapturedOnEject)
+	0x00D	BOOL	(Editor use, AllWaypointsShown)
 	0x00E	BYTE[8]	(Unused, Vars)
 	0x016	BYTE[2]	(Unused, WinBonus)
 	0x018	CHAR[64][6]	EndOfMissionMessages
@@ -201,7 +201,7 @@ struct Message (size 0x5A)
 	0x00	STR(64)	Message
 	0x40	Trigger[2] Triggers
 	0x48	STR(16)	(Editor use, Note)
-	0x58	BYTE	DelaySeconds
+	0x58	BYTE	Delay5Seconds
 	0x59	BOOL	Trigger1OrTrigger2
 }
 

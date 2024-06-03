@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [UPD] Format spec implemented
+ * [UPD] Renamed AndOr to Or for proper boolean naming
  * v4.0, 200809
  * [UPD] PermaDeath is bool
  * v3.0, 180309
@@ -175,7 +176,7 @@ namespace Idmr.Platform.Tie
 		public Mission.Trigger[] ArrDepTriggers => _arrDepTriggers;
 		/// <summary>Gets or sets if both triggers must be completed.</summary>
 		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b>.</remarks>
-		public bool AT1AndOrAT2 { get; set; }
+		public bool AT1OrAT2 { get; set; }
 		/// <summary>Gets or sets the FlightGroup-specific mission goals.</summary>
 		public FGGoals Goals { get; set; }
 		/// <summary>Gets the Orders array used to control FlightGroup behaviour.</summary>
