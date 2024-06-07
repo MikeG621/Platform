@@ -187,7 +187,7 @@ struct TPair "TriggerPair" (size 0x0B)
 	0x00	Trigger	Trigger1
 	0x04	Trigger	Trigger2
 	0x08	BYTE[2]	(Unused)
-	0x0A	BOOL	AndOr
+	0x0A	BOOL	T1OrT2
 }
 
 struct Trigger (size 0x4)
