@@ -184,7 +184,7 @@ namespace Idmr.Platform
 				tie.Messages[i].Color = miss.Messages[i].Color;
 				tie.Messages[i].RawDelay = miss.Messages[i].Delay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
-				tie.Messages[i].Trig1OrTrig2 = miss.Messages[i].T1AndOrT2;
+				tie.Messages[i].Trig1OrTrig2 = miss.Messages[i].T1OrT2;
 				for (int j = 0; j < 2; j++)
 				{
 					try { tie.Messages[i].Triggers[j] = (Tie.Mission.Trigger)miss.Messages[i].Triggers[j]; }
@@ -210,8 +210,8 @@ namespace Idmr.Platform
 			}
 			#endregion Briefing
 			#region Globals
-			tie.GlobalGoals.Goals[0].T1AndOrT2 = miss.Globals[0].Goals[0].T1AndOrT2;    // Primary
-			tie.GlobalGoals.Goals[2].T1AndOrT2 = miss.Globals[0].Goals[2].T1AndOrT2;    // Secondary to Bonus, Prevent will be ignored
+			tie.GlobalGoals.Goals[0].T1AndOrT2 = miss.Globals[0].Goals[0].T1OrT2;    // Primary
+			tie.GlobalGoals.Goals[2].T1AndOrT2 = miss.Globals[0].Goals[2].T1OrT2;    // Secondary to Bonus, Prevent will be ignored
 			for (int j = 0; j < 4; j++)
 			{
 				try { tie.GlobalGoals.Goals[j / 2 * 2].Triggers[j % 2] = (Tie.Mission.Trigger)miss.Globals[0].Goals[j / 2 * 2].Triggers[j % 2].GoalTrigger; }
@@ -415,7 +415,7 @@ namespace Idmr.Platform
 				xvt.Messages[i].Color = miss.Messages[i].Color;
 				xvt.Messages[i].Delay = miss.Messages[i].RawDelay;
 				xvt.Messages[i].Note = miss.Messages[i].Short;
-				xvt.Messages[i].T1AndOrT2 = miss.Messages[i].Trig1OrTrig2;
+				xvt.Messages[i].T1OrT2 = miss.Messages[i].Trig1OrTrig2;
 				for (int j = 0; j < 2; j++)
 				{
 					try { xvt.Messages[i].Triggers[j] = (Xvt.Mission.Trigger)miss.Messages[i].Triggers[j]; }
@@ -426,13 +426,13 @@ namespace Idmr.Platform
 			#region Globals
 			xvt.Globals[0].Goals[0].Triggers[0].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[0].Triggers[0];
 			xvt.Globals[0].Goals[0].Triggers[1].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[0].Triggers[1];
-			xvt.Globals[0].Goals[0].T1AndOrT2 = miss.GlobalGoals.Goals[0].T1AndOrT2;    // Primary
+			xvt.Globals[0].Goals[0].T1OrT2 = miss.GlobalGoals.Goals[0].T1AndOrT2;    // Primary
 			xvt.Globals[0].Goals[2].Triggers[0].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[1].Triggers[0];
 			xvt.Globals[0].Goals[2].Triggers[1].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[1].Triggers[1];
-			xvt.Globals[0].Goals[2].T1AndOrT2 = miss.GlobalGoals.Goals[1].T1AndOrT2;    // Secondary
+			xvt.Globals[0].Goals[2].T1OrT2 = miss.GlobalGoals.Goals[1].T1AndOrT2;    // Secondary
 			xvt.Globals[0].Goals[2].Triggers[2].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[2].Triggers[0];
 			xvt.Globals[0].Goals[2].Triggers[3].GoalTrigger = (Xvt.Mission.Trigger)miss.GlobalGoals.Goals[2].Triggers[1];
-			xvt.Globals[0].Goals[2].T3AndOrT4 = miss.GlobalGoals.Goals[2].T1AndOrT2;    // Bonus as additional Secondary
+			xvt.Globals[0].Goals[2].T3OrT4 = miss.GlobalGoals.Goals[2].T1AndOrT2;    // Bonus as additional Secondary
 			#endregion
 			#region IFF/Team
 			xvt.Teams[0].Name = (playerIsImperial ? "Imperial" : "Rebel");
@@ -684,9 +684,9 @@ namespace Idmr.Platform
 				if (delay > 255) delay = 255;
 				xvt.Messages[i].Delay = (byte)delay;
 				xvt.Messages[i].Note = miss.Messages[i].Note;
-				xvt.Messages[i].T1AndOrT2 = miss.Messages[i].TrigAndOr[0];
-				xvt.Messages[i].T3AndOrT4 = miss.Messages[i].TrigAndOr[1];
-				xvt.Messages[i].T12AndOrT34 = miss.Messages[i].TrigAndOr[2];
+				xvt.Messages[i].T1OrT2 = miss.Messages[i].TrigAndOr[0];
+				xvt.Messages[i].T3OrT4 = miss.Messages[i].TrigAndOr[1];
+				xvt.Messages[i].T12OrT34 = miss.Messages[i].TrigAndOr[2];
 				for (int j = 0; j < 10; j++) xvt.Messages[i].SentToTeam[j] = miss.Messages[i].SentTo[j];
 				for (int j = 0; j < 4; j++)
 				{
@@ -710,9 +710,9 @@ namespace Idmr.Platform
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					xvt.Globals[i].Goals[j].T1AndOrT2 = miss.Globals[i].Goals[j].T1AndOrT2;
-					xvt.Globals[i].Goals[j].T3AndOrT4 = miss.Globals[i].Goals[j].T3AndOrT4;
-					xvt.Globals[i].Goals[j].T12AndOrT34 = miss.Globals[i].Goals[j].T12AndOrT34;
+					xvt.Globals[i].Goals[j].T1OrT2 = miss.Globals[i].Goals[j].T1AndOrT2;
+					xvt.Globals[i].Goals[j].T3OrT4 = miss.Globals[i].Goals[j].T3AndOrT4;
+					xvt.Globals[i].Goals[j].T12OrT34 = miss.Globals[i].Goals[j].T12AndOrT34;
 					for (int k = 0; k < 12; k++) xvt.Globals[i].Goals[j].Triggers[k / 3].GoalStrings[k % 3] = miss.Globals[i].Goals[j].GoalStrings[k / 3, k % 3];
 					xvt.Globals[i].Goals[j].RawPoints = miss.Globals[i].Goals[j].RawPoints;
 					for (int h = 0; h < 4; h++)
@@ -934,9 +934,9 @@ namespace Idmr.Platform
 				xwa.Messages[i].MessageString = miss.Messages[i].MessageString;
 				for (int j = 0; j < 10; j++) xwa.Messages[i].SentTo[j] = miss.Messages[i].SentToTeam[j];
 				for (int j = 0; j < 4; j++) xwa.Messages[i].Triggers[j] = miss.Messages[i].Triggers[j];
-				xwa.Messages[i].TrigAndOr[0] = miss.Messages[i].T1AndOrT2;
-				xwa.Messages[i].TrigAndOr[1] = miss.Messages[i].T3AndOrT4;
-				xwa.Messages[i].TrigAndOr[2] = miss.Messages[i].T12AndOrT34;
+				xwa.Messages[i].TrigAndOr[0] = miss.Messages[i].T1OrT2;
+				xwa.Messages[i].TrigAndOr[1] = miss.Messages[i].T3OrT4;
+				xwa.Messages[i].TrigAndOr[2] = miss.Messages[i].T12OrT34;
 				xwa.Messages[i].OriginatingFG = (byte)(xwa.FlightGroups.Count - 1);
 				int delay = miss.Messages[i].Delay * 5;
 				if (delay <= 20) xwa.Messages[i].RawDelay = (byte)delay;
@@ -949,9 +949,9 @@ namespace Idmr.Platform
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					xwa.Globals[i].Goals[j].T1AndOrT2 = miss.Globals[i].Goals[j].T1AndOrT2;
-					xwa.Globals[i].Goals[j].T3AndOrT4 = miss.Globals[i].Goals[j].T3AndOrT4;
-					xwa.Globals[i].Goals[j].T12AndOrT34 = miss.Globals[i].Goals[j].T12AndOrT34;
+					xwa.Globals[i].Goals[j].T1AndOrT2 = miss.Globals[i].Goals[j].T1OrT2;
+					xwa.Globals[i].Goals[j].T3AndOrT4 = miss.Globals[i].Goals[j].T3OrT4;
+					xwa.Globals[i].Goals[j].T12AndOrT34 = miss.Globals[i].Goals[j].T12OrT34;
 					for (int k = 0; k < 12; k++) xwa.Globals[i].Goals[j].GoalStrings[k / 3, k % 3] = miss.Globals[i].Goals[j].Triggers[k / 3].GoalStrings[k % 3];
 					xwa.Globals[i].Goals[j].RawPoints = miss.Globals[i].Goals[j].RawPoints;
 					for (int h = 0; h < 4; h++) xwa.Globals[i].Goals[j].Triggers[h] = miss.Globals[i].Goals[j].Triggers[h].GoalTrigger;

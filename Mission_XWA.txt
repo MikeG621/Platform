@@ -249,10 +249,7 @@ struct Order (size 0x94)
 {
 	0x00	BYTE	Order (enum)
 	0x01	BYTE	Throttle
-	0x02	BYTE	Variable1
-	0x03	BYTE	Variable2
-	0x04	BYTE	Variable3
-	0x05	BYTE	(UnusedVariable4)	(Unknown9)
+	0x02	BYTE[4]	Variables	(contains Unknown9)
 	0x06	BYTE	Target3Type (enum VariableType)
 	0x07	BYTE	Target4Type (enum VariableType)
 	0x08	BYTE	Target3

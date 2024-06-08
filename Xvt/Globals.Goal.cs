@@ -45,19 +45,19 @@ namespace Idmr.Platform.Xvt
 			public sbyte RawPoints { get; set; }
 			
 			/// <summary>Gets or sets if both Triggers must be met.</summary>
-			public bool T1AndOrT2
+			public bool T1OrT2
 			{
 				get => AndOr[0];
 				set => AndOr[0] = value;
 			}
 			/// <summary>Gets or sets if both Triggers must be met.</summary>
-			public bool T3AndOrT4
+			public bool T3OrT4
 			{
 				get => AndOr[1];
 				set => AndOr[1] = value;
 			}
 			/// <summary>Gets or sets if both Trigger pairs must be met.</summary>
-			public bool T12AndOrT34
+			public bool T12OrT34
 			{
 				get => AndOr[2];
 				set => AndOr[2] = value;

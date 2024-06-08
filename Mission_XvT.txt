@@ -120,8 +120,8 @@ struct FlightGroup (size 0x562)
 	0x067	BYTE	Yaw
 	0x068	BYTE	Pitch
 	0x069	BYTE	Roll
-	0x06A	BOOL	*PermaDeathEnabled
-	0x06B	BYTE	*PermaDeathID
+	0x06A	BOOL	(Unused, PermaDeathEnabled)
+	0x06B	BYTE	(Unused, PermaDeathID)
 	0x06C	BYTE	(Unused)
 	0x06D	BYTE	ArrivalDifficulty (enum)
 	0x06E	TPair	Arrival1And2
@@ -141,8 +141,8 @@ struct FlightGroup (size 0x562)
 	0x09B	BYTE	ArriveViaMothership
 	0x09C	BYTE	DepartureMothership
 	0x09D	BYTE	DepartViaMothership
-	0x09E	BYTE	AltDepartMothership
-	0x09F	BYTE	AltDepartViaMothership
+	0x09E	BYTE	AlternateMothership
+	0x09F	BYTE	AlternateMothershipUsed
 	0x0A0	BYTE	CapturedDepartureMothership
 	0x0A1	BYTE	CapturedDepartViaMothership
 	0x0A2	Order[4]	Orders
@@ -221,7 +221,7 @@ struct GoalFG (size 0x4E)
 	0x03	SBYTE	Points
 	0x04	BOOL[10]	EnabledForTeam		Unknown10 through Unknown15
 	0x0E	BYTE	TimeLimit				Seconds * 5
-	0x0F	(63)	Reserved
+	0x0F	(63)	(Reserved)
 }
 
 struct Waypt (size 0x2C)
@@ -236,12 +236,12 @@ struct Waypt (size 0x2C)
 struct Message (size  0x74)
 {
 	0x00	SHORT	MessageIndex
-	0x02	CHAR[64] Message
-	0x42	BYTE[10] SentToTeams
+	0x02	CHAR[64]	Message
+	0x42	BYTE[10]	SentToTeams
 	0x4C	TPair[2]	Triggers
 	0x62	STR(16)	EditorNote
 	0x72	BYTE	Delay
-	0x73	BOOL	Trigger12OrTrigger34
+	0x73	BOOL	Triggers12OrTriggers34
 }
 
 struct GlobalGoal (size 0x80)
@@ -255,7 +255,7 @@ struct GoalGlobal (size 0x2A)
 	0x00	TPair[2]	Triggers
 	0x16	STR(16)	Name
 	0x26	BYTE	Version
-	0x27	BOOL	Trigger12OrTrigger34
+	0x27	BOOL	Triggers12OrTriggers34
 	0x28	BYTE	Delay
 	0x29	SBYTE	Points
 }
@@ -297,7 +297,7 @@ struct BrfStr
 
 struct GlobalGoalStrings (size 0x1500)
 {
-	0x0000	STR[3,4,3][64]	TriggerString
+	0x0000	STR(64)[3,4,3]	TriggerString
 }
 
 =====

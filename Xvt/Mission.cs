@@ -337,11 +337,11 @@ namespace Idmr.Platform.Xvt
 						Messages[i].Triggers[2][j] = buffer[0x15+j];
 						Messages[i].Triggers[3][j] = buffer[0x19+j];
 					}
-					Messages[i].T1AndOrT2 = Convert.ToBoolean(buffer[0x14]);
-					Messages[i].T3AndOrT4 = Convert.ToBoolean(buffer[0x1F]);
+					Messages[i].T1OrT2 = Convert.ToBoolean(buffer[0x14]);
+					Messages[i].T3OrT4 = Convert.ToBoolean(buffer[0x1F]);
 					Messages[i].Note = new string(br.ReadChars(16)).Trim('\0');	// null-termed
 					Messages[i].Delay = br.ReadByte();
-					Messages[i].T12AndOrT34 = Convert.ToBoolean(br.ReadByte());
+					Messages[i].T12OrT34 = Convert.ToBoolean(br.ReadByte());
 				}
 			}
 			else Messages.Clear();
@@ -360,7 +360,7 @@ namespace Idmr.Platform.Xvt
 						Globals[i].Goals[k].Triggers[1][j] = buffer[j + 4];
 					}
 					stream.Position += 2;
-					Globals[i].Goals[k].T1AndOrT2 = br.ReadBoolean();
+					Globals[i].Goals[k].T1OrT2 = br.ReadBoolean();
 					stream.Read(buffer, 0, 8);
 					for (j = 0; j < 4; j++)
 					{
@@ -368,10 +368,10 @@ namespace Idmr.Platform.Xvt
 						Globals[i].Goals[k].Triggers[3][j] = buffer[j + 4];
 					}
 					stream.Position += 2;
-					Globals[i].Goals[k].T3AndOrT4 = br.ReadBoolean();
+					Globals[i].Goals[k].T3OrT4 = br.ReadBoolean();
 					Globals[i].Goals[k].Name = new string(br.ReadChars(16));
 					Globals[i].Goals[k].Version = br.ReadByte();
-					Globals[i].Goals[k].T12AndOrT34 = br.ReadBoolean();
+					Globals[i].Goals[k].T12OrT34 = br.ReadBoolean();
 					Globals[i].Goals[k].Delay = br.ReadByte();
 					Globals[i].Goals[k].RawPoints = br.ReadSByte();
 				}
@@ -663,15 +663,15 @@ namespace Idmr.Platform.Xvt
 					bw.Write(Messages[i].Triggers[0].GetBytes());
 					bw.Write(Messages[i].Triggers[1].GetBytes());
 					fs.Position += 2;
-					bw.Write(Messages[i].T1AndOrT2);
+					bw.Write(Messages[i].T1OrT2);
 					bw.Write(Messages[i].Triggers[2].GetBytes());
 					bw.Write(Messages[i].Triggers[3].GetBytes());
 					fs.Position += 2;
-					bw.Write(Messages[i].T3AndOrT4);
+					bw.Write(Messages[i].T3OrT4);
 					bw.Write(Messages[i].Note.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x72;
 					bw.Write(Messages[i].Delay);
-					bw.Write(Messages[i].T12AndOrT34);
+					bw.Write(Messages[i].T12OrT34);
 				}
 				#endregion
 				#region Globals
@@ -684,15 +684,15 @@ namespace Idmr.Platform.Xvt
 						bw.Write(Globals[i].Goals[j].Triggers[0].GoalTrigger.GetBytes());
 						bw.Write(Globals[i].Goals[j].Triggers[1].GoalTrigger.GetBytes());
 						fs.Position += 2;
-						bw.Write(Globals[i].Goals[j].T1AndOrT2);
+						bw.Write(Globals[i].Goals[j].T1OrT2);
 						bw.Write(Globals[i].Goals[j].Triggers[2].GoalTrigger.GetBytes());
 						bw.Write(Globals[i].Goals[j].Triggers[3].GoalTrigger.GetBytes());
 						fs.Position += 2;
-						bw.Write(Globals[i].Goals[j].T3AndOrT4);
+						bw.Write(Globals[i].Goals[j].T3OrT4);
 						bw.Write(Globals[i].Goals[j].Name.ToCharArray()); bw.Write('\0');
 						fs.Position = p + 0x26;
 						bw.Write(Globals[i].Goals[j].Version);
-						bw.Write(Globals[i].Goals[j].T12AndOrT34);
+						bw.Write(Globals[i].Goals[j].T12OrT34);
 						bw.Write(Globals[i].Goals[j].Delay);
 						bw.Write(Globals[i].Goals[j].RawPoints);
 					}

@@ -9,7 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Format spec implemented
- * [UPD] EomDelay renamed to EomRawDeyal
+ * [UPD] EomDelay renamed to EomRawDelay
  * v4.0, 200809
  * [UPD] auto-properties
  * v2.1, 141214

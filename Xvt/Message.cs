@@ -41,13 +41,13 @@ namespace Idmr.Platform.Xvt
 		public bool[] SentToTeam { get; } = new bool[10];
 		/// <summary>Gets or sets if both triggers must be completed.</summary>
 		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b>.</remarks>
-		public bool T1AndOrT2 { get; set; }
+		public bool T1OrT2 { get; set; }
 		/// <summary>Gets or sets if both triggers must be completed.</summary>
 		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b>.</remarks>
-		public bool T3AndOrT4 { get; set; }
+		public bool T3OrT4 { get; set; }
 		/// <summary>Gets or sets if both trigger pairs must be completed.</summary>
 		/// <remarks><b>false</b> is "And", <b>true</b> is "Or", defaults to <b>false</b>.</remarks>
-		public bool T12AndOrT34 { get; set; }
+		public bool T12OrT34 { get; set; }
 		/// <summary>Gets or sets the string used as editor notes.</summary>
 		/// <remarks>Value is restricted to 15 characters.</remarks>
 		public string Note

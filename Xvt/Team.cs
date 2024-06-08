@@ -8,6 +8,7 @@
  */
 
 /* CHANGELOG
+ * [NEW] Format spec implemented
  * [FIX] Name now does 15 char instead of 14
  * v4.0, 200809
  * [UPD] auto-properties
@@ -73,5 +74,9 @@ namespace Idmr.Platform.Xvt
 		/// <summary>Gets the array accessor for the EoM Messages.</summary>
 		/// <remarks>Use the <see cref="MessageIndex"/> enumeration for array indexes.</remarks>
 		public Indexer<string> EndOfMissionMessages { get; private set; }
+
+		/// <summary>Gets the array for the delay between EoM condition and the messages being shown.</summary>
+		/// <remarks>Array is Length = 3.</remarks>
+		public byte[] EomRawDelay { get; } = new byte[3];
 	}
 }
