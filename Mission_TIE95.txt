@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.05.27
+Updated: 2024.06.08
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -49,14 +49,14 @@ SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
 DWORD	4	signed Int32
-STR(*)	*	null-terminated string, * is a decimal number
+STR(*)	*	null-terminated string, * is an integer length
 
 NOTE: Any byte locations that are between defined values and are not explicitly
 defined are deemed as Reserved(0), and have only been found to have zero
 values. All unknowns have been discovered and named accordingly per the LEC
 format spec, their previous TFW/YOGEME Unknown designation is listed next to
-it. Some values are known to be editor only and have no effect in-game, others
-may or may not be "active".
+it. Some values are known to be editor only or have no effect in-game, others
+may or may not be "active". Inactive values are named in paranethesis.
 Rest assured you have everything here to piece together a mission file from
 scratch, but please note offsets if creating read/write procedures.
 
@@ -85,10 +85,10 @@ struct FileHeader (size 0x1CA)
 	0x00D	BOOL	(Editor use, AllWaypointsShown)
 	0x00E	BYTE[8]	(Unused, Vars)
 	0x016	BYTE[2]	(Unused, WinBonus)
-	0x018	CHAR[64][6]	EndOfMissionMessages
+	0x018	CHAR[6][64]	EndOfMissionMessages
 	0x198	BYTE	(Unused, FailedEomMessageDelay)
 	0x199	BYTE	(Unused)
-	0x19A	CHAR[12][4]	IffNames3-6
+	0x19A	CHAR[4][12]	IffNames3-6
 }
 
 struct FlightGroup (size 0x124)
@@ -143,11 +143,11 @@ struct FlightGroup (size 0x124)
 	0x065	BOOL	AltMothershipUsed
 	0x066	BYTE	CaptureDepartureMothership
 	0x067	BOOL	CaptureDepartViaMothership
-	0x068	Order[3]
-	0x09E	GoalFG[4]
+	0x068	Order[3]	Orders
+	0x09E	GoalFG[4]	Goals
 	0x0A6	SBYTE	BonusGoalPoints
 	0x0A7	BYTE	(Unused)
-	0x0A8	Waypt[4]
+	0x0A8	Waypt[4]	Waypoints
 	0x120	BOOL	(Editor use, WaypointShown)	(was Unknown19)
 	0x121	BYTE	(Unused)
 	0x122	BYTE	(Editor use, BriefingLinked) (was Unknown20)
@@ -208,7 +208,7 @@ struct Message (size 0x5A)
 struct GlobalGoal (size 0x1C)
 {
 	0x00	Trigger[2]	Triggers
-	0x08	Str(16)	(Editor use, Note)
+	0x08	STR(16)	(Editor use, Note)
 	0x18	BYTE	(Editor use, Version)
 	0x19	BOOL	Trigger1OrTrigger2
 	0x1A	BYTE	(Unused, Delay)
@@ -220,11 +220,11 @@ struct Briefing
 	0x000	SHORT	RunningTime
 	0x002	SHORT	(Memory use, CurrentTime)
 	0x004	SHORT	(Memory use, CurrentEvent)
-	0x006	SHORT	(Not used, EventsLength)
-	0x008	SHORT	(Not used, Tile)
-	0x00A	Event[]
-	0x32A	VarLenStr[32]	Tags
-			VarLenStr[32]	Strings
+	0x006	SHORT	(Unused, EventsLength)
+	0x008	SHORT	(Unused, Tile)
+	0x00A	Event[]	Events
+	0x32A	BrfStr[32]	Tags
+			BrfStr[32]	Strings
 }
 
 struct Event
@@ -234,10 +234,10 @@ struct Event
 	0x4	SHORT[]	Variables
 }
 
-struct VarLenStr
+struct BrfStr
 {
 	0x0	SHORT	Length
-	0x2	CHAR[Length]
+	0x2	CHAR[Length]	Text
 }
 
 struct PreMissionQuestions
@@ -268,8 +268,8 @@ lists follow after the detail.
 
 -- FileHeader --
 
-The first SHORT is a marker used to identify the mission file as belonging to
-TIE95. Other platforms have different markers in this place.
+PlatformID is a marker used to identify the mission file as belonging to
+TIE95. Other platforms have different values in this place.
 
 **NOTE** There is a legacy format where this value is not present. In-game,
 this is handled as if the value is not < 0, then NumFGs is actually at 0x00.

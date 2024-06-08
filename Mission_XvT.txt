@@ -2,7 +2,7 @@ XvT Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Contributor: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.04.14
+Updated: 2024.06.08
 =====
 
 This is going to be a very lengthy definition of the XvT mission file. Due
@@ -26,12 +26,8 @@ The mission files are found in the \TRAIN directory, have the .TIE file
 extension and no required naming convention, just that the appropriate .LST
 has the filename spelled correctly to be able to play it. The LEC naming
 convention for the files is a little more involved than in TIE95 and varies
-depending on the type of mission you're creating. Since the naming convention
-doesn't have any effect on playing the mission, I'm going to skip over this.
-
-There are already a couple editors out there for XvT missions, most notably
-XvTEd. Anyone with a lot of spare time and a hex editor can map out these
-values, and whadya know, I was bored :P
+depending on the type of mission you're creating. The naming convention doesn't
+have any effect on the game, so I'm not going to detail it here.
 
 =====
 XvT Mission Structure
@@ -46,18 +42,16 @@ SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
 DWORD	4	signed Int32
-STR(*)	*	null-terminated string, * is an integer
+STR(*)	*	null-terminated string, * is an integer length
 
 NOTE: Any byte locations that are between defined values and are not explicitly
 defined are deemed as Reserved(0), and have only been found to have zero
-values. Unknown bytes that have non-zero values have been called out in the
-structure. Rest assured you have everything here to piece together a mission
+values. All unknowns have been discovered and named accordingly per the LEC
+format spec, their previous Unknown designation is listed next to it. Some
+values are known to be editor only or have no effect in-game, others may or may
+not be "active". Inactive values are named in paranethesis, questionable have
+"*" prefixes. Rest assured you have everything here to piece together a mission
 file from scratch, but please note offsets if creating read/write procedures.
-
-NOTE2: Since XvT is a step up from TIE95, the mission file is larger and more
-complex.  There are many sections that are repeated, and several additional
-sections that are introduced, some of which being dynamic in size.  You'll see
-the appropriate notes as needed.
 
 --
 FileHeader
@@ -67,7 +61,7 @@ GlobalGoal[10]
 Team[10]
 Briefing[8]
 STR(64)[NumFGs,8,3]	FGGoalStrings
-GlobalGoalString[10]
+GlobalGoalStrings[10]
 #if (PlatformID==12) (XvT)
 STR(1024)		MissionDescription
 #elseif (PlatformID==14) (BoP)
@@ -151,10 +145,10 @@ struct FlightGroup (size 0x562)
 	0x09F	BYTE	AltDepartViaMothership
 	0x0A0	BYTE	CapturedDepartureMothership
 	0x0A1	BYTE	CapturedDepartViaMothership
-	0x0A2	Order[4]
+	0x0A2	Order[4]	Orders
 	0x1EA	TPair	SkipToOrder4
-	0x1F5	GoalFG[8]
-	0x466	Waypt[4]
+	0x1F5	GoalFG[8]	Goals
+	0x466	Waypt[4]	Waypoints
 	0x516	BOOL	(Editor use, WaypointShown)	(was Unknown17)
 	0x517	BYTE	(Unused)
 	0x518	BYTE[8]	(Editor use, BriefingLinked)	(was Unknown18)
@@ -252,8 +246,8 @@ struct Message (size  0x74)
 
 struct GlobalGoal (size 0x80)
 {
-	0x00	SHORT	Reserved (3)
-	0x02	GoalGlobal[3]
+	0x00	SHORT	NumGoals (3)
+	0x02	GoalGlobal[3]	Goals
 }
 
 struct GoalGlobal (size 0x2A)
@@ -268,10 +262,10 @@ struct GoalGlobal (size 0x2A)
 
 struct Team (size 0x1E7)
 {
-	0x000	SHORT	Reserved (1)
+	0x000	SHORT	(Reserved) (1)
 	0x002	STR(16)	Name
-	0x01A	BOOL[10] Allegiances
-	0x024	CHAR[64][6] EndOfMissionMessages
+	0x01A	BOOL[10]	Allegiances
+	0x024	CHAR[6][64] EndOfMissionMessages
 	0x1A4	BYTE[3]	EomMessageDelays
 }
 
@@ -282,10 +276,10 @@ struct Briefing
 	0x004	SHORT	StartEvents
 	0x006	SHORT	EventsLength
 	0x008	SHORT	Tile
-	0x00A	Event[]
+	0x00A	Event[]	Events
 	0x32A	BOOL[10]	ViewedByTeam
-	0x334	Tag[32]
-		String[32]
+	0x334	BrfStr[32]	Tags
+			BrfStr[32]	Strings
 }
 
 struct Event
@@ -295,21 +289,15 @@ struct Event
 	0x4	SHORT[]	Variables
 }
 
-struct Tag
+struct BrfStr
 {
 	0x0	SHORT	Length
 	0x2	CHAR[Length]
 }
 
-struct String
+struct GlobalGoalStrings (size 0x1500)
 {
-	0x0	SHORT	Length
-	0x2	CHAR[Length]
-}
-
-struct GlobalGoalString (size 0x1500)
-{
-	0x0000	STR[64][3,4,3]	TriggerString
+	0x0000	STR[3,4,3][64]	TriggerString
 }
 
 =====
@@ -549,7 +537,7 @@ string, but as far as I know it's never used.  The goal messages also follow
 the same color behaviour as in-flight messages.
 
 EndOfMissionMessages are 64 character strings, not terminated. It's really a
-[64][3,2] array, as the strings are PrimaryComplete1, PrimaryComplete2,
+[3,2][64] array, as the strings are PrimaryComplete1, PrimaryComplete2,
 PrimaryFailed1, PrimaryFailed2, SecondaryComplete1, SecondaryComplete2.
 
 -- Briefing --

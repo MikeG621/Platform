@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.04.14
+Updated: 2024.06.08
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -38,20 +38,23 @@ SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
 DWORD	4	signed Int32
-STR(*)	*	null-terminated string, * is a decimal number
+STR(*)	*	null-terminated string, * is an integer length
 
-NOTE: All Unknown values have been defined, and all Reserved locations are
-noted. If a value is likely or known to not be used by the game engine whether
-it's due to obsolecense or dropped features, they're *Marked but they're at
-least labeled per the official format spec.  In addition, Enum values such as
-triggers or orders that could not be set or were actively re-mapped to other
-values are noted as (Mapped), unless they are known to work properly.
+NOTE: Any byte locations that are between defined values and are not explicitly
+defined are deemed as Reserved(0), and have only been found to have zero
+values. All unknowns have been discovered and named accordingly per the LEC
+format spec, their previous Unknown designation is listed next to it. Some
+values are known to be editor only or have no effect in-game, others may or may
+not be "active". Inactive values are named in paranethesis, questionable have
+"*" prefixes. In addition, Enum values such as triggers or orders that could
+not be set or were actively re-mapped to other values are noted as (Mapped),
+unless they are known to work properly.
 
 NOTE2: **IMPORTANT** The And/Or Trigger BOOLs (and possibly all BOOLs) are
-actually checking for even/odd instead of zero/non-zero. The source does make a
-(value & 1) comparison to determine TRUE. For standard read/write this isn't an
-issue, but if you're dealing with a poorly formatted mission file, this can
-cause unexpected results as 2 would be FALSE but 3 is TRUE again.
+actually making a (value & 1) comparison to determine TRUE, not a non-zero
+check. For standard read/write this isn't an issue, but if you're dealing with
+a poorly formatted mission file, this can cause unexpected results as 2 would
+be FALSE but 3 is TRUE again.
 
 --
 FileHeader
@@ -98,14 +101,14 @@ struct FileHeader (size 0x23F0)
 	0x23B3	BYTE		*SecondaryVersion (0x62 'b', was Unknown3, might be editor only)
 	0x23B4	BYTE		WinOfficer (enum) (was Unknown4)
 	0x23B5	BYTE		FailOfficer (enum) (was Unknown5)
-	0x23B6	(58)		Reserved
+	0x23B6	(58)		(Reserved)
 }
 
 struct Region (size 0x84)
 {
 	0x00	STR(64)	Name
 	0x40	DWORD	ID
-	0x44	(64)	Reserved
+	0x44	(64)	(Reserved)
 }
 
 struct GlbCrg "GlobalCargo" (size 0x8C)
@@ -117,7 +120,7 @@ struct GlbCrg "GlobalCargo" (size 0x8C)
 	0x49	BYTE	Volume	(was Unknown3)
 	0x4A	BYTE	Value	(was Unknown4)
 	0x4B	BYTE	Volatility	(was Unknown5)	{low, med, high, kaboom!}
-	0x4C	(64)	Reserved
+	0x4C	(64)	(Reserved)
 }
 
 struct GlbUn "GlobalUnit" (size 0x57)
@@ -222,7 +225,7 @@ struct FlightGroup (size 0xE3E)
 	0xDFD	STR(20)	PilotID
 	0xE11	BYTE	(IOReserved)
 	0xE12	DWORD	Backdrop
-	0xE16	(40)	Reserved	(contained Unk34-41)
+	0xE16	(40)	(Reserved)	(contained Unk34-41)
 }
 
 struct TPair "TriggerPair" (size 0x10)
@@ -230,7 +233,7 @@ struct TPair "TriggerPair" (size 0x10)
 	0x00	Trigger	Trigger1
 	0x06	Trigger	Trigger2
 	0x0C	BYTE[2]	(Unused)
-	0x0E	BOOL	AndOr
+	0x0E	BOOL	T1OrT2
 	0x0F	BYTE	(IOReserved)
 }
 struct Trigger (size 0x6)
@@ -265,7 +268,7 @@ struct Order (size 0x94)
 	0x12	BYTE	Speed
 	0x13	BYTE	(IOReserved)
 	0x14	Wypt[8]	Waypoints
-	0x54	(64)	Reserved
+	0x54	(64)	(Reserved)
 }
 
 struct Wypt (size 0x8)
@@ -286,7 +289,7 @@ struct GoalFG (size 0x50)
 	0x04	BOOL[10] EnabledForTeam
 	0x0E	BYTE	Parameter or Goal time limit depending on order
 	0x0F	BYTE	ActiveSequence
-	0x10	(64)	Reserved
+	0x10	(64)	(Reserved)
 }
 
 struct Message (size 0xA2)
@@ -310,13 +313,12 @@ struct Message (size 0xA2)
 struct GlobalGoal (size 0x170)
 {
 	0x00	SHORT	NumGoals (3)
-	0x02	GoalGlobal[3]
+	0x02	GoalGlobal[3]	Goals
 }
 
 struct GoalGlobal (size 0x7A)
 {
-	0x00	TPair	Trigger1and2	(contained Unknown1)
-	0x10	TPair	Trigger3and4
+	0x00	TPair[2]	Triggers	(contained Unknown1)
 	0x20	STR(16)	Name	(contains Unknown2)
 	0x30	BYTE	Version
 	0x31	BOOL	Triggers12OrTriggers34
@@ -325,20 +327,20 @@ struct GoalGlobal (size 0x7A)
 	0x34	BYTE[4]	PointsPerTrigger (was Unknown4-6)
 	0x38	BYTE	ActiveSquence
 	0x39	BYTE	(IOReserved)
-	0x3A	(64)	Reserved
+	0x3A	(64)	(Reserved)
 }
 
 struct Team (size 0x1E7)
 {
-	0x000	SHORT		Reserved (1)
+	0x000	SHORT		(Reserved) (1)
 	0x002	STR(16)		Name
 	0x012	(8)			Reserved
 	0x01A	BYTE[10]	Allegiances
-	0x024	CHAR[64][6]	EndOfMissionMessages
+	0x024	CHAR[6][64]	EndOfMissionMessages
 	0x1A4	BYTE[3]		EomMessageDelay (was Unknowns)
 	0x1A7	BYTE[3]		EomSourceFG	(was Unknowns)
-	0x1AA	CHAR[20][3]	EomVoiceIDs
-	0x1E6	(1)			Reserved
+	0x1AA	CHAR[3][20]	EomVoiceIDs
+	0x1E6	(1)			(Reserved)
 }
 
 struct Briefing
@@ -350,7 +352,7 @@ struct Briefing
 	0x0008	SHORT		Tile
 	0x000A	Event[]		Events
 	0x320A	Icon[192]	Icons
-	0x440A	BOOL[10]	ShowToTeams
+	0x440A	BOOL[10]	ViewedByTeam
 	0x4414	BrfStr[128]	Tags
 			BrfStr[128]	Strings
 }
@@ -369,13 +371,13 @@ struct Icon (size 0x18)
 	0x02	SHORT	X
 	0x04	SHORT	Y
 	0x06	SHORT	Orientation
-	0x08	(16)	Reserved
+	0x08	(16)	(Reserved)
 }
 
 struct BrfStr
 {
 	0x0	SHORT	Length
-	0x2	CHAR[Length]
+	0x2	CHAR[Length]	Text
 }
 
 =====
@@ -663,7 +665,7 @@ Allegiance can have the following values:
 02	Neutral
 
 EndOfMissionMessages are 64 character strings, not terminated. It's really a
-[64][3,2] array, as the strings are PrimaryComplete1, PrimaryComplete2,
+[3,2][64] array, as the strings are PrimaryComplete1, PrimaryComplete2,
 PrimaryFailed1, PrimaryFailed2, Outstanding1, Oustanding2.
 
 -- Briefing --
@@ -1444,8 +1446,8 @@ Order
 	Var1	Number of Dockings
 07	Attack
 	Var1	Component
-	Var2	Warheads? {L+W1, L+W1+W2, L}
-	Var3	?? {Normal, All, None}
+	Var2	Component2
+	Var3	Warheads {Normal, All, None}
 08	Attack Escorts
 09	Protect
 0A	Escort

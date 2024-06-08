@@ -2,7 +2,7 @@
 Author: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Original Template: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2022.01.26
+Updated: 2024.06.08
 =====
 
 This is a definition for the XWING mission file (XWI) and briefing file (BRF)
@@ -39,11 +39,8 @@ NAME	LENGTH	DESC
 ----	------	----
 BOOL	1	0=false, 1=true
 BYTE	1	unsigned 8-bit
-SBYTE	1	signed 8-bit, [-128, +127]
 CHAR	1	ASCII character
 SHORT	2	signed Int16
-INT	4	signed Int32
-STR(*)	*	null-terminated string, * is a decimal number
 
 NOTE: Any byte locations that are between defined values and are not explicitly
 defined are deemed as Reserved(0), and have only been found to have zero
@@ -64,7 +61,7 @@ struct FileHeader (size 0xCE)
 	0x004	SHORT	EndEvent (enum)
 	0x006	SHORT	RndSeed (unused)
 	0x008	SHORT	Location (enum)
-	0x00A	CHAR[64][3]	EndOfMissionMessages
+	0x00A	CHAR[3][64]	EndOfMissionMessages
 	0x0CA	SHORT	NumFGs
 	0x0CC	SHORT	NumOGs
 }
@@ -209,7 +206,7 @@ struct MissionHeader (size 0xC8)
 	0x02	SHORT	EndEvent (enum)
 	0x04	SHORT	RndSeed (unused)
 	0x06	SHORT	Location (enum)
-	0x08	CHAR[64][3]	EndOfMissionMessages
+	0x08	CHAR[3][64]	EndOfMissionMessages
 }
 
 IconExtraData
