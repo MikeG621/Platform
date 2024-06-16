@@ -8,7 +8,8 @@
  */
 
 /* CHANGELOG
- * [[UPD] Format spec implemented
+ * [UPD] Format spec implemented
+ * [UPD] AndOr renamed
  * v6.1, 231208
  * [NEW] CommandList enum
  * [FIX] Time calculation for target string
@@ -374,7 +375,7 @@ namespace Idmr.Platform.Xwa
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
-						if (T1AndOrT2) order += " or " + s2;
+						if (T1OrT2) order += " or " + s2;
 						else order += " if " + s2;
 					}
 					s = orderTargetString(Target3, Target3Type);
@@ -382,7 +383,7 @@ namespace Idmr.Platform.Xwa
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
-						if (T3AndOrT4) order += " or " + s2;
+						if (T3OrT4) order += " or " + s2;
 						else order += " if " + s2;
 					}
 				}
@@ -495,7 +496,7 @@ namespace Idmr.Platform.Xwa
 			}
 
 			/// <summary>Whether or not the Skip Triggers are exclusive.</summary>
-			public bool SkipT1AndOrT2 { get; set; }
+			public bool SkipT1OrT2 { get; set; }
 
 			/// <summary>Gets the order-specific location markers.</summary>
 			/// <remarks>Array is length 8.</remarks>
@@ -593,7 +594,7 @@ namespace Idmr.Platform.Xwa
 			/// <summary>Checks if the Skip Trigger is in a state that will never fire.</summary>
 			/// <returns><b>true</b> if the Skip is impossible.</returns>
 			/// <remarks>Checks to make sure a trigger does not use a FALSE condition paired (AND) with True.</remarks>
-			public bool IsSkipTriggerBroken() => ((SkipTriggers[0].Condition == (byte)Mission.Trigger.ConditionList.False || SkipTriggers[1].Condition == (byte)Mission.Trigger.ConditionList.False) && SkipT1AndOrT2 == false);
+			public bool IsSkipTriggerBroken() => ((SkipTriggers[0].Condition == (byte)Mission.Trigger.ConditionList.False || SkipTriggers[1].Condition == (byte)Mission.Trigger.ConditionList.False) && SkipT1OrT2 == false);
 
 			/// <summary>Check if the Order is used.</summary>
 			/// <returns><b>true</b> if the Order is used.</returns>

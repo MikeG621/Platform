@@ -147,6 +147,7 @@ namespace Idmr.Platform
 		/// <remarks>One-indexed.</remarks>
 		public byte NumberOfWaves { get; set; }
 		/// <summary>Gets or sets the delay between wave arrivals.</summary>
+		/// <remarks>Does not work in TIE.</remarks>
 		public byte WavesDelay { get; set; }
 		/// <summary>Gets or sets the craft index the Player occupies.</summary>
 		/// <remarks>One-indexed, <b>0</b> for AI-controlled.</remarks>

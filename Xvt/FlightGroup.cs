@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [NEW] Format spec implemented, CounterTypes, WavesEnd, RadioChannel
+ * [UPD] AndOr renamed
  * v5.0, 201004
  * [UPD] Unknown2 to StopArrivingWhen
  * [UPD] Unknown3 to RandomArrivalDelayMinutes
@@ -321,7 +322,7 @@ namespace Idmr.Platform.Xvt
 		public Mission.Trigger[] SkipToOrder4Trigger { get; } = new Mission.Trigger[2];
 		/// <summary>Determines if both <see cref="SkipToOrder4Trigger">Skip triggers</see> must be completed.</summary>
 		/// <remarks><b>true</b> is AND, <b>false</b> is OR.</remarks>
-		public bool SkipToO4T1AndOrT2 { get; set; }
+		public bool SkipToO4T1OrT2 { get; set; }
 		
 		/// <summary>Gets the FlightGroup-specific mission goals.</summary>
 		/// <remarks>Array is Length = 8.</remarks>

@@ -257,7 +257,7 @@ namespace Idmr.Platform.Xvt
 					FlightGroups[i].SkipToOrder4Trigger[0][j] = buffer[j];
 					FlightGroups[i].SkipToOrder4Trigger[1][j] = buffer[4 + j];
 				}
-				FlightGroups[i].SkipToO4T1AndOrT2 = Convert.ToBoolean(buffer[0xA]);
+				FlightGroups[i].SkipToO4T1OrT2 = Convert.ToBoolean(buffer[0xA]);
 				#endregion
 				#region Goals
 				for (j = 0; j < 8; j++)
@@ -607,7 +607,7 @@ namespace Idmr.Platform.Xvt
 					bw.Write(FlightGroups[i].SkipToOrder4Trigger[0].GetBytes());
 					bw.Write(FlightGroups[i].SkipToOrder4Trigger[1].GetBytes());
 					fs.Position += 2;
-					bw.Write(FlightGroups[i].SkipToO4T1AndOrT2);
+					bw.Write(FlightGroups[i].SkipToO4T1OrT2);
 					#endregion
 					#region Goals
 					for (j = 0; j < 8; j++)

@@ -654,7 +654,7 @@ namespace Idmr.Platform
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
 					// need to adjust order times
 				}
-				xvt.FlightGroups[i].SkipToO4T1AndOrT2 = miss.FlightGroups[i].Orders[0, 3].SkipT1AndOrT2;
+				xvt.FlightGroups[i].SkipToO4T1OrT2 = miss.FlightGroups[i].Orders[0, 3].SkipT1OrT2;
 				for (int j = 0; j < 2; j++)
 				{
 					try { xvt.FlightGroups[i].SkipToOrder4Trigger[j] = (Xvt.Mission.Trigger)miss.FlightGroups[i].Orders[0, 3].SkipTriggers[j]; }
@@ -864,7 +864,7 @@ namespace Idmr.Platform
 					xwa.FlightGroups[i].Orders[0, j] = miss.FlightGroups[i].Orders[j];
 					for (int k = 0; k < 8; k++) xwa.FlightGroups[i].Orders[0, j].Waypoints[k] = miss.FlightGroups[i].Waypoints[k + 4];
 				}
-				xwa.FlightGroups[i].Orders[0, 3].SkipT1AndOrT2 = miss.FlightGroups[i].SkipToO4T1AndOrT2;
+				xwa.FlightGroups[i].Orders[0, 3].SkipT1OrT2 = miss.FlightGroups[i].SkipToO4T1OrT2;
 				for (int j = 0; j < 2; j++) xwa.FlightGroups[i].Orders[0, 3].SkipTriggers[j] = miss.FlightGroups[i].SkipToOrder4Trigger[j];
 				#endregion
 				#region Goals
@@ -1471,7 +1471,7 @@ namespace Idmr.Platform
 
 						BaseFlightGroup.BaseOrder order3 = tie.FlightGroups[i].Orders[2];
 						order3.Command = 20;    //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1AndOrT2 = true;
+						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1OrT2 = true;
 						order3.Variable1 = 255; //Maximum wait time, 21:15
 						order3.Throttle = 0;
 					}
@@ -1494,7 +1494,7 @@ namespace Idmr.Platform
 							Command = 7,           //Attack targets
 							Target1Type = 0x5,     //IFF
 							Target1 = oppositeIFF,
-							T1AndOrT2 = true      //OR   (none)
+							T1OrT2 = true      //OR   (none)
 						};
 						tie.FlightGroups[i].Orders[0] = order;
 					}
@@ -1951,7 +1951,7 @@ namespace Idmr.Platform
 
 						BaseFlightGroup.BaseOrder order3 = xvt.FlightGroups[i].Orders[2];
 						order3.Command = 20;  //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1AndOrT2 = true;
+						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1OrT2 = true;
 						order3.Variable1 = 255; //Maximum wait time, 21:15
 						order3.Throttle = 0;
 					}
@@ -1974,7 +1974,7 @@ namespace Idmr.Platform
 							Command = 7,           //Attack targets
 							Target1Type = 0x5,     //IFF
 							Target1 = oppositeIFF,
-							T1AndOrT2 = true      //OR   (none)
+							T1OrT2 = true      //OR   (none)
 						};
 						xvt.FlightGroups[i].Orders[0] = order;
 					}
@@ -2444,7 +2444,7 @@ namespace Idmr.Platform
 
 						BaseFlightGroup.BaseOrder order3 = xwa.FlightGroups[i].Orders[0, 2];
 						order3.Command = (byte)Xwa.FlightGroup.Order.CommandList.SSWait;  //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF; order3.Target1 = oppositeIFF; order3.T1AndOrT2 = true;
+						order3.Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF; order3.Target1 = oppositeIFF; order3.T1OrT2 = true;
 						order3.Variable1 = 255; //Maximum wait time, 21:15
 						order3.Throttle = 0;
 					}
@@ -2467,7 +2467,7 @@ namespace Idmr.Platform
 							Command = (byte)Xwa.FlightGroup.Order.CommandList.AttackTargets,
 							Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF,
 							Target1 = oppositeIFF,
-							T1AndOrT2 = true      //OR   (none)
+							T1OrT2 = true      //OR   (none)
 						};
 						xwa.FlightGroups[i].Orders[0, 0] = order;
 					}
@@ -2652,7 +2652,7 @@ namespace Idmr.Platform
 				order.Target2Type = 1;
 				order.Target2 = (byte)targSec;
 			}
-			order.T1AndOrT2 = true;  //OR
+			order.T1OrT2 = true;  //OR
 		}
 
 		/// <summary> Determine if an XWING95 CraftType is a fighter.</summary>
@@ -2672,10 +2672,10 @@ namespace Idmr.Platform
 			if (order.Target2Type != 0 || order.Target2 != 0) return;
 			order.Target1Type = order.Target3Type; order.Target1 = order.Target3;
 			order.Target2Type = order.Target4Type; order.Target2 = order.Target4;
-			order.T1AndOrT2 = order.T3AndOrT4;
+			order.T1OrT2 = order.T3OrT4;
 			order.Target3Type = 0; order.Target3 = 0;
 			order.Target4Type = 0; order.Target4 = 0;
-			order.T3AndOrT4 = true;  //Reset to OR
+			order.T3OrT4 = true;  //Reset to OR
 		}
 
 		/// <summary>Returns text converted to lowercase, if applicable.  Each word's initial letter will remain capitalized.</summary>
@@ -2745,13 +2745,13 @@ namespace Idmr.Platform
 					//Attack enemies (Fighter, TRN, SHU)
 					order1.Command = 7;
 					order1.Target3Type = 0x3; order1.Target3 = 0x0;  //Fighters
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3AndOrT4 = false;
+					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
 
 					order2.Command = 7;
 					order2.Target1Type = 0x3; order2.Target1 = 0x1;  //Transports
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1AndOrT2 = false;
+					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
 					order2.Target3Type = 0x3; order2.Target3 = 0x0;  //Fighters
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3AndOrT4 = false;
+					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
 					break;
 				case 11: order1.Command = 4; order1.Variable1 = 1; break; //Rendezvous (1 docking)
 				case 12: order1.Command = 5; break; //Disabled
@@ -2765,63 +2765,63 @@ namespace Idmr.Platform
 					//Disable all enemies (Fighter, TRN, SHU)
 					order1.Command = 11;
 					order1.Target3Type = 0x3; order1.Target3 = 0x0;  //Fighters
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3AndOrT4 = false;
+					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
 
 					order2.Command = 11;
 					order2.Target1Type = 0x3; order2.Target1 = 0x1;  //Transports
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1AndOrT2 = false;
+					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
 					order2.Target3Type = 0x3; order2.Target3 = 0x0;  //Fighters
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3AndOrT4 = false;
+					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
 					break;
 				case 20:
 					//Attack Transports
 					order1.Command = 7;
 					order1.Target3Type = 0x3; order1.Target3 = 0x1;  //Transports
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3AndOrT4 = false;
+					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
 					break;
 				case 21:
 					//Attack Freighters (and CRV)
 					order1.Command = 7;
 					order2.Command = 7;
 					order2.Target1Type = 0x3; order2.Target1 = 0x2;  //Freighters
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1AndOrT2 = false;
+					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
 					order2.Target3Type = 0x2; order2.Target3 = 0x27;  //CRV
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3AndOrT4 = false;
+					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
 					break;
 				case 22:
 					//Attack Starships
 					order1.Command = 7;
 					order1.Target3Type = 0x3; order1.Target3 = 0x3;  //Starships
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3AndOrT4 = false;
+					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
 					break;
 				case 23:
 					//Disable Transports
 					order1.Command = 11;
 					order1.Target3Type = 0x3; order1.Target3 = 0x1;  //Transports
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3AndOrT4 = false;
+					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
 					break;
 				case 24:
 					//Disable Freighters (and CRV)
 					order1.Command = 11;
 					order2.Command = 11;
 					order2.Target1Type = 0x3; order2.Target1 = 0x2;  //Freighters
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1AndOrT2 = false;
+					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
 					order2.Target3Type = 0x2; order2.Target3 = 0x27;  //CRV
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3AndOrT4 = false;
+					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
 					break;
 				case 25:
 					//Disable Starships
 					order1.Command = 11;
 					order1.Target3Type = 0x3; order1.Target3 = 0x3;  //Starships
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3AndOrT4 = false;
+					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
 					break;
 				case 26:
 					order1.Command = 22;    //SS Hold Position -> SS Await Return            [JB] Attempted workaround.  TIE format doesn't seem to have a proper SS Hold order that autotargets enemies, and patrol doesn't always play nice with orientation depending on how the mission waypoints are set up.  So do SS Await Return for autotargeting (probably works if it's a starship), then transition into SS Wait with maximum time.
-					order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3AndOrT4 = true;
+					order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3OrT4 = true;
 					order1.Variable1 = 1;  //One loop So it doesn't head home.
 					order1.Throttle = 0;   //Zero throttle so it doesn't move.
 					order2.Command = 20;
-					order2.Target1Type = 0x5; order1.Target1 = iff; order1.T1AndOrT2 = true;
+					order2.Target1Type = 0x5; order1.Target1 = iff; order1.T1OrT2 = true;
 					order2.Variable1 = 255; //Maximum wait time, 21:15
 					order2.Throttle = 0;    //Zero throttle so it doesn't move.
 					break;
@@ -2859,9 +2859,9 @@ namespace Idmr.Platform
 		/// <param name="iff">IFF to target.</param>
 		static void assignIFFTarget(BaseFlightGroup.BaseOrder order1, byte iff)
 		{
-			if (order1.Target1Type == 0) { order1.Target1Type = 0x5; order1.Target1 = iff; order1.T1AndOrT2 = true; }      //There's a bug in TIE Fighter where Targets 3 and 4 will not function for SS Patrol orders.
-			else if (order1.Target2Type == 0) { order1.Target2Type = 0x5; order1.Target2 = iff; order1.T1AndOrT2 = true; }
-			else { order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3AndOrT4 = true; }
+			if (order1.Target1Type == 0) { order1.Target1Type = 0x5; order1.Target1 = iff; order1.T1OrT2 = true; }      //There's a bug in TIE Fighter where Targets 3 and 4 will not function for SS Patrol orders.
+			else if (order1.Target2Type == 0) { order1.Target2Type = 0x5; order1.Target2 = iff; order1.T1OrT2 = true; }
+			else { order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3OrT4 = true; }
 		}
 
 		/// <summary>Validates FlightGroup.Goals for TIE.</summary>

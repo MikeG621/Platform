@@ -356,7 +356,7 @@ namespace Idmr.Platform.Xwa
 						FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[0][h] = buffer[h];
 						FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[1][h] = buffer[h + 6];
 					}
-					FlightGroups[i].Orders[j / 4, j % 4].SkipT1AndOrT2 = Convert.ToBoolean(buffer[0xE] & 1);
+					FlightGroups[i].Orders[j / 4, j % 4].SkipT1OrT2 = Convert.ToBoolean(buffer[0xE] & 1);
 				}
 				#endregion
 				#region Goals
@@ -801,7 +801,7 @@ namespace Idmr.Platform.Xwa
 						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[0].GetBytes());
 						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipTriggers[1].GetBytes());
 						fs.Position += 2;
-						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipT1AndOrT2);
+						bw.Write(FlightGroups[i].Orders[j / 4, j % 4].SkipT1OrT2);
 						fs.Position++;
 					}
 					#endregion

@@ -238,7 +238,7 @@ namespace Idmr.Platform.Tie
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
-						if (T1AndOrT2) order += " or " + s2;
+						if (T1OrT2) order += " or " + s2;
 						else order += " if " + s2;
 					}
 					s = orderTargetString(Target3, Target3Type);
@@ -246,7 +246,7 @@ namespace Idmr.Platform.Tie
 					if (s != "") order += ", " + s;
 					if (s != "" && s2 != "")
 					{
-						if (T3AndOrT4) order += " or " + s2;
+						if (T3OrT4) order += " or " + s2;
 						else order += " if " + s2;
 					}
 				}

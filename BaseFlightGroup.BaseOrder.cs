@@ -10,6 +10,7 @@
 /* CHANGELOG
  * [NEW] Format spec implemented
  * [NEW] GetBytes
+ * [UPD] AndOr renamed
  * v3.0, 180309
  * [NEW] helper functions for FG move/delete [JB]
  * v2.1, 141214
@@ -96,7 +97,7 @@ namespace Idmr.Platform
 			}
 			/// <summary>Gets or sets if the T3 and T4 settings are mutually exclusive.</summary>
 			/// <remarks><b>false</b> is And/If and <b>true</b> is Or.</remarks>
-			public bool T3AndOrT4
+			public bool T3OrT4
 			{
 				get => Convert.ToBoolean(_items[10]);
 				set => _items[10] = Convert.ToByte(value);
@@ -127,7 +128,7 @@ namespace Idmr.Platform
 			}
 			/// <summary>Gets or sets if the T1 and T2 settings are mutually exclusive.</summary>
 			/// <remarks><b>false</b> is And/If and <b>true</b> is Or.</remarks>
-			public bool T1AndOrT2
+			public bool T1OrT2
 			{
 				get => Convert.ToBoolean(_items[16]);
 				set => _items[16] = Convert.ToByte(value);
