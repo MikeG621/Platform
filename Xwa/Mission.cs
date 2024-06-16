@@ -11,6 +11,7 @@
  * [NEW] Full format spec implemented
  * [FIX] EoM notes R/W for other teams
  * [UPD] Briefing events I/O
+ * [FIX] TrimEnd fix from 5.0 extended throughout
  * v6.1, 231208
  * [UPD] GetDelaySeconds is now static
  * v6.0, 231027
@@ -203,16 +204,16 @@ namespace Idmr.Platform.Xwa
 			LegacyRescue = br.ReadByte();
 			LegacyAllWayShown = br.ReadByte();
 			LegacyVars = br.ReadBytes(LegacyVars.Length);
-			for (i = 2; i < 6; i++) _iff[i] = new string(br.ReadChars(0x14)).Trim('\0');
+			for (i = 2; i < 6; i++) _iff[i] = new string(br.ReadChars(0x14)).TrimEnd('\0');
 			for (i = 0; i < 4; i++)
 			{
-				Regions[i].Name = new string(br.ReadChars(0x40)).Trim('\0');
+				Regions[i].Name = new string(br.ReadChars(0x40)).TrimEnd('\0');
 				Regions[i].ID = br.ReadInt32();
 				stream.Position += 0x40;
 			}
 			for (i = 0; i < 16; i++)
 			{
-				GlobalCargos[i].Cargo = new string(br.ReadChars(0x40)).Trim('\0');
+				GlobalCargos[i].Cargo = new string(br.ReadChars(0x40)).TrimEnd('\0');
 				GlobalCargos[i].ID = br.ReadInt32();
 				GlobalCargos[i].Count = br.ReadInt32();
 				GlobalCargos[i].Type = (GlobCarg.CargoTypes)br.ReadByte();
@@ -223,18 +224,18 @@ namespace Idmr.Platform.Xwa
 			}
 			for (i = 0; i < 32; i++)
 			{
-				GlobalGroups[i].Name = new string(br.ReadChars(0x40)).Trim('\0');
+				GlobalGroups[i].Name = new string(br.ReadChars(0x40)).TrimEnd('\0');
 				GlobalGroups[i].Leader = br.ReadByte();
 				GlobalGroups[i].SpecialCraft = br.ReadByte();
-				GlobalGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).Trim('\0');
+				GlobalGroups[i].SpecialCargo = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				GlobalGroups[i].RandomSpecialCraft = br.ReadBoolean();
 			}
 			for (i = 0; i < 40; i++)
 			{
-				GlobalUnits[i].Name = new string(br.ReadChars(0x40)).Trim('\0');
+				GlobalUnits[i].Name = new string(br.ReadChars(0x40)).TrimEnd('\0');
 				GlobalUnits[i].Leader = br.ReadByte();
 				GlobalUnits[i].SpecialCraft = br.ReadByte();
-				GlobalUnits[i].SpecialCargo = new string(br.ReadChars(0x14)).Trim('\0');
+				GlobalUnits[i].SpecialCargo = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				GlobalUnits[i].RandomSpecialCraft = br.ReadBoolean();
 			}
 			MissionType = (HangarEnum)br.ReadByte();
@@ -256,7 +257,7 @@ namespace Idmr.Platform.Xwa
 			{
 				#region Craft
 				p = stream.Position;
-				FlightGroups[i].Name = new string(br.ReadChars(0x14)).Trim('\0');
+				FlightGroups[i].Name = new string(br.ReadChars(0x14)).TrimEnd('\0');
 				stream.Read(buffer, 0, 7);
 				FlightGroups[i].EnableDesignation1 = buffer[0];
 				FlightGroups[i].EnableDesignation2 = buffer[1];
@@ -407,7 +408,7 @@ namespace Idmr.Platform.Xwa
 					FlightGroups[i].OptCraft[k].NumberOfCraft = buffer[k + 10];
 					FlightGroups[i].OptCraft[k].NumberOfWaves = buffer[k + 20];
 				}
-				FlightGroups[i].PilotID = new string(br.ReadChars(0x10)).Trim('\0');
+				FlightGroups[i].PilotID = new string(br.ReadChars(0x10)).TrimEnd('\0');
 				stream.Position += 5;
 				FlightGroups[i].Backdrop = br.ReadByte();
 				stream.Position = p + 0xE3E;
@@ -436,7 +437,7 @@ namespace Idmr.Platform.Xwa
 					}
 					Messages[i].TrigAndOr[0] = (buffer[0xE] == 1);
 					Messages[i].TrigAndOr[1] = (buffer[0x1E] == 1);
-					Messages[i].VoiceID = new string(br.ReadChars(8)).Trim('\0');
+					Messages[i].VoiceID = new string(br.ReadChars(8)).TrimEnd('\0');
 					Messages[i].OriginatingFG = br.ReadByte();
 					stream.Position += 3;
 					Messages[i].Type = br.ReadInt32();
@@ -481,7 +482,7 @@ namespace Idmr.Platform.Xwa
 					}
 					Globals[i].Goals[k].T3AndOrT4 = Convert.ToBoolean(br.ReadByte() & 1);
 					stream.Position++;
-					Globals[i].Goals[k].Name = new string(br.ReadChars(16)).Trim('\0');
+					Globals[i].Goals[k].Name = new string(br.ReadChars(16)).TrimEnd('\0');
 					Globals[i].Goals[k].Version = br.ReadByte();
 					Globals[i].Goals[k].T12AndOrT34 = Convert.ToBoolean(br.ReadByte() & 1);
 					stream.Read(buffer, 0, 7);
@@ -499,7 +500,7 @@ namespace Idmr.Platform.Xwa
 			for (i = 0; i < Teams.Count; i++)
 			{
 				stream.Position += 2;
-				Teams[i].Name = new string(br.ReadChars(0x10)).Trim('\0');  // null-termed
+				Teams[i].Name = new string(br.ReadChars(0x10)).TrimEnd('\0');  // null-termed
 				stream.Position += 8;
 				for (j = 0; j < 10; j++) Teams[i].Allies[j] = (Team.Allegeance)br.ReadByte();
 				for (j = 0; j < 6; j++) Teams[i].EndOfMissionMessages[j] = new string(br.ReadChars(0x40)).Trim('\0');
@@ -542,20 +543,20 @@ namespace Idmr.Platform.Xwa
 			}
 			#endregion
 			#region notes
-			_missionNote = new string(br.ReadChars(0x187C)).Trim('\0');
-			for (i = 0; i < 128; i++) Briefings[0].BriefingStringsNotes[i] = new string(br.ReadChars(0x64)).Trim('\0');
+			_missionNote = new string(br.ReadChars(0x187C)).TrimEnd('\0');
+			for (i = 0; i < 128; i++) Briefings[0].BriefingStringsNotes[i] = new string(br.ReadChars(0x64)).TrimEnd('\0');
 			for (i = 0; i < 64; i++)
 			{
-				if (i < Messages.Count) Messages[i].Note = new string(br.ReadChars(0x64)).Trim('\0');
+				if (i < Messages.Count) Messages[i].Note = new string(br.ReadChars(0x64)).TrimEnd('\0');
 				else stream.Position += 0x64;
 			}
 			for (i = 0; i < 10; i++)
 				for (j = 0; j < 7; j++)
-					if (j < 3) Teams[i].EomNotes[j] = new string(br.ReadChars(0x64)).Trim('\0');
+					if (j < 3) Teams[i].EomNotes[j] = new string(br.ReadChars(0x64)).TrimEnd('\0');
 					else stream.Position += 0x64;
-			_descriptionNote = new string(br.ReadChars(0x64)).Trim('\0');
-			_successfulNote = new string(br.ReadChars(0x64)).Trim('\0');
-			_failedNote = new string(br.ReadChars(0x64)).Trim('\0');
+			_descriptionNote = new string(br.ReadChars(0x64)).TrimEnd('\0');
+			_successfulNote = new string(br.ReadChars(0x64)).TrimEnd('\0');
+			_failedNote = new string(br.ReadChars(0x64)).TrimEnd('\0');
 			#endregion
 			#region FG goal strings
 			for (i = 0; i < FlightGroups.Count; i++)
@@ -564,9 +565,9 @@ namespace Idmr.Platform.Xwa
 						if (br.ReadByte() != 0)
 						{
 							stream.Position--;
-							if (k == 0) FlightGroups[i].Goals[j].IncompleteText = new string(br.ReadChars(0x40)).Trim('\0');
-							else if (k == 1) FlightGroups[i].Goals[j].CompleteText = new string(br.ReadChars(0x40)).Trim('\0');
-							else FlightGroups[i].Goals[j].FailedText = new string(br.ReadChars(0x40)).Trim('\0');
+							if (k == 0) FlightGroups[i].Goals[j].IncompleteText = new string(br.ReadChars(0x40)).TrimEnd('\0');
+							else if (k == 1) FlightGroups[i].Goals[j].CompleteText = new string(br.ReadChars(0x40)).TrimEnd('\0');
+							else FlightGroups[i].Goals[j].FailedText = new string(br.ReadChars(0x40)).TrimEnd('\0');
 						}
 			#endregion
 			#region Globals strings
@@ -579,7 +580,7 @@ namespace Idmr.Platform.Xwa
 							if (j >= 8 && k == 0) { stream.Position += 0x3F; continue; }    // skip Sec Inc
 							if (j >= 4 && k == 2) { stream.Position += 0x3F; continue; }    // skip Prev & Sec Fail
 							stream.Position--;
-							Globals[i].Goals[j / 4].GoalStrings[j % 4, k] = new string(br.ReadChars(0x40));
+							Globals[i].Goals[j / 4].GoalStrings[j % 4, k] = new string(br.ReadChars(0x40)).TrimEnd('\0');
 						}
 			#endregion
 			#region Order strings
@@ -589,7 +590,7 @@ namespace Idmr.Platform.Xwa
 					{
 						if (i >= FlightGroups.Count) { stream.Position += 0x3F; continue; } // skip if FG doesn't exist
 						stream.Position--;
-						FlightGroups[i].Orders[j / 4, j % 4].CustomText = new string(br.ReadChars(0x40)).Trim('\0');
+						FlightGroups[i].Orders[j / 4, j % 4].CustomText = new string(br.ReadChars(0x40)).TrimEnd('\0');
 					}
 			#endregion
 			_missionSuccessful = new string(br.ReadChars(0x1000)).TrimEnd('\0');

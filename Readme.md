@@ -48,6 +48,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 - (Xwing Briefing) Couple internal changes around event conversion.
   - `short[] _eventMapper` now `EventMap[] _eventMaps`.
   - `short getEventMapperIndex()` now `EventMap getEventMapper`.
+- (XWA) The TrimEnd fix from v5.0 reapplied and expanded throughout.
 
 ---
 ### Additional Information
