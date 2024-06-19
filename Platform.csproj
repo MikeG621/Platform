@@ -146,6 +146,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetPath)" "C:\Users\Me\Documents\Visual Studio 2008\Libraries\"</PostBuildEvent>
+    <PostBuildEvent>copy /y "$(TargetPath)" "C:\Users\Me\Documents\Visual Studio 2008\Libraries\"
+if $(ConfigurationName) == Release copy /y "$(TargetDir)$(TargetName).xml" "C:\Users\Me\Documents\Visual Studio 2008\Libraries\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
