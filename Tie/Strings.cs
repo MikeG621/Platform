@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.5
+ * Version: 5.7.5+
  */
 
 /* CHANGELOG
+ * [UPD] Escort var1 is Position
  * v5.7.5, 230116
  * [UPD #12] Trigger 0x18 now "have cannon subsystem disabled"
  * [UPD #12] TriggerType Misc now "Adjusted AI Skill"
@@ -382,7 +383,7 @@ namespace Idmr.Platform.Tie
 										"Attacks targets (not for starships)|Component?|Meaningless",
 										"Attacks escorts of targets|Meaningless|Meaningless",
 										"Attacks craft that attack targets, ignores boarding craft|Meaningless|Meaningless",
-										"Attacks craft that attack targets, including boarding craft|Meaningless|Attack Player",
+										"Attacks craft that attack targets, including boarding craft|Position|Default to Player",
 										"Attacks to disable.  Warheads used to lower shields|Meaningless|Meaningless",
 										"Boards targets (if stationary) to give cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to take cargo|Docking time (x5 sec)|# of dockings",

@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.06.08
+Updated: 2024.07.05
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -801,7 +801,8 @@ Order
 08	Attack Escorts
 09	Protect
 0A	Escort
-	Var1	Position?	[27 options, 3x3x3 positions from rear top right]
+	Var1	Position	[27 options, 3x3x3 positions from rear top right]
+	Var2	Default to Player	[Player is always considered a potential target]
 0B	Disable
 0C	Board and Give Cargo
 	Var1	Docking Time (seconds x 5)
