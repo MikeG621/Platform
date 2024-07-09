@@ -263,6 +263,10 @@ namespace Idmr.Platform
 				for (int i = 2; i < Length; i++) array[i] = Variables[i - 2];
 				return array;
 			}
+
+			/// <summary>Gets a copy of the event.</summary>
+			/// <returns>A new copy of the event.</returns>
+			public Event Clone() => new Event(GetArray());
 		}
 	}
 }
