@@ -308,7 +308,7 @@ namespace Idmr.Platform.Xwa
 				#endregion
 				#region Arr/Dep
 				stream.Read(buffer, 0, 0x3C);
-				FlightGroups[i].Difficulty = buffer[1];
+				FlightGroups[i].Difficulty = (BaseFlightGroup.Difficulties)buffer[1];
 				for (j = 0; j < 6; j++)
 				{
 					FlightGroups[i].ArrDepTriggers[0][j] = buffer[2 + j];   // Arr1...
@@ -755,7 +755,7 @@ namespace Idmr.Platform.Xwa
 					#endregion
 					#region Arr/Dep
 					fs.Position++;
-					bw.Write(FlightGroups[i].Difficulty);
+					bw.Write((byte)FlightGroups[i].Difficulty);
 					bw.Write(FlightGroups[i].ArrDepTriggers[0].GetBytes());
 					bw.Write(FlightGroups[i].ArrDepTriggers[1].GetBytes());
 					fs.Position += 2;

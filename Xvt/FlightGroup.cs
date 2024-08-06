@@ -211,22 +211,19 @@ namespace Idmr.Platform.Xvt
 		/// <returns>Representation of the FlightGroup.</returns>
 		public string ToString(bool verbose)
 		{
-			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-            if (EditorCraftNumber > 0) //[JB] Added numbering information.
-                longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+			string longName = $"{Strings.CraftAbbrv[CraftType]} {Name}";
+            if (EditorCraftNumber > 0) longName += EditorCraftExplicit ? $" {EditorCraftNumber}" : $" <{EditorCraftNumber}>";
             if (!verbose) return longName;
 
-			//[JB] Added player position and difficulty tags, by feature request.
             string plr = "";
             if (PlayerNumber > 0 || ArriveOnlyIfHuman)
             {
                 if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
                 if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
-                plr = " [" + plr + "]";
+                plr = $" [{plr}]";
             }
-            string ret = Team + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
-            if(Difficulty >= 1 && Difficulty < Strings.DifficultyAbbrv.Length)
-                ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+            string ret = $"{Team} - {GlobalGroup} - {(PlayerNumber != 0 ? "*" : "")}{NumberOfWaves}x{NumberOfCraft} {longName}{(GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "")}{plr}";
+            if(Difficulty != Difficulties.All) ret += $" [{BaseStrings.DifficultyAbbrv[(int)Difficulty]}]";
 
             return ret;
 		}

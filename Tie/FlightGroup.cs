@@ -109,15 +109,12 @@ namespace Idmr.Platform.Tie
 		/// <returns>Representation of the FlightGroup.</returns>
 		public string ToString(bool verbose)
 		{
-			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-			if (EditorCraftNumber > 0) //[JB] Added numbering information.
-				longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+			string longName = $"{Strings.CraftAbbrv[CraftType]} {Name}";
+			if (EditorCraftNumber > 0)  longName += EditorCraftExplicit ? $" {EditorCraftNumber}" : $" <{EditorCraftNumber}>";
 			if (!verbose) return longName;
 
-			//[JB] Added difficulty tag, by feature request.
-			string ret = IFF + " - " + GlobalGroup + " - " + (PlayerCraft != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName;
-			if (Difficulty >= 1 && Difficulty <= 6)
-				ret += " [" + BaseStrings.DifficultyAbbrv[Difficulty] + "]";
+			string ret = $"{IFF} - {GlobalGroup} - {(PlayerCraft != 0 ? "*" : "")}{NumberOfWaves}x{NumberOfCraft} {longName}";
+			if (Difficulty != Difficulties.All) ret += $" [{BaseStrings.DifficultyAbbrv[(int)Difficulty]}]";
 
 			return ret;
 		}

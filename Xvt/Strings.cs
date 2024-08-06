@@ -9,6 +9,7 @@
 
 /* CHANGELOG
  * [UPD] TeamPrefixes expanded per spec
+ * [DEL] Removed Difficulty and the Abbrv to revert back to standard values
  * v5.7, 220127
  * [NEW] OrderDesignation [JB]
  * v4.0, 200809
@@ -98,32 +99,6 @@ namespace Idmr.Platform.Xvt
 									"Decoy beam",
 									"(Energy beam)"
 							   };
-
-        static readonly string[] _difficulty = { "All",
-										"Easy",
-										"Medium",
-										"Hard",
-										"Greater than Easy",
-										"Less than Hard",
-										"Never",
-                                        "Never",  //[JB] XvTED has these values, which some custom missions use.
-										"Easy",
-										"Medium",
-										"Hard",
-									 };
-        static readonly string[] _difficultyAbbrv = { "",
-										"E",
-										"M",
-										"H",
-										">E",
-										"<H",
-										"X",
-                                        "X",
-                                        "E",
-                                        "M",
-                                        "H"
-									 };
-        
         static string[] _craftType = { "None",
 										"X-Wing",
 										"Y-Wing",
@@ -618,12 +593,6 @@ namespace Idmr.Platform.Xvt
 		/// <summary>String containing all possible team prefixes.</summary>
 		static readonly public string TeamPrefixes = "12345678AFHO";
 
-		/// <summary>Gets a copy of Arrival difficulty settings.</summary>
-		/// <remarks>Array is Length = 11.</remarks>
-		new public static string[] Difficulty { get { return (string[])_difficulty.Clone(); } }
-        /// <summary>Gets a copy of Arrival Difficulty abbreviations.</summary>
-        /// <remarks>Array is Length = 11.</remarks>
-        new public static string[] DifficultyAbbrv { get { return (string[])_difficultyAbbrv.Clone(); } }
         /// <summary>Gets a copy of the default team name entries that craft roles can be applied to.</summary>
         /// <remarks>Array is Length = 8.</remarks>
         public static string[] RoleTeams { get { return (string[])_roleTeams.Clone(); } }

@@ -205,7 +205,7 @@ namespace Idmr.Platform.Tie
 				FlightGroups[i].PermaDeathID = buffer[0x17];
 				#endregion
 				#region Arr/Dep
-				FlightGroups[i].Difficulty = buffer[0x19];
+				FlightGroups[i].Difficulty = (BaseFlightGroup.Difficulties)buffer[0x19];
 				FlightGroups[i].ArrDepTriggers[0] = new Trigger(buffer, 0x1A);
 				FlightGroups[i].ArrDepTriggers[1] = new Trigger(buffer, 0x1E);
 				FlightGroups[i].AT1OrAT2 = Convert.ToBoolean(buffer[0x22]);
@@ -483,7 +483,7 @@ namespace Idmr.Platform.Tie
 					fs.Position++;
 					#endregion
 					#region Arr/Dep
-					bw.Write(FlightGroups[i].Difficulty);
+					bw.Write((byte)FlightGroups[i].Difficulty);
 					bw.Write(FlightGroups[i].ArrDepTriggers[0].GetBytes());
 					bw.Write(FlightGroups[i].ArrDepTriggers[1].GetBytes());
 					bw.Write(FlightGroups[i].AT1OrAT2);

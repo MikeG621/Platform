@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.1
+ * Version: 2.1+
  */
 
 /* CHANGELOG
+ * [UPD] ToString formatted as literal
  * v2.1, 141214
  * [UPD] change to MPL
  * v2.0, 120525
@@ -33,7 +34,7 @@ namespace Idmr.Platform
 
 			/// <summary>Returns a representative string of the Waypoint.</summary>
 			/// <returns>Waypoint coordinates in the form of <b>"(X, Y, Z)"</b>if enabled, otherwise <b>"Disabled"</b>.</returns>
-			public override string ToString() => (Enabled ? "(" + X + ", " + Y + ", " + Z + ") " : "Disabled");
+			public override string ToString() => (Enabled ? $"({X}, {Y}, {Z})" : "Disabled");
 
 			#region public properties
 			/// <summary>Array form of the waypoint.</summary>

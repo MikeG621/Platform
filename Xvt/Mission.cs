@@ -213,7 +213,10 @@ namespace Idmr.Platform.Xvt
 				#endregion
 				#region Arr/Dep
 				stream.Read(buffer, 0, 0x35);
-				FlightGroups[i].Difficulty = buffer[0];
+				// This handles bad values that XvtED allows
+				if (buffer[0] == 7) buffer[0]--;
+				if (buffer[0] > 6) buffer[0] -= 7;
+				FlightGroups[i].Difficulty = (BaseFlightGroup.Difficulties)buffer[0];
 				for (j = 0; j < 4; j++)
 				{
 					FlightGroups[i].ArrDepTriggers[0][j] = buffer[1 + j];   // Arr1...
@@ -566,7 +569,7 @@ namespace Idmr.Platform.Xvt
 					fs.Position = p + 0x6D;
 					#endregion
 					#region Arr/Dep
-					bw.Write(FlightGroups[i].Difficulty);
+					bw.Write((byte)FlightGroups[i].Difficulty);
 					bw.Write(FlightGroups[i].ArrDepTriggers[0].GetBytes());
 					bw.Write(FlightGroups[i].ArrDepTriggers[1].GetBytes());
 					fs.Position += 2;

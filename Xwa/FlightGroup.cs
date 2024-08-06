@@ -182,7 +182,7 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Gets a string representation of the FlightGroup.</summary>
 		/// <returns>Short representation of the FlightGroup as <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (<see cref="BaseFlightGroup.EditorCraftNumber"/>)"</b>.</returns>
-		public override string ToString() { return ToString(false); }
+		public override string ToString() => ToString(false);
 		/// <summary>Gets a string representation of the FlightGroup.</summary>
 		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>
 		/// Short form is <b>"<see cref="Strings.CraftAbbrv"/> <see cref="BaseFlightGroup.Name"/> (<see cref="BaseFlightGroup.EditorCraftNumber"/>)"</b>.<br/><br/>
@@ -194,9 +194,8 @@ namespace Idmr.Platform.Xwa
 		/// <returns>Representation of the FlightGroup.</returns>
 		public string ToString(bool verbose)
 		{
-			string longName = Strings.CraftAbbrv[CraftType] + " " + Name;
-			if (EditorCraftNumber > 0)
-				longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
+			string longName = $"{Strings.CraftAbbrv[CraftType]} {Name}";
+			if (EditorCraftNumber > 0) longName += EditorCraftExplicit ? $" {EditorCraftNumber}" : $" <{EditorCraftNumber}>";
 			if (!verbose) return longName;
 
 			string plr = "";
@@ -204,11 +203,10 @@ namespace Idmr.Platform.Xwa
 			{
 				if (PlayerNumber > 0) plr = "Plr:" + PlayerNumber;
 				if (ArriveOnlyIfHuman) plr += (plr.Length > 0 ? " " : "") + "hu";
-				if (plr.Length > 0) plr = " [" + plr + "]";
+				if (plr.Length > 0) plr = $" [{plr}]";
 			}
-			string ret = (Team + 1) + " - " + GlobalGroup + " - " + (PlayerNumber != 0 ? "*" : "") + NumberOfWaves + "x" + NumberOfCraft + " " + longName + (GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "") + plr;
-			if (Difficulty >= 1 && Difficulty <= 6)
-				ret += " [" + Strings.DifficultyAbbrv[Difficulty] + "]";
+			string ret = $"{Team + 1} - {GlobalGroup} - {(PlayerNumber != 0 ? "*" : "")}{NumberOfWaves}x{NumberOfCraft} {longName}{(GlobalUnit != 0 ? " (" + GlobalUnit + ")" : "")}{plr}";
+			if (Difficulty != Difficulties.All) ret += $" [{BaseStrings.DifficultyAbbrv[(int)Difficulty]}]";
 
 			return ret;
 		}

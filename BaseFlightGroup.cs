@@ -10,6 +10,7 @@
 /* CHANGELOG
  * [NEW] Updates per XWA format spec
  * [UPD] Renamed ArrDep mothership properties
+ * [NEW] Difficulties enum
  * v3.0, 180309
  * [NEW] EditorCraftNumber [JB]
  * v2.1, 141214
@@ -47,6 +48,26 @@ namespace Idmr.Platform
 		private protected short _pitch = 0;
 		/// <summary>Raw Z rotation in degrees.</summary>
 		private protected short _roll = 0;
+
+		/// <summary>Values for <see cref="Difficulty"/>.</summary>
+		public enum Difficulties
+		{
+			/// <summary>All difficulty settings.</summary>
+			All,
+			/// <summary>Easy settings.</summary>
+			Easy,
+			/// <summary>Normal settings.</summary>
+			Medium,
+			/// <summary>Hard settings.</summary>
+			Hard,
+			/// <summary>Normal or Hard settings.</summary>
+			NotEasy,
+			/// <summary>Easy or Normal settings.</summary>
+			NotHard,
+			/// <summary>Does not arrive.</summary>
+			/// <remarks>Not originally a selectable value.</remarks>
+			Never
+		}
 
 		/// <summary>Default constructor.</summary>
 		protected BaseFlightGroup()
@@ -177,8 +198,8 @@ namespace Idmr.Platform
 		#endregion
 		#region ArrDep
 		/// <summary>Gets or sets the mission difficulty setting required for the FlightGroup to arrive.</summary>
-		/// <remarks>Defaults to All (0).</remarks>
-		public byte Difficulty { get; set; }
+		/// <remarks>Defaults to All.</remarks>
+		public Difficulties Difficulty { get; set; }
 		/// <summary>Gets or sets the delay in minutes after the Arrival Trigger conditions have been met.</summary>
 		/// <remarks>Can be used in conjunction with <see cref="ArrivalDelaySeconds"/>.</remarks>
 		public byte ArrivalDelayMinutes { get; set; }

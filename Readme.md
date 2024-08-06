@@ -45,6 +45,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 - (Briefing) `Events` parameter now a collection new `Event` class objects instead of `short[]`. ***BREAKING CHANGE***
   - This causes many changes throughout. Most of the work is now done within the collection or event itself without
   requiring a lot of array manipulation.
+- (TIE-XWA) `BaseFlightGroup.Difficulty` changed to new `Difficulties` enum.
 - (Xwing Briefing) Couple internal changes around event conversion.
   - `short[] _eventMapper` now `EventMap[] _eventMaps`.
   - `short getEventMapperIndex()` now `EventMap getEventMapper`.
