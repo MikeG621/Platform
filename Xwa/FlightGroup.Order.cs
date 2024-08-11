@@ -196,8 +196,8 @@ namespace Idmr.Platform.Xwa
 			public Order()
 			{
 				_items = new byte[20];
-				_items[1] = 10;	// Throttle
-				_items[10] = _items[16] = 1;	// AndOrs
+				Throttle = 10;
+				T1OrT2 = T3OrT4 = true;
 				initialize();
 			}
 			/// <summary>Initializes a new Order from an existing Order.</summary>

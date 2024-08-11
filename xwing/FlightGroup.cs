@@ -9,6 +9,7 @@
  */
 
 /* CHANGELOG
+ * [NEW] CommandList
  * [UPD] GetTIECraftType now returns byte
  * [UPD] ArrDepHyperspace renamed and now bool
  * v6.1, 231208
@@ -84,6 +85,82 @@ namespace Idmr.Platform.Xwing
 			CS7,
 			/// <summary>Coordinate Set 8.</summary>
 			CS8
+		}
+
+		/// <summary>Available orders.</summary>
+		public enum CommandList
+		{
+			/// <summary>Stationary. Go Home if not first order.</summary>
+			HoldSteady,
+			/// <summary>Return to Mothership or hyperspace.</summary>
+			GoHome,
+			/// <summary>Loop through waypoints.</summary>
+			Circle,
+			/// <summary>Fly through waypoints only once.</summary>
+			FlyWaypoints,
+			/// <summary>Loop through waypoints and evade.</summary>
+			CircleEvade,
+			/// <summary>Fly through waypoints and evade only once.</summary>
+			FlyWaypointsEvade,
+			/// <summary>Attack target's attackers and boarding craft, remaining close to target.</summary>
+			CloseEscort,
+			/// <summary>Attack target's attackers and boarding craft.</summary>
+			LooseEscort,
+			/// <summary>Attack target's escorts.</summary>
+			AttackEscorts,
+			/// <summary>Attack targets.</summary>
+			AttackTargets,
+			/// <summary>Attack enemy small craft.</summary>
+			/// <remarks>Fighters, TRN, and SHU.</remarks>
+			AttackEnemies,
+			/// <summary>Fly to RDV and await docking.</summary>
+			Rendezvous,
+			/// <summary>Disabled.</summary>
+			Disabled,
+			/// <summary>Board targets to give cargo.</summary>
+			BoardGiveCargo,
+			/// <summary>Board targets to take cargo.</summary>
+			BoardTakeCargo,
+			/// <summary>Board targets to exchange cargo.</summary>
+			BoardExchangeCargo,
+			/// <summary>Board to capture targets.</summary>
+			BoardCapture,
+			/// <summary>Board targets to destroy.</summary>
+			BoardDestroy,
+			/// <summary>Attack to disable targets.</summary>
+			DisableTargets,
+			/// <summary>Attack to disable small craft.</summary>
+			/// <remarks>Fighters, TRN, and SHU.</remarks>
+			DisableEnemies,
+			/// <summary>Attack transport craft.</summary>
+			AttackTransports,
+			/// <summary>Attack freighter craft.</summary>
+			/// <remarks>Also CRV.</remarks>
+			AttackFreighters,
+			/// <summary>Attack starships.</summary>
+			AttackStarships,
+			/// <summary>Attack to disable transport craft.</summary>
+			DisableTransports,
+			/// <summary>Attack to disable freighter craft.</summary>
+			/// <remarks>Also CRV.</remarks>
+			DisableFreighters,
+			/// <summary>Attack to disable starships.</summary>
+			DisableStarships,
+			/// <summary>Stationary (Starship).</summary>
+			SSHold,
+			/// <summary>Fly through waypoints once (Starship).</summary>
+			SSFlyWaypoints,
+			/// <summary>Loop through waypoints (Starship).</summary>
+			SSPatrol,
+			/// <summary>Wait for return of all craft that use FG as Mothership.</summary>
+			SSAwaitReturn,
+			/// <summary>Wait for launch of all craft that use FG as Mothership.</summary>
+			SSLaunch,
+			/// <summary>Disabled, awaiting boarding.</summary>
+			AwaitBoarding,
+			/// <summary>Wait until target arrives.</summary>
+			/// <remarks>This does not have a simple equivalent in other platforms, since this is a Wait command with a Skip trigger.</remarks>
+			WaitForTargetArrival
 		}
 
 		/// <summary>Initializes a new FlightGroup.</summary>

@@ -5,10 +5,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [UPD] OrderDesc fixed
  * v5.7, 220127
  * [FIX] Formation [JB]
  * v4.0, 200809
@@ -217,8 +218,8 @@ namespace Idmr.Platform.Xwing
 									 "Close Escort",
 									 "Loose Escort",
 									 "Attack Escorts",
-									 "Attack Pri and Sec targets",
-									 "Attack enemies (Fighter, TRN, SHU)",
+									 "Attack Targets",
+									 "Attack Enemies",
 									 "Rendezvous",
 									 "Disabled",
 									 "Board to Give cargo",
@@ -226,13 +227,13 @@ namespace Idmr.Platform.Xwing
 									 "Board to Exchange cargo",
 									 "Board to Capture",
 									 "Board to Destroy",
-									 "Disable Pri and Sec targets",
-									 "Disable all (Fighter, TRN, SHU)",
+									 "Disable Targets",
+									 "Disable Enemies",
 									 "Attack Transports",
-									 "Attack Freighters (and CRV)",
+									 "Attack Freighters",
 									 "Attack Starships",
 									 "Disable Transports",
-									 "Disable Freighters (and CRV)",
+									 "Disable Freighters",
 									 "Disable Starships",
 									 "SS Hold Position",
 									 "SS Fly Once",
@@ -240,7 +241,7 @@ namespace Idmr.Platform.Xwing
 									 "SS Await Return",
 									 "SS Await Launch",
 									 "SS Await Boarding",
-									 "Wait for Arrival of (Pri/Sec)"
+									 "Wait for Arrival of Targets"
 								 };
 
 		static readonly string[] _objective = { "None",
@@ -268,46 +269,39 @@ namespace Idmr.Platform.Xwing
 									 };
         
 
-		static readonly string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home|Meaningless|Meaningless",
-										"Fly to Mothership, or Hyperspace|Meaningless|Meaningless",
-										"Circle through Waypoints.  Ignores targets, returns fire|# of loops|Meaningless",
-										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire|# of loops|Meaningless",
-										"Fly to Rendezvous point and await docking. Ignores targets, returns fire|# of dockings|Meaningless",
-										"Disabled|Meaningless|Meaningless",
-										"Disabled, awaiting boarding|# of dockings|Meaningless",
-										"Attacks targets (not for starships)|Component?|Meaningless",
-										"Attacks escorts of targets|Meaningless|Meaningless",
-										"Attacks craft that attack targets, ignores boarding craft|Meaningless|Meaningless",
-										"Attacks craft that attack targets, including boarding craft|Meaningless|Attack Player",
-										"Attacks to disable.  Warheads used to lower shields|Meaningless|Meaningless",
-										"Boards targets (if stationary) to give cargo|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to take cargo|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to exchange cargo|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to capture|Dockings time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time (x5 sec)|# of dockings",
-										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|Meaningless",
-										"Drops off designated Flight Group (disregards targets)|Deploy time? (x5 sec)|Flight Group #",
-										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
-										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
-										"Circles through Waypoints. Attacks targets, returns fire|# of loops|Meaningless",
-										"Wait for the return of all FGs with it as their Mothership. Attacks targets, returns fire|Meaningless|Meaningless",
-										"Waits for the launch of all FGs with it as their Mothership. Attacks targets, returns fire|Meaningless|Meaningless",
-										"Circles through Waypoints attacking craft that attack targets. Returns fire|Meaningless|Meaningless",
-										"Circles through Waypoints attacking craft that attack targets. Returns fire|Meaningless|Meaningless",
-										"Circles through Waypoints attacking targets. Returns fire|Meaningless|Meaningless",
-										"Circles through Waypoints attacking targets to disable. Returns fire|Meaningless|Meaningless",
-										"Waits for designated time before continuing. Does not return fire|Meaningless|Meaningless",
-										"Fly to Mothership, or Hyperspace. Attacks targets, returns fire|Meaningless|Meaningless",
-										"Waits for designated time before continuing. Does not return fire|Wait time (x5 sec)|Meaningless",
-										"Boards targets (if stationary)|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to repair systems|Docking time (x5 sec)|# of dockings",
-										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless",
-										"Stationary, 100% Systems, returns fire|Meaningless|Meaningless",
-										"Enters Hyperspace|Meaningless|Meaningless",
-										"Circles Waypoint 1|Meaningless|Meaningless",
-										"Circles Waypoint 1|Meaningless|Meaningless",
-										"Flies to Waypoint 1 and rendezvouses with other craft|Meaningless|Meaningless",
-										"Disabled|Meaningless|Meaningless"
+		static readonly string[] _orderDesc = { "Stationary, 100% Systems, does not return fire. If not first order, craft flies home.",
+										"Flies to Mothership, or Hyperspace.",
+										"Circle through Waypoints.  Ignores targets, returns fire.",
+										"Flies through Waypoints once.  Ignores targets, returns fire.",
+										"Circles through Waypoints, evading attackers.  Ignores targets, returns fire.",
+										"Flies through Waypoints once, evading attackers.  Ignores targets, returns fire.",
+										"Attacks craft that attack targets, remaining close.",
+										"Attacks craft that attack targets, ignores boarding craft.",
+										"Attacks escorts of targets.",
+										"Attacks targets.",
+										"Attacks enemy Fighters, TRN, and SHU.",
+										"Flies to Rendezvous point and await docking. Ignores targets, returns fire.",
+										"Disabled.",
+										"Boards targets (if stationary) to give cargo.",
+										"Boards targets (if stationary) to take cargo.",
+										"Boards targets (if stationary) to exchange cargo.",
+										"Boards targets (if stationary) to capture.",
+										"Boards targets (if stationary) to plant explosives. Target will explode when complete.",
+										"Attacks to disable.  Warheads used to lower shields.",
+										"Attacks enemy Fighters, TRN, and SHU to disable.",
+										"Attacks enemy transport craft.",
+										"Attacks enemy freighter craft and CRVs.",
+										"Attacks enemy Starships.",
+										"Attacks enemy transport craft to disable.",
+										"Attacks enemy freighter craft and CRVs to disable.",
+										"Attacks enemy Starships to disable.",
+										"Stationary, 100% Systems, returns fire.",
+										"Flies through Waypoints once attacking targets. Returns fire.",
+										"Circles through Waypoints attacking targets. Returns fire.",
+										"Waits for the return of all FGs with it as their Mothership. Attacks targets, returns fire.",
+										"Waits for the launch of all FGs with it as their Mothership. Attacks targets, returns fire.",
+										"Disabled, awaiting boarding.",
+										"Waits for arrival of targets. Returns fire."
 									};
 		static readonly string[] _formation = { "Double Vic",
 										"Finger Four",

@@ -746,7 +746,7 @@ Order
 18	Disable Freighters (and CRV)
 19	Disable Starships
 1A	SS Hold Position
-1B	SS Fly Dance
+1B	SS Fly Once
 1C	SS Circle
 1D	SS Await Return
 1E	SS Await Launch

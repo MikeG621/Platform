@@ -92,7 +92,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
 				tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
 				tie.FlightGroups[i].CraftType = Tie.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
-				if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xvt.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+				if (tie.FlightGroups[i].CraftType == 255) throw flightException(FlightExceptionMode.CraftType, i, Xvt.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				tie.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
 				tie.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
 				tie.FlightGroups[i].Missile = miss.FlightGroups[i].Missile;
@@ -101,7 +101,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].AI = miss.FlightGroups[i].AI;
 				if (tie.FlightGroups[i].AI > 4) tie.FlightGroups[i].AI = 4;  //[JB] Jedi in XvT should be Top Ace in TIE, not invul.
 				tie.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
-				if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, BaseStrings.Formation[miss.FlightGroups[i].Formation]);
+				if (miss.FlightGroups[i].Formation > 12) throw flightException(FlightExceptionMode.Formation, i, BaseStrings.Formation[miss.FlightGroups[i].Formation]);
 				else tie.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				tie.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				tie.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
@@ -123,7 +123,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
 				tie.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
-				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xvt.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
+				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(FlightExceptionMode.Abort, i, Xvt.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
 				else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				tie.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
 				tie.FlightGroups[i].ArriveViaMothership = miss.FlightGroups[i].ArriveViaMothership;
@@ -586,11 +586,11 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
 				xvt.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
 				xvt.FlightGroups[i].CraftType = Xvt.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
-				if (xvt.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+				if (xvt.FlightGroups[i].CraftType == 255) throw flightException(FlightExceptionMode.CraftType, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				xvt.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
-				if (xvt.FlightGroups[i].Status1 > 21) throw flightException(0, i, Xwa.Strings.Status[miss.FlightGroups[i].Status1]);
+				if (xvt.FlightGroups[i].Status1 > 21) throw flightException(FlightExceptionMode.Status, i, Xwa.Strings.Status[miss.FlightGroups[i].Status1]);
 				xvt.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
-				if (xvt.FlightGroups[i].Status2 > 21) throw flightException(0, i, Xwa.Strings.Status[miss.FlightGroups[i].Status2]);
+				if (xvt.FlightGroups[i].Status2 > 21) throw flightException(FlightExceptionMode.Status, i, Xwa.Strings.Status[miss.FlightGroups[i].Status2]);
 				xvt.FlightGroups[i].Status2 = miss.FlightGroups[i].Status2;
 				xvt.FlightGroups[i].Missile = miss.FlightGroups[i].Missile;
 				xvt.FlightGroups[i].Beam = miss.FlightGroups[i].Beam;
@@ -641,7 +641,7 @@ namespace Idmr.Platform
 				{
 					for (int k = 0; k < 6; k++) xvt.FlightGroups[i].Goals[j][k] = miss.FlightGroups[i].Goals[j][k];
 					if (xvt.FlightGroups[i].Goals[j].Condition > 46)
-						throw triggerException(0, "FG " + i + " Goal " + j, Xwa.Strings.Trigger[xvt.FlightGroups[i].Goals[j].Condition]);
+						throw triggerException(BaseTrigger.TriggerIndex.Condition, "FG " + i + " Goal " + j, Xwa.Strings.Trigger[xvt.FlightGroups[i].Goals[j].Condition]);
 					if (xvt.FlightGroups[i].Goals[j].Amount == 19) xvt.FlightGroups[i].Goals[j].Amount = 6; // Each special craft -> Special craft
 					xvt.FlightGroups[i].Goals[j].IncompleteText = miss.FlightGroups[i].Goals[j].IncompleteText;
 					xvt.FlightGroups[i].Goals[j].CompleteText = miss.FlightGroups[i].Goals[j].CompleteText;
@@ -1061,10 +1061,10 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].SpecialCargoCraft = miss.FlightGroups[i].SpecialCargoCraft;
 				tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
 				tie.FlightGroups[i].CraftType = Tie.Mission.CraftCheck(miss.FlightGroups[i].CraftType);
-				if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+				if (tie.FlightGroups[i].CraftType == 255) throw flightException(FlightExceptionMode.CraftType, i, Xwa.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				tie.FlightGroups[i].NumberOfCraft = miss.FlightGroups[i].NumberOfCraft;
 				tie.FlightGroups[i].Status1 = miss.FlightGroups[i].Status1;
-				if (tie.FlightGroups[i].Status1 > 19) throw flightException(0, i, Xwa.Strings.Status[miss.FlightGroups[i].Status1]);
+				if (tie.FlightGroups[i].Status1 > 19) throw flightException(FlightExceptionMode.Status, i, Xwa.Strings.Status[miss.FlightGroups[i].Status1]);
 				tie.FlightGroups[i].Missile = miss.FlightGroups[i].Missile;
 				tie.FlightGroups[i].Beam = miss.FlightGroups[i].Beam;
 				tie.FlightGroups[i].IFF = miss.FlightGroups[i].IFF;
@@ -1073,7 +1073,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
 				if (miss.FlightGroups[i].PlayerNumber == 1 && (miss.FlightGroups[i].Radio == Xwa.FlightGroup.RadioChannel.Player1 || miss.FlightGroups[i].Radio == Xwa.FlightGroup.RadioChannel.Team1))
 					tie.FlightGroups[i].FollowsOrders = true;
-				if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, BaseStrings.Formation[miss.FlightGroups[i].Formation]);
+				if (miss.FlightGroups[i].Formation > 12) throw flightException(FlightExceptionMode.Formation, i, BaseStrings.Formation[miss.FlightGroups[i].Formation]);
 				else tie.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				tie.FlightGroups[i].FormDistance = miss.FlightGroups[i].FormDistance;
 				tie.FlightGroups[i].GlobalGroup = miss.FlightGroups[i].GlobalGroup;
@@ -1095,7 +1095,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].ArrivalDelaySeconds = miss.FlightGroups[i].ArrivalDelaySeconds;
 				tie.FlightGroups[i].DepartureTimerMinutes = miss.FlightGroups[i].DepartureTimerMinutes;
 				tie.FlightGroups[i].DepartureTimerSeconds = miss.FlightGroups[i].DepartureTimerSeconds;
-				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(2, i, Xwa.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
+				if (miss.FlightGroups[i].AbortTrigger > 5) throw flightException(FlightExceptionMode.Abort, i, Xwa.Strings.Abort[miss.FlightGroups[i].AbortTrigger]);
 				else tie.FlightGroups[i].AbortTrigger = miss.FlightGroups[i].AbortTrigger;
 				tie.FlightGroups[i].ArrivalMothership = miss.FlightGroups[i].ArrivalMothership;
 				tie.FlightGroups[i].ArriveViaMothership = (miss.FlightGroups[i].ArriveViaMothership == 1);
@@ -1268,7 +1268,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].SpecialCargoCraft = (byte)spec;
 				tie.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
 				tie.FlightGroups[i].CraftType = miss.FlightGroups[i].GetTIECraftType();
-				if (tie.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+				if (tie.FlightGroups[i].CraftType == 255) throw flightException(FlightExceptionMode.CraftType, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				if (miss.FlightGroups[i].IsObjectGroup())
 				{
 					tie.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
@@ -1332,7 +1332,7 @@ namespace Idmr.Platform
 				tie.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
 				if (miss.FlightGroups[i].IsFlightGroup())
 				{
-					if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, Xwing.Strings.Formation[miss.FlightGroups[i].Formation]);
+					if (miss.FlightGroups[i].Formation > 12) throw flightException(FlightExceptionMode.Formation, i, Xwing.Strings.Formation[miss.FlightGroups[i].Formation]);
 					else tie.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				}
 				else
@@ -1456,7 +1456,7 @@ namespace Idmr.Platform
 					convertXwingOrderToTIE(miss.FlightGroups[i].Order, targPri, targSec, oppositeIFF, tie.FlightGroups[i].Orders[0], tie.FlightGroups[i].Orders[1]);
 					moveOrderUp(tie.FlightGroups[i].Orders[0]);
 
-					if (miss.FlightGroups[i].Order >= 13 && miss.FlightGroups[i].Order <= 17)  //The X-wing boarding commands (Give, Take, Exchange, Capture, Destroy)
+					if (miss.FlightGroups[i].Order >= (byte)Xwing.FlightGroup.CommandList.BoardGiveCargo && miss.FlightGroups[i].Order <= (byte)Xwing.FlightGroup.CommandList.BoardDestroy)
 					{
 						int time = miss.FlightGroups[i].DockTimeThrottle * 60 / 5;  //Convert minutes to increments of 5 seconds.
 						if (time < 0) time = 0;
@@ -1465,13 +1465,15 @@ namespace Idmr.Platform
 						tie.FlightGroups[i].Orders[0].Variable1 = (byte)time;
 						tie.FlightGroups[i].Orders[0].Variable2 = 1;  //Docking count
 					}
-					else if (miss.FlightGroups[i].Order == 26)  //More for SS Hold Position
+					else if (miss.FlightGroups[i].Order == (byte)Xwing.FlightGroup.CommandList.SSHold)  //More for SS Hold Position
 					{
 						tie.FlightGroups[i].Orders[0].Throttle = 0;
 
 						BaseFlightGroup.BaseOrder order3 = tie.FlightGroups[i].Orders[2];
-						order3.Command = 20;    //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1OrT2 = true;
+						order3.Command = (byte)Tie.FlightGroup.Order.CommandList.SSWait;    // TIE orders don't have an equivalent command that sits still and autotargets.
+						order3.Target1Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+						order3.Target1 = oppositeIFF;
+						order3.T1OrT2 = true;
 						order3.Variable1 = 255; //Maximum wait time, 21:15
 						order3.Throttle = 0;
 					}
@@ -1491,10 +1493,9 @@ namespace Idmr.Platform
 					{
 						Tie.FlightGroup.Order order = new Tie.FlightGroup.Order
 						{
-							Command = 7,           //Attack targets
-							Target1Type = 0x5,     //IFF
+							Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets,
+							Target1Type = (byte)Tie.Mission.Trigger.TypeList.IFF,
 							Target1 = oppositeIFF,
-							T1OrT2 = true      //OR   (none)
 						};
 						tie.FlightGroups[i].Orders[0] = order;
 					}
@@ -1716,7 +1717,7 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].SpecialCargoCraft = (byte)spec;
 				xvt.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
 				xvt.FlightGroups[i].CraftType = miss.FlightGroups[i].GetTIECraftType();
-				if (xvt.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+				if (xvt.FlightGroups[i].CraftType == 255) throw flightException(FlightExceptionMode.CraftType, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				if (miss.FlightGroups[i].IsObjectGroup())
 				{
 					xvt.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
@@ -1784,7 +1785,7 @@ namespace Idmr.Platform
 				xvt.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
 				if (miss.FlightGroups[i].IsFlightGroup())
 				{
-					if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, Xwing.Strings.Formation[miss.FlightGroups[i].Formation]);
+					if (miss.FlightGroups[i].Formation > 12) throw flightException(FlightExceptionMode.Formation, i, Xwing.Strings.Formation[miss.FlightGroups[i].Formation]);
 					else xvt.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				}
 				else
@@ -1936,7 +1937,7 @@ namespace Idmr.Platform
 					convertXwingOrderToTIE(miss.FlightGroups[i].Order, targPri, targSec, oppositeIFF, xvt.FlightGroups[i].Orders[0], xvt.FlightGroups[i].Orders[1]);
 					moveOrderUp(xvt.FlightGroups[i].Orders[0]);
 
-					if (miss.FlightGroups[i].Order >= 13 && miss.FlightGroups[i].Order <= 17)  //The X-wing boarding commands (Give, Take, Exchange, Capture, Destroy)
+					if (miss.FlightGroups[i].Order >= (byte)Xwing.FlightGroup.CommandList.BoardGiveCargo && miss.FlightGroups[i].Order <= (byte)Xwing.FlightGroup.CommandList.BoardDestroy)
 					{
 						int time = miss.FlightGroups[i].DockTimeThrottle * 60 / 5;  //Convert minutes to increments of 5 seconds.
 						if (time < 0) time = 0;
@@ -1945,13 +1946,15 @@ namespace Idmr.Platform
 						xvt.FlightGroups[i].Orders[0].Variable1 = (byte)time;
 						xvt.FlightGroups[i].Orders[0].Variable2 = 1;  //Docking count
 					}
-					else if (miss.FlightGroups[i].Order == 26)  //More for SS Hold Position
+					else if (miss.FlightGroups[i].Order == (byte)Xwing.FlightGroup.CommandList.SSHold)
 					{
 						xvt.FlightGroups[i].Orders[0].Throttle = 0;
 
 						BaseFlightGroup.BaseOrder order3 = xvt.FlightGroups[i].Orders[2];
-						order3.Command = 20;  //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = 0x5; order3.Target1 = oppositeIFF; order3.T1OrT2 = true;
+						order3.Command = (byte)Xvt.FlightGroup.Order.CommandList.SSWait;  //TIE orders don't have an equivalent command that sits still and autotargets.
+						order3.Target1Type = (byte)Xvt.Mission.Trigger.TypeList.IFF;
+						order3.Target1 = oppositeIFF;
+						order3.T1OrT2 = true;
 						order3.Variable1 = 255; //Maximum wait time, 21:15
 						order3.Throttle = 0;
 					}
@@ -1971,10 +1974,9 @@ namespace Idmr.Platform
 					{
 						Xvt.FlightGroup.Order order = new Xvt.FlightGroup.Order
 						{
-							Command = 7,           //Attack targets
-							Target1Type = 0x5,     //IFF
+							Command = (byte)Xvt.FlightGroup.Order.CommandList.AttackTargets,
+							Target1Type = (byte)Xvt.Mission.Trigger.TypeList.IFF,
 							Target1 = oppositeIFF,
-							T1OrT2 = true      //OR   (none)
 						};
 						xvt.FlightGroups[i].Orders[0] = order;
 					}
@@ -1984,9 +1986,11 @@ namespace Idmr.Platform
 				{
 					string playerRole = "General";
 					int xorder = miss.FlightGroups[i].Order;
-					if ((xorder >= 0x08 && xorder <= 0x0A) || (xorder >= 0x14 && xorder <= 0x16))
+					if ((xorder >= (byte)Xwing.FlightGroup.CommandList.AttackEscorts && xorder <= (byte)Xwing.FlightGroup.CommandList.AttackEnemies)
+						|| (xorder >= (byte)Xwing.FlightGroup.CommandList.AttackTransports && xorder <= (byte)Xwing.FlightGroup.CommandList.AttackStarships))
 						playerRole = "Attack";
-					else if ((xorder == 0x12 || xorder == 0x13) || (xorder >= 0x17 && xorder <= 0x19))
+					else if ((xorder == (byte)Xwing.FlightGroup.CommandList.DisableTargets || xorder == (byte)Xwing.FlightGroup.CommandList.DisableEnemies)
+						|| (xorder >= (byte)Xwing.FlightGroup.CommandList.DisableTransports && xorder <= (byte)Xwing.FlightGroup.CommandList.DisableStarships))
 						playerRole = "Disable";
 					xvt.FlightGroups[i].Orders[0].Designation = playerRole;
 				}
@@ -2203,7 +2207,7 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].SpecialCargoCraft = (byte)spec;
 				xwa.FlightGroups[i].RandSpecCargo = miss.FlightGroups[i].RandSpecCargo;
 				xwa.FlightGroups[i].CraftType = miss.FlightGroups[i].GetTIECraftType();
-				if (xwa.FlightGroups[i].CraftType == 255) throw flightException(4, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
+				if (xwa.FlightGroups[i].CraftType == 255) throw flightException(FlightExceptionMode.CraftType, i, Xwing.Strings.CraftType[miss.FlightGroups[i].CraftType]);
 				if (miss.FlightGroups[i].IsObjectGroup())
 				{
 					xwa.FlightGroups[i].Pitch = miss.FlightGroups[i].Pitch;
@@ -2273,7 +2277,7 @@ namespace Idmr.Platform
 				xwa.FlightGroups[i].Markings = miss.FlightGroups[i].Markings;
 				if (miss.FlightGroups[i].IsFlightGroup())
 				{
-					if (miss.FlightGroups[i].Formation > 12) throw flightException(1, i, Xwing.Strings.Formation[miss.FlightGroups[i].Formation]);
+					if (miss.FlightGroups[i].Formation > 12) throw flightException(FlightExceptionMode.Formation, i, Xwing.Strings.Formation[miss.FlightGroups[i].Formation]);
 					else xwa.FlightGroups[i].Formation = miss.FlightGroups[i].Formation;
 				}
 				else
@@ -2429,7 +2433,7 @@ namespace Idmr.Platform
 					convertXwingOrderToTIE(miss.FlightGroups[i].Order, targPri, targSec, oppositeIFF, xwa.FlightGroups[i].Orders[0, 0], xwa.FlightGroups[i].Orders[0, 1]);
 					moveOrderUp(xwa.FlightGroups[i].Orders[0, 0]);
 
-					if (miss.FlightGroups[i].Order >= 13 && miss.FlightGroups[i].Order <= 17)  //The X-wing boarding commands (Give, Take, Exchange, Capture, Destroy)
+					if (miss.FlightGroups[i].Order >= (byte)Xwing.FlightGroup.CommandList.BoardGiveCargo && miss.FlightGroups[i].Order <= (byte)Xwing.FlightGroup.CommandList.BoardDestroy)
 					{
 						int time = miss.FlightGroups[i].DockTimeThrottle * 60 / 5;  //Convert minutes to increments of 5 seconds.
 						if (time < 0) time = 0;
@@ -2438,14 +2442,16 @@ namespace Idmr.Platform
 						xwa.FlightGroups[i].Orders[0, 0].Variable1 = (byte)time;
 						xwa.FlightGroups[i].Orders[0, 0].Variable2 = 1;  //Docking count
 					}
-					else if (miss.FlightGroups[i].Order == 26)  //More for SS Hold Position
+					else if (miss.FlightGroups[i].Order == (byte)Xwing.FlightGroup.CommandList.SSHold)
 					{
 						xwa.FlightGroups[i].Orders[0, 0].Throttle = 0;
 
 						BaseFlightGroup.BaseOrder order3 = xwa.FlightGroups[i].Orders[0, 2];
-						order3.Command = (byte)Xwa.FlightGroup.Order.CommandList.SSWait;  //Set an additional SS Wait order.  TIE orders don't have an equivalent command that sits still and autotargets.
-						order3.Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF; order3.Target1 = oppositeIFF; order3.T1OrT2 = true;
-						order3.Variable1 = 255; //Maximum wait time, 21:15
+						order3.Command = (byte)Xwa.FlightGroup.Order.CommandList.SSWait;  //TIE orders don't have an equivalent command that sits still and autotargets.
+						order3.Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF;
+						order3.Target1 = oppositeIFF;
+						order3.T1OrT2 = true;
+						order3.Variable1 = 255; //Maximum wait time, 24:50
 						order3.Throttle = 0;
 					}
 					else
@@ -2467,7 +2473,6 @@ namespace Idmr.Platform
 							Command = (byte)Xwa.FlightGroup.Order.CommandList.AttackTargets,
 							Target1Type = (byte)Xwa.Mission.Trigger.TypeList.IFF,
 							Target1 = oppositeIFF,
-							T1OrT2 = true      //OR   (none)
 						};
 						xwa.FlightGroups[i].Orders[0, 0] = order;
 					}
@@ -2644,15 +2649,15 @@ namespace Idmr.Platform
 		{
 			if (targPri >= 0)
 			{
-				order.Target1Type = 1;
+				order.Target1Type = (byte)Tie.Mission.Trigger.TypeList.FlightGroup;
 				order.Target1 = (byte)targPri;
 			}
 			if (targSec >= 0)
 			{
-				order.Target2Type = 1;
+				order.Target2Type = (byte)Tie.Mission.Trigger.TypeList.FlightGroup;
 				order.Target2 = (byte)targSec;
 			}
-			order.T1OrT2 = true;  //OR
+			order.T1OrT2 = true;
 		}
 
 		/// <summary> Determine if an XWING95 CraftType is a fighter.</summary>
@@ -2675,7 +2680,7 @@ namespace Idmr.Platform
 			order.T1OrT2 = order.T3OrT4;
 			order.Target3Type = 0; order.Target3 = 0;
 			order.Target4Type = 0; order.Target4 = 0;
-			order.T3OrT4 = true;  //Reset to OR
+			order.T3OrT4 = true;
 		}
 
 		/// <summary>Returns text converted to lowercase, if applicable.  Each word's initial letter will remain capitalized.</summary>
@@ -2728,125 +2733,187 @@ namespace Idmr.Platform
 		/// <param name="order2">Order object to receive the conversion.</param>
 		static void convertXwingOrderToTIE(int command, int targPri, int targSec, byte iff, BaseFlightGroup.BaseOrder order1, BaseFlightGroup.BaseOrder order2)
 		{
-			xwingSetOrderPriSec(order1, targPri, targSec);  //Set the default primary and secondary target FGs, which are used by most orders.  Additional information will be patched in depending on a case basis, if needed.
-			switch (command)
+			xwingSetOrderPriSec(order1, targPri, targSec);
+			switch ((Xwing.FlightGroup.CommandList)command)
 			{
-				case 0: order1.Command = 0; order1.Throttle = 0; break;  //Hold steady (XW) -> Hold Steady (TIE)
-				case 1: order1.Command = 1; break;  //Go home -> Go Home
-				case 2: order1.Command = 2; order1.Variable1 = 127; break;  //Circle and Ignore -> Circle (infinite loop)
-				case 3: order1.Command = 2; order1.Variable1 = 1; break;  //Fly Once and Ignore -> Circle (1 loop)
-				case 4: order1.Command = 3; order1.Variable1 = 127; break;  //Circle and Evade -> Circle and Evade (infinite loop)
-				case 5: order1.Command = 3; order1.Variable1 = 1; break;  //Fly Once and Evade -> Circle and Evade (1 loop)
-				case 6: order1.Command = 10; break;  //Close Escort -> Escort
-				case 7: order1.Command = 10; break;  //Loose Escort -> Escort
-				case 8: order1.Command = 8; break;  //Attack Escorts -> Attack Escorts
-				case 9: order1.Command = 7; break;  //Attack Targets (Primary, secondary)
-				case 10:
+				case Xwing.FlightGroup.CommandList.HoldSteady:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.HoldSteady;
+					order1.Throttle = 0;
+					break;
+				case Xwing.FlightGroup.CommandList.GoHome: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.GoHome; break;
+				case Xwing.FlightGroup.CommandList.Circle:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.Circle;
+					order1.Variable1 = 127;
+					break;
+				case Xwing.FlightGroup.CommandList.FlyWaypoints:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.Circle;
+					order1.Variable1 = 1;
+					break;
+				case Xwing.FlightGroup.CommandList.CircleEvade:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.CircleEvade;
+					order1.Variable1 = 127;
+					break;
+				case Xwing.FlightGroup.CommandList.FlyWaypointsEvade:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.CircleEvade;
+					order1.Variable1 = 1;
+					break;
+				case Xwing.FlightGroup.CommandList.CloseEscort:
+				case Xwing.FlightGroup.CommandList.LooseEscort:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.Escort;
+					break;
+				case Xwing.FlightGroup.CommandList.AttackEscorts: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackEscorts; break;
+				case Xwing.FlightGroup.CommandList.AttackTargets: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets; break;
+				case Xwing.FlightGroup.CommandList.AttackEnemies:
 					//Attack enemies (Fighter, TRN, SHU)
-					order1.Command = 7;
-					order1.Target3Type = 0x3; order1.Target3 = 0x0;  //Fighters
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets;
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order1.Target3 = 0x0;  //Fighters
+					order1.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target4 = iff;
+					order1.T3OrT4 = false;
 
-					order2.Command = 7;
-					order2.Target1Type = 0x3; order2.Target1 = 0x1;  //Transports
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
-					order2.Target3Type = 0x3; order2.Target3 = 0x0;  //Fighters
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
+					order2.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets;
+					order2.Target1Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order2.Target1 = 0x1;  //Transports
+					order2.Target2Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target2 = iff;
+					order2.T1OrT2 = false;
+					order2.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order2.Target3 = 0x0;  //Fighters
+					order2.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target4 = iff;
+					order2.T3OrT4 = false;
 					break;
-				case 11: order1.Command = 4; order1.Variable1 = 1; break; //Rendezvous (1 docking)
-				case 12: order1.Command = 5; break; //Disabled
-				case 13: order1.Command = 12; break; //Board to Give Cargo
-				case 14: order1.Command = 13; break; //Board to Take cargo
-				case 15: order1.Command = 14; break; //Board to Exchange cargo
-				case 16: order1.Command = 15; break; //Board to Capture
-				case 17: order1.Command = 16; break; //Board to Destroy cargo
-				case 18: order1.Command = 11; break; //Disable targets (primary, secondary)
-				case 19:
-					//Disable all enemies (Fighter, TRN, SHU)
-					order1.Command = 11;
-					order1.Target3Type = 0x3; order1.Target3 = 0x0;  //Fighters
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.Rendezvous:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.Rendezvous;
+					order1.Variable1 = 1;
+					break;
+				case Xwing.FlightGroup.CommandList.Disabled: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.Disabled;  break;
+				case Xwing.FlightGroup.CommandList.BoardGiveCargo: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.BoardGiveCargo; break;
+				case Xwing.FlightGroup.CommandList.BoardTakeCargo: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.BoardTakeCargo; break;
+				case Xwing.FlightGroup.CommandList.BoardExchangeCargo: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.BoardExchangeCargo; break;
+				case Xwing.FlightGroup.CommandList.BoardCapture: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.BoardToCapture; break;
+				case Xwing.FlightGroup.CommandList.BoardDestroy: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.BoardDestroy; break;
+				case Xwing.FlightGroup.CommandList.DisableTargets: order1.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets; break;
+				case Xwing.FlightGroup.CommandList.DisableEnemies:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets;
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order1.Target3 = 0x0;  //Fighters
+					order1.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target4 = iff;
+					order1.T3OrT4 = false;
 
-					order2.Command = 11;
-					order2.Target1Type = 0x3; order2.Target1 = 0x1;  //Transports
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
-					order2.Target3Type = 0x3; order2.Target3 = 0x0;  //Fighters
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
+					order2.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets;
+					order2.Target1Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order2.Target1 = 0x1;  //Transports
+					order2.Target2Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target2 = iff;
+					order2.T1OrT2 = false;
+					order2.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order2.Target3 = 0x0;  //Fighters
+					order2.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target4 = iff;
+					order2.T3OrT4 = false;
 					break;
-				case 20:
-					//Attack Transports
-					order1.Command = 7;
-					order1.Target3Type = 0x3; order1.Target3 = 0x1;  //Transports
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.AttackTransports:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets;
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order1.Target3 = 0x1;  //Transports
+					order1.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target4 = iff;
+					order1.T3OrT4 = false;
 					break;
-				case 21:
-					//Attack Freighters (and CRV)
-					order1.Command = 7;
-					order2.Command = 7;
-					order2.Target1Type = 0x3; order2.Target1 = 0x2;  //Freighters
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
-					order2.Target3Type = 0x2; order2.Target3 = 0x27;  //CRV
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.AttackFreighters:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets;
+					order2.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets;
+					order2.Target1Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order2.Target1 = 0x2;  //Freighters
+					order2.Target2Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target2 = iff;
+					order2.T1OrT2 = false;
+					order2.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipType;
+					order2.Target3 = 0x27;  //CRV
+					order2.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target4 = iff;
+					order2.T3OrT4 = false;
 					break;
-				case 22:
-					//Attack Starships
-					order1.Command = 7;
-					order1.Target3Type = 0x3; order1.Target3 = 0x3;  //Starships
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.AttackStarships:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AttackTargets;
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order1.Target3 = 0x3;  //Starships
+					order1.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target4 = iff;
+					order1.T3OrT4 = false;
 					break;
-				case 23:
-					//Disable Transports
-					order1.Command = 11;
-					order1.Target3Type = 0x3; order1.Target3 = 0x1;  //Transports
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.DisableTransports:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets;
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order1.Target3 = 0x1;  //Transports
+					order1.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target4 = iff;
+					order1.T3OrT4 = false;
 					break;
-				case 24:
-					//Disable Freighters (and CRV)
-					order1.Command = 11;
-					order2.Command = 11;
-					order2.Target1Type = 0x3; order2.Target1 = 0x2;  //Freighters
-					order2.Target2Type = 0x5; order2.Target2 = iff; order2.T1OrT2 = false;
-					order2.Target3Type = 0x2; order2.Target3 = 0x27;  //CRV
-					order2.Target4Type = 0x5; order2.Target4 = iff; order2.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.DisableFreighters:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets;
+					order2.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets;
+					order2.Target1Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order2.Target1 = 0x2;  //Freighters
+					order2.Target2Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target2 = iff;
+					order2.T1OrT2 = false;
+					order2.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipType;
+					order2.Target3 = 0x27;  //CRV
+					order2.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target4 = iff;
+					order2.T3OrT4 = false;
 					break;
-				case 25:
-					//Disable Starships
-					order1.Command = 11;
-					order1.Target3Type = 0x3; order1.Target3 = 0x3;  //Starships
-					order1.Target4Type = 0x5; order1.Target4 = iff; order1.T3OrT4 = false;
+				case Xwing.FlightGroup.CommandList.DisableStarships:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.DisableTargets;
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.ShipClass;
+					order1.Target3 = 0x3;  //Starships
+					order1.Target4Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target4 = iff;
+					order1.T3OrT4 = false;
 					break;
-				case 26:
-					order1.Command = 22;    //SS Hold Position -> SS Await Return            [JB] Attempted workaround.  TIE format doesn't seem to have a proper SS Hold order that autotargets enemies, and patrol doesn't always play nice with orientation depending on how the mission waypoints are set up.  So do SS Await Return for autotargeting (probably works if it's a starship), then transition into SS Wait with maximum time.
-					order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3OrT4 = true;
+				case Xwing.FlightGroup.CommandList.SSHold:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.SSAwaitReturn;	// [JB] Attempted workaround.  TIE format doesn't seem to have a proper SS Hold order that autotargets enemies, and patrol doesn't always play nice with orientation depending on how the mission waypoints are set up.  So do SS Await Return for autotargeting (probably works if it's a starship), then transition into SS Wait with maximum time.
+					order1.Target3Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order1.Target3 = iff;
+					order1.T3OrT4 = true;
 					order1.Variable1 = 1;  //One loop So it doesn't head home.
 					order1.Throttle = 0;   //Zero throttle so it doesn't move.
-					order2.Command = 20;
-					order2.Target1Type = 0x5; order1.Target1 = iff; order1.T1OrT2 = true;
+					order2.Command = (byte)Tie.FlightGroup.Order.CommandList.SSWait;
+					order2.Target1Type = (byte)Tie.Mission.Trigger.TypeList.IFF;
+					order2.Target1 = iff;
+					order2.T1OrT2 = true;
 					order2.Variable1 = 255; //Maximum wait time, 21:15
 					order2.Throttle = 0;    //Zero throttle so it doesn't move.
 					break;
-				case 27:
-					order1.Command = 21; order1.Variable1 = 1; //SS Fly Once -> SS Patrol waypoints
+				case Xwing.FlightGroup.CommandList.SSFlyWaypoints:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.SSPatrol;
+					order1.Variable1 = 1;
 					assignIFFTarget(order1, iff);
 					break;
-				case 28:
-					order1.Command = 21; order1.Variable1 = 127; //SS Circle -> SS Patrol waypoints
+				case Xwing.FlightGroup.CommandList.SSPatrol:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.SSPatrol;
+					order1.Variable1 = 127;
 					assignIFFTarget(order1, iff);
 					break;
-				case 29:
-					order1.Command = 22; //SS Await Return
+				case Xwing.FlightGroup.CommandList.SSAwaitReturn:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.SSAwaitReturn;
 					assignIFFTarget(order1, iff);
 					break;
-				case 30:
-					order1.Command = 23; //SS Await Launch
+				case Xwing.FlightGroup.CommandList.SSLaunch:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.SSLaunch;
 					assignIFFTarget(order1, iff);
 					break;
-				case 31:
-					order1.Command = 39; //SS Await Boarding
+				case Xwing.FlightGroup.CommandList.AwaitBoarding:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.AwaitBoarding;
 					assignIFFTarget(order1, iff);
 					break;
-				case 32:
-					order1.Command = 39; //Wait for arrival of
+				case Xwing.FlightGroup.CommandList.WaitForTargetArrival:
+					order1.Command = (byte)Tie.FlightGroup.Order.CommandList.SSWait; // HACK: This is really a Wait+Skip trigger, which you can't do in TIE
+					order1.Variable1 = 255;
 					assignIFFTarget(order1, iff);
 					break;
 			}
@@ -2859,9 +2926,10 @@ namespace Idmr.Platform
 		/// <param name="iff">IFF to target.</param>
 		static void assignIFFTarget(BaseFlightGroup.BaseOrder order1, byte iff)
 		{
-			if (order1.Target1Type == 0) { order1.Target1Type = 0x5; order1.Target1 = iff; order1.T1OrT2 = true; }      //There's a bug in TIE Fighter where Targets 3 and 4 will not function for SS Patrol orders.
-			else if (order1.Target2Type == 0) { order1.Target2Type = 0x5; order1.Target2 = iff; order1.T1OrT2 = true; }
-			else { order1.Target3Type = 0x5; order1.Target3 = iff; order1.T3OrT4 = true; }
+			byte iffType = (byte)Tie.Mission.Trigger.TypeList.IFF;
+			if (order1.Target1Type == 0) { order1.Target1Type = iffType; order1.Target1 = iff; order1.T1OrT2 = true; }      //There's a bug in TIE Fighter where Targets 3 and 4 will not function for SS Patrol orders.
+			else if (order1.Target2Type == 0) { order1.Target2Type = iffType; order1.Target2 = iff; order1.T1OrT2 = true; }
+			else { order1.Target3Type = iffType; order1.Target3 = iff; order1.T3OrT4 = true; }
 		}
 
 		/// <summary>Validates FlightGroup.Goals for TIE.</summary>
@@ -2874,10 +2942,10 @@ namespace Idmr.Platform
 			for (int i = 0; i < 8; i += 2)
 			{
 				if (i == 4) continue;   // Secret goal, not converted
-				if (goals[i] > 24) throw triggerException(0, label + " Goal " + i, Xwa.Strings.Trigger[goals[i]]);
-				if (goals[i + 1] > 6) throw triggerException(3, label + " Goal " + i, Xwa.Strings.Amount[goals[i + 1]]);
-				else if (goals[i + 1] == 1) goals[i + 1] = 0;   // 75 to 100
-				else if (goals[i + 1] > 1) goals[i + 1] -= 2;   // 25 to 50, slide everything after
+				if (goals[i] > (byte)Tie.Mission.Trigger.ConditionList.CannonsDisabled) throw triggerException(BaseTrigger.TriggerIndex.Condition, label + " Goal " + i, Xwa.Strings.Trigger[goals[i]]);
+				if (goals[i + 1] > (byte)Tie.Mission.Trigger.AmountList.AllSpecial) throw triggerException(BaseTrigger.TriggerIndex.Amount, label + " Goal " + i, Xwa.Strings.Amount[goals[i + 1]]);
+				else if (goals[i + 1] == (byte)Tie.Mission.Trigger.AmountList.Percent75) goals[i + 1] = (byte)Tie.Mission.Trigger.AmountList.Percent100;
+				else if (goals[i + 1] > (byte)Tie.Mission.Trigger.AmountList.Percent75) goals[i + 1] -= 2;   // 25 to 50, slide everything after
 			}
 		}
 
@@ -2896,17 +2964,18 @@ namespace Idmr.Platform
 		/// <param name="index">0 for Trigger condition, 1 for Trigger Type, 2 for Trigger Craft Type, 3 for Amount.</param>
 		/// <param name="label">Trigger indentifier string.</param>
 		/// <param name="id">String for the invalid value.</param>
-		static ArgumentException triggerException(byte index, string label, string id) => new ArgumentException("Invalid Trigger "
-				+ (index == 0 ? "Condition" : (index == 1 ? "VariableType" : (index == 2 ? "Craft" : "Amount")))
+		static ArgumentException triggerException(BaseTrigger.TriggerIndex index, string label, string id) => new ArgumentException("Invalid Trigger "
+				+ (index == BaseTrigger.TriggerIndex.Condition ? "Condition" : (index == BaseTrigger.TriggerIndex.VariableType ? "VariableType" : (index == BaseTrigger.TriggerIndex.Variable ? "Craft" : "Amount")))
 				+ " detected (" + id + "). " + label);
 
+		private enum FlightExceptionMode { Status, Formation, Abort, Order, CraftType }
 		/// <summary>Returns an ArgumentException formatted for FlightGroups based on the inputs.</summary>
-		/// <param name="mode">0 for Status, 1 for Formation, 2 for Abort, 3 for Order, 4 for CraftType.</param>
+		/// <param name="mode">Type of exception.</param>
 		/// <param name="index">FG index.</param>
 		/// <param name="id">String for the invalid value.</param>
-		static ArgumentException flightException(byte mode, int index, string id) => new ArgumentException("Invalid FlightGroup "
-			+ (mode == 0 ? "Status" : (mode == 1 ? "Formation" : (mode == 2 ? "Abort condition" : (mode == 3 ? "Order" : "CraftType"))))
-			+ " detected. FG " + index + ", " + (mode == 3 ? "Order: " : "") + id);
+		static ArgumentException flightException(FlightExceptionMode mode, int index, string id) => new ArgumentException("Invalid FlightGroup "
+			+ (mode == FlightExceptionMode.Status ? "Status" : (mode == FlightExceptionMode.Formation ? "Formation" : (mode == FlightExceptionMode.Abort ? "Abort condition" : (mode == FlightExceptionMode.Order ? "Order" : "CraftType"))))
+			+ " detected. FG " + index + ", " + (mode == FlightExceptionMode.Order ? "Order: " : "") + id);
 		#endregion
 	}
 }

@@ -133,8 +133,8 @@ namespace Idmr.Platform.Xvt
 			public Order()
 			{
 				_items = new byte[19];
-				_items[1] = 10;	// Throttle
-				_items[10] = _items[16] = 1;	// AndOrs
+				Throttle = 10;
+				T1OrT2 = T3OrT4 = true;
 			}
 			/// <summary>Initializes a new Order from an existing Order.</summary>
 			/// <param name="other">Existing Order to clone. If <b>null</b>, Order will be blank.</param>
