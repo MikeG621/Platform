@@ -170,7 +170,7 @@ namespace Idmr.Platform.Xwa
 		public FlightGroup()
 		{
 			for (int i = 0; i < 6; i++) ArrDepTriggers[i] = new Mission.Trigger();
-			for (int i = 0; i < 4; i++) Waypoints[i] = new Waypoint();
+			for (int i = 0; i < 4; i++) Waypoints[i] = new XwaWaypoint();
 			for (int i = 0; i < 16; i++) Orders[i / 4, i % 4] = new Order();
 			for (int i = 0; i < 8; i++) Goals[i] = new Goal();
 			_optLoadout[(int)LoadoutIndexer.Indexes.NoWarheads] = true;
@@ -372,7 +372,7 @@ namespace Idmr.Platform.Xwa
 
 		/// <summary>Gets the FlightGroup start locations.</summary>
 		/// <remarks>Array is Length = 4.</remarks>
-		public Waypoint[] Waypoints { get; } = new Waypoint[4];
+		public XwaWaypoint[] Waypoints { get; } = new XwaWaypoint[4];
 		#region Options
 		/// <summary>Gets or sets the departure time in minutes from mission start.</summary>
 		public byte DepartureClockMin { get; set; }

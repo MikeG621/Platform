@@ -242,6 +242,5 @@ namespace Idmr.Platform
 		/// <summary>Gets or sets whether the actual numbering (including craft per wave) is listed or just duplicate names.</summary>
 		/// <remarks>This will be TRUE for XvT and XWA style Global Unit numbering, FALSE for TIE and X-wing or if XvT/XWA's GU numbering is disabled.  It is specific to YOGEME and not part of the file format.</remarks>
 		public bool EditorCraftExplicit { get; set; }
-
 	}
 }

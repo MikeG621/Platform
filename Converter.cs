@@ -661,8 +661,8 @@ namespace Idmr.Platform
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] SkipT[" + j + "]: " + x.Message, x); }
 				}
 				for (int j = 0; j < 3; j++)
-					xvt.FlightGroups[i].Waypoints[j] = (Xvt.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[j];
-				xvt.FlightGroups[i].Waypoints[13] = (Xvt.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[3];
+					xvt.FlightGroups[i].Waypoints[j] = miss.FlightGroups[i].Waypoints[j].Clone();
+				xvt.FlightGroups[i].Waypoints[13] = miss.FlightGroups[i].Waypoints[3].Clone();
 				for (int j = 1; j < 9; j++) xvt.FlightGroups[i].OptLoadout[j] = miss.FlightGroups[i].OptLoadout[j];
 				for (int j = 10; j < 14; j++) xvt.FlightGroups[i].OptLoadout[j] = miss.FlightGroups[i].OptLoadout[j];
 				for (int j = 15; j < 18; j++) xvt.FlightGroups[i].OptLoadout[j] = miss.FlightGroups[i].OptLoadout[j];
@@ -862,7 +862,7 @@ namespace Idmr.Platform
 				for (int j = 0; j < 4; j++)
 				{
 					xwa.FlightGroups[i].Orders[0, j] = miss.FlightGroups[i].Orders[j];
-					for (int k = 0; k < 8; k++) xwa.FlightGroups[i].Orders[0, j].Waypoints[k] = miss.FlightGroups[i].Waypoints[k + 4];
+					for (int k = 0; k < 8; k++) xwa.FlightGroups[i].Orders[0, j].Waypoints[k] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[k + 4]);
 				}
 				xwa.FlightGroups[i].Orders[0, 3].SkipT1OrT2 = miss.FlightGroups[i].SkipToO4T1OrT2;
 				for (int j = 0; j < 2; j++) xwa.FlightGroups[i].Orders[0, 3].SkipTriggers[j] = miss.FlightGroups[i].SkipToOrder4Trigger[j];
@@ -877,8 +877,8 @@ namespace Idmr.Platform
 				}
 				#endregion
 				for (int j = 0; j < 3; j++)
-					xwa.FlightGroups[i].Waypoints[j] = (Xwa.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[j];
-				xwa.FlightGroups[i].Waypoints[3] = (Xwa.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[13];
+					xwa.FlightGroups[i].Waypoints[j] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[j]);
+				xwa.FlightGroups[i].Waypoints[3] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[13]);
 				if (miss.FlightGroups[i].Waypoints[(int)Xvt.FlightGroup.WaypointIndex.Briefing1].Enabled)
 				{
 					xwa.Briefings[0].Events.Add(new BaseBriefing.Event(BaseBriefing.EventType.XwaSetIcon){ Variables = new short[] { briefShipCount[0], xwa.FlightGroups[i].CraftType, xwa.FlightGroups[i].IFF } });
@@ -1131,8 +1131,8 @@ namespace Idmr.Platform
 					catch (Exception x) { throw new ArgumentException("FG[" + i + "] Order[" + j + "]: " + x.Message, x); }
 				}
 				for (int j = 0; j < 3; j++)
-					tie.FlightGroups[i].Waypoints[j] = (Tie.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[j];
-				tie.FlightGroups[i].Waypoints[13] = (Tie.FlightGroup.Waypoint)miss.FlightGroups[i].Waypoints[3];
+					tie.FlightGroups[i].Waypoints[j] = miss.FlightGroups[i].Waypoints[j].Clone();
+				tie.FlightGroups[i].Waypoints[13] = miss.FlightGroups[i].Waypoints[3].Clone();
 			}
 			#endregion FGs
 			#region Messages
@@ -2478,15 +2478,15 @@ namespace Idmr.Platform
 				}
 				#endregion Orders
 
-				xwa.FlightGroups[i].Waypoints[0] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start1];
-				xwa.FlightGroups[i].Waypoints[1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start2];
-				xwa.FlightGroups[i].Waypoints[2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start3];
+				xwa.FlightGroups[i].Waypoints[0] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start1]);
+				xwa.FlightGroups[i].Waypoints[1] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start2]);
+				xwa.FlightGroups[i].Waypoints[2] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Start3]);
 
-				xwa.FlightGroups[i].Orders[0, 0].Waypoints[0] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP1];
-				xwa.FlightGroups[i].Orders[0, 0].Waypoints[1] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP2];
-				xwa.FlightGroups[i].Orders[0, 0].Waypoints[2] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP3];
+				xwa.FlightGroups[i].Orders[0, 0].Waypoints[0] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP1]);
+				xwa.FlightGroups[i].Orders[0, 0].Waypoints[1] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP2]);
+				xwa.FlightGroups[i].Orders[0, 0].Waypoints[2] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.WP3]);
 
-				xwa.FlightGroups[i].Waypoints[3] = miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Hyperspace];
+				xwa.FlightGroups[i].Waypoints[3] = new Xwa.FlightGroup.XwaWaypoint(miss.FlightGroups[i].Waypoints[(byte)Xwing.FlightGroup.WaypointIndex.Hyperspace]);
 			}
 			#endregion FGs
 			#region Briefing

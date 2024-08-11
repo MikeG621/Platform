@@ -52,7 +52,7 @@
     <Compile Include="BaseBriefing.cs" />
     <Compile Include="BaseFlightGroup.cs" />
     <Compile Include="BaseFlightGroup.BaseOrder.cs" />
-    <Compile Include="BaseFlightGroup.BaseWaypoint.cs" />
+    <Compile Include="BaseFlightGroup.Waypoint.cs" />
     <Compile Include="BaseMessage.cs" />
     <Compile Include="BaseStrings.cs" />
     <Compile Include="BaseTrigger.cs" />
@@ -64,7 +64,6 @@
     <Compile Include="Tie\FlightGroup.cs" />
     <Compile Include="Tie\FlightGroup.FGGoals.cs" />
     <Compile Include="Tie\FlightGroup.Order.cs" />
-    <Compile Include="Tie\FlightGroup.Waypoint.cs" />
     <Compile Include="Tie\FlightGroupCollection.cs" />
     <Compile Include="Tie\Globals.cs" />
     <Compile Include="Tie\Globals.Goal.cs" />
@@ -81,7 +80,6 @@
     <Compile Include="Xvt\FlightGroup.Goal.cs" />
     <Compile Include="Xvt\FlightGroup.LoadoutIndexer.cs" />
     <Compile Include="Xvt\FlightGroup.Order.cs" />
-    <Compile Include="Xvt\FlightGroup.Waypoint.cs" />
     <Compile Include="Xvt\FlightGroupCollection.cs" />
     <Compile Include="Xvt\Globals.cs" />
     <Compile Include="Xvt\Globals.Goal.cs" />
@@ -101,7 +99,7 @@
     <Compile Include="Xwa\FlightGroup.Goal.cs" />
     <Compile Include="Xwa\FlightGroup.LoadoutIndexer.cs" />
     <Compile Include="Xwa\FlightGroup.Order.cs" />
-    <Compile Include="Xwa\FlightGroup.Waypoint.cs" />
+    <Compile Include="Xwa\FlightGroup.XwaWaypoint.cs" />
     <Compile Include="Xwa\FlightGroupCollection.cs" />
     <Compile Include="Xwa\Globals.cs" />
     <Compile Include="Xwa\Globals.Goal.cs" />
@@ -120,7 +118,6 @@
     <Compile Include="Xwing\Briefing.EventCollection.cs" />
     <Compile Include="Xwing\Briefing.cs" />
     <Compile Include="Xwing\FlightGroup.cs" />
-    <Compile Include="Xwing\FlightGroup.Waypoint.cs" />
     <Compile Include="Xwing\FlightGroupCollection.cs" />
     <Compile Include="Xwing\Mission.cs" />
     <Compile Include="Xwing\Strings.cs" />

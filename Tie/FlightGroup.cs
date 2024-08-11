@@ -37,7 +37,6 @@ namespace Idmr.Platform.Tie
 		readonly Mission.Trigger[] _arrDepTriggers = new Mission.Trigger[3];
 		string _pilot = "";
 		readonly Order[] _orders = new Order[3];
-		readonly Waypoint[] _waypoints = new Waypoint[15];
 
 		/// <summary>Indexes for <see cref="ArrDepTriggers"/>.</summary>
 		public enum ArrDepTriggerIndex : byte
@@ -92,8 +91,8 @@ namespace Idmr.Platform.Tie
 			for (int i = 0; i < _orders.Length; i++) _orders[i] = new Order();
 			for (int i = 0; i < _arrDepTriggers.Length; i++) _arrDepTriggers[i] = new Mission.Trigger();
 			Goals = new FGGoals();
-			for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
-			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
+			for (int i = 0; i < Waypoints.Length; i++) Waypoints[i] = new Waypoint();
+			Waypoints[(int)WaypointIndex.Start1].Enabled = true;
 		}
 
 		/// <summary>Gets a string representation of the FlightGroup.</summary>
@@ -180,6 +179,6 @@ namespace Idmr.Platform.Tie
 		public Order[] Orders => _orders;
 		/// <summary>Gets the Waypoint array used to determine starting location and AI pathing.</summary>
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes.</remarks>
-		public Waypoint[] Waypoints => _waypoints;
+		public Waypoint[] Waypoints { get; } = new Waypoint[15];
 	}
 }

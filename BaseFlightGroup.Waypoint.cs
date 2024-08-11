@@ -23,22 +23,40 @@ namespace Idmr.Platform
 	public abstract partial class BaseFlightGroup
 	{
 		/// <summary>Base class for FlightGroup waypoints.</summary>
-		[Serializable] public abstract class BaseWaypoint : Indexer<short>
+		[Serializable] public class Waypoint : Indexer<short>
 		{
-			/// <summary>Default constructor for derived classes.</summary>
-			protected BaseWaypoint() { /* do nothing */ }
+			/// <summary>Default constructor.</summary>
+			public Waypoint() => _items = new short[4];
 
 			/// <summary>Default constructor for derived classes.</summary>
 			/// <param name="raw">Raw data.</param>
-			protected BaseWaypoint(short[] raw) : base(raw) { /* do nothing */ }
+			/// <exception cref="ArgumentException">Incorrect <paramref name="raw"/> length.</exception>
+			public Waypoint(short[] raw) : this()
+			{
+				if (raw.Length >= 4) Array.Copy(raw, _items, _items.Length);
+				else throw new ArgumentException("Array must have a Length of at least 4.");
+			}
+
+			/// <summary>Constructs a new Waypoint from an existing Waypoint. If null, a blank Waypoint is created.</summary>
+			/// <param name="wp">Existing Waypoint to clone. If <b>null</b>, Waypoint will be blank.</param>
+			public Waypoint(Xwa.FlightGroup.XwaWaypoint wp) : this() { if (wp != null) Array.Copy(wp._items, _items, _items.Length); }
 
 			/// <summary>Returns a representative string of the Waypoint.</summary>
 			/// <returns>Waypoint coordinates in the form of <b>"(X, Y, Z)"</b>if enabled, otherwise <b>"Disabled"</b>.</returns>
 			public override string ToString() => (Enabled ? $"({X}, {Y}, {Z})" : "Disabled");
 
+			/// <summary>Gets a clean copy of the Waypoint.</summary>
+			/// <returns>A new copy.</returns>
+			public Waypoint Clone()
+			{
+				var wp = new Waypoint();
+				for (int i = 0; i < _items.Length; i++) wp[i] = _items[i];
+				return wp;
+			}
+
 			#region public properties
 			/// <summary>Array form of the waypoint.</summary>
-			/// <remarks><see cref="Enabled"/> restricted to <b>0</b> and <b>1</b>, <see cref="Xwa.FlightGroup.Waypoint.Region"/> restricted to <b>0-3</b>. No effect for invalid values.</remarks>
+			/// <remarks><see cref="Enabled"/> restricted to <b>0</b> and <b>1</b>, <see cref="Xwa.FlightGroup.XwaWaypoint.Region"/> restricted to <b>0-3</b>. No effect for invalid values.</remarks>
 			/// <param name="index">X, Y, Z, Enabled, Region (XWA only).</param>
 			/// <exception cref="IndexOutOfRangeException">Invalid <paramref name="index"/> value.</exception>
 			public override short this[int index]
@@ -104,7 +122,7 @@ namespace Idmr.Platform
 			/// <remarks>Always returns Length 4 array, even for XWA, due to how values are stored in the file.</remarks>
 			/// <param name="wp">The waypoint to convert.</param>
 			/// <returns>An array of shorts containing <see cref="X"/>, <see cref="Y"/>, <see cref="Z"/>, and <see cref="Enabled"/>.</returns>
-			public static explicit operator short[](BaseWaypoint wp)
+			public static explicit operator short[](Waypoint wp)
 			{
 				short[] s = new short[4];
 				for (int i = 0; i < 4; i++) s[i] = wp[i];

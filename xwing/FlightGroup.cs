@@ -28,8 +28,6 @@ namespace Idmr.Platform.Xwing
 	/// <summary>Object for individual FlightGroups<./summary>
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
-		readonly Waypoint[] _waypoints = new Waypoint[15];
-
 		/// <summary>Gets or sets the object z-axis orientation at start in raw units (64 = 90 degrees).</summary>
 		/// <remarks>Unlike BaseFlightGroup, this needs to accept arbitrarily large values to accomodate the Proving Grounds platforms. See also <see cref="Pitch"/> and <see cref="Roll"/>. Only applies to object groups.</remarks>
 		public new short Yaw
@@ -178,8 +176,8 @@ namespace Idmr.Platform.Xwing
 			Mothership = -1;  //These variables use a zero based index for FG, or -1 for none.
 			TargetPrimary = -1;
 			TargetSecondary = -1;
-			for (int i = 0; i < _waypoints.Length; i++) _waypoints[i] = new Waypoint();
-			_waypoints[(int)WaypointIndex.Start1].Enabled = true;
+			for (int i = 0; i < Waypoints.Length; i++) Waypoints[i] = new Waypoint();
+			Waypoints[(int)WaypointIndex.Start1].Enabled = true;
 			Pitch = 64;  //Default for space objects, in raw units (64 = 90 degrees).
 		}
 
@@ -455,7 +453,7 @@ namespace Idmr.Platform.Xwing
         }
 		/// <summary>Gets the Waypoint array used to determine starting location and AI pathing.</summary>
 		/// <remarks>Array length is 15, use <see cref="WaypointIndex"/> for indexes.</remarks>
-		public Waypoint[] Waypoints => _waypoints;
+		public Waypoint[] Waypoints { get; } = new Waypoint[15];
 		#endregion properties
 	}
 }

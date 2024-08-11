@@ -29,7 +29,6 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
   .ConditionList enums
 - (XWA) Fixed the time display for "Before Time" trigger/order target type text
 - (XWA) Mission.GetDelaySeconds( ) now static ***BREAKING CHANGE***
-- (Xwing) Added FlightGroup.CommandList
 
 #### WIP
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.
@@ -37,9 +36,15 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
   - Not all editor-use properties are exposed.
   - Various things renamed. ***BREAKING CHANGE***
   - ArrDep mothership properties renamed, the `*Method` bools are now `*ViaMothership` or `*MothershipUsed` per proper boolean naming convention.
+- Waypoint refactor. ***BREAKING CHANGE***
+  - BaseWaypoint renamed to Waypoint, no longer abstract.
+  - Xwa.FlightGroup.Waypoint renamed to XwaWaypoint.
+  - Xwing, TIE, and XvT now use Waypoint (formerly BaseWaypoint) directly. Previously derived classes deleted.
+  - `Clone()` added.
 - (TIE) Added Questions.QuestionType and .QuestionCondition enums, PostTrigger and PostTrigType types changed. ***BREAKING CHANGE***
 - (Xwing) GetTIECraftType now returns `byte`.
 - (Xwing) ArrDep `*Hyperspace` renamed to `*ViaHyperspace` and changed to `bool`.
+- (Xwing) Added `FlightGroup.CommandList` enum
 - (Briefing) EventParameters now a singleton class, `this[]` made private in lieu of `GetCount()`. ***BREAKING CHANGE***
 - (Briefing) Deleted `EventParameterCount`, since it's redundant with `GetCount()`.
 - (Briefing) `ConvertTicksToSeconds` and `ConvertSecondsToTicks` functions added.

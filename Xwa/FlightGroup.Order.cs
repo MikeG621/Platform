@@ -52,7 +52,7 @@ namespace Idmr.Platform.Xwa
 		[Serializable] public class Order : BaseOrder
 		{
 			string _customText = "";
-			readonly Waypoint[] _waypoints = new Waypoint[8];
+			readonly XwaWaypoint[] _waypoints = new XwaWaypoint[8];
 			readonly Mission.Trigger[] _skipTriggers = new Mission.Trigger[2];
 
 			/// <summary>Available orders.</summary>
@@ -210,7 +210,7 @@ namespace Idmr.Platform.Xwa
 					Array.Copy(other._items, _items, _items.Length);
 					_customText = other.CustomText;
 					for (int i = 0; i < _waypoints.Length; i++)
-						_waypoints[i] = new Waypoint(other._waypoints[i]);
+						_waypoints[i] = new XwaWaypoint(other._waypoints[i]);
 					for (int i = 0; i < _skipTriggers.Length; i++)
 						_skipTriggers[i] = new Mission.Trigger(other._skipTriggers[i]);
 				}
@@ -256,7 +256,7 @@ namespace Idmr.Platform.Xwa
 			
 			void initialize()
 			{
-				for (int i = 0; i < 8; i++) _waypoints[i] = new Waypoint();
+				for (int i = 0; i < 8; i++) _waypoints[i] = new XwaWaypoint();
 				_skipTriggers[0] = new Mission.Trigger();
 				_skipTriggers[1] = new Mission.Trigger();
                 // SkipTriggers used to default to False OR False
@@ -500,7 +500,7 @@ namespace Idmr.Platform.Xwa
 
 			/// <summary>Gets the order-specific location markers.</summary>
 			/// <remarks>Array is length 8.</remarks>
-			public Waypoint[] Waypoints => _waypoints;
+			public XwaWaypoint[] Waypoints => _waypoints;
 
 			/// <summary>Gets the triggers that cause the FlightGroup to proceed directly to the order.</summary>
 			/// <remarks>Array is length 2.</remarks>
