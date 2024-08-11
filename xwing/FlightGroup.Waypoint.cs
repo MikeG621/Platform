@@ -26,22 +26,23 @@ namespace Idmr.Platform.Xwing
 			public Waypoint() : base(new short[4]) { }
 			
 			/// <summary>Initialize a new Waypoint using raw data.</summary>
-			/// <remarks><i>raw</i> must have Length of 4.</remarks>
+			/// <remarks><paramref name="raw"/> must have Length of 4.</remarks>
 			/// <param name="raw">Raw data.</param>
-			/// <exception cref="ArgumentException">Incorrect <i>raw</i>.Length.</exception>
+			/// <exception cref="ArgumentException">Incorrect <paramref name="raw"/>.Length.</exception>
 			public Waypoint(short[] raw) : base(raw) { if (raw.Length != 4) throw new ArgumentException("raw does not have the correct size"); }
 
-			/// <summary>Converts a Waypoint for TIE95.</summary>
+			/// <summary>Converts a Waypoint for TIE.</summary>
 			/// <param name="wp">The Waypoint to convert.</param>
-			/// <returns>A copy of <paramref name="wp"/> for TIE95.</returns>
+			/// <returns>A copy of <paramref name="wp"/> for TIE.</returns>
 			public static implicit operator Tie.FlightGroup.Waypoint(Waypoint wp) => new Tie.FlightGroup.Waypoint((short[])wp);
 			/// <summary>Converts a Waypoint for XvT.</summary>
 			/// <param name="wp">The Waypoint to convert.</param>
 			/// <returns>A copy of <paramref name="wp"/> for XvT.</returns>
 			public static implicit operator Xvt.FlightGroup.Waypoint(Waypoint wp) => new Xvt.FlightGroup.Waypoint((short[])wp);
 			/// <summary>Converts a Waypoint for XWA.</summary>
+			/// <remarks>The <see cref="Xwa.FlightGroup.Waypoint.Region"/> value will be <b>zero</b> (Region #1).</remarks>
 			/// <param name="wp">The Waypoint to convert.</param>
-			/// <returns>A copy of <paramref name="wp"/> for XWA. The <see cref="Xwa.FlightGroup.Waypoint.Region"/> value will be <b>zero</b> (Region #1).</returns>
+			/// <returns>A copy of <paramref name="wp"/> for XWA.</returns>
 			public static implicit operator Xwa.FlightGroup.Waypoint(Waypoint wp) => new Xwa.FlightGroup.Waypoint((short[])wp);
 		}
 	}

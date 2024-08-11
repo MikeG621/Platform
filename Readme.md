@@ -29,6 +29,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
   .ConditionList enums
 - (XWA) Fixed the time display for "Before Time" trigger/order target type text
 - (XWA) Mission.GetDelaySeconds( ) now static ***BREAKING CHANGE***
+- (Xwing) Added FlightGroup.CommandList
 
 #### WIP
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.

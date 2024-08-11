@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7
+ * Version: 5.7+
  */
 
 /* CHANGELOG
+ * [UPD] ToString formatted as literal
  * v5.7, 220127
  * [NEW] cloning ctor [JB]
  * v2.1, 141214
@@ -55,7 +56,7 @@ namespace Idmr.Platform.Xwa
 
 			/// <summary>Returns a representative string of the Waypoint.</summary>
 			/// <returns>Waypoint coordinates in the form of <b>"(<see cref="BaseFlightGroup.BaseWaypoint.X"/>, <see cref="BaseFlightGroup.BaseWaypoint.Y"/>, <see cref="BaseFlightGroup.BaseWaypoint.Z"/>) <see cref="Region"/> #"</b>if enabled, otherwise <b>"Disabled"</b>.</returns>
-			public override string ToString() => (Enabled ? "(" + X + ", " + Y + ", " + Z + ") Region " + Region : "Disabled");
+			public override string ToString() => (Enabled ? "$({X}, {Y}, {Z}) Region {Region}" : "Disabled");
 
 			/// <summary>Converts a Waypoint for TIE.</summary>
 			/// <remarks><see cref="Region"/> is lost in the conversion.</remarks>

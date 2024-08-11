@@ -1254,7 +1254,6 @@ namespace Idmr.Platform
 			//Not doing mission time.
 			#endregion Mission
 			#region FGs
-			//List<XwingGlobalGroup> ggList = new List<XwingGlobalGroup>();
 			for (int i = 0; i < miss.FlightGroups.Count; i++)
 			{
 				#region Craft
