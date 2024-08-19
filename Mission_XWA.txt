@@ -1,7 +1,7 @@
 XWA Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.06.08
+Updated: 2024.08.18
 =====
 
 This is going to be a very lengthy definition of the XWA mission file. If you
@@ -684,10 +684,9 @@ The StartsLength value is the number of SHORTs, Variables included, that occur
 at Time=0. EventsLength is the total number of SHORTs occupied in the Events
 array up to and including the EndBriefing command.  Don't know what Tile is.
 
-I haven't figured out how the Icons are used yet.  This appears to allow the
-use of common icons repeatedly, though the array size is the number of FGs, so
-it may be for using FG references.  It's also entirely possible that it was
-something that's now obsolete and doesn't do anything.
+The Icons are essentially the internal clipboard used to keep track of them in
+the legacy editor. Unsure if there's any use in-game, but they are read and
+were written to file if not purged beforehand.
 
 The Tag and String arrays are not fixed sizes. They have a minimum length of
 256 bytes, which is the case of every length being zero. If a Length is zero,
