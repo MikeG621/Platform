@@ -540,11 +540,11 @@ namespace Idmr.Platform.Tie
 				#endregion
 				#region Briefing
 				bw.Write(Briefing.Length);
-				bw.Write(Briefing.CurrentTime);
+				bw.Write((short)0); // CurrentTime
 				bw.Write(Briefing.StartLength);
 				bw.Write(Briefing.EventsLength);
 				bw.Write(Briefing.Tile);
-				byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 2];
+				byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 4];
 				Buffer.BlockCopy(Briefing.Events.GetArray(), 0, briefBuffer, 0, Briefing.Events.Length * 2);
 				bw.Write(briefBuffer);
 				for (int i = 0; i < 32; i++)

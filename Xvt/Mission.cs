@@ -722,11 +722,11 @@ namespace Idmr.Platform.Xvt
 				for (i = 0; i < 8; i++)
 				{
 					bw.Write(Briefings[i].Length);
-					bw.Write(Briefings[i].CurrentTime);
+					bw.Write((short)0); // CurrentTime
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
 					bw.Write(Briefings[i].Tile);
-					byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 2];
+					byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 4];
 					Buffer.BlockCopy(Briefings[i].Events.GetArray(), 0, briefBuffer, 0, Briefings[i].Events.Length * 2);
 					bw.Write(briefBuffer);
 					for (int j = 0; j < 10; j++) bw.Write(Briefings[i].Team[j]);
@@ -815,8 +815,7 @@ namespace Idmr.Platform.Xvt
 				}
 				throw;
 			}
-			if (backupCreated)
-				File.Delete(backup);
+			if (backupCreated) File.Delete(backup);
 		}
 
 		/// <summary>Save the mission to a new location.</summary>

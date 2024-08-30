@@ -718,7 +718,7 @@ and Failed in that order.
 
 -- GlobalGoalStrings --
 
-For the most part, the same as Section 11. Define your own strings, this
+For the most part, the same as above. Define your own strings, this
 section is always here in the same dynamic manner and repeats 10 times, once
 for each team. As before * is 1 if 00, 64 otherwise.
 

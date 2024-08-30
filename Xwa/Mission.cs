@@ -902,6 +902,7 @@ namespace Idmr.Platform.Xwa
 						fs.Position++;
 						bw.Write(Globals[i].Goals[k].Name.ToCharArray()); bw.Write('\0');
 						fs.Position = p + 0x30;
+						bw.Write(Globals[i].Goals[k].Version);
 						bw.Write(Globals[i].Goals[k].T12AndOrT34);
 						bw.Write(Globals[i].Goals[k].RawDelay);
 						bw.Write((byte)Globals[i].Goals[k].RawPoints);
@@ -938,11 +939,11 @@ namespace Idmr.Platform.Xwa
 				for (i = 0; i < 2; i++)
 				{
 					bw.Write(Briefings[i].Length);
-					bw.Write(Briefings[i].CurrentTime);
+					bw.Write((short)0);	// CurrentTime
 					bw.Write(Briefings[i].StartLength);
 					bw.Write(Briefings[i].EventsLength);
 					bw.Write(Briefings[i].Tile);
-					byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 2];
+					byte[] briefBuffer = new byte[Briefing.EventQuantityLimit * 4];
 					Buffer.BlockCopy(Briefings[i].Events.GetArray(), 0, briefBuffer, 0, Briefings[i].Events.Length * 2);
 					bw.Write(briefBuffer);
 					for (int j = 0; j < 192; j++)
@@ -1072,8 +1073,7 @@ namespace Idmr.Platform.Xwa
 				}
 				throw;
 			}
-			if (backupCreated)
-				File.Delete(backup);
+			if (backupCreated) File.Delete(backup);
 		}
 
 		/// <summary>Save the mission to a new location.</summary>
@@ -1270,7 +1270,7 @@ namespace Idmr.Platform.Xwa
 		public GlobCarg[] GlobalCargos { get; } = new GlobCarg[16];
 		/// <summary>Gets the Global Group details for the mission.</summary>
 		public GlobalUnit[] GlobalGroups { get; } = new GlobalUnit[32];
-		/// <summary>Gets the Globa Unit details for the mission.</summary>
+		/// <summary>Gets the Global Unit details for the mission.</summary>
 		public GlobalUnit[] GlobalUnits { get; } = new GlobalUnit[40];
 		/// <summary>Gets or sets the start mode of the player.</summary>
 		/// <remarks>Defaults to <see cref="HangarEnum.MonCalCruiser"/>.</remarks>
