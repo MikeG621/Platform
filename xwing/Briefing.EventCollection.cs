@@ -170,7 +170,7 @@ namespace Idmr.Platform.Xwing
 				for (int i = 0; i < _items.Count; i++)
 				{
 					Buffer.BlockCopy(_items[i].GetArray(), 0, shorts, pos, _items[i].Length * 2);
-					pos += _items[i].Length;
+					pos += _items[i].Length * 2;
 				}
 				return shorts;
 			}

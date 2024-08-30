@@ -449,46 +449,36 @@ namespace Idmr.Platform.Xwing
 				}
 				throw;
 			}
-			if (backupCreated)
-				File.Delete(backup);
+			if (backupCreated) File.Delete(backup);
 
 			//Finished saving XWI file.  Now save the BRF file.
-			string BriefingPath = MissionPath;
-			bool upper;                                 //This stuff is merely to try and make the BRF extension match the case of the XWI, so the file names look nice and tidy.
-			int extPos = BriefingPath.LastIndexOf('.');
-			if (extPos >= 0 && extPos < BriefingPath.Length - 1)
-			{
-				upper = char.IsUpper(BriefingPath[extPos + 1]);  //Detect case from the first character of the extension.
-				BriefingPath = BriefingPath.Remove(extPos + 1);                   //Strip extension so a new one can be added.
-			}
-			else
-			{
-				upper = char.IsUpper(BriefingPath[BriefingPath.Length - 1]);   //If for some reason the file has no extension, detect from the last character of the name.
-				BriefingPath += ".";
-			}
-			BriefingPath += upper ? "BRF" : "brf";
+			string briefingPath = MissionPath;
+			string ext = Path.GetExtension(MissionPath);
+			bool upper;                       //This stuff is merely to try and make the BRF extension match the case of the XWI, so the file names look nice and tidy.
+			if (ext != null && ext.Length > 1) upper = char.IsUpper(ext[1]);  //Detect case from the first character of the extension.
+			else upper = char.IsUpper(briefingPath[briefingPath.Length - 1]);   // or from the last character of the name.
+			briefingPath = Path.ChangeExtension(briefingPath, upper ? "BRF" : "brf");
 
-			if (File.Exists(BriefingPath) && (File.GetAttributes(BriefingPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save briefing, existing file is read-only.");
+			if (File.Exists(briefingPath) && (File.GetAttributes(briefingPath) & FileAttributes.ReadOnly) != 0) throw new UnauthorizedAccessException("Cannot save briefing, existing file is read-only.");
 
 			fs = null;
-			backup = BriefingPath.ToLower().Replace(".brf", "_brf.bak");
+			backup = briefingPath.ToLower().Replace(".brf", "_brf.bak");
 			backupCreated = false; writerCreated = false;
 
-			if (File.Exists(BriefingPath) && BriefingPath.ToLower() != backup)
+			if (File.Exists(briefingPath) && briefingPath.ToLower() != backup)
 			{
 				try
 				{
-					if (File.Exists(backup))
-						File.Delete(backup);
-					File.Copy(BriefingPath, backup);
+					if (File.Exists(backup)) File.Delete(backup);
+					File.Copy(briefingPath, backup);
 					backupCreated = true;
 				}
 				catch { }
 			}
 			try
 			{
-				if (File.Exists(BriefingPath)) File.Delete(BriefingPath);
-				fs = File.OpenWrite(BriefingPath);
+				if (File.Exists(briefingPath)) File.Delete(briefingPath);
+				fs = File.OpenWrite(briefingPath);
 				BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.GetEncoding(437));  //[JB] Changed encoding to IBM437 (OEM United States) to properly handle the DOS ASCII character set.
 				writerCreated = true;
 				bw.Write((short)2);   //Version
@@ -621,14 +611,13 @@ namespace Idmr.Platform.Xwing
 				fs?.Close();
 				if (writerCreated && backupCreated)
 				{
-					File.Delete(BriefingPath);
-					File.Copy(backup, BriefingPath);
+					File.Delete(briefingPath);
+					File.Copy(backup, briefingPath);
 					File.Delete(backup);
 				}
 				throw;
 			}
-			if (backupCreated)
-				File.Delete(backup);
+			if (backupCreated) File.Delete(backup);
 		}
 
 		/// <summary>Saves the mission to a new <see cref="MissionFile.MissionPath"/>.</summary>
