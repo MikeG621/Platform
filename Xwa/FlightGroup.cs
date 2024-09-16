@@ -153,7 +153,7 @@ namespace Idmr.Platform.Xwa
 			TeamLost
 		}
 		/// <summary>Values for <see cref="Countermeasures"/>.</summary>
-		public enum CounterTypes
+		public enum CounterTypes : byte
 		{
 			/// <summary>None.</summary>
 			None,
