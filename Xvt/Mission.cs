@@ -343,7 +343,7 @@ namespace Idmr.Platform.Xvt
 					Messages[i].T1OrT2 = Convert.ToBoolean(buffer[0x14]);
 					Messages[i].T3OrT4 = Convert.ToBoolean(buffer[0x1F]);
 					Messages[i].Note = new string(br.ReadChars(16)).Trim('\0');	// null-termed
-					Messages[i].Delay = br.ReadByte();
+					Messages[i].RawDelay = br.ReadByte();
 					Messages[i].T12OrT34 = Convert.ToBoolean(br.ReadByte());
 				}
 			}
@@ -673,7 +673,7 @@ namespace Idmr.Platform.Xvt
 					bw.Write(Messages[i].T3OrT4);
 					bw.Write(Messages[i].Note.ToCharArray()); bw.Write('\0');
 					fs.Position = p + 0x72;
-					bw.Write(Messages[i].Delay);
+					bw.Write(Messages[i].RawDelay);
 					bw.Write(Messages[i].T12OrT34);
 				}
 				#endregion

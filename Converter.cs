@@ -182,7 +182,7 @@ namespace Idmr.Platform
 			{
 				tie.Messages[i].MessageString = miss.Messages[i].MessageString;
 				tie.Messages[i].Color = miss.Messages[i].Color;
-				tie.Messages[i].RawDelay = miss.Messages[i].Delay;
+				tie.Messages[i].RawDelay = miss.Messages[i].RawDelay;
 				tie.Messages[i].Short = miss.Messages[i].Note;
 				tie.Messages[i].Trig1OrTrig2 = miss.Messages[i].T1OrT2;
 				for (int j = 0; j < 2; j++)
@@ -413,7 +413,7 @@ namespace Idmr.Platform
 			{
 				xvt.Messages[i].MessageString = miss.Messages[i].MessageString;
 				xvt.Messages[i].Color = miss.Messages[i].Color;
-				xvt.Messages[i].Delay = miss.Messages[i].RawDelay;
+				xvt.Messages[i].RawDelay = miss.Messages[i].RawDelay;
 				xvt.Messages[i].Note = miss.Messages[i].Short;
 				xvt.Messages[i].T1OrT2 = miss.Messages[i].Trig1OrTrig2;
 				for (int j = 0; j < 2; j++)
@@ -682,7 +682,7 @@ namespace Idmr.Platform
 				xvt.Messages[i].Color = miss.Messages[i].Color;
 				int delay = Xwa.Mission.GetDelaySeconds(miss.Messages[i].RawDelay) / 5;
 				if (delay > 255) delay = 255;
-				xvt.Messages[i].Delay = (byte)delay;
+				xvt.Messages[i].RawDelay = (byte)delay;
 				xvt.Messages[i].Note = miss.Messages[i].Note;
 				xvt.Messages[i].T1OrT2 = miss.Messages[i].TrigAndOr[0];
 				xvt.Messages[i].T3OrT4 = miss.Messages[i].TrigAndOr[1];
@@ -938,7 +938,7 @@ namespace Idmr.Platform
 				xwa.Messages[i].TrigAndOr[1] = miss.Messages[i].T3OrT4;
 				xwa.Messages[i].TrigAndOr[2] = miss.Messages[i].T12OrT34;
 				xwa.Messages[i].OriginatingFG = (byte)(xwa.FlightGroups.Count - 1);
-				int delay = miss.Messages[i].Delay * 5;
+				int delay = miss.Messages[i].RawDelay * 5;
 				if (delay <= 20) xwa.Messages[i].RawDelay = (byte)delay;
 				else if (delay <= 15 * 60) xwa.Messages[i].RawDelay = (byte)(20 + (delay - 20) / 5);
 				else xwa.Messages[i].RawDelay = (byte)(((delay - 20) / 5 + 216) / 2);
@@ -1691,7 +1691,7 @@ namespace Idmr.Platform
 				{
 					MessageString = miss.EndOfMissionMessages[2],
 					Color = color,
-					Delay = 1   //5 sec
+					RawDelay = 1   //5 sec
 				};
 				msg.Triggers[0].Amount = 0;
 				msg.Triggers[0].VariableType = (byte)Xvt.Mission.Trigger.TypeList.Team;

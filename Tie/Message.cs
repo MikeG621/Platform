@@ -40,8 +40,8 @@ namespace Idmr.Platform.Tie
 			get => _short;
 			set => _short = Common.StringFunctions.GetTrimmed(value, 0xF);
 		}
-		/// <summary>Gets or sets the seconds after trigger is fired divided by five.</summary>
-		/// <remarks>Default is <b>zero</b>. Value of <b>1</b> is 5s, <b>2</b> is 10s, etc.</remarks>
+		/// <summary>Gets or sets the delay after trigger is fired.</summary>
+		/// <remarks>Multiply by <b>5</b> to get seconds. Default is <b>zero</b>. Value of <b>1</b> is 5s, <b>2</b> is 10s, etc.</remarks>
 		public byte RawDelay { get; set; }
 		/// <summary>Gets or sets the number of seconds after trigger is fired.</summary>
 		/// <remarks>Rounds down to the nearest multiple of 5, maximum of <b>1275</b> or <b>21:15</b>.</remarks>

@@ -105,8 +105,10 @@ namespace Idmr.Platform.Xwa
 		/// <summary>Gets or sets the delay after trigger is fired.</summary>
 		/// <remarks>Default is <b>zero</b>. Unlike TIE and XvT, it isn't a simple multiplier.  Use <see cref="Mission.GetDelaySeconds"/> to convert the delay into total seconds.</remarks>
 		public byte RawDelay { get; set; }
-        /// <summary>Unknown use.</summary>
-        public bool SpeakerHeader { get; set; }
+		/// <summary>Gets the number of seconds after trigger is fired.</summary>
+		public ushort DelaySeconds => (ushort)Mission.GetDelaySeconds(RawDelay);
+		/// <summary>Unknown use.</summary>
+		public bool SpeakerHeader { get; set; }
 		/// <summary>Unknown use.</summary>
 		public byte CancelMeaning { get; set; }
 		/// <summary>Gets or sets the editor note.</summary>
