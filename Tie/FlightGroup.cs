@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [UPD] Format spec implemented
  * [UPD] Renamed AndOr to Or for proper boolean naming
  * v4.0, 200809
@@ -96,7 +96,7 @@ namespace Idmr.Platform.Tie
 		}
 
 		/// <summary>Gets a string representation of the FlightGroup.</summary>
-		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;)"</b>.</returns>
+		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b> (&lt;<see cref="BaseFlightGroup.EditorCraftNumber"/>&gt;)".</returns>
 		public override string ToString() => ToString(false);
 		/// <summary>Gets a string representation of the FlightGroup.</summary>
 		/// <remarks>Parenthesis indicate "if applicable" fields, doubled (( )) being "if applicable" and include literal parenthesis.<br/>

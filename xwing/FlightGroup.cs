@@ -5,10 +5,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [NEW] CommandList
  * [UPD] GetTIECraftType now returns byte
  * [UPD] ArrDepHyperspace renamed and now bool
@@ -25,7 +25,7 @@ using System;
 
 namespace Idmr.Platform.Xwing
 {
-	/// <summary>Object for individual FlightGroups<./summary>
+	/// <summary>Object for individual FlightGroups.</summary>
 	[Serializable] public partial class FlightGroup : BaseFlightGroup
 	{
 		/// <summary>Gets or sets the object z-axis orientation at start in raw units (64 = 90 degrees).</summary>

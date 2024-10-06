@@ -54,7 +54,7 @@ namespace Idmr.Platform.Xwa
 				TractorBeam,
 				/// <summary>Targeting Jamming beam.</summary>
 				JammingBeam,
-				/// <summary>Decoy beam<./summary>
+				/// <summary>Decoy beam.</summary>
 				DecoyBeam,
                 /// <summary>Energy beam.</summary>
                 EnergyBeam,

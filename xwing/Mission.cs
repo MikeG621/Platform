@@ -5,10 +5,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [UPD] Briefing events I/O
  * [UPD] ArrDep bool-short conversion
  * v4.0, 200809
@@ -173,7 +173,7 @@ namespace Idmr.Platform.Xwing
 			MissionPath = stream.Name;
 		}
 
-		/// <summary>Loads a mission briefing (.BRF) file from an open FileStream<./summary>
+		/// <summary>Loads a mission briefing (.BRF) file from an open FileStream.</summary>
 		/// <param name="stream">Opened FileStream to mission briefing file.</param>
 		/// <exception cref="InvalidDataException"><paramref name="stream"/> is not a valid X-wing mission briefing file.</exception>
 		public void LoadBriefingFromStream(FileStream stream)

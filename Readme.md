@@ -11,28 +11,9 @@ Contributors:
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA.
 
 ## Latest Release
-#### v6.1, 08 Dec 2023
-- (Converter) Added TieToXvt( ), TieToBop( ), TieToXvtBop( ), XvtBopToXwa( ), TieToXwa( )
-  upgrade paths
-- (Converter) XWA orders convert times and craft type to/from TIE and XvT
-- (Converter) XvT to XWA Triggers adjust craft type
-- (Converter) Added Countermeasures, ExplosionTime, GlobalUnit and Optionals to Xwa
-  to Xvt Flightgroups
-- (Xwing) Fixed up FlightGroup.WaypointIndex
-- (TIE) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and
-  .ConditionList enums
-- (XvT) Briefing EventQuantityLimit corrected to 200
-- (XvT) Order and Trigger operators convert time to XWA properly
-- (XvT) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and
-  .ConditionList enums
-- (XWA) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and
-  .ConditionList enums
-- (XWA) Fixed the time display for "Before Time" trigger/order target type text
-- (XWA) Mission.GetDelaySeconds( ) now static ***BREAKING CHANGE***
-
-#### WIP
+#### v7.0, 06 Oct 2024
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.
-  - This means all XWA Unknowns are defined, many that were left were editor-use only or Unused.
+  - This means all XWA Unknowns are defined; many that were left were editor-use only or Unused.
   - Not all editor-use properties are exposed.
   - Various things renamed. ***BREAKING CHANGE***
   - ArrDep mothership properties renamed, the `*Method` bools are now `*ViaMothership` or `*MothershipUsed` per proper boolean naming convention.
@@ -68,6 +49,25 @@ Mission*.txt files contain file structure information per platform.
 Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
 
 ### Version History
+
+#### v6.1, 08 Dec 2023
+- (Converter) Added TieToXvt( ), TieToBop( ), TieToXvtBop( ), XvtBopToXwa( ), TieToXwa( )
+  upgrade paths
+- (Converter) XWA orders convert times and craft type to/from TIE and XvT
+- (Converter) XvT to XWA Triggers adjust craft type
+- (Converter) Added Countermeasures, ExplosionTime, GlobalUnit and Optionals to Xwa
+  to Xvt Flightgroups
+- (Xwing) Fixed up FlightGroup.WaypointIndex
+- (TIE) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and
+  .ConditionList enums
+- (XvT) Briefing EventQuantityLimit corrected to 200
+- (XvT) Order and Trigger operators convert time to XWA properly
+- (XvT) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and
+  .ConditionList enums
+- (XWA) Added FlightGroup.Order.CommandList, Mission.Trigger.TypeList, .AmountList and
+  .ConditionList enums
+- (XWA) Fixed the time display for "Before Time" trigger/order target type text
+- (XWA) Mission.GetDelaySeconds( ) now static ***BREAKING CHANGE***
 
 #### v6.0, 27 Oct 2023
 - (XWA) FG.Designation Unknown 0x14 renamed to "HYP from Any Region"

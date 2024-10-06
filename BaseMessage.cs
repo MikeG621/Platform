@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7.5+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [UPD] LengthLimit changed to 63 to account for null-term
  * v5.7.5, 230116
  * [UPD] LengthLimit now public
@@ -18,7 +18,7 @@
  * v2.1, 141214
  * [UPD] change to MPL
  */
- 
+
 using System;
 
 namespace Idmr.Platform

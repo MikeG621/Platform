@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [UPD] Format spec
  * [UPD] Renamed AndOr to just Or for proper boolean naming
  * v4.0, 200809

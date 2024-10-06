@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.0+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [NEW] Full format spec implemented
  * v6.0, 231027
  * [UPD] Role unk uncovered [YOGEME#91]

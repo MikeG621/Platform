@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 3.0+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [NEW] GetBytes, this[TriggerIndex], TriggerIndex.XwaParameter
  * v3.0, 180309
  * [NEW] helper functions for FG move/delete [JB]

@@ -5,10 +5,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.3+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [UPD] EventParameters changed to singleton, this[] made private in lieu of GetCount()
  * [NEW] ConvertTicksToSeconds and ConvertSecondsToTicks
  * [UPD] short[] _eventMapper now EventMap[] _eventMaps
@@ -334,7 +334,7 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Reads an briefing event and returns an array with all the information for that event.</summary>
-		/// <param name="page">The index in <see cref="Page"/>.</param>
+		/// <param name="page">The index in <see cref="Pages"/>.</param>
 		/// <param name="index">The offset within <see cref="BriefingPage.Events"/>.</param>
 		/// <remarks>The returned array contains exactly as many shorts as used by the event: time, event command, and variable length parameter field.</remarks>
 		/// <returns>A short[] array of equal size to the exact resulting command length.</returns>

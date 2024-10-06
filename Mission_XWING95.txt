@@ -2,7 +2,7 @@
 Author: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Original Template: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.06.08
+Updated: 2024.08.30
 =====
 
 This is a definition for the XWING mission file (XWI) and briefing file (BRF)
@@ -120,8 +120,8 @@ struct ObjectGroup (size 0x46)
 
 --  BRF FILE FORMAT
 BriefingHeader
-CoordinateSet
-IconSet
+Coordinate[CoordinateCount][IconCount]
+Icon[IconCount]
 WindowUISettings
 Pages
 MissionHeader
@@ -138,35 +138,26 @@ struct BriefingHeader (size 0x6)
 	0x04	SHORT	CoordinateCount
 }
 
-CoordinateSet
+struct Coordinate (size 0x6)
 {
-	foreach(CoordinateCount)
-	{
-		foreach(IconSet)  (size 0x6)
-		{
-			0x00	SHORT	X
-			0x02	SHORT	Y
-			0x04	SHORT	Z
-		}
-	}
+	0x00	SHORT	X
+	0x02	SHORT	Y
+	0x04	SHORT	Z
 }
 
-IconSet
+struct Icon (size 0x40)
 {
-	foreach(IconCount)   (size 0x40)
-	{
-		0x000	SHORT	CraftType
-		0x002	SHORT	IFF
-		0x004	SHORT	NumberOfCraft
-		0x006	SHORT	NumberOfWaves
-		0x008	CHAR[16] Name
-		0x018	CHAR[16] Cargo
-		0x028	CHAR[16] SpecialCargo
-		0x038	SHORT	SpecialCargoCraft
-		0x03A	SHORT	Yaw
-		0x03C	SHORT	Pitch
-		0x03E	SHORT	Roll
-	}
+	0x00	SHORT	CraftType
+	0x02	SHORT	IFF
+	0x04	SHORT	NumberOfCraft
+	0x06	SHORT	NumberOfWaves
+	0x08	CHAR[16] Name
+	0x18	CHAR[16] Cargo
+	0x28	CHAR[16] SpecialCargo
+	0x38	SHORT	SpecialCargoCraft
+	0x3A	SHORT	Yaw
+	0x3C	SHORT	Pitch
+	0x3E	SHORT	Roll
 }
 
 WindowUISettings
@@ -178,7 +169,7 @@ WindowUISettings
 	}
 }
 
-ViewportSetting (size 0xA)
+struct ViewportSetting (size 0xA)
 {
 	0x00	SHORT	Top
 	0x02	SHORT	Left

@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 5.7+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [NEW] Format spec implemented
  * [UPD] EnabledForTeams[] replaced with Get/SetEnabledForTeam() 
  * [NEW] GetBytes

@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 4.0+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [NEW] Format spec implemented
  * [UPD] Delay renamed to RawDelay
  * v4.0, 200809
@@ -95,7 +95,7 @@ namespace Idmr.Platform.Xwa
 			public short GetPointsPerTrigger(int index) => index >= 0 && index < 4 ? (short)(RawPointsPerTrigger[index] * 25) : (short)0;
 			/// <summary>Set the points awarded or subtracted after Trigger completion.</summary>
 			/// <param name="index">The <see cref="Triggers"/> index.</param>
-			/// <param name="points">The point total, limited from <b>-3200</b> to <b>+3175</b>.</remarks>
+			/// <param name="points">The point total, limited from <b>-3200</b> to <b>+3175</b>.</param>
 			public void SetPointsPerTrigger(int index, short points) { if (index >= 0 && index < 4) RawPointsPerTrigger[index] = pointsToRaw(points); }
 
 			/// <summary>Gets the array accessor for the GoalString values.</summary>

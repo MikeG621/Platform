@@ -4,10 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 6.1+
- */
-
-/* CHANGELOG
+ * Version: 7.0
+ * 
+ * CHANGELOG
+ * v7.0, 241006
  * [UPD] Format spec implemented
  * v6.1, 231208
  * [NEW] TypeList, AmountList, ConditionList enums
@@ -138,7 +138,7 @@ namespace Idmr.Platform.Xwa
 				/// <remarks>Spec has this mapped to 100%.</remarks>
 				Percent100FirstWave,
 				/// <summary>75% of the first wave of target.</summary>
-				/// <remarks>Spec has this mapped to 75%<./remarks>
+				/// <remarks>Spec has this mapped to 75%.</remarks>
 				Percent75FirstWave,
 				/// <summary>50% of the first wave of target.</summary>
 				/// <remarks>Spec has this mapped to 50%.</remarks>
