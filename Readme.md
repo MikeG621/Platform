@@ -11,6 +11,9 @@ Contributors:
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA.
 
 ## Latest Release
+#### WIP
+- (XWA) Defect order text now includes IFF. [[YOGEME#113](https://github.com/MikeG621/YOGEME/issues/113)]
+
 #### v7.0, 06 Oct 2024
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.
   - This means all XWA Unknowns are defined; many that were left were editor-use only or Unused.

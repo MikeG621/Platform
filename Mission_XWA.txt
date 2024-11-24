@@ -1481,11 +1481,11 @@ Order
 15	SS Patrol Loop
 	Var1	Number of Loops
 16	SS Await Return
-	Var1	Delay
+	Var1	Delay (unused?)
 17	SS Launch
-	Var1	Delay
+	Var1	Delay (unused?)
 18	SS Protect
-	Var1	Delay
+	Var1	Delay (unused?)
 19	*SS Wait and Protect (maps to Stationary)
 	Var1	Delay
 1A	SS Patrol and Attack

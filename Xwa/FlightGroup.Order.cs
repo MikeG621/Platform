@@ -4,9 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.0+
  * 
  * CHANGELOG
+ * [UPD] Defect order text now includes IFF [YOGEME #113]
  * v7.0, 241006
  * [UPD] Format spec implemented
  * [UPD] AndOr renamed
@@ -390,6 +391,10 @@ namespace Idmr.Platform.Xwa
 				else if (Command == (byte)CommandList.HyperToRegion)
 				{
 					order += " REG:" + (Variable1 + 1);
+				}
+				else if (Command == (byte)CommandList.Defect)
+				{
+					order += " to IFF:" + Variable1;
 				}
 				return order;
 			}
