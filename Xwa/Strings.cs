@@ -1,12 +1,13 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2025 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.0+
  * 
  * CHANGELOG
+ * [UPD] Update to Orders per format spec
  * v7.0, 241006
  * [NEW] Full format spec implemented
  * v6.0, 231027
@@ -888,11 +889,11 @@ namespace Idmr.Platform.Xwa
 										"OBSOLETE. Fly to Rendezvous point and await docking. Ignores targets, returns fire|# of dockings|Meaningless|Meaningless",
 										"Disabled|# of dockings|Meaningless|Meaningless",
 										"Disabled, awaiting boarding|# of dockings|Meaningless|Meaningless",
-										"Attacks targets (not for starships)|Component|Weapon usage|Unknown",
+										"Attacks targets (not for starships)|Component|Component Alt|Weapon usage",
 										"Attacks escorts of targets|Meaningless|Meaningless|Meaningless",
 										"Attacks craft that attack targets, ignores boarding craft|Meaningless|Meaningless|Meaningless",
 										"Attacks craft that attack targets, including boarding craft|Position|Spacing|Meaningless",
-										"Attacks to disable.  Warheads used to lower shields|Component|Component2?|Meaningless",
+										"Attacks to disable.  Warheads used to lower shields|Component|Component Alt|Meaningless",
 										"Boards targets (if stationary) to give cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to take cargo|Docking time|# of dockings|Meaningless",
 										"Boards targets (if stationary) to exchange cargo|Docking time|# of dockings|Meaningless",

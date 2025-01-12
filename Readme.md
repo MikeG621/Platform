@@ -13,6 +13,8 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 ## Latest Release
 #### WIP
 - (XWA) Defect order text now includes IFF. [[YOGEME#113](https://github.com/MikeG621/YOGEME/issues/113)]
+- (Strings) MeshType added.
+- (XWA) Fixes in the Order Var labels.
 
 #### v7.0, 06 Oct 2024
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.

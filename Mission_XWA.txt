@@ -1442,7 +1442,7 @@ Order
 	Var1	Number of Dockings
 07	Attack
 	Var1	Component
-	Var2	Component2
+	Var2	ComponentAlt
 	Var3	Warheads {Normal, All, None}
 08	Attack Escorts
 09	Protect
@@ -1451,7 +1451,7 @@ Order
 	Var2	Spacing	{Loose, Close, Tight, Far}
 0B	Disable
 	Var1	Component
-	Var2	Component2?
+	Var2	ComponentAlt
 0C	Board and Give Cargo
 	Var1	Docking Time
 	Var2	Number of Dockings

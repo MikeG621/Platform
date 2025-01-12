@@ -1,12 +1,13 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2025 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.0+
  * 
  * CHANGELOG
+ * [NEW] MeshType
  * v7.0, 241006
  * [NEW] Update per XWA format spec
  * v4.0, 200809
@@ -118,6 +119,40 @@ namespace Idmr.Platform
 										 "Probes/Sats/Buoys",
 										 "Space Defenses"
 									 };
+		static readonly string[] _meshType = {
+			"Default",
+			"MainHull",
+			"Wing",
+			"Fuselage",
+			"GunTurret",
+			"SmallGun",
+			"Engine",
+			"Bridge",
+			"ShieldGenerator",
+			"EnergyGenerator",
+			"Launcher",
+			"CommunicationSystem",
+			"BeamSystem",
+			"CommandSystem",
+			"DockingPlatform",
+			"LandingPlatform",
+			"Hangar",
+			"CargoPod",
+			"MiscHull",
+			"Antenna",
+			"RotaryWing",
+			"RotaryGunTurret",
+			"RotaryLauncher",
+			"RotaryCommunicationSystem",
+			"RotaryBeamSystem",
+			"RotaryCommandSystem",
+			"Hatch",
+			"Custom",
+			"WeaponSystem1",
+			"WeaponSystem2",
+			"PowerRegenerator",
+			"Reactor"
+		};
 		#endregion
 		/// <summary>Gets a copy of FlightGroup craft markings.</summary>
 		/// <remarks>Array has a Length of 4.</remarks>
@@ -134,6 +169,9 @@ namespace Idmr.Platform
 		/// <summary>Gets a copy of formations only used by mine space objects.</summary>
 		/// <remarks>Array has a Length of 4.</remarks>
 		public static string[] FormationMine => (string[])_formationMine.Clone();
+		/// <summary>Gets a copy of mesh/component types used in craft models.</summary>
+		/// <remarks>Array has a Length of 32.</remarks>
+		public static string[] MeshType => (string[])_meshType.Clone();
 		/// <summary>Gets a copy of Trigger Types for solid objects.</summary>
 		/// <remarks>Array has a Length of 4.</remarks>
 		public static string[] ObjectType => (string[])_objectType.Clone();
