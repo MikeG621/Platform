@@ -12,6 +12,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 
 ## Latest Release
 #### WIP
+- (TIE) "Board to Destroy Cargo" now "Board with no Effect". [[YOGEME#117](https://github.com/MikeG621/YOGEME/issues/117)]
 - (XWA) Defect order text now includes IFF. [[YOGEME#113](https://github.com/MikeG621/YOGEME/issues/113)]
 - (Strings) MeshType added.
 - (XWA) Fixes in the Order Var labels.

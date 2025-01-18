@@ -1,12 +1,13 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2025 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.0+
  * 
  * CHANGELOG
+ * [UPD YOGEME #117] "Board to Destroy Cargo" now "Board with no Effect"
  * v7.0, 241006
  * [UPD] Escort var1 is Position
  * v5.7.5, 230116
@@ -336,7 +337,7 @@ namespace Idmr.Platform.Tie
 									 "Board to Take cargo",
 									 "Board to Exchange cargo",
 									 "Board to Capture",
-									 "Board to Destroy cargo",
+									 "Board with no Effect",
 									 "Pick up / Bag",
 									 "Drop off",
 									 "Wait",
@@ -389,7 +390,7 @@ namespace Idmr.Platform.Tie
 										"Boards targets (if stationary) to take cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to exchange cargo|Docking time (x5 sec)|# of dockings",
 										"Boards targets (if stationary) to capture|Docking time (x5 sec)|# of dockings",
-										"Boards targets (if stationary) to plant explosives. Target will explode when complete|Docking time (x5 sec)|# of dockings",
+										"Boards targets (if stationary). Target will remain disabled when complete|Docking time (x5 sec)|# of dockings",
 										"Dock or pickup target, carry for remainder of mission or until dropped|Docking time (x5 sec)|# of dockings",
 										"Drops off designated Flight Group (disregards targets)|Deploy time? (x5 sec)|Flight Group #",
 										"Waits for designated time before continuing. Returns fire|Wait time (x5 sec)|Meaningless",
