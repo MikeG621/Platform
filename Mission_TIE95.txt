@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.07.05
+Updated: 2025.01.18
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -816,7 +816,7 @@ Order
 0F	Board and Capture Cargo
 	Var1	Docking Time (seconds x 5)
 	Var2	Number of Dockings
-10	Board and Destroy Cargo
+10	Board with no Effect
 	Var1	Docking Time (seconds x 5)
 	Var2	Number of Dockings
 11	Pick up
