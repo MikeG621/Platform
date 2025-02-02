@@ -4,9 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0+
+ * Version: 7.1
  * 
  * CHANGELOG
+ * v7.1, 250202
  * [NEW] MeshType
  * v7.0, 241006
  * [NEW] Update per XWA format spec

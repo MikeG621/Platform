@@ -29,8 +29,8 @@
     <FeedbackEMailLinkText>Michael Gaisser</FeedbackEMailLinkText>
     <HeaderText>
     </HeaderText>
-    <FooterText>&amp;lt%3bp&amp;gt%3bThis library is free software%3b you can redistribute it and/or modify it under the terms of the &amp;lt%3ba href=&amp;quot%3bhttp://mozilla.org/MPL/2.0/&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bMozilla Public License&amp;lt%3b/a&amp;gt%3b%3b either version 2.0 of the License, or %28at your option%29 any later version.&amp;lt%3b/p&amp;gt%3b&amp;lt%3bp&amp;gt%3bThis library is provided &amp;quot%3bas is&amp;quot%3b without warranty of any kind%3b including that the library is free of defects, merchantable, fit for a particular purpose or non-infringing. See the full license text for more details.&amp;lt%3b/p&amp;gt%3b&amp;lt%3bp&amp;gt%3bPublished 06 Oct 2024&amp;lt%3b/p&amp;gt%3b</FooterText>
-    <CopyrightText>Copyright &amp;#169%3b 2009-2024 Michael Gaisser</CopyrightText>
+    <FooterText>&amp;lt%3bp&amp;gt%3bThis library is free software%3b you can redistribute it and/or modify it under the terms of the &amp;lt%3ba href=&amp;quot%3bhttp://mozilla.org/MPL/2.0/&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bMozilla Public License&amp;lt%3b/a&amp;gt%3b%3b either version 2.0 of the License, or %28at your option%29 any later version.&amp;lt%3b/p&amp;gt%3b&amp;lt%3bp&amp;gt%3bThis library is provided &amp;quot%3bas is&amp;quot%3b without warranty of any kind%3b including that the library is free of defects, merchantable, fit for a particular purpose or non-infringing. See the full license text for more details.&amp;lt%3b/p&amp;gt%3b&amp;lt%3bp&amp;gt%3bPublished 02 Feb 2025&amp;lt%3b/p&amp;gt%3b</FooterText>
+    <CopyrightText>Copyright &amp;#169%3b 2009-2025 Michael Gaisser</CopyrightText>
     <CopyrightHref>https://github.com/MikeG621</CopyrightHref>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="Idmr.Platform" isDocumented="True">Provides types from which all X-wing series mission classes are built.</NamespaceSummaryItem>
@@ -59,7 +59,7 @@ This document supercedes Idmr.Common.chm</NamespaceSummaryItem>
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
     <CppCommentsFixup>False</CppCommentsFixup>
     <CleanIntermediates>True</CleanIntermediates>
-    <HelpFileVersion>7.0</HelpFileVersion>
+    <HelpFileVersion>7.1</HelpFileVersion>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

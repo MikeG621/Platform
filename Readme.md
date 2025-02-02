@@ -11,12 +11,23 @@ Contributors:
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA.
 
 ## Latest Release
-#### WIP
+#### v7.1, 02 Feb 2025
 - (TIE) "Board to Destroy Cargo" now "Board with no Effect". [[YOGEME#117](https://github.com/MikeG621/YOGEME/issues/117)]
 - (XWA) Defect order text now includes IFF. [[YOGEME#113](https://github.com/MikeG621/YOGEME/issues/113)]
 - (Strings) MeshType added.
 - (XWA) Fixes in the Order Var labels.
 
+---
+### Additional Information
+
+#### Dependencies
+- [Idmr.Common](https://github.com/MikeG621/Common) (v1.3 or later)
+
+Mission*.txt files contain file structure information per platform.
+
+Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
+
+### Version History
 #### v7.0, 06 Oct 2024
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.
   - This means all XWA Unknowns are defined; many that were left were editor-use only or Unused.
@@ -43,19 +54,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
   - `short[] _eventMapper` now `EventMap[] _eventMaps`.
   - `short getEventMapperIndex()` now `EventMap getEventMapper`.
 - (XWA) The TrimEnd fix from v5.0 reapplied and expanded throughout.
-
----
-### Additional Information
-
-#### Dependencies
-- [Idmr.Common](https://github.com/MikeG621/Common) (v1.3 or later)
-
-Mission*.txt files contain file structure information per platform.
-
-Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
-
-### Version History
-
+ 
 #### v6.1, 08 Dec 2023
 - (Converter) Added TieToXvt( ), TieToBop( ), TieToXvtBop( ), XvtBopToXwa( ), TieToXwa( )
   upgrade paths
