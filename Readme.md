@@ -12,7 +12,7 @@ Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, 
 
 ## Latest Release
 #### WIP
-- (TIE) Missions with too many Messages will now load, though the excess will be lost. [[YOGEME#120](https://github.com/MikeG621/YOGEME/issues/120)]
+- (TIE, XvT) Missions with too many Messages will now load, though the excess will be lost. [[YOGEME#120](https://github.com/MikeG621/YOGEME/issues/120)]
  
 #### v7.1, 02 Feb 2025
 - (TIE) "Board to Destroy Cargo" now "Board with no Effect". [[YOGEME#117](https://github.com/MikeG621/YOGEME/issues/117)]

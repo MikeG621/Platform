@@ -1,12 +1,13 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2025 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.0+
  * 
  * CHANGELOG
+ * [UPD] Accounted for message qty overflow
  * v7.0, 241006
  * [NEW] Format spec implemented
  * [UPD] Briefing events I/O
@@ -316,13 +317,13 @@ namespace Idmr.Platform.Xvt
 			if (numMessages != 0)
 			{
 				Messages = new MessageCollection(numMessages);
-				for (i=0;i<numMessages;i++)
+				for (i = 0; i < Messages.Count; i++)
 				{
 					stream.Position += 2;
 					Messages[i].MessageString = new string(br.ReadChars(64));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
-                    if (Messages[i].MessageString.Length > 0)
+					if (Messages[i].MessageString.Length > 0)
 					{
 						char c = Messages[i].MessageString[0];
 						if (c >= '1' && c <= '3')
@@ -332,20 +333,21 @@ namespace Idmr.Platform.Xvt
 						}
 					}
 					stream.Read(buffer, 0, 0x20);
-					for (j=0;j<10;j++) Messages[i].SentToTeam[j] = Convert.ToBoolean(buffer[j]);
-					for (j=0;j<4;j++)
+					for (j = 0; j < 10; j++) Messages[i].SentToTeam[j] = Convert.ToBoolean(buffer[j]);
+					for (j = 0; j < 4; j++)
 					{
-						Messages[i].Triggers[0][j] = buffer[0xA+j];
-						Messages[i].Triggers[1][j] = buffer[0xE+j];
-						Messages[i].Triggers[2][j] = buffer[0x15+j];
-						Messages[i].Triggers[3][j] = buffer[0x19+j];
+						Messages[i].Triggers[0][j] = buffer[0xA + j];
+						Messages[i].Triggers[1][j] = buffer[0xE + j];
+						Messages[i].Triggers[2][j] = buffer[0x15 + j];
+						Messages[i].Triggers[3][j] = buffer[0x19 + j];
 					}
 					Messages[i].T1OrT2 = Convert.ToBoolean(buffer[0x14]);
 					Messages[i].T3OrT4 = Convert.ToBoolean(buffer[0x1F]);
-					Messages[i].Note = new string(br.ReadChars(16)).Trim('\0');	// null-termed
+					Messages[i].Note = new string(br.ReadChars(16)).Trim('\0'); // null-termed
 					Messages[i].RawDelay = br.ReadByte();
 					Messages[i].T12OrT34 = Convert.ToBoolean(br.ReadByte());
 				}
+				if (numMessages > Messages.Count) stream.Position += (numMessages - Messages.Count) * 0x74;
 			}
 			else Messages.Clear();
 			#endregion

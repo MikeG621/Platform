@@ -38,12 +38,10 @@ namespace Idmr.Platform.Tie
 		/// <summary>Creates a new Collection with multiple initial FlightGroups.</summary>
 		/// <param name="quantity">Number of FlightGroups to start with.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>1</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/>.</exception>
-		public FlightGroupCollection(int quantity)
+		public FlightGroupCollection(int quantity) : this()
 		{
-			_itemLimit = Mission.FlightGroupLimit;
 			if (quantity < 1 || quantity > _itemLimit) throw new ArgumentOutOfRangeException("quantity", "Invalid quantity, must be 1-" + _itemLimit);
-			_items = new List<FlightGroup>(_itemLimit);
-			for (int i = 0; i < quantity; i++) _items.Add(new FlightGroup());
+			for (int i = 1; i < quantity; i++) _items.Add(new FlightGroup());
 		}
 
 		/// <summary>Adds a new FlightGroup to the end of the Collection.</summary>
