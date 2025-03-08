@@ -1,12 +1,13 @@
 /*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2025 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.0+
  * 
  * CHANGELOG
+ * [UPD YOGEME #120] Accounted for message qty overflow
  * v7.0, 241006
  * [NEW] Format spec update
  * [UPD] Briefing events I/O
@@ -241,7 +242,7 @@ namespace Idmr.Platform.Tie
 					Messages[i].MessageString = new string(br.ReadChars(64));
 					if (Messages[i].MessageString.IndexOf('\0') != -1) Messages[i].MessageString = Messages[i].MessageString.Substring(0, Messages[i].MessageString.IndexOf('\0'));
 					Messages[i].Color = 0;
-					if (Messages[i].MessageString.Length > 0)  //[JB] Added length check, otherwise empty strings would crash the load process and make the mission unrecoverable to anything but hex editing.  
+					if (Messages[i].MessageString.Length > 0)
 					{
 						char c = Messages[i].MessageString[0];
 						if (c >= '1' && c <= '3')
@@ -257,6 +258,7 @@ namespace Idmr.Platform.Tie
 					Messages[i].RawDelay = br.ReadByte();
 					Messages[i].Trig1OrTrig2 = br.ReadBoolean();
 				}
+				if (numMessages > Messages.Count) stream.Position += (numMessages - Messages.Count) * 0x5a;
 			}
 			else { Messages.Clear(); }
 			#endregion

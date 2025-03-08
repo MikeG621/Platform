@@ -1,13 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2025 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4
+ * Version: 2.4+
  */
 
 /* CHANGELOG
+ * [UPD YOGEME #120] Accounted for message qty overflow
  * v2.1, 141214
  * [UPD] change to MPL
  * [NEW] IsModified implementation
@@ -16,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Principal;
+using System.Windows.Forms;
 
 namespace Idmr.Platform.Tie
 {
@@ -32,12 +35,16 @@ namespace Idmr.Platform.Tie
 
 		/// <summary>Creates a new Collection with multiple initial Messages.</summary>
 		/// <param name="quantity">Number of Messages to start with.</param>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>0</b> or greater than <see cref="Common.ResizableCollection{T}.ItemLimit"/>.</exception>
-		public MessageCollection(int quantity)
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than <b>0</b>.</exception>
+		/// <remarks>Exceeding <see cref="Common.ResizableCollection{T}.ItemLimit"/> will result in a warning and the excess ignored.</remarks>
+		public MessageCollection(int quantity) : this()
 		{
-			_itemLimit = Mission.MessageLimit;
-			if (quantity < 0 || quantity > _itemLimit) throw new ArgumentOutOfRangeException("quantity", "Invalid quantity, must be 0-" + _itemLimit);
-			_items = new List<Message>(_itemLimit);
+			if (quantity > _itemLimit)
+			{
+				MessageBox.Show($"Maximum quantity ({_itemLimit}) exceeded, trimming excess.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				quantity = _itemLimit;
+			}
+			if (quantity < 0) throw new ArgumentOutOfRangeException("quantity", "Invalid quantity, must be 0-" + _itemLimit);
 			for (int i = 0; i < quantity; i++) _items.Add(new Message());
 		}
 
