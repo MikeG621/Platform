@@ -4,9 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0+
+ * Version: 7.2
  * 
  * CHANGELOG
+ * v7.2, 250309
  * [UPD] Accounted for message qty overflow
  * v7.0, 241006
  * [NEW] Format spec implemented

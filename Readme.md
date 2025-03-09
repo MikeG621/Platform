@@ -11,14 +11,9 @@ Contributors:
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA.
 
 ## Latest Release
-#### WIP
+#### v7.2, 09 Mar 2025
 - (TIE, XvT) Missions with too many Messages will now load, though the excess will be lost. [[YOGEME#120](https://github.com/MikeG621/YOGEME/issues/120)]
- 
-#### v7.1, 02 Feb 2025
-- (TIE) "Board to Destroy Cargo" now "Board with no Effect". [[YOGEME#117](https://github.com/MikeG621/YOGEME/issues/117)]
-- (XWA) Defect order text now includes IFF. [[YOGEME#113](https://github.com/MikeG621/YOGEME/issues/113)]
-- (Strings) MeshType added.
-- (XWA) Fixes in the Order Var labels.
+  - Note: Does not apply to XWA due to Messages being valid Trigger inputs, so simply deleting can break the mission.
 
 ---
 ### Additional Information
@@ -31,6 +26,12 @@ Mission*.txt files contain file structure information per platform.
 Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
 
 ### Version History
+
+#### v7.1, 02 Feb 2025
+- (TIE) "Board to Destroy Cargo" now "Board with no Effect". [[YOGEME#117](https://github.com/MikeG621/YOGEME/issues/117)]
+- (XWA) Defect order text now includes IFF. [[YOGEME#113](https://github.com/MikeG621/YOGEME/issues/113)]
+- (Strings) MeshType added.
+- (XWA) Fixes in the Order Var labels.
 
 #### v7.0, 06 Oct 2024
 - Format spec for XWA implemented, includes some backflow into TIE and XvT.

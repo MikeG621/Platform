@@ -4,10 +4,11 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 2.4+
+ * Version: 7.2
  */
 
 /* CHANGELOG
+ * v7.2, 250309
  * [UPD] Accounted for message qty overflow
  * v2.1, 141214
  * [UPD] change to MPL
