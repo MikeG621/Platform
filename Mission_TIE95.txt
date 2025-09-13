@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2025.01.18
+Updated: 2025.09.13
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -511,7 +511,22 @@ if the two-byte Length field also contributes, but in testing it doesn't
 seem to be.
 
 Answer text allows the use of character control codes 0x02 to begin
-highlighting, 0x01 to end highlighting, or 0x0A for newline.
+highlighting, 0x01 to end highlighting, or 0x0A for newline. There's also a
+0x03 control code, which controls the facial expression of the officers while
+they're speaking. The code is followed by the expression code, which is a
+little different between the officer and secret order and they're roughly:
+Officer:
+01 normal
+02 inqusitive
+03 judging
+04 angry
+05 judging with angry blink
+Secret Order:
+01 normal
+02 inquisitive, unblinking
+03 inquisitive, unblinking
+04 angry
+05 inquisitive, unblinking
 
 [LEGACY] Section does not exist.
 
