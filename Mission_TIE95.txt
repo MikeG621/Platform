@@ -524,12 +524,14 @@ Officer:
 03 smirking
 04 angry
 05 disappointed
+06 normal, unblinking
 Secret Order:
 01 normal
 02 raised eyebrow, unblinking
 03 raised eyebrow, unblinking
 04 angry
 05 raised eyebrow, unblinking
+06 normal, unblinking
 
 Secret Order is not very expressive. This code only works in answer text but
 can be used both in pre- and post-mission. If multiple codes are used, it uses
