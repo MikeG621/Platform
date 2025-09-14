@@ -1,7 +1,7 @@
 TIE Mission File
 Author: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2025.09.13
+Updated: 2025.09.14
 =====
 
 This is going to be a very lengthy definition of the TIE95 mission file.  Due
@@ -483,18 +483,21 @@ limit.  See technical notes in PostMissionQuestion.
 -- PostMissionQuestion --
 
 This is pretty much the same as PreMission, only with the added
-QuestionCondition and QuestionType values. QuestionType can be 00-02.
-00	None
-01	Primary Goals
-02	Secondary Goals
-QuestionCondition has three known values, and I would guess more that are
-undiscovered.
-00	None
+QuestionCondition and QuestionType values.  QuestionCondition has three values
+and is checked first:
+00	Never
 04	Successful
 05	Failed
+QuestionType can be 01 or 02.
+01	Primary Goals
+02	Secondary Goals
+
 Again, the Length can be zero and thus ignoring the values following it, with a
 minimum length of 0x14. 0x0A is still appended to Question to be used as the
-seperator.
+seperator. If the Condition is Never, then the rest of the block is ignored,
+similar to a Length of 0. If Condition and Type are omitted, then the effect is
+"Always", providing you don't start the question with a newline (0x0A), and the
+question will appear regardless of mission outcome.
 
 The 0xFF after the questions is the typical EOF flag, though it doesn't appear
 to be truly necessary. I use it, can't hurt. That said, after the last Post
@@ -513,20 +516,24 @@ seem to be.
 Answer text allows the use of character control codes 0x02 to begin
 highlighting, 0x01 to end highlighting, or 0x0A for newline. There's also a
 0x03 control code, which controls the facial expression of the officers while
-they're speaking. The code is followed by the expression code, which is a
+they're speaking. The code is followed by the expression value, which is a
 little different between the officer and secret order and they're roughly:
 Officer:
 01 normal
-02 inqusitive
-03 judging
+02 happy
+03 smirking
 04 angry
-05 judging with angry blink
+05 disappointed
 Secret Order:
 01 normal
-02 inquisitive, unblinking
-03 inquisitive, unblinking
+02 raised eyebrow, unblinking
+03 raised eyebrow, unblinking
 04 angry
-05 inquisitive, unblinking
+05 raised eyebrow, unblinking
+
+Secret Order is not very expressive. This code only works in answer text but
+can be used both in pre- and post-mission. If multiple codes are used, it uses
+the last one. Choosing "normal" is the same as omitting the control code.
 
 [LEGACY] Section does not exist.
 
