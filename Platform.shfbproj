@@ -42,7 +42,7 @@
 This document supercedes Idmr.Common.chm</NamespaceSummaryItem>
       <NamespaceSummaryItem name="Idmr.Platform.Xwing" isDocumented="True">Provides types to manipulate X-Wing Collector's Edition (XW95) mission files</NamespaceSummaryItem>
     </NamespaceSummaries>
-    <ProjectSummary>Idmr.Platform.dll provides objects to interface with and edit LucasArts mission files for TIE Fighter through X-wing Alliance.</ProjectSummary>
+    <ProjectSummary>Idmr.Platform.dll provides objects to interface with and edit LucasArts mission files for X-Wing through X-Wing Alliance.</ProjectSummary>
     <Preliminary>False</Preliminary>
     <KeepLogFile>False</KeepLogFile>
     <MaximumGroupParts>2</MaximumGroupParts>

@@ -4,9 +4,10 @@
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.2
+ * Version: 7.2+
  * 
  * CHANGELOG
+ * [UPD] facial expressions I/O
  * v7.2, 250309
  * [UPD YOGEME #120] Accounted for message qty overflow
  * v7.0, 241006
@@ -67,7 +68,7 @@ namespace Idmr.Platform.Tie
 		/// <summary>Pre- and Post-mission officers.</summary>
 		public enum BriefingOfficers : byte
 		{
-			/// <summary>No officers presen.t</summary>
+			/// <summary>No officers present.</summary>
 			None,
 			/// <summary>Both officers are present.</summary>
 			Both,
@@ -325,6 +326,12 @@ namespace Idmr.Platform.Tie
 						case 2:
 							BriefingQuestions.PreMissAnswers[i] += "[";
 							break;
+						case 3:
+							k++;
+							b = br.ReadByte();
+							if (i < 5) BriefingQuestions.OfficerFacialExpressions[i] = (Questions.OfficerFacialExpression)b;
+							else BriefingQuestions.SecretOrderExpressions[i - 5] = (Questions.SecretOrderExpression)b;
+							break;
 						case 10:
 							BriefingQuestions.PreMissAnswers[i] += "\r\n";  //because txt doesn't like \n by itself
 							break;
@@ -347,8 +354,18 @@ namespace Idmr.Platform.Tie
 						continue;
 					}
 					if (j == 0) continue;
-					BriefingQuestions.PostTrigger[i] = (Questions.QuestionCondition)br.ReadByte();
-					BriefingQuestions.PostTrigType[i] = (Questions.QuestionType)br.ReadByte();
+					byte qb = br.ReadByte();
+					if (qb == 0 || qb == 4 || qb == 5)
+					{
+						BriefingQuestions.PostTrigger[i] = (Questions.QuestionCondition)qb;
+						BriefingQuestions.PostTrigType[i] = (Questions.QuestionType)br.ReadByte();
+					}
+					else
+					{
+						BriefingQuestions.PostTrigger[i] = Questions.QuestionCondition.Always;
+						l = 0;
+						stream.Position--;
+					}
 					for (k = 0; k < j; k++)
 					{
 						BriefingQuestions.PostMissQuestions[i] += br.ReadChar().ToString();
@@ -370,6 +387,12 @@ namespace Idmr.Platform.Tie
 								break;
 							case 2:
 								BriefingQuestions.PostMissAnswers[i] += "[";
+								break;
+							case 3:
+								k++;
+								b = br.ReadByte();
+								if (i < 5) BriefingQuestions.OfficerFacialExpressions[i + 5] = (Questions.OfficerFacialExpression)b;
+								else BriefingQuestions.SecretOrderExpressions[i] = (Questions.SecretOrderExpression)b;
 								break;
 							case 10:
 								BriefingQuestions.PostMissAnswers[i] += "\r\n";
@@ -574,6 +597,9 @@ namespace Idmr.Platform.Tie
 					str_a = str_a.Replace("\r", "");
 					str_a = str_a.Replace(']', Convert.ToChar(1));
 					str_a = str_a.Replace('[', Convert.ToChar(2));
+					bool face = false;
+					if (i < 5 && BriefingQuestions.OfficerFacialExpressions[i] != Questions.OfficerFacialExpression.Normal ||
+						i > 4 && BriefingQuestions.SecretOrderExpressions[i - 5] != Questions.SecretOrderExpression.Normal) face = true;
 					j = str_q.Length + str_a.Length;
 					if (j == 0)
 					{
@@ -581,9 +607,16 @@ namespace Idmr.Platform.Tie
 						continue;   //if it doesn't exist, don't even bother with the rest of this
 					}
 					j++;    //takes into account the q/a spacer
+					if (face) j += 2;
 					bw.Write((short)j);
 					bw.Write(str_q.ToCharArray());
 					fs.WriteByte(0xA);
+					if (face)
+					{
+						fs.WriteByte(3);
+						if (i < 5) fs.WriteByte((byte)BriefingQuestions.OfficerFacialExpressions[i]);
+						else fs.WriteByte((byte)BriefingQuestions.SecretOrderExpressions[i - 5]);
+					}
 					bw.Write(str_a.ToCharArray());
 				}
 				for (int i = 0; i < 10; i++)
@@ -594,16 +627,28 @@ namespace Idmr.Platform.Tie
 					str_a = str_a.Replace("\r", "");
 					str_a = str_a.Replace(']', Convert.ToChar(1));  //[JB] Debrief questions use the same highlight scheme.  Added character conversions.
 					str_a = str_a.Replace('[', Convert.ToChar(2));
+					if (i < 5 && BriefingQuestions.OfficerFacialExpressions[i + 5] != Questions.OfficerFacialExpression.Normal)
+						str_a = Convert.ToChar(3) + Convert.ToChar((int)BriefingQuestions.OfficerFacialExpressions[i + 5]) + str_a;
+					else if (i > 4 && BriefingQuestions.SecretOrderExpressions[i] != Questions.SecretOrderExpression.Normal)
+						str_a = Convert.ToChar(3) + Convert.ToChar((int)BriefingQuestions.SecretOrderExpressions[i]) + str_a;
 					j = str_q.Length + str_a.Length;
 					if (j == 0)
 					{
 						bw.Write((short)0);
 						continue;
 					}
-					j += 3;
-					bw.Write((short)j);
-					bw.Write((byte)BriefingQuestions.PostTrigger[i]);
-					bw.Write((byte)BriefingQuestions.PostTrigType[i]);
+					if (BriefingQuestions.PostTrigger[i] == Questions.QuestionCondition.Always)
+					{
+						j++;
+						bw.Write((short)j);
+					}
+					else
+					{
+						j += 3;
+						bw.Write((short)j);
+						bw.Write((byte)BriefingQuestions.PostTrigger[i]);
+						bw.Write((byte)BriefingQuestions.PostTrigType[i]);
+					}
 					bw.Write(str_q.ToCharArray());
 					fs.WriteByte(0xA);
 					bw.Write(str_a.ToCharArray());
