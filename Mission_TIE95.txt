@@ -282,6 +282,9 @@ Global Goals can technically be something other than 3, and it will attempt to
 read whatever quantity is there, but there's memory for 4, and the game will
 always attempt to process 3. So it's better to treat it as Reserved(3).
 
+The TimeLimit values while present and are processed in missions in the
+background, only have an effect for Training missions.
+
 BriefingOfficers is a value 01-03, and determines which officers will be
 present in the room before you launch into a mission.
 01	Both officers
