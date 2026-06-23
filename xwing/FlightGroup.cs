@@ -67,22 +67,22 @@ namespace Idmr.Platform.Xwing
 			Start3,
 			/// <summary>Arrival and Departure coordinate.</summary>
 			Hyperspace,
-			/// <summary>Coordinate Set 1.</summary>
-			CS1,
-			/// <summary>Coordinate Set 2.</summary>
-			CS2,
-			/// <summary>Coordinate Set 3.</summary>
-			CS3,
-			/// <summary>Coordinate Set 4.</summary>
-			CS4,
-			/// <summary>Coordinate Set 5.</summary>
-			CS5,
-			/// <summary>Coordinate Set 6.</summary>
-			CS6,
-			/// <summary>Coordinate Set 7.</summary>
-			CS7,
-			/// <summary>Coordinate Set 8.</summary>
-			CS8
+			/// <summary>Virtualized briefing coordinate 1.</summary>
+			Briefing1,
+			/// <summary>Virtualized briefing coordinate 2.</summary>
+			Briefing2,
+			/// <summary>Virtualized briefing coordinate 3.</summary>
+			Briefing3,
+			/// <summary>Virtualized briefing coordinate 4.</summary>
+			Briefing4,
+			/// <summary>Virtualized briefing coordinate 5.</summary>
+			Briefing5,
+			/// <summary>Virtualized briefing coordinate 6.</summary>
+			Briefing6,
+			/// <summary>Virtualized briefing coordinate 7.</summary>
+			Briefing7,
+			/// <summary>Virtualized briefing coordinate 8.</summary>
+			Briefing8
 		}
 
 		/// <summary>Available orders.</summary>
@@ -200,16 +200,23 @@ namespace Idmr.Platform.Xwing
 			{
 				int index = ObjectType - 17;
 				if (index < 0) index = 0;
-				longName = "{" + Strings.ObjectType[index] + "} " + Name;
+				string[] objStrings = Strings.ObjectType;
+				if(index < objStrings.Length)
+					longName = "{" + objStrings[index] + "} " + Name;
+				else
+					longName = "{Object " + index + "} " + Name;
 			}
 			else
 			{
-				if (CraftType == 2 && Status1 >= 10)  // Index hack for B-wings
-					longName = Strings.CraftAbbrv[18] + " " + Name;
+				string[] abbrevStrings = Strings.CraftAbbrv;
+				if (CraftType == 2 && Status1 >= 10)
+					longName = abbrevStrings[18] + " " + Name;
 				else if (CraftType == 25)
-					longName = Strings.CraftAbbrv[18] + " " + Name;
+					longName = abbrevStrings[18] + " " + Name;
+				else if(CraftType < abbrevStrings.Length)
+					longName = abbrevStrings[CraftType] + " " + Name;
 				else
-					longName = Strings.CraftAbbrv[CraftType] + " " + Name;
+					longName = "Craft " + CraftType + " " + Name;
 
 				if (EditorCraftNumber > 0) //[JB] Added numbering information.
 					longName += EditorCraftExplicit ? " " + EditorCraftNumber : " <" + EditorCraftNumber + ">";
@@ -217,6 +224,13 @@ namespace Idmr.Platform.Xwing
 
 			if (!verbose) return longName;
             return IFF + " - " + (PlayerCraft != 0 ? "*" : "") + waves + " " + longName;
+		}
+
+		public string BriefingString()
+		{
+			string[] objTypes = Strings.BriefingObjectType;
+			int index = IsObjectGroup() ? ObjectType : CraftType;
+			return (index >= 0 && index < objTypes.Length ? objTypes[index] : index.ToString());
 		}
 
 		/// <summary>Gets the actual IFF code as it would appear in game.</summary>

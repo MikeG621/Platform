@@ -148,6 +148,118 @@ namespace Idmr.Platform.Xwing
 									  };
 
 
+		static readonly string[] _briefingObjectType = {
+			"None",
+			"X-W",
+			"Y-W",
+			"A-W",
+			"T/F",
+			"T/I",
+			"T/B",
+			"GUN",
+			"TRN",
+			"SHU",
+			"TUG", // 10
+			"CON",
+			"FRT",
+			"CRS",
+			"FRG",
+			"CRV",
+			"STD",
+			"T/A",
+			"Mine1",
+			"Mine2",
+			"Mine3",  // 20
+			"Mine4",
+			"Satellite",
+			"Nav Buoy",
+			"Probe",
+			"B-W",
+			"Asteroid 1",
+			"Asteroid 2",
+			"Asteroid 3",
+			"Asteroid 4",
+			"Asteroid 5",  // 30
+			"Asteroid 6",
+			"Asteroid 7",
+			"Asteroid 8",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",  // 40
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Planet",
+			"Death Star",
+			"Spiral", // 50
+			"Spiral",
+			"Spiral",
+			"Spiral",
+			"Spiral",
+			"Spiral",
+			"Spiral",
+			"Spiral",
+			"Start Gate",
+			"Gate 1A",
+			"Gate 1B",  // 60
+			"Gate 1C",
+			"Gate 2A",
+			"Gate 2B",
+			"Gate 2C",
+			"Gate 3A",
+			"Gate 3B",
+			"Gate 3C",
+			"Gate 4A",
+			"Gate 4B",
+			"Gate 4C", // 70
+			"Gate 5A",
+			"Gate 5B",
+			"Gate 5C",
+			"Gate 6A",
+			"Gate 6B",
+			"Gate 6C",
+			"Thing 1",
+			"Thing 1",
+			"Thing 1",
+			"Thing 1", // 80
+			"Thing 1",
+			"Thing 1",
+			"Thing 1",
+			"Thing 1",
+			"Thing 2",
+			"Thing 2",
+			"Thing 2",
+			"Thing 2",
+			"Thing 2",
+			"Thing 2", // 90
+			"Thing 2",
+			"Thing 2",
+			"Thing 3A",
+			"Thing 3B",
+			"Thing 3C",
+			"Thing 3D",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4", // 100
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+			"Thing 4",
+		};
+
         /*
          * Mapping gun turrets around the gates on Training Platform.
          * (assuming a "front-facing" platform, player and platform guns facing each other)
@@ -335,10 +447,10 @@ namespace Idmr.Platform.Xwing
 									"Hit Exhaust Port"
 									 };
         
-        static readonly string[] _briefingUIElement = { "Title",
-                                               "Text",
-                                               "Unused1",
-                                               "Unused2",
+        static readonly string[] _pagePanels = { "Title",
+                                               "Caption",
+                                               "Panel3",
+                                               "Panel4",
                                                "Map"
                                              };
         
@@ -393,6 +505,9 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets a copy of the long names for object types.  NOTE: X-wing distinguishes between craft FGs and object FGs as separate entities.</summary>
 		/// <remarks>Array is Length = 33.</remarks>
 		public static string[] ObjectType => (string[])_objectType.Clone();
+		/// <summary>Gets a copy of the abbreviated names for object types, as they exist for briefing icons.  It is a combination of CraftAbbrv and ObjectType, with some changes.</summary>
+		/// <remarks>Array is Length = 108.</remarks>
+		public static string[] BriefingObjectType => (string[])_briefingObjectType.Clone();
 		/// <summary>Gets a copy of the short names for ship types.</summary>
 		/// <remarks>Array is Length = 88.</remarks>
 		public static string[] CraftAbbrv => (string[])_craftAbbrv.Clone();
@@ -438,7 +553,7 @@ namespace Idmr.Platform.Xwing
 
 		/// <summary>Gets a copy of the briefing UI element names.</summary>
 		/// <remarks>Array is Length = 5.</remarks>
-		public static string[] BriefingUIElement => (string[])_briefingUIElement.Clone();
+		public static string[] PagePanels => (string[])_pagePanels.Clone();
 
 		/// <summary>Gets a copy of the order parameter (docktime/throttle) Throttle percentage description.</summary>
 		/// <remarks>Array is Length = 11.</remarks>

@@ -50,7 +50,7 @@ namespace Idmr.Platform
 		{
 			/// <summary>No type defined.</summary>
 			None,
-			/// <summary>Creates breakpoint for briefing interface <b>Next</b> command (TIE/XvT only).</summary>
+			/// <summary>Creates breakpoint for briefing interface <b>Next</b>.</summary>
 			/// <remarks>Parameters:<br/>None</remarks>
 			SkipMarker,
 			/// <summary>Unknown.</summary>
