@@ -185,11 +185,12 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets a string representation of the FlightGroup.</summary>
 		/// <returns>Short representation of the FlightGroup as <b>"CraftAbbrv Name"</b>.</returns>
 		public override string ToString() => ToString(false);
-		/// <summary>Gets a string representation of the FlightGroup.</summary>
+		/// <summary>Gets a string representation of a mission FlightGroup.</summary>
 		/// <remarks>Short form is <b>"<see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/></b>.
 		/// <br/>Long form is <b>"<see cref="BaseFlightGroup.IFF"/> - <see cref="BaseFlightGroup.GlobalGroup">GG</see>
 		/// - IsPlayer <see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
-		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b>.</remarks>
+		/// <see cref="Strings.CraftAbbrv"/>.<see cref="BaseFlightGroup.Name"/>"</b>.
+		/// <br/>For briefing flightgroups, see <see cref="BriefingString"/> instead.</remarks>
 		/// <param name="verbose">When <b>true</b> returns long form.</param>
 		/// <returns>Representation of the FlightGroup.</returns>
 		public string ToString(bool verbose)
@@ -226,11 +227,22 @@ namespace Idmr.Platform.Xwing
             return IFF + " - " + (PlayerCraft != 0 ? "*" : "") + waves + " " + longName;
 		}
 
-		public string BriefingString()
+		/// <summary>Gets a string representation of the briefing FlightGroup.</summary>
+		/// <remarks>Alternative to <see cref="ToString"/> intended specifically for briefing flightgroups.
+		/// <br/>Whether a flightgroup belongs to the briefing collection can't be inferred on context, so it must be explicitly called.
+		/// <br/>Short form is <b>"<see cref="Strings.BriefingObjectType"/>.<see cref="BaseFlightGroup.Name"/>"</b>.
+		/// <br/>Long form is <b>"<see cref="BaseFlightGroup.NumberOfWaves"/> x <see cref="BaseFlightGroup.NumberOfCraft"/>.
+		/// <see cref="Strings.BriefingObjectType"/>.<see cref="BaseFlightGroup.Name"/>"</b>.</remarks>
+		/// <param name="verbose">When <b>true</b> returns long form.  Accepted for craft only, otherwise returns short form.</param>
+		/// <returns>Representation of the FlightGroup.</returns>
+		public string BriefingString(bool verbose)
 		{
 			string[] objTypes = Strings.BriefingObjectType;
 			int index = IsObjectGroup() ? ObjectType : CraftType;
-			return (index >= 0 && index < objTypes.Length ? objTypes[index] : index.ToString());
+			string result = (index >= 0 && index < objTypes.Length ? objTypes[index] : index.ToString()) + " " + Name;
+			if (verbose && (IsFlightGroup() || ObjectType == 25))
+				result = (NumberOfWaves + 1) + "x" + NumberOfCraft + " " + result;
+			return result;
 		}
 
 		/// <summary>Gets the actual IFF code as it would appear in game.</summary>
