@@ -2,7 +2,7 @@
 Author: "JB" (Random Starfighter) (randomstarfighter@gmail.com)
 Original Template: Michael Gaisser (mjgaisser@gmail.com)
 Site: https://github.com/MikeG621
-Updated: 2024.08.30
+Updated: 2026.06.24
 =====
 
 This is a definition for the XWING mission file (XWI) and briefing file (BRF)

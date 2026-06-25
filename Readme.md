@@ -11,6 +11,16 @@ Contributors:
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA.
 
 ## Latest Release
+#### WIP
+- (XW) Briefing updates for YOGEME Briefing V2. ***BREAKING CHANGES*** [PR #13]
+  - Several `EventType` names updated to match other platforms.
+  - `CoordSet` renamed to `Waypoint`, including variations of the word, and in the `FlightGroup.WaypointIndex` enum.
+  - `BriefingUIPage` renamed to `PageTemplate`.
+  - `WindowSettings` renamed to `Templates`.
+  - `BriefingUIItem` renamed to `Panel`.
+  - `Strings.BriefingObjectType` added to mix craft and objects for briefing icons.
+  - `FlightGroup.ToString()` updated to account for briefing craft and out of range values.
+
 #### v7.3, 14 Feb 2026
 - (TIE) Briefing Officer questions now include ability to control facial expressions.
   - Note: currently this is setup to handle a "per question" basis, though it should technically be possible to control on a "per page" basis.
