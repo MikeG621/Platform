@@ -185,15 +185,15 @@ namespace Idmr.Platform.Xwing
 			s = br.ReadInt16(); //PlatformID
 			if (s != 2) throw new InvalidDataException("Not a valid X-wing briefing file.");
 			short shipCount = br.ReadInt16();
-			short coordCount = br.ReadInt16();
+			short wayptCount = br.ReadInt16();
 			FlightGroupsBriefing = new FlightGroupCollection(shipCount);
 			int wp;
-			for (int i = 0; i < coordCount; i++)
+			for (int i = 0; i < wayptCount; i++)
 			{
 				//Just in case there too many coord sets than what the editor allows, read them but only load them if the indexes are valid.
 				if (i == 0) wp = (byte)FlightGroup.WaypointIndex.Start1;
-				else wp = (byte)FlightGroup.WaypointIndex.CS1 + i - 1;  //at this point i==1 so subtract to compensate
-				if (wp >= (byte)FlightGroup.WaypointIndex.CS4)
+				else wp = (byte)FlightGroup.WaypointIndex.Briefing1 + i - 1;  //at this point i==1 so subtract to compensate
+				if (wp >= (byte)FlightGroup.WaypointIndex.Briefing4)
 					wp = -1;
 				for (int j = 0; j < shipCount; j++)
 				{
@@ -207,9 +207,9 @@ namespace Idmr.Platform.Xwing
 						FlightGroupsBriefing[j].Waypoints[wp].Enabled = true;
 				}
 			}
-			if (coordCount < 2) coordCount = 2;  //Sanity check for editor purposes.  All LEC missions have 2 sets.
-			else if (coordCount > 4) coordCount = 4;
-			Briefing.MaxCoordSet = coordCount;
+			if (wayptCount < 2) wayptCount = 2;  //Sanity check for editor purposes.  All LEC missions have 2 sets.
+			else if (wayptCount > 4) wayptCount = 4;
+			Briefing.MaxWaypoints = wayptCount;
 
 			for (int i = 0; i < shipCount; i++)
 			{
@@ -237,14 +237,14 @@ namespace Idmr.Platform.Xwing
 				FlightGroupsBriefing[i].Roll = br.ReadInt16();
 			}
 
-			#region WindowUISettings
-			short count = br.ReadInt16();  //Setting count.  Usually 2, but not always.
-			Briefing.ResetUISettings(count);
+			#region PageTemplates
+			short count = br.ReadInt16();  // Template count.  Usually 2, but not always.
+			Briefing.ResetTemplates(count);
 			for (int i = 0; i < count; i++)
 			{
 				for (int j = 0; j < 5; j++)
 				{
-					BriefingUIItem item = Briefing.WindowSettings[i].Items[j];
+					PagePanel item = Briefing.Templates[i].Items[j];
 					item.Top = br.ReadInt16();
 					item.Left = br.ReadInt16();
 					item.Bottom = br.ReadInt16();
@@ -252,7 +252,7 @@ namespace Idmr.Platform.Xwing
 					item.IsVisible = Convert.ToBoolean(br.ReadInt16());
 				}
 			}
-			#endregion WindowUISettings
+			#endregion PageTemplates
 
 			#region Pages
 			count = br.ReadInt16();
@@ -262,7 +262,7 @@ namespace Idmr.Platform.Xwing
 				BriefingPage pg = Briefing.Pages[i];
 				pg.Length = br.ReadInt16(); //total ticks
 				short len = br.ReadInt16();  //EventsLength
-				pg.CoordSet = br.ReadInt16();
+				pg.Waypoint = br.ReadInt16();
 				pg.PageType = br.ReadInt16();
 
 				byte[] briefBuffer = br.ReadBytes(len * 2);
@@ -275,7 +275,7 @@ namespace Idmr.Platform.Xwing
 			/*s = br.ReadInt16();  //TimeLimitMinutes?
 			s = br.ReadInt16();  //EndEvent?
 			s = br.ReadInt16();  //Unknown1?*/
-			Briefing.MissionLocation = br.ReadInt16();
+			Briefing.MissionLocation = Convert.ToBoolean(br.ReadInt16());
 			stream.Position += 3 * 64;
 			/*for (int i = 0; i < 3; i++)  //EndOfMissionMessages
 				str = new string(br.ReadChars(64));*/
@@ -483,15 +483,15 @@ namespace Idmr.Platform.Xwing
 				writerCreated = true;
 				bw.Write((short)2);   //Version
 				bw.Write((short)FlightGroupsBriefing.Count);
-				bw.Write(Briefing.MaxCoordSet);  //Coordinate count;
+				bw.Write(Briefing.MaxWaypoints);  //waypoint count
 				long p = 0;
 				int wp = 0;
-				for (int i = 0; i < Briefing.MaxCoordSet; i++)  //Coordinate count
+				for (int i = 0; i < Briefing.MaxWaypoints; i++)
 				{
-					//Just in case there too many coord sets than what the editor allows, read them but only load them if the indexes are valid.
+					//Just in case there too many waypoints than what the editor allows, read them but only load them if the indexes are valid.
 					if (i == 0) wp = 0;  //SP1
 					else
-						wp = 7 + i - 1;  //CS1 starts at [7], but at this point i==1 so subtract to compensate
+						wp = 7 + i - 1;  //WP1 starts at [7], but at this point i==1 so subtract to compensate
 					if (wp >= 10)
 						wp = -1;
 
@@ -532,14 +532,14 @@ namespace Idmr.Platform.Xwing
 					bw.Write(FlightGroupsBriefing[i].Roll);
 				}
 
-				#region WindowUISettings
-				short count = (short)Briefing.WindowSettings.Count;
+				#region Page templates
+				short count = (short)Briefing.Templates.Count;
 				bw.Write(count);
 				for (int i = 0; i < count; i++)
 				{
 					for (int j = 0; j < 5; j++)
 					{
-						BriefingUIItem item = Briefing.WindowSettings[i].Items[j];
+						PagePanel item = Briefing.Templates[i].Items[j];
 						bw.Write(item.Top);
 						bw.Write(item.Left);
 						bw.Write(item.Bottom);
@@ -547,7 +547,7 @@ namespace Idmr.Platform.Xwing
 						bw.Write(Convert.ToInt16(item.IsVisible));
 					}
 				}
-				#endregion WindowUISettings
+				#endregion Page templates
 
 				#region Pages
 				bw.Write((short)Briefing.Pages.Count);
@@ -556,7 +556,7 @@ namespace Idmr.Platform.Xwing
 					BriefingPage pg = Briefing.GetBriefingPage(i);
 					bw.Write(pg.Length);
 					bw.Write(pg.EventsLength);
-					bw.Write(pg.CoordSet);
+					bw.Write(pg.Waypoint);
 					bw.Write(pg.PageType);
 
 					byte[] briefBuffer = new byte[pg.Events.Length * 2];	// X-wing is unique that this is dynamic, other platforms use EventQuantityLimit
@@ -568,7 +568,7 @@ namespace Idmr.Platform.Xwing
 				bw.Write(TimeLimitMinutes);
 				bw.Write(EndEvent);
 				bw.Write(RndSeed);
-				bw.Write(Briefing.MissionLocation);
+				bw.Write(Convert.ToInt16(Briefing.MissionLocation));
 
 				p = fs.Position;
 				for (int i = 0; i < 3; i++)

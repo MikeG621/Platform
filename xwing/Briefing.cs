@@ -42,11 +42,12 @@ namespace Idmr.Platform.Xwing
 	{
 		readonly Dictionary<EventType, string> _eventTypeStringMap = new Dictionary<EventType, string> {
 			{EventType.None, "None"},
-			{EventType.WaitForClick, "Wait For Click"},
-			{EventType.ClearText, "Clear Text"},
+			{EventType.SkipMarker, "Skip Marker"},
+			{EventType.PageBreak, "Page Break"},
 			{EventType.TitleText, "Title Text"},
 			{EventType.CaptionText, "Caption Text"},
-			{EventType.CaptionText2, "* Caption Text 2"},
+			{EventType.Panel3Text, "Panel 3 Text"},
+			{EventType.Panel4Text, "Panel 4 Text"},
 			{EventType.MoveMap, "Move Map"},
 			{EventType.ZoomMap, "Zoom Map"},
 			{EventType.ClearFGTags, "Clear FG Tags"},
@@ -66,24 +67,25 @@ namespace Idmr.Platform.Xwing
 		readonly static EventMap[] _eventMaps = {
 			// XWID, TIEID, PARAMS      NOTES
 			new EventMap(0, 0, 0),
-			new EventMap(1, 0, 0),		//01: Wait For Click. (No params)   --> None
-			new EventMap(10, 0x03, 0),	//10: Clear Text (No params)        --> Page Break (no params)
-			new EventMap(11, 0x04, 1),	//11: Display Title (textId)        --> Title Text (textId)
-			new EventMap(12, 0x05, 1),	//12: Display Main Text (textId)    --> Caption Text (textId)
-			new EventMap(14, 0x05, 1),	//14: Display Main Text 2 (textId)  --> Caption Text (textId)
-			new EventMap(15, 0x06, 2),	//15: Center Map (x, y)             --> Move Map (X,Y)
-			new EventMap(16, 0x07, 2),	//16: Zoom Map (xFactor, yFactor)   --> Zoom Map (X,Y)
-			new EventMap(21, 0x08, 0),	//21: Clear FG Tags (No params)     --> Clear FG Tags
-			new EventMap(22, 0x09, 1),	//22: Set FG Tag 1 (objectId)       --> FG Tag 1 (FGIndex)
-			new EventMap(23, 0x0A, 1),	//23: Set FG Tag 2 (objectId)       --> FG Tag 2 (FGIndex)
-			new EventMap(24, 0x0B, 1),	//24: Set FG Tag 3 (objectId)       --> FG Tag 3 (FGIndex)
-			new EventMap(25, 0x0C, 1),	//25: Set FG Tag 4 (objectId)       --> FG Tag 4 (FGIndex)
-			new EventMap(26, 0x11, 0),	//26: Clear Text Tags (No params)   --> Clear Text Tags
-			new EventMap(27, 0x12, 3),	//27: Create Tag 1 (tagId, x, y)    --> Text Tag 1 (tag, color, x, y)
-			new EventMap(28, 0x13, 3),	//28: Create Tag 2 (tagId, x, y)    --> Text Tag 2 (tag, color, x, y)
-			new EventMap(29, 0x14, 3),	//29: Create Tag 3 (tagId, x, y)    --> Text Tag 3 (tag, color, x, y)
-			new EventMap(30, 0x15, 3),	//30: Create Tag 4 (tagId, x, y)    --> Text Tag 4 (tag, color, x, y)
-			new EventMap(41, 0x22, 0)	//41: End marker                    --> End Briefing
+			new EventMap(1, 1, 0),		//01: Skip Marker                   --> Skip Marker
+			new EventMap(10, 0x03, 0),	//10: Page Break                    --> Page Break
+			new EventMap(11, 0x04, 1),	//11: Title Text (textId)           --> Title Text (textId)
+			new EventMap(12, 0x05, 1),	//12: Caption Text (textId)         --> Caption Text (textId)
+			new EventMap(13, 0x05, 1),	//14: Panel 3 Text (textId)         --> Caption Text (textId)
+			new EventMap(14, 0x05, 1),	//14: Panel 4 Text (textId)         --> Caption Text (textId)
+			new EventMap(15, 0x06, 2),	//15: Move Map (X, Y)               --> Move Map (X, Y)
+			new EventMap(16, 0x07, 2),	//16: Zoom Map (X, Y)               --> Zoom Map (X, Y)
+			new EventMap(21, 0x08, 0),	//21: Clear FG Tags                 --> Clear FG Tags
+			new EventMap(22, 0x09, 1),	//22: FG Tag 1 (objectId)           --> FG Tag 1 (FGIndex)
+			new EventMap(23, 0x0A, 1),	//23: FG Tag 2 (objectId)           --> FG Tag 2 (FGIndex)
+			new EventMap(24, 0x0B, 1),	//24: FG Tag 3 (objectId)           --> FG Tag 3 (FGIndex)
+			new EventMap(25, 0x0C, 1),	//25: FG Tag 4 (objectId)           --> FG Tag 4 (FGIndex)
+			new EventMap(26, 0x11, 0),	//26: Clear Text Tags               --> Clear Text Tags
+			new EventMap(27, 0x12, 3),	//27: Text Tag 1 (tag, x, y)        --> Text Tag 1 (tag, x, y, color)
+			new EventMap(28, 0x13, 3),	//28: Text Tag 2 (tag, x, y)        --> Text Tag 2 (tag, x, y, color)
+			new EventMap(29, 0x14, 3),	//29: Text Tag 3 (tag, x, y)        --> Text Tag 3 (tag, x, y, color)
+			new EventMap(30, 0x15, 3),	//30: Text Tag 4 (tag, x, y)        --> Text Tag 4 (tag, x, y, color)
+			new EventMap(41, 0x22, 0)	//41: End Briefing                  --> End Briefing
 		};
 		/// <summary>A single conversion of X-wing briefing event to TIE Fighter briefing event.</summary>
 		readonly struct EventMap
@@ -104,7 +106,7 @@ namespace Idmr.Platform.Xwing
 		}
 
 		/// <summary>Frames per second for briefing animation.</summary>
-		public const int TicksPerSecond = 8;
+		public const int TicksPerSecond = 10;
 		/// <summary>Maximum number of events that can be held.</summary>
 		public const int EventQuantityLimit = 200;
 
@@ -113,78 +115,76 @@ namespace Idmr.Platform.Xwing
 		{
 			/// <summary>No type defined.</summary>
 			None = 0,
-			/// <summary>Waits for the user to click the page to proceed.  Used to hide the special hints text.</summary>
-			WaitForClick = 1,
-			/// <summary>Clears both the title and caption text.</summary>
-			ClearText = 10,
-			/// <summary>Displays the specified text at the top of the briefing.</summary>
-			/// <remarks>Parameters:<br/>TextID</remarks>
+			/// <summary>Creates breakpoint for briefing interface <b>Next</b>.  If the map is not visible, waits for the user to click.</summary>
+			/// <remarks>Parameters:<br/>None</remarks>
+			SkipMarker = 1,
+			/// <summary>Clears all panel text, creates breakpoint for briefing interface <b>Next</b> command.</summary>
+			/// <remarks>Parameters:<br/>None</remarks>
+			PageBreak = 10,
+			/// <summary>Displays the specified text in the first panel, typically at the top of the briefing.</summary>
+			/// <remarks>Parameters:<br/>String #</remarks>
 			TitleText,
-			/// <summary>Displays the specified text at the bottom of the briefing.</summary>
-			/// <remarks>Parameters:<br/>TextID</remarks>
+			/// <summary>Displays the specified text in the second panel, typically at the bottom of the briefing.</summary>
+			/// <remarks>Parameters:<br/>String #</remarks>
 			CaptionText,
-			/// <summary>Alternate command used in some briefings.  If at tick 700, it's an end marker.</summary>
-			/// <remarks>Parameters:<br/>TextID</remarks>
-			CaptionText2 = 14,
+			/// <summary>Displays the specified text in the third panel, typically unused.</summary>
+			/// <remarks>Parameters:<br/>String #</remarks>
+			Panel3Text,
+			/// <summary>Displays the specified text in the fourth panel, typically unused.</summary>
+			/// <remarks>Parameters:<br/>String #</remarks>
+			Panel4Text,
 			/// <summary>Change the focal point of the map.</summary>
 			/// <remarks>Parameters:<br/>X coord, Y coord</remarks>
 			MoveMap,
 			/// <summary>Change the zoom distance of the map.</summary>
-			/// <remarks>Parameters:<br/>X factor, Y factor</remarks>
+			/// <remarks>Parameters:<br/>X zoom, Y zoom</remarks>
 			ZoomMap,
 			/// <summary>Erase all FlightGroup tags from view.</summary>
+			/// <remarks>Parameters:<br/>None</remarks>
 			ClearFGTags = 21,
 			/// <summary>Apply a FlightGroup tag using slot 1.</summary>
-			/// <remarks>Parameters:<br/>ObjectID</remarks>
+			/// <remarks>Parameters:<br/>Briefing FG #</remarks>
 			FGTag1,
 			/// <summary>Apply a FlightGroup tag using slot 2.</summary>
-			/// <remarks>Parameters:<br/>ObjectID</remarks>
+			/// <remarks>Parameters:<br/>Briefing FG #</remarks>
 			FGTag2,
 			/// <summary>Apply a FlightGroup tag using slot 3.</summary>
-			/// <remarks>Parameters:<br/>ObjectID</remarks>
+			/// <remarks>Parameters:<br/>Briefing FG #</remarks>
 			FGTag3,
 			/// <summary>Apply a FlightGroup tag using slot 4.</summary>
-			/// <remarks>Parameters:<br/>ObjectID</remarks>
+			/// <remarks>Parameters:<br/>Briefing FG #</remarks>
 			FGTag4,
 			/// <summary>Erase all text tags from view.</summary>
+			/// <remarks>Parameters:<br/>None</remarks>
 			ClearTextTags,
 			/// <summary>Apply a text tag using slot 1.</summary>
-			/// <remarks>Parameters:<br/>TagID, X coord, Y coord</remarks>
+			/// <remarks>Parameters:<br/>Tag #, X coord, Y coord</remarks>
 			TextTag1,
 			/// <summary>Apply a text tag using slot 2.</summary>
-			/// <remarks>Parameters:<br/>TagID, X coord, Y coord</remarks>
+			/// <remarks>Parameters:<br/>Tag #, X coord, Y coord</remarks>
 			TextTag2,
 			/// <summary>Apply a text tag using slot 3.</summary>
-			/// <remarks>Parameters:<br/>TagID, X coord, Y coord</remarks>
+			/// <remarks>Parameters:<br/>Tag #, X coord, Y coord</remarks>
 			TextTag3,
 			/// <summary>Apply a text tag using slot 4.</summary>
-			/// <remarks>Parameters:<br/>TagID, X coord, Y coord</remarks>
+			/// <remarks>Parameters:<br/>Tag #, X coord, Y coord</remarks>
 			TextTag4,
 			/// <summary>End of briefing marker.</summary>
 			EndBriefing = 41
 		};
 
-		/// <summary>The types available to a <see cref="BriefingPage"/>.</summary>
-		public enum PageType : short
-		{
-			/// <summary>Renders a briefing map</summary>
-			Map = 0,
-			/// <summary>Renders text</summary>
-			Text = 1
-		};
-
 		/// <summary>Initializes a blank Briefing.</summary>
 		public Briefing()
 		{   //initialize
-			MaxCoordSet = 2;
+			MaxWaypoints = 2;
 			Pages = new List<BriefingPage>
 			{
 				new BriefingPage()
 			};
 			Pages[0].SetDefaultFirstPage();
 
-			WindowSettings = new List<BriefingUIPage>();
-			ResetUISettings(2);
+			Templates = new List<PageTemplate>();
+			ResetTemplates(2);
 
 			_platform = MissionFile.Platform.Xwing;
 			Length = 45 * TicksPerSecond;
@@ -385,20 +385,19 @@ namespace Idmr.Platform.Xwing
 		/// <exception cref="IndexOutOfRangeException"><paramref name="page"/> is not valid.</exception>
 		public int GetEventsLength(int page) => GetBriefingPage(page).Events.Length;
 
-		/// <summary>Resets the pages to default.</summary>
-		/// <param name="pageTypeCount">The number of page types, must be at least <b>2</b>.</param>
-		/// <remarks>The first will be a default <see cref="PageType.Map"/>, the second will be a default <see cref="PageType.Text"/>.</remarks>
-		public void ResetUISettings(int pageTypeCount)
+		/// <summary>Resets the pages templates to default.</summary>
+		/// <param name="pageTypeCount">The number of page type templates, must be at least <b>2</b>.</param>
+		/// <remarks>The default configuration has two templates: a map page and text page, in that order.</remarks>
+		public void ResetTemplates(int pageTypeCount)
 		{
-			//Default to 2 page types, Map and Text.
 			if (pageTypeCount < 2)
 				pageTypeCount = 2;
-			WindowSettings.Clear();
+			Templates.Clear();
 			for (int i = 0; i < pageTypeCount; i++)
-				WindowSettings.Add(new BriefingUIPage());
+				Templates.Add(new PageTemplate());
 
-			WindowSettings[0].SetDefaultsToMapPage();
-			WindowSettings[1].SetDefaultsToTextPage();
+			Templates[0].SetDefaultsToMapPage();
+			Templates[1].SetDefaultsToTextPage();
 		}
 
 		/// <summary>Gets the index of the matching <see cref="BaseBriefing.BriefingString"/>.</summary>
@@ -464,13 +463,13 @@ namespace Idmr.Platform.Xwing
 			return (int)EventType.None;
 		}
 
-		/// <summary>Gets if the selected <see cref="BriefingPage"/> has a visible <see cref="BriefingUIPage.Elements.Map"/>.</summary>
+		/// <summary>Gets if the selected <see cref="BriefingPage"/> has a visible <see cref="PageTemplate.Elements.Map"/>.</summary>
 		/// <param name="page">The selected page.</param>
 		/// <returns><b>true</b> is it's visible. Any errors or otherwise returns <b>false</b>.</returns>
 		public bool IsMapPage(int page)
 		{
 			if (page < 0 || page >= Pages.Count) return false;
-			return WindowSettings[Pages[page].PageType].GetElement(BriefingUIPage.Elements.Map).IsVisible;
+			return Templates[Pages[page].PageType].GetElement(PageTemplate.Elements.Map).IsVisible;
 		}
 
 		/// <summary>Enumerates a list of caption strings found in a briefing page.</summary>
@@ -499,17 +498,19 @@ namespace Idmr.Platform.Xwing
 		/// <exception cref="InvalidOperationException">Throws on any get attempt.</exception>
 		new public short EventsLength => throw new InvalidOperationException("Warning! EventsLength is not used for X-wing briefings. If you see this message, please file a bug report.");
 
-		/// <summary>The number of CoordinateSets in the Briefing.</summary>
+		/// <summary>The number of Waypoints for each icon in the Briefing.</summary>
 		/// <remarks>Defaults to <b>2</b>.</remarks>
-		public short MaxCoordSet { get; set; }
-		/// <summary>Gets or sets where the mission takes place.</summary>
+		public short MaxWaypoints { get; set; }
+		/// <summary>Gets or sets whether the location is a Death Star surface mission.</summary>
 		/// <remarks>Same as <see cref="Mission.Location"/>. Will affect the briefing background.</remarks>
-		public short MissionLocation { get; set; }
+		public bool MissionLocation { get; set; }
 
 		/// <summary>Collection of Briefing pages.</summary>
+		/// <remarks>Maximum length should not exceed 8 items.</remarks>
 		public List<BriefingPage> Pages { get; private set; }
-		/// <summary>Collection of window settings.</summary>
-		public List<BriefingUIPage> WindowSettings { get; private set; }
+		/// <summary>Collection of page templates.</summary>
+		/// <remarks>Maximum length should not exceed 4 items.</remarks>
+		public List<PageTemplate> Templates { get; private set; }
 
 		/// <summary>Singleton object to maintain a read-only array.</summary>
 		new public class EventParameters
@@ -518,7 +519,7 @@ namespace Idmr.Platform.Xwing
 
 			// X-wing uses different counts, so redo the class
 			// -----------------------  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41
-			readonly byte[] _counts = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			readonly byte[] _counts = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 3, 3, 3, 3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 			private EventParameters() { }
 
@@ -538,8 +539,8 @@ namespace Idmr.Platform.Xwing
 	}
 
 	//Thanks to the XWVM team for providing documentation on this block.
-	/// <summary>Object for element location and dimensions.</summary>
-	public class BriefingUIItem
+	/// <summary>Object for panel element location, size, and visibility.</summary>
+	public class PagePanel
 	{
 		/// <summary>Gets or sets the top pixel location.</summary>
 		public short Top { get; set; }
@@ -553,43 +554,43 @@ namespace Idmr.Platform.Xwing
 		public bool IsVisible { get; set; }
 	}
 
-	/// <summary>Object for the window settings.</summary>
-	public class BriefingUIPage
+	/// <summary>Object for the briefing page screen template.</summary>
+	public class PageTemplate
 	{
-		/// <summary>Gets the viewport settings array.</summary>
-		public BriefingUIItem[] Items { get; private set; }
+		/// <summary>Gets the panel settings array.</summary>
+		public PagePanel[] Items { get; private set; }
 
-		/// <summary>The valid viewport elements.</summary>
+		/// <summary>The valid panel elements.</summary>
 		public enum Elements
 		{
 			/// <summary>The title text.</summary>
 			Title = 0,
 			/// <summary>The caption text.</summary>
-			Text,
-			/// <summary>Unused.</summary>
-			Unused1,
-			/// <summary>Unused.</summary>
-			Unused2,
+			Caption,
+			/// <summary>Extra text panel, typically unused.</summary>
+			Panel3,
+			/// <summary>Extra text panel, typically unused.</summary>
+			Panel4,
 			/// <summary>The briefing map.</summary>
 			Map
 		}
 
-		/// <summary>Initializes a new window.</summary>
-		public BriefingUIPage()
+		/// <summary>Initializes a new page template.</summary>
+		public PageTemplate()
 		{
-			Items = new BriefingUIItem[5];
+			Items = new PagePanel[5];
 			for (int i = 0; i < 5; i++)
-				Items[i] = new BriefingUIItem();
+				Items[i] = new PagePanel();
 		}
 
-		/// <summary>Gets the item via the enumerated value.</summary>
+		/// <summary>Gets a panel via its enumerated value.</summary>
 		/// <param name="item">The specified element value.</param>
 		/// <returns>The requested item.</returns>
-		public BriefingUIItem GetElement(Elements item) => Items[(int)item];
+		public PagePanel GetElement(Elements item) => Items[(int)item];
 		/// <summary>Gets the type of page.</summary>
-		/// <returns>If the <see cref="Elements.Map"/> viewport is visible, "Map", otherwise "Text".</returns>
+		/// <returns>If the <see cref="Elements.Map"/> panel is visible, "Map", otherwise "Text".</returns>
 		public string GetPageDesc() => Items[(int)Elements.Map].IsVisible ? "Map" : "Text";
-		/// <summary>Assigns default map data.</summary>
+		/// <summary>Assigns default values for a map page, including title and caption in their standard locations.</summary>
 		/// <remarks>Sets the <see cref="Elements.Map"/> visibility to <b>1</b>.</remarks>
 		public void SetDefaultsToMapPage()
 		{
@@ -600,7 +601,7 @@ namespace Idmr.Platform.Xwing
 								 {12, 0, 115, 212, 1} };
 			setRawData(defData);
 		}
-		/// <summary>Assigns default text data.</summary>
+		/// <summary>Assigns default values for a text page, containing a title and extra large caption area.</summary>
 		/// <remarks>Sets the <see cref="Elements.Map"/> visibility to <b>0</b>.</remarks>
 		public void SetDefaultsToTextPage()
 		{
@@ -621,7 +622,7 @@ namespace Idmr.Platform.Xwing
 				throw new ArgumentException("Not enough data elements.");
 			for (int i = 0; i < 5; i++)
 			{
-				BriefingUIItem item = Items[i];
+				PagePanel item = Items[i];
 				item.Top = data[i, 0];
 				item.Left = data[i, 1];
 				item.Bottom = data[i, 2];
@@ -640,11 +641,11 @@ namespace Idmr.Platform.Xwing
 		public BriefingPage() => Events = new Briefing.EventCollection();
 
 		/// <summary>Set the initial events and <see cref="Briefing.EventType.EndBriefing"/>.</summary>
-		/// <remarks><see cref="CoordSet"/> is set to <b>1</b>, duration is set to <b>45 seconds</b>.
+		/// <remarks><see cref="Waypoint"/> is set to <b>1</b>, duration is set to <b>45 seconds</b>.
 		/// Initial events center map on (0,0), move map to (0x30, 0x30) and apply the end marker at time 9999.</remarks>
 		public void SetDefaultFirstPage()
 		{
-			CoordSet = 1;
+			Waypoint = 1;
 			Length = 45 * Briefing.TicksPerSecond;
 			Events.Add(new Briefing.Event(Briefing.EventType.MoveMap));
 			Events.Add(new Briefing.Event(Briefing.EventType.ZoomMap) { Variables = new short[] { 0x30, 0x30 } });
@@ -653,13 +654,13 @@ namespace Idmr.Platform.Xwing
 		/// <summary>Gets the raw event data.</summary>
 		public Briefing.EventCollection Events { get; internal set; }
 		/// <summary>Gets or sets the briefing length in ticks.</summary>
-		/// <remarks>Xwing uses 8 ticks per second.</remarks>
+		/// <remarks>Xwing uses about 10 ticks per second.</remarks>
 		public short Length { get; set; }
 		/// <summary>Gets the total number of values occupied in <see cref="Events"/>.</summary>
 		public short EventsLength => Events.Length;
-		/// <summary>Gets or sets the applicable Waypoint coordinate set index.</summary>
-		public short CoordSet { get; set; }
-		/// <summary>Gets or sets if the page is <see cref="Briefing.PageType.Map"/> or <see cref="Briefing.PageType.Text"/>.</summary>
-		public short PageType { get; set; }	// TODO XW: this really should be the enum, but need more research to see if >= 2 values are possible
+		/// <summary>Gets or sets the applicable Waypoint set index.</summary>
+		public short Waypoint { get; set; }
+		/// <summary>Gets or sets the page type template index.</summary>
+		public short PageType { get; set; }
 	}
 }

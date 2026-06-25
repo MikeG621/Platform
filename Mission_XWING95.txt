@@ -60,7 +60,7 @@ struct FileHeader (size 0xCE)
 	0x002	SHORT	TimeLimitMinutes
 	0x004	SHORT	EndEvent (enum)
 	0x006	SHORT	RndSeed (unused)
-	0x008	SHORT	Location (enum)
+	0x008	SHORT	Location (bool)
 	0x00A	CHAR[3][64]	EndOfMissionMessages
 	0x0CA	SHORT	NumFGs
 	0x0CC	SHORT	NumOGs
@@ -120,9 +120,9 @@ struct ObjectGroup (size 0x46)
 
 --  BRF FILE FORMAT
 BriefingHeader
-Coordinate[CoordinateCount][IconCount]
+Waypoint[WaypointCount][IconCount]
 Icon[IconCount]
-WindowUISettings
+PageTemplates
 Pages
 MissionHeader
 IconExtraData
@@ -135,10 +135,10 @@ struct BriefingHeader (size 0x6)
 {
 	0x00	SHORT	PlatformID (2)
 	0x02	SHORT	IconCount
-	0x04	SHORT	CoordinateCount
+	0x04	SHORT	WaypointCount
 }
 
-struct Coordinate (size 0x6)
+struct Waypoint (size 0x6)
 {
 	0x00	SHORT	X
 	0x02	SHORT	Y
@@ -160,16 +160,16 @@ struct Icon (size 0x40)
 	0x3E	SHORT	Roll
 }
 
-WindowUISettings
+PageTemplates
 {
-	0x00	SHORT SettingsCount    (usually 2, but not always)
-	foreach(SettingsCount)
+	0x00	SHORT TemplateCount    (usually 2, but not always.  Max: 4)
+	foreach(TemplateCount)
 	{
-		ViewportSetting[5]
+		PagePanel[5]
 	}
 }
 
-struct ViewportSetting (size 0xA)
+struct PagePanel (size 0xA)
 {
 	0x00	SHORT	Top
 	0x02	SHORT	Left
@@ -180,12 +180,12 @@ struct ViewportSetting (size 0xA)
 
 Pages
 {
-	0x00	SHORT	PageCount
+	0x00	SHORT	PageCount   (Max: 8)
 	foreach(PageCount)
 	{
 		0x00	SHORT	Duration (ticks)
 		0x02	SHORT	EventsLength
-		0x04	SHORT	CoordinateSet
+		0x04	SHORT	Waypoint
 		0x06	SHORT	PageType
 		0x08	SHORT[]	Events[EventsLength]
 	}
@@ -196,7 +196,7 @@ struct MissionHeader (size 0xC8)
 	0x00	SHORT	TimeLimitMinutes
 	0x02	SHORT	EndEvent (enum)
 	0x04	SHORT	RndSeed (unused)
-	0x06	SHORT	Location (enum)
+	0x06	SHORT	Location (bool)
 	0x08	CHAR[3][64]	EndOfMissionMessages
 }
 
@@ -208,17 +208,25 @@ IconExtraData
 	}
 }
 
-struct Tag
+Tags
 {
-	0x0	SHORT	Length
-	0x2	CHAR[Length]
+	0x00	SHORT Count    (always 32, Max: 32)
+	foreach(Count)
+	{
+		0x0	SHORT	Length
+		0x2	CHAR[Length]
+	}
 }
 
-struct String
+Strings
 {
-	0x0	SHORT	Length
-	0x2	CHAR[Length] String
-		BYTE[Length] Highlight
+	0x00	SHORT Count    (always 32, Max: 32)
+	foreach(Count)
+	{
+		0x0	SHORT	Length
+		0x2	CHAR[Length] String
+			BYTE[Length] Highlight
+	}
 }
 
 =====
@@ -246,8 +254,8 @@ RndSeed is supposed to be an initializer to the pseudo-random number generator,
 for the purposes of randomizing backdrops. However, it is not actually used by
 the game and therefore completely useless. It is zero in all missions.
 
-Location (enum) determines whether mission is in deep space, or Death Star
-Surface.
+Location determines whether mission is in deep space (false), or Death Star
+Surface (true).
 
 EndOfMissionMessages
 Three messages that are displayed in sequence when the mission is complete.
@@ -354,8 +362,9 @@ Start 2
 Start 3
 Hyperspace
 
-Unlike other platforms, there is no Briefing waypoint.  Instead, it is stored
-in the briefing (BRF) file as a Coordinate Set.
+Unlike other platforms, there is no Briefing waypoint stored with the
+flightgroup.  Instead, it is stored in the briefing (BRF) file as a
+simplified coordinate.
 
 Formation (enum)
 Determines the flight formation, if there are multiple craft in the wave.
@@ -448,50 +457,66 @@ on, or use any information from the XWI file.
 The BRF file structure is heavily dynamic, as nearly every section is variable
 length.
 
-There is a short header defining how many CoordinateSet and IconSet are
-present.
+There is a short header defining how many Waypoints and Icons are present.
 
-CoordinateSet are essentially waypoints.  Typical LEC missions have two
-CoordinateSet, the first a duplicate of the XWI starting point, and the second
-for the briefing map.  Waypoint units are identical to craft waypoints
-(160 = 1 km).
+Briefing waypoints are slightly different from flightgroup waypoints.  There is
+no value to determine whether the waypoint is enabled, just the coordinate
+itself.  Typical LEC missions have two Waypoints, the first a duplicate of the
+XWI starting point, and the second for the briefing map.  Waypoint positions 
+are identical to craft waypoints (160 = 1 km).
 Note: The starting point's Y axis is usually inverted from the XWI's Y axis.
 
-IconSet holds the craft information for the icons displayed on the briefing
-map.  This section shares much similarity to the FlightGroup and ObjectGroup in
-the XWI file, but exists independently of them.  These can be considered as
+Icons holds the craft information for the icons displayed on the briefing map.
+This section shares much similarity to the FlightGroup and ObjectGroup in the
+XWI file, but exists independently of them.  These can be considered as
 Briefing-only FlightGroups.  They are sometimes identical to the XWI file, but
 there is no guarantee.  The number of FlightGroups may differ between the XWI
 and BRF files, as well as their ordering.
 Note: While the XWI file does not have a CraftType for the B-Wing (Y-Wing with
 a special status) the BRF file DOES have a specific icon for the B-Wing.
 
-WindowUISettings is a unique section to the XWING briefing which determines the
-coordinate viewports of each element on screen.  There are five elements:
-Title text, caption text, Unused1, Unused2, and briefing map, in that order.
-Each element has five SHORTs.  Four defining the rectangle coordinates of the
-top, left, bottom, and right edges.  The final SHORT is a boolean that
-determines whether the element is visible.
+PageTemplates is a unique section to the XWING briefing which determines the
+coordinate viewports of each panel element on screen.  The section begins with
+the number of templates.  LEC convention is typically two templates, one for
+the map, another for text, in that order.  There is a maximum of four possible
+templates.
 
-Unlike other platforms, the briefing is divided into Pages.  Each page is
-either a "Map page" to render a briefing map, or a "Text page" to render text.
+Each template contains five panels: Title text, caption text, Panel3, Panel4,
+and map, in that order.
 
-Note: The page is actually a WindowUISettings index that determines whether
-the page renders map or text viewports, but the format described applies to
-the convention commonly seen in LEC's own files.
+Each panel has five SHORTs.  Four defining the rectangle pixel coordinates of
+the top, left, bottom, and right edges.  Left and right typically range from 0
+to 212.  Top and bottom typically range from 0 to 138.  The final SHORT is a
+boolean that determines whether the element is visible.
 
-The command listing itself I'll leave for the list definition, that'll also
-have the variable listing as well. The first value is the duration of the
-briefing itself in ticks.  XWING uses 0x8 ticks per second.
+Panel3 and Panel4 are typically unused, with the rectangle coordinates and
+visibility all set to zeroes.  However they can be activated.  Each panel type
+has its own dedicated caption event to display a string.
+
+After the page templates and panel settings are the actual pages.  Each page
+uses one of the previously defined templates, a "Map page" to render a briefing
+map, or a "Text page" to render text.
+
+The page section begins with the number of pages.  LEC convention is a minimum
+of two pages.  The map is always first, followed by one or more text pages.
+There is a maximum of eight pages.
+
+The first value in each page is the duration of the briefing itself in ticks.
+XWING is approximately 9 or 10 ticks per second, depending on game version.
+The 1998 Special Edition is slower.
+
+EventsLength is the total number of SHORTs occupied in the Events array up to
+and including the EndBriefing command, if present.
+
+Waypoint is the index of the briefing waypoint to use for flightgroup icons. 
+
+PageType is the index of the template to use for panel layout and visibility.
 
 Each Event is marked by the briefing time (in ticks) and the EventType,
 followed by 0-3 additional variables.  These variables are to be omitted if
 they are not used for a given command.  Unlike other platforms, the events list
 usually isn't terminated by an EndBriefing command.  Instead use EventsLength
 to get the actual length.
-
-EventsLength is the total number of SHORTs occupied in the Events array up to
-and including the EndBriefing command, if present.
 
 Following the briefing pages is the MissionHeader which contains redundant
 header information from the XWI file.  Most notable is the Location property
@@ -518,6 +543,8 @@ These are:
 0x01  Ends highlighting.
 '>'   If the first character on a line, creates yellow center-alignment text.
 
+NOTE: All briefing pages share the same Strings and Tags.
+
 XWING automatically generates word-wrapping.  The control codes 0x02, 0x01,
 and '>' will highlight only until the end of the current line.
 
@@ -543,10 +570,6 @@ EndEvent
 
 * Note: Old mission editors have incorrect values for Capture/Rescue.
 Capture has a proximity mechanism between friend and foe, results may vary.
-
-Location
-00	Deep Space
-01	Death Star Surface
 
 CraftType
 00	None
@@ -746,13 +769,15 @@ Order
 
 EventType
 00	None
-01	Wait For Click    (deprecated? doesn't seem to have any effect)
-0A	Clear Text (both Title and Caption)
-0B	Title Text
+01	Skip Marker   (break point for advancing, sometimes used in text pages)
+0A	Page Break    (clears all four string panels)
+0B	Title Text      (Panel 1, always used for title)
 	Var1	String#
-0C	Caption Text
+0C	Caption Text    (Panel 2, always used for caption)
 	Var1	String#
-0E	Caption Text 2    (deprecated? normally 0x0C is used instead)
+0D	Panel 3 Text    (typically unused)
+	Var1	String#
+0E	Panel 4 Text    (typically unused)
 	Var1	String#
 0F	Move Map
 	Var1	X
@@ -786,11 +811,22 @@ EventType
 	Var1	Tag#
 	Var2	X
 	Var3	Y
+1F	Clear Unknown Tag
+20	Unknown Tag
+	Var1	Unknown
+	Var2	Unknown
+	Var3	Unknown
 29	End Briefing
 
 Notes:
 String# and Tag# are zero-based indexes into the Strings and Tags.
 Icon# is a zero-based index into the BRF icon (FlightGroup) list.
+All strings and tags must be cleared before they can be replaced.  Applies to
+panel strings, FG tags, and text tags.
+The unknown tag accepts parameters.  Although it seems to be loaded when 
+encountered, it has no visible effect.
+There are some unlisted events that have nonzero parameter counts, but no
+handling in game.
 
 =====
 This documentation is distributed under the GNU Free Documentation License

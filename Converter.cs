@@ -1518,10 +1518,10 @@ namespace Idmr.Platform
 			Dictionary<int, int> brfToReal = new Dictionary<int, int>();  //Maps BRF FlightGroups to their actual XWI FlightGroup, or a new dummy FG to be used as a briefing icon.
 
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
-			int cs = pg.CoordSet;
+			int ws = pg.Waypoint;
 			int wpIndex = (byte)Xwing.FlightGroup.WaypointIndex.Start1;
-			if (cs >= 1 && cs <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
-				wpIndex = (byte)Xwing.FlightGroup.WaypointIndex.CS1 + cs - 1;
+			if (ws >= 1 && ws <= 3) //If not Start1, transform into the waypoint index of the virtualized briefing coordinate
+				wpIndex = (byte)Xwing.FlightGroup.WaypointIndex.Briefing1 + ws - 1;
 			for (int i = 0; i < miss.FlightGroupsBriefing.Count; i++)
 			{
 				Xwing.FlightGroup bfg = miss.FlightGroupsBriefing[i];
@@ -2012,10 +2012,10 @@ namespace Idmr.Platform
 			Dictionary<int, int> brfToReal = new Dictionary<int, int>();  //Maps BRF FlightGroups to their actual XWI FlightGroup, or a new dummy FG to be used as a briefing icon.
 
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
-			int cs = pg.CoordSet;
+			int ws = pg.Waypoint;
 			int wpIndex = 0; //Default to Start1
-			if (cs >= 1 && cs <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
-				wpIndex = 7 + cs - 1;
+			if (ws >= 1 && ws <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
+				wpIndex = 7 + ws - 1;
 			for (int i = 0; i < miss.FlightGroupsBriefing.Count; i++)
 			{
 				Xwing.FlightGroup bfg = miss.FlightGroupsBriefing[i];
@@ -2506,10 +2506,10 @@ namespace Idmr.Platform
 			}
 			Xwing.BriefingPage pg = miss.Briefing.GetBriefingPage(0);
 			xwa.Briefings[0].Length = xwa.Briefings[0].ConvertSecondsToTicks(miss.Briefing.ConvertTicksToSeconds(pg.Length));
-			int cs = pg.CoordSet;
+			int ws = pg.Waypoint;
 			int wpIndex = 0; //Default to Start1
-			if (cs >= 1 && cs <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
-				wpIndex = 7 + cs - 1;
+			if (ws >= 1 && ws <= 3) //If not Start1, transform into the waypoint index of the virtualized coordinate
+				wpIndex = 7 + ws - 1;
 			for (short i = 0; i < miss.FlightGroupsBriefing.Count; i++)
 			{
 				Xwing.FlightGroup bfg = miss.FlightGroupsBriefing[i];

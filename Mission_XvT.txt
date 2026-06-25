@@ -937,7 +937,7 @@ if attacked by the player. It is only false if attacked by AI, and only AI.
 When used as a goal, being attacked by anything (player or AI) is an anti-
 condition and will be immediately detected, resulting in instant failure. But
 there's another bug. If the player destroys the craft very quickly ("in 1 hit" 
-such as when using warheads), then "come-and-go" takes precendence over
+such as when using warheads), then "come-and-go" takes precedence over
 "attacked" and evaluates to success, even though it was attacked. But this bug
 only applies if the FG is one craft of one wave.
 
