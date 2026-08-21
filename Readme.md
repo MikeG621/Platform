@@ -11,20 +11,8 @@ Contributors:
 Library for editing LucasArts *.XWI and *.TIE mission files for Xwing95, TIE95, XvT and XWA.
 
 ## Latest Release
-#### WIP
-- (XW) Briefing updates for YOGEME Briefing V2. ***BREAKING CHANGES*** [PR #13]
-  - Several `EventType` names updated to match other platforms.
-  - `CoordSet` renamed to `Waypoint`, including variations of the word, and in the `FlightGroup.WaypointIndex` enum.
-  - `BriefingUIPage` renamed to `PageTemplate`.
-  - `WindowSettings` renamed to `Templates`.
-  - `BriefingUIItem` renamed to `Panel`.
-  - `Strings.BriefingObjectType` added to mix craft and objects for briefing icons.
-  - `FlightGroup.ToString()` updated to account for briefing craft and out of range values.
-
-#### v7.3, 14 Feb 2026
-- (TIE) Briefing Officer questions now include ability to control facial expressions.
-  - Note: currently this is setup to handle a "per question" basis, though it should technically be possible to control on a "per page" basis.
-- (TIE) Added `QuestionCondition.Always`, renamed `QuestionCondition.None` to `.Never`, and deleted `QuestionType.None`. ***BREAKING CHANGE***
+#### v7.4.1, 21 Aug 2026
+- (XWA) Fixed `Message.OriginatingFG` not updating during swap. [[YOGEME#146](https://github.com/MikeG621/YOGEME/issues/146)]
 ---
 ### Additional Information
 
@@ -36,6 +24,22 @@ Mission*.txt files contain file structure information per platform.
 Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
 
 ### Version History
+#### v7.4, 24 Jun 2026
+- (XW) Briefing updates for YOGEME Briefing V2 by Random Starfighter. ***BREAKING CHANGES*** [[PR #13](https://github.com/MikeG621/Platform/pull/13)]
+  - Several `EventType` names updated to match other platforms.
+  - `CoordSet` renamed to `Waypoint`, including variations of the word, and in the `FlightGroup.WaypointIndex` enum.
+  - `BriefingUIPage` renamed to `PageTemplate`.
+  - `WindowSettings` renamed to `Templates`.
+  - `BriefingUIItem` renamed to `Panel`.
+  - `MissionLocation` changed to a `bool`.
+  - `Strings.BriefingObjectType` added to mix craft and objects for briefing icons.
+  - `FlightGroup.ToString()` updated to account for briefing craft and out of range values.
+
+#### v7.3, 14 Feb 2026
+- (TIE) Briefing Officer questions now include ability to control facial expressions.
+  - Note: currently this is setup to handle a "per question" basis, though it should technically be possible to control on a "per page" basis.
+- (TIE) Added `QuestionCondition.Always`, renamed `QuestionCondition.None` to `.Never`, and deleted `QuestionType.None`. ***BREAKING CHANGE***
+
 #### v7.2, 09 Mar 2025
 - (TIE, XvT) Missions with too many Messages will now load, though the excess will be lost. [[YOGEME#120](https://github.com/MikeG621/YOGEME/issues/120)]
   - Note: Does not apply to XWA due to Messages being valid Trigger inputs, so simply deleting can break the mission.
@@ -127,31 +131,31 @@ Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
 - (XWA) Added missing Squadron logo options in Mission.LogoEnum
 
 #### v5.7.1, 08 Feb 2022
-- (XWA) Message Trigger And/Or read now checks for 1 instead of any odd value (JB)
+- (XWA) Message Trigger And/Or read now checks for 1 instead of any odd value (JB) [[PR #11](https://github.com/MikeG621/Platform/pull/11)]
  
 #### v5.7, 27 Jan 2022
-- More work from Random Starfighter
+- More work from Random Starfighter [[PR #9](https://github.com/MikeG621/Platform/pull/9)]
   - (TIE) New ctors for FG.Order, Mission Trigger
   - (XvT) ctors added last rev now call the blanks prior to working
   - (XvT) Strings.OrderDesignation added
   - (XWA) New ctors for FG.Goal, FG Order, FG.Waypoint, Mission.Trigger
   - (XWA) Fixed a Message.OriginatingFG issue during deletes
-  - (Xwing.Strings) Formation fixed, first is "Double Vic" and last two are Undefined.
+  - (Xwing.Strings) Formation fixed, first is "Double Vic" and last two are Undefined. [[PR #10](https://github.com/MikeG621/Platform/pull/10)]
 
 #### v5.6, 03 Jan 2022
-- (XvT) New constructors for FG.Goal, FG.Order and Mission.Trigger (JB)
+- (XvT) New constructors for FG.Goal, FG.Order and Mission.Trigger (JB) [[PR #8](https://github.com/MikeG621/Platform/pull/8)]
 
 #### v5.5.1, 29 Nov 2021
 - (XWA.Strings) Removed "Not Identified" from Status
 
 #### v5.5, 01 Aug 2021
-- Some fixes from RandomStarfighter
+- Some fixes from RandomStarfighter [[PR #7](https://github.com/MikeG621/Platform/pull/7)]
   - (All) SS Patrol and SS Await Return order strings now show target info
   - (XWA) Hyper to Region order text updated with token
   - (XWA) Fixed some CraftType errors in Order and Trigger strings
    
 #### v5.4, 04 Apr 2021
-- (Converter) FG Goal amounts fixed when converting from XW [[YOGEME#55](https://github.com/MikeG621/YOGEME/issues/55)] (JB)
+- (Converter) FG Goal amounts fixed when converting from XW [[YOGEME#55](https://github.com/MikeG621/YOGEME/issues/55)] (JB) [[PR #6](https://github.com/MikeG621/Platform/pull/6)]
 - (Converter) Fixed an exception message
  
 #### v5.3, 28 Mar 2021
@@ -173,7 +177,7 @@ Programmer's reference can be found in the [help file](help/Idmr.Platform.chm).
 #### v5.0 - 10 Oct 2020
 - (XWA) Changed Trim to TrimEnd for craft Name and Cargos during load, as there's the
   potential for a leading `'\0'` which would keep the rest of the string
-- Mostly XvT-related updates by Random Starfighter ***BREAKING CHANGES***
+- Mostly XvT-related updates by Random Starfighter ***BREAKING CHANGES*** [[PR #5](https://github.com/MikeG621/Platform/pull/5)]
   - Mission.RndSeed discovered
   - FlightGroup.Unknown2 is now StopArrivingWhen enum
   - FlightGroup.Unknown3 is now RandomArrivalDelayMinutes
@@ -195,7 +199,7 @@ Many of these are ***BREAKING CHANGES***
 - (Xwing.Briefing) Visible renamed to IsVisible
 - (Xwing.Briefing) `public` fields have PascalCase applied
 - (Xwing.Briefing) EventMapper now `private readonly static _eventMapper`
-- Lots of fixes and tweaks by Random Starfighter
+- Lots of fixes and tweaks by Random Starfighter [[PR #2](https://github.com/MikeG621/Platform/pull/2)], [[PR #3](https://github.com/MikeG621/Platform/pull/3)]
   - (BaseMessage) Message length increased to 64 from 63
   - (BaseStrings) FormationMine added, ShipClass and ObjectType updated
   - (*.Order) SafeString implementated
@@ -291,12 +295,12 @@ Many of these are ***BREAKING CHANGES***
 
 #### v2.7 - 09 May 2018
 - (XWA.FlightGroup.Goal) Proximity triggers include distance in ToString
-- (XWA.FlightGroup.Orders) TriggerType unknowns filled in [#1]
+- (XWA.FlightGroup.Orders) TriggerType unknowns filled in [[PR #1](https://github.com/MikeG621/Platform/pull/1)]
 - (XWA.Globals.Goal) Proximity triggers include distance in ToString
 - (XWA.Mission.Trigger) Proximity triggers include distance in ToString
-- (XWA.Mission.Trigger) TriggerType unknowns filled in [#1]
+- (XWA.Mission.Trigger) TriggerType unknowns filled in [[PR #1](https://github.com/MikeG621/Platform/pull/1)]
 - (XWA.Mission) FlightGroupLimit was raised to 132 for the time being, this is post-SuperBackDrops install to prevent errors
-- (XWA.Strings) TriggerType unknowns filled in [#1]
+- (XWA.Strings) TriggerType unknowns filled in [[PR #1](https://github.com/MikeG621/Platform/pull/1)]
 - (XWA.Strings) Escort order had "Meaningless" replaced with "Position"
 
 #### v2.6.2 - 24 Feb 2018

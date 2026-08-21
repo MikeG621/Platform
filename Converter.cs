@@ -1,12 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2026 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.4
  * 
  * CHANGELOG
+ * v7.4, 260624
+ * [PR #13] XW Updates for Briefing V2
  * v7.0, 241006
  * [NEW] XWA format spec implemented
  * [UPD] XwaToXvT Roles convert now

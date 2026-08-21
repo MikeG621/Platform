@@ -1,12 +1,14 @@
 ﻿/*
  * Idmr.Platform.dll, X-wing series mission library file, XW95-XWA
- * Copyright (C) 2009-2024 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2009-2026 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
  * Full notice in ../help/Idmr.Platform.chm
- * Version: 7.0
+ * Version: 7.4.1
  * 
  * CHANGELOG
+ * v7.4.1, 260821
+ * [FIX] Message.OriginatingFG not updating during swap [YOGEME#146]
  * v7.0, 241006
  * [NEW] Full format spec implemented
  * [FIX] EoM notes R/W for other teams
@@ -1131,9 +1133,13 @@ namespace Idmr.Platform.Xwa
                     foreach (Trigger trig in goal.Triggers)
                         trig.SwapFGReferences(srcIndex, dstIndex);
 
-            foreach (Message msg in Messages)
-                foreach (Trigger trig in msg.Triggers)
-                    trig.SwapFGReferences(srcIndex, dstIndex);
+			foreach (Message msg in Messages)
+			{
+				foreach (Trigger trig in msg.Triggers)
+					trig.SwapFGReferences(srcIndex, dstIndex);
+				if (msg.OriginatingFG == srcIndex) msg.OriginatingFG = (byte)dstIndex;
+				else if (msg.OriginatingFG == dstIndex) msg.OriginatingFG = (byte)srcIndex;
+			}
 
             foreach (Briefing b in Briefings)
                 b.SwapFGReferences(srcIndex, dstIndex);

@@ -44,6 +44,7 @@ namespace Idmr.Platform.Xwa
 			public Mission.Trigger[] Triggers { get; } = new Mission.Trigger[4];
 			/// <summary>Gets the array for the AndOr values.</summary>
 			public bool[] AndOr { get; } = new bool[3];
+			// TODO: these should be renamed to just "OR" to match XvT
 			/// <summary>Gets or sets if both Triggers must be met.</summary>
 			public bool T1AndOrT2
 			{

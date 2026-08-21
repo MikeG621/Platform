@@ -40,6 +40,7 @@ namespace Idmr.Platform.Tie
 				T1AndOrT2 = (condition == 10);
 			}
 			
+			// TODO: should be renamed to just "OR"
 			/// <summary>Determines if both Triggers must be met.</summary>
 			public bool T1AndOrT2 { get; set; }
 			/// <summary>Gets the Triggers that define the Goal.</summary>
